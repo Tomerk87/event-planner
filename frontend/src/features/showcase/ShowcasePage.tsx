@@ -29,6 +29,7 @@ import {
   ReadOnlyBadge,
   ReadOnlyNotice,
 } from '../../shared/access/EventAccess.tsx'
+import { useEvents } from '../../services/queries.ts'
 import { EventAccessContext } from '../../shared/access/eventAccessContext.ts'
 import { Badge } from '../../shared/ui/Badge.tsx'
 import { Button, IconButton } from '../../shared/ui/Button.tsx'
@@ -49,7 +50,6 @@ import { Tabs } from '../../shared/ui/Tabs.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import {
   sampleContact,
-  sampleEvents,
   sampleEventStart,
   sampleGuests,
   sampleKpis,
@@ -86,7 +86,12 @@ export function ShowcasePage() {
     () => ({ role, isPastEvent }),
     [role, isPastEvent],
   )
-  const [currentEvent] = sampleEvents
+  // The frame is shown with the demo's own events, so its links lead somewhere.
+  const events = (useEvents().data ?? []).map(({ event }) => ({
+    id: event.id,
+    name: event.name,
+  }))
+  const [currentEvent] = events
 
   const statusLabel = (status: SampleStatus) => t(`showcase.badges.${status}`)
 
@@ -133,7 +138,7 @@ export function ShowcasePage() {
           exact: true,
         }}
         event={currentEvent}
-        events={sampleEvents}
+        events={events}
         user={{ name: sampleUserName, role }}
       >
         <PageHeader

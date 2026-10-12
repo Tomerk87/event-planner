@@ -101,8 +101,12 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Event name | Required |
 | Maximum attendees | Required integer; **minimum 50, default 300, maximum 3000** |
 | Event date and time | Required |
+| Time zone | Required; the event's date and time are expressed in it |
 | RSVP language | Fixed per event: English or Hebrew |
 | Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
+| Location | Optional; shown in the event selector and on the public RSVP page |
+| RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
+| Cover image | Optional; shown on the event card and in the event selector |
 
 The event creator becomes an Owner. The application UI language can differ from the event's fixed guest-facing RSVP language.
 
@@ -138,7 +142,7 @@ A normalized phone number is unique **within each event**. Initial normalization
 
 ### 6.2 Soft deletion and restoration
 
-Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lists, analytics, and exports. If the same normalized phone is subsequently added within that event, update and reactivate the existing record (`deleted = 0`) rather than inserting a duplicate. Restoration must not accidentally surface stale seating information or invalid RSVP state; preserve historical data according to a deliberate implementation rule.
+Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lists, analytics, and exports. If the same normalized phone is subsequently added within that event, update and reactivate the existing record (`deleted = 0`) rather than inserting a duplicate. Restoration must not accidentally surface stale seating information or invalid RSVP state. The rule is: the restored guest takes the name, phone and allowed attendees just entered; the RSVP returns to No Response with no confirmed attendees, no invitation name and no table; the invitation-sent count and last-sent time are kept, because the counter never decreases. Soft-deleting a guest also frees their table seats.
 
 ### 6.3 Guests screen
 
@@ -154,7 +158,7 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 
 ## 7. WhatsApp messages and invitation counting
 
-The organizer configures one reusable event-level WhatsApp message, with useful substitutions such as event name/date/time, guest name, and shared RSVP URL. The interface includes message editing and preview as represented in the mockups.
+The organizer configures one reusable event-level WhatsApp message, with useful substitutions such as event name/date/time, guest name, and shared RSVP URL. The interface includes message editing and preview as represented in the mockups. The supported variables are `first_name`, `last_name`, `event_name`, `event_date`, `event_time` and `rsvp_url`. Each send initiated from the system is also recorded individually (time, guest and the message as sent), which is what the Recent Sent Messages list shows.
 
 ### 7.1 MVP send behavior
 
@@ -198,7 +202,7 @@ Since this is a public form, phone matching is identification for the product wo
 - Not Sure guests are **not** counted toward confirmed/expected attendance. The organizer may contact them and manually change their status.
 - Guests may update responses until the event starts; the latest valid response is authoritative.
 - If an Approved guest increases attendance and their existing table becomes over capacity, **accept the RSVP** and report a seating conflict rather than rejecting the response.
-- For unknown guests, the permitted maximum before conversion into a known guest needs an explicit product decision; do not bypass attendee validation silently.
+- An unknown responder may approve up to the event's default allowed attendees. A second submission from the same unknown phone replaces the first.
 
 ### 8.4 RSVP Settings page
 
@@ -248,6 +252,8 @@ All guest-based metrics include active guests only (`deleted = 0`). Dashboard va
 | Unassigned Confirmed Attendees | Sum of approved attendee counts for guests with no table |
 
 There is no separate ambiguous Expected Attendees KPI in MVP: the authoritative expected count is **Confirmed Attendees**, and Not Sure is excluded.
+
+The Recent Guest Activity list is derived from existing records: every recorded send, and each guest's latest RSVP response. No separate activity record is kept, so a guest who changed their answer appears once, with the latest answer.
 
 ### 10.1 Warnings
 
@@ -408,11 +414,11 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 
 These do not block creation of the PRD, but should be resolved at the relevant implementation stage rather than inferred:
 
-1. **Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?
+1. ~~**Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?~~ Resolved 2026-10-12: the event's default allowed attendees (section 8.3).
 2. **Public RSVP abuse prevention:** What rate limits or additional verification are appropriate without creating an unnecessarily difficult guest experience?
 3. **Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?
 4. **Permission invite flow:** What happens when an organizer grants access to an email not yet registered?
-5. **Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?
+5. ~~**Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?~~ Resolved 2026-10-12: fresh RSVP, no table, invitation counter kept (section 6.2).
 6. ~~**Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?~~ Resolved 2026-10-12: stays deferred. The tab is shown as "Soon" and disabled, with no preview panel (section 11.4).
 
 ## 19. Document ownership and change control

@@ -44,11 +44,9 @@ The open items below are ones the precedence rule (see Resolved decisions, R1) d
 
 | # | Decision | Needed by |
 |---|---|---|
-| D1 | Maximum attendee count an unknown responder may submit before organizer review | Phase 9 |
 | D2 | Public RSVP abuse prevention: rate limits or extra verification | Phase 15 |
 | D3 | Event duplication scope (which records are copied) and deleted-event retention | Phase 4 |
 | D4 | Permission invite flow for an email with no account | Phase 11 |
-| D5 | Which RSVP and seating values survive when a soft-deleted guest is restored | Phase 6 |
 
 ### Raised by the mockup review
 
@@ -56,7 +54,6 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 
 | # | Decision | Needed by |
 |---|---|---|
-| D11 | Dashboard Recent Guest Activity: derive from last-sent/last-response timestamps or add an activity record | Phase 5 |
 | D12 | Target of the Dashboard "View Event" button and the Event Settings "View Event Rules" button | Phase 5 / Phase 7 |
 | D13 | Bulk selection on the Guests table: which bulk actions, if any | Phase 6 |
 | D14 | Display label for a guest with no invitation sent and no response | Phase 6 |
@@ -65,11 +62,21 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 | D19 | RSVP language: which page owns it and at what point it becomes fixed | Phase 7 |
 | D22 | Thresholds for table status labels (Ready / Almost Full / Over Capacity) | Phase 10 |
 
-### Other
+### Defaults applied in Phase 3, to confirm
 
-| # | Decision | Needed by |
+The approved documents do not settle these. Each was given the most conservative reading so that the rules could be built; say if any should change.
+
+| # | Default applied | Where it matters |
 |---|---|---|
-| D23 | Phone number range used for generated demo guests, so that numbers are realistic in format but cannot reach a real person | Phase 3 |
+| P1 | Permissions can still be managed on a past event. PRD section 5.2 lists the operational data that becomes read-only and does not include permissions | Phase 11 |
+| P2 | A guest needs a first name; the last name is optional | Phase 6 |
+| P3 | A guest's allowed attendees cannot be lowered below a count they have already confirmed | Phase 6 |
+| P4 | A table's capacity can be lowered below its current occupancy; the table is then shown as over capacity | Phase 10 |
+| P5 | An organizer's manual RSVP edit counts as the guest's latest response for the activity list | Phase 5 |
+| P6 | Converting or merging an unknown response is refused if its attendee count exceeds the guest's allowance; the organizer raises the allowance first | Phase 6 |
+| P7 | The RSVP language can be changed when editing an event, until D19 is decided | Phase 7 |
+| P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
+
 
 ## Resolved decisions
 
@@ -91,4 +98,8 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D21 | **Limits:** 500 characters per RSVP message; background image JPG or PNG up to 5MB, as the mockup states (by R1). | 2026-10-12 |
 | R4 | **Phone bottom action bar:** aligned with the page content, buttons of equal width, pinned to the bottom of the screen while the page scrolls. The wider bar drawn in four phone mockups is a mockup error and is not reproduced. | 2026-10-12 |
 | R5 | **Bottom bar on every phone form page:** Event Settings, WhatsApp Messages and RSVP Settings all use it, including Event Settings, whose phone mockup shows Save at the top. List pages and desktop layouts are unchanged. | 2026-10-12 |
+| D1 | **Unknown RSVP limit:** an unknown responder may approve up to the event's default allowed attendees. | 2026-10-12 |
+| D5 | **Restored guest:** No Response, no table, name and allowance from the new entry, invitation counter kept. | 2026-10-12 |
+| D11 | **Recent Guest Activity** is derived from the per-send message history and each guest's latest response; no separate activity record. | 2026-10-12 |
+| D23 | **Demo phone numbers** are Israeli-style but undialable (`+972 00-…`). Phone validation checks length and digits, not the operator prefix. | 2026-10-12 |
 | D24 | **Tablet layouts** are not designed or verified for the MVP. A tablet gets whichever of the desktop or phone layouts fits its width (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |

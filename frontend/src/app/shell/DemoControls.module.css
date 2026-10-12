@@ -1,0 +1,33 @@
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.role {
+  min-inline-size: 12rem;
+}
+
+/* Inside the dark drawer the controls sit on their own light panel. */
+:global(dialog) .tools {
+  flex-direction: column;
+  align-items: stretch;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+/* On a narrow phone the top bar has room for the icon only; the text stays
+   available to screen readers. */
+@media (max-width: 479px) {
+  .badgeText {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

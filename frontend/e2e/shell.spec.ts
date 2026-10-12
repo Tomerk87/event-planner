@@ -4,7 +4,7 @@ import { openNavigation } from './helpers.ts'
 test('switching to Hebrew flips the layout and is remembered after a reload', async ({
   page,
 }) => {
-  await page.goto('/events/e1/guests')
+  await page.goto('/events/evt-1/guests')
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
 
   const nav = await openNavigation(page)
@@ -25,7 +25,7 @@ test('the sidebar sits on the inline-start edge in both directions', async ({
   isMobile,
 }) => {
   test.skip(isMobile, 'the sidebar is a drawer on the compact layout')
-  await page.goto('/events/e1/guests')
+  await page.goto('/events/evt-1/guests')
   const sidebar = page.getByRole('complementary')
   const viewportWidth = page.viewportSize()?.width ?? 0
 
@@ -40,7 +40,7 @@ test('the sidebar sits on the inline-start edge in both directions', async ({
 })
 
 test('the page does not scroll sideways', async ({ page }) => {
-  for (const path of ['/', '/events/e1/dashboard', '/showcase']) {
+  for (const path of ['/', '/events/evt-1/dashboard', '/showcase']) {
     await page.goto(path)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
@@ -50,6 +50,26 @@ test('the page does not scroll sideways', async ({ page }) => {
         document.documentElement.clientWidth,
     )
     expect(overflow, `horizontal overflow at ${path}`).toBe(0)
+  }
+})
+
+test('pages fit a very narrow phone without sideways scrolling', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 })
+  for (const path of ['/', '/events/evt-1/guests', '/events/evt-5/dashboard']) {
+    await page.goto(path)
+    await expect(
+      page.getByText('This page is not implemented yet.'),
+    ).toBeVisible()
+
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    )
+    expect(overflow, `horizontal overflow at ${path}`).toBe(0)
+    await expect(page.getByText('Alex Morgan')).toBeAttached()
   }
 })
 

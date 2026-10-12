@@ -86,6 +86,45 @@
     "region": "Notifications",
     "dismiss": "Dismiss"
   },
+  "demo": {
+    "badge": "Demo Mode",
+    "toolsLabel": "Demo controls",
+    "roleLabel": "Simulated role",
+    "roleOwn": "Role: my own",
+    "simulate": {
+      "OWNER": "Simulate Owner",
+      "ADMIN": "Simulate Admin",
+      "VIEWER": "Simulate Viewer",
+      "SUPER_USER": "Simulate Super User"
+    },
+    "reset": "Reset Demo",
+    "resetTitle": "Reset the demo?",
+    "resetBody": "Every change you made in this demo will be removed and the original sample data restored. This cannot be undone.",
+    "resetDone": "The demo was reset to its original data.",
+    "regenerated": "The demo was updated, so its sample data was refreshed."
+  },
+  "errors": {
+    "FORBIDDEN": "You do not have permission to do this.",
+    "EVENT_READ_ONLY": "This event has ended and can no longer be changed.",
+    "NOT_FOUND": "This item could not be found.",
+    "VALIDATION": "Some of the details are not valid. Please check them and try again.",
+    "INVALID_PHONE": "Enter a valid phone number.",
+    "DUPLICATE_PHONE": "Another guest in this event already has this phone number.",
+    "INVALID_ATTENDEE_COUNT": "The number of attendees must be between {{min}} and {{max}}.",
+    "GUEST_NOT_APPROVED": "Only guests who approved can be assigned to a table.",
+    "TABLE_FULL": "This table has {{available}} seats left, and the party needs {{needed}}.",
+    "DUPLICATE_TABLE_NUMBER": "Table number {{number}} is already in use.",
+    "LAST_OWNER": "An event must keep at least one Owner.",
+    "SELF_PERMISSION": "You cannot change your own permission.",
+    "ALREADY_MEMBER": "This person already has access to the event.",
+    "RSVP_CLOSED": "RSVP is closed because the event has started.",
+    "UNAVAILABLE": "The service is not available right now. Please try again.",
+    "UNKNOWN": "Something went wrong. Please try again."
+  },
+  "unavailable": {
+    "title": "The application cannot start",
+    "body": "The data service for this deployment is not available yet."
+  },
   "showcase": {
     "title": "Design System",
     "subtitle": "Shared components and layout used across Event Planner.",

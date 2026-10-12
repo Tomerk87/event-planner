@@ -331,10 +331,25 @@
   color: var(--color-text);
 }
 
+/* On a very narrow phone the top bar keeps the logo mark and hides its text
+   from view (not from screen readers), so nothing is pushed off-screen. */
+@media (max-width: 379px) {
+  .topbarLogo .logoText {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 .topbarEnd {
   display: flex;
   align-items: center;
+  gap: var(--space-4);
   margin-inline-start: auto;
+  min-inline-size: 0;
 }
 
 .user {

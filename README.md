@@ -41,7 +41,9 @@ The first end-to-end run needs a browser: `npx playwright install chromium`.
 
 ## Configuration
 
-Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DATA_PROVIDER` selects the data source: `mock` (default, browser-local data) or `api` (backend, not yet available).
+Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DATA_PROVIDER` selects the data source: `mock` (default, browser-local demo data) or `api` (backend, not yet available).
+
+The demo keeps its data in the browser's local storage. To review loading and error states, add `?demoDelay=2000` (milliseconds) or `?demoFail=events.get` (a comma-separated list of operations) to the address when opening the app.
 
 ## Documentation
 

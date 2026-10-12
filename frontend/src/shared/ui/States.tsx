@@ -44,17 +44,25 @@ interface ErrorStateProps {
   title?: string
   description?: string
   onRetry?: () => void
+  /** Render the title as the page's main heading, when the error is the page. */
+  asPageHeading?: boolean
 }
 
-export function ErrorState({ title, description, onRetry }: ErrorStateProps) {
+export function ErrorState({
+  title,
+  description,
+  onRetry,
+  asPageHeading = false,
+}: ErrorStateProps) {
   const { t } = useTranslation()
+  const Title = asPageHeading ? 'h1' : 'p'
 
   return (
     <div className={styles.state} role="alert">
       <span className={`${styles.icon} ${styles.danger}`} aria-hidden="true">
         <TriangleAlert />
       </span>
-      <p className={styles.title}>{title ?? t('states.errorTitle')}</p>
+      <Title className={styles.title}>{title ?? t('states.errorTitle')}</Title>
       <p className={styles.description}>
         {description ?? t('states.errorBody')}
       </p>

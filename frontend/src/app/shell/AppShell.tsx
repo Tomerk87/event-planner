@@ -40,6 +40,10 @@ interface AppShellProps {
   event?: ShellEvent
   events?: ShellEvent[]
   user?: ShellUser
+  /** Shown in the top bar at every width. */
+  banner?: ReactNode
+  /** Shown in the top bar on desktop and inside the drawer below it. */
+  tools?: ReactNode
   children: ReactNode
 }
 
@@ -51,7 +55,7 @@ function Logo() {
       <span className={styles.logoMark} aria-hidden="true">
         <CalendarCheck />
       </span>
-      <span>{t('app.name')}</span>
+      <span className={styles.logoText}>{t('app.name')}</span>
     </Link>
   )
 }
@@ -83,7 +87,10 @@ function NavItemLink({
   )
 }
 
-type SidebarContentProps = Omit<AppShellProps, 'children' | 'user'> & {
+type SidebarContentProps = Omit<
+  AppShellProps,
+  'children' | 'user' | 'banner'
+> & {
   onNavigate: () => void
 }
 
@@ -93,6 +100,7 @@ function SidebarContent({
   footerLink,
   event,
   events = [],
+  tools,
   onNavigate,
 }: SidebarContentProps) {
   return (
@@ -114,6 +122,7 @@ function SidebarContent({
         </ul>
       </nav>
       <div className={styles.sidebarFooter}>
+        {tools}
         <LanguageSwitcher />
         {footerLink && (
           <NavItemLink item={footerLink} onNavigate={onNavigate} />
@@ -142,7 +151,13 @@ function UserBadge({ user }: { user: ShellUser }) {
   )
 }
 
-export function AppShell({ user, children, ...sidebar }: AppShellProps) {
+export function AppShell({
+  user,
+  banner,
+  tools,
+  children,
+  ...sidebar
+}: AppShellProps) {
   const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
@@ -186,7 +201,7 @@ export function AppShell({ user, children, ...sidebar }: AppShellProps) {
                 <X aria-hidden="true" />
               </button>
             </div>
-            <SidebarContent {...sidebar} onNavigate={closeMenu} />
+            <SidebarContent {...sidebar} tools={tools} onNavigate={closeMenu} />
           </div>
         )}
       </dialog>
@@ -205,6 +220,8 @@ export function AppShell({ user, children, ...sidebar }: AppShellProps) {
             <Logo />
           </div>
           <div className={styles.topbarEnd}>
+            {banner}
+            {isDesktop && tools}
             {user && <UserBadge user={user} />}
           </div>
         </header>

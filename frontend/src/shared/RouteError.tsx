@@ -15,6 +15,7 @@ export function RouteError() {
       <div className={styles.panel}>
         <Card>
           <ErrorState
+            asPageHeading
             title={t('routeError.title')}
             description={t('routeError.body')}
           />
