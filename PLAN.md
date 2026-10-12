@@ -41,20 +41,20 @@
 **Goal:** establish an unambiguous foundation without implementing product backend or Docker services.
 
 ### Checklist
-- [ ] Confirm root `AGENTS.md`, `CLAUDE.md`, and `PLAN.md` exist; ensure Claude redirects to AGENTS.
-- [ ] Confirm `docs/PRD.md` exists and includes Demo Mode, event permissions, guests, RSVP, WhatsApp, tables, exports, and past-event behavior.
-- [ ] Confirm `mockups/README.md` indexes actual PNG filenames, pages, breakpoints, and tab variants.
-- [ ] Confirm all referenced PNG files exist. Note missing images explicitly rather than silently substituting designs.
-- [ ] Document MVP vs post-MVP visual Arrangement scope and any differences between PRD and mockups.
-- [ ] Record architecture decisions under `docs/` (React/TypeScript, NestJS, PostgreSQL, Prisma, i18next, mock/API providers, AWS single-VM constraints).
-- [ ] Document domain definitions and known open decisions without inventing requirements.
-- [ ] Establish expected repository structure; let scaffolding create `frontend/`, `backend/`, etc. when necessary.
-- [ ] Define code quality, tests, formatting and review workflow; create root `.gitignore` and safe `.env.example` when relevant.
+- [x] Confirm root `AGENTS.md`, `CLAUDE.md`, and `PLAN.md` exist; ensure Claude redirects to AGENTS.
+- [x] Confirm `docs/PRD.md` exists and includes Demo Mode, event permissions, guests, RSVP, WhatsApp, tables, exports, and past-event behavior.
+- [x] Confirm `mockups/README.md` indexes actual PNG filenames, pages, breakpoints, and tab variants.
+- [x] Confirm all referenced PNG files exist. Note missing images explicitly rather than silently substituting designs.
+- [x] Document MVP vs post-MVP visual Arrangement scope and any differences between PRD and mockups.
+- [x] Record architecture decisions under `docs/` (React/TypeScript, NestJS, PostgreSQL, Prisma, i18next, mock/API providers, AWS single-VM constraints).
+- [x] Document domain definitions and known open decisions without inventing requirements.
+- [x] Establish expected repository structure; let scaffolding create `frontend/`, `backend/`, etc. when necessary.
+- [x] Define code quality, tests, formatting and review workflow; create root `.gitignore` and safe `.env.example` when relevant.
 
 ### Validation and exit criteria
-- [ ] Instructions and requirements are consistent; conflicts are explicitly recorded.
-- [ ] Agent can map each planned page/tab to exact mockups.
-- [ ] No real customer data or secrets are committed.
+- [x] Instructions and requirements are consistent; conflicts are explicitly recorded.
+- [x] Agent can map each planned page/tab to exact mockups.
+- [x] No real customer data or secrets are committed.
 
 ---
 
@@ -314,6 +314,10 @@
 
 **Goal:** exercise all roles and permission workflows in the demo before enforcing them in backend.
 
+### Mockup mapping
+- Desktop: `permissions.png`; mobile: `permissions_mobile.png`.
+- Follow `docs/PRD.md` for navigation order and scope; the desktop mockup's sidebar shows out-of-scope entries (see `docs/MOCKUP_NOTES.md`).
+
 ### Checklist
 - [ ] Build Permissions table with name, email, role and available actions, using shared visual design.
 - [ ] Implement Viewer: no Permissions page/API equivalents, read/export only, no mutations or WhatsApp actions.
@@ -572,6 +576,24 @@ Follow-ups/risks:
 - `frontend/src/App.tsx` has a hard-coded placeholder string "Event Planner"; replace when i18n lands in Phase 2.
 - `frontend/README.md` is still the Vite template text; replace in the Phase 1 README item.
 - `mockups/permissions.png` and `mockups/permissions_mobile.png` exist but are not indexed in `mockups/README.md`, and `docs/PRD.md` says Permissions has no direct mockup; resolve in Phase 0 / before Phase 11.
+Next: Phase 1 — strict TypeScript, lint, formatting, test runner and e2e strategy.
+```
+
+```text
+2026-10-12 — Phase 0 — completed all checklist items and exit criteria.
+Done:
+- Confirmed AGENTS.md, CLAUDE.md (redirects to AGENTS.md), PLAN.md and docs/PRD.md exist; PRD covers Demo Mode, permissions, guests, RSVP, WhatsApp, tables, exports and past events.
+- Added docs/ARCHITECTURE.md (decisions, undecided choices, repository structure), docs/DOMAIN.md (glossary, open decisions D1–D24), docs/MOCKUP_NOTES.md (Arrangement scope, PRD-vs-mockup differences, screens with no mockup), docs/DEVELOPMENT.md (quality, testing and review workflow).
+- Indexed permissions.png / permissions_mobile.png and added a breakpoints note in mockups/README.md; added the Permissions row to PRD §14 and a mockup mapping to Phase 11. This resolves the unindexed-mockup follow-up from the previous entry.
+- Added root .gitignore.
+Validation: script check that every PNG named in mockups/README.md, docs/PRD.md and PLAN.md exists (none missing) and every PNG on disk is indexed (none unindexed after the README update); all 19 mockups opened and reviewed; pattern scan of tracked text files for secrets and env/key files (none found).
+Mockups reviewed: all 19 files in mockups/.
+Follow-ups/risks:
+- No behavioral conflict found between AGENTS.md, PLAN.md and docs/PRD.md. The mockups differ from the PRD in several places; these are recorded in docs/MOCKUP_NOTES.md and the ones needing an owner decision are D6–D22 in docs/DOMAIN.md. D7–D9 are needed by Phase 2.
+- PRD §5.1 field table omits the event timezone that PRD §5.2 and Phase 7 rely on; update the PRD table in Phase 7.
+- `.env.example` not created yet: nothing reads environment configuration until the Phase 1 item that establishes it.
+- Mockup sample content (names, phone-style numbers) was taken to be placeholder data; owner to confirm none of it is real personal information.
+- An empty, untracked `skills/` directory exists in the repository root; purpose unknown, left untouched.
 Next: Phase 1 — strict TypeScript, lint, formatting, test runner and e2e strategy.
 ```
 

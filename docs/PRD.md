@@ -349,8 +349,9 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 | RSVP Settings | `rsvp_settings.png` | `rsvp_settings_settings_mobile.png`; `rsvp_settings_preview_mobile.png` |
 | WhatsApp Message | `whatsapp_message.png` | `whatsapp_message_editor_mobile.png`; `whatsapp_message_preview_mobile.png` |
 | Event Settings | `event_settings.png` | `event_settings_mobile.png` |
+| Permissions | `permissions.png` | `permissions_mobile.png` |
 
-Where a direct mockup is unavailable (including Permissions, certain dialogs, public RSVP states, and Unknown Guests), use the established visual language and reusable components. Preserve mockups as the primary visual reference but adapt for function, accessibility, mobile, and RTL.
+Where a direct mockup is unavailable (including certain dialogs, public RSVP states, and Unknown Guests), use the established visual language and reusable components. Preserve mockups as the primary visual reference but adapt for function, accessibility, mobile, and RTL.
 
 ## 15. MVP functional acceptance scenarios
 
