@@ -1,0 +1,117 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.required {
+  color: var(--color-danger);
+}
+
+.counter {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-subtle);
+}
+
+.control {
+  position: relative;
+  display: flex;
+}
+
+.input {
+  inline-size: 100%;
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  transition: border-color 120ms;
+}
+
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.input:focus-visible {
+  border-color: var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+.input:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.textarea {
+  min-block-size: 6rem;
+  padding-block: var(--space-3);
+  line-height: var(--line-height-normal);
+  resize: vertical;
+}
+
+.select {
+  appearance: none;
+  padding-inline-end: var(--space-10);
+  cursor: pointer;
+}
+
+.withLeadingIcon {
+  padding-inline-start: var(--space-10);
+}
+
+.leadingIcon,
+.chevron {
+  position: absolute;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.leadingIcon {
+  display: inline-flex;
+  inset-inline-start: var(--space-3);
+}
+
+.leadingIcon svg,
+.chevron {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.chevron {
+  inset-inline-end: var(--space-3);
+}
+
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.error {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+}

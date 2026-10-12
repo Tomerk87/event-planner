@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173.
+Open http://localhost:5173. The design-system showcase is at http://localhost:5173/showcase.
 
 ## Commands
 
@@ -34,7 +34,8 @@ Run from `frontend/`.
 | `npm run format:check` | Check formatting without writing |
 | `npm test` | Run unit and component tests (Vitest) |
 | `npm run test:watch` | Run tests in watch mode |
-| `npm run test:e2e` | Run end-to-end tests (Playwright) |
+| `npm run test:coverage` | Run tests with a coverage report; fails below 80% |
+| `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright) |
 
 The first end-to-end run needs a browser: `npx playwright install chromium`.
 
@@ -51,4 +52,5 @@ Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VIT
 - `docs/DOMAIN.md` — glossary and open decisions
 - `docs/DEVELOPMENT.md` — workflow, validation and tooling
 - `docs/MOCKUP_NOTES.md` — differences between mockups and requirements
+- `docs/FUTURE_FEATURES.md` — features left out of the MVP
 - `mockups/README.md` — page-to-mockup mapping

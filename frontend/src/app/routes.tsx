@@ -8,15 +8,22 @@ import { MessagesPage } from '../features/messages/MessagesPage.tsx'
 import { PermissionsPage } from '../features/permissions/PermissionsPage.tsx'
 import { PublicRsvpPage } from '../features/public-rsvp/PublicRsvpPage.tsx'
 import { RsvpSettingsPage } from '../features/rsvp-settings/RsvpSettingsPage.tsx'
+import { ShowcasePage } from '../features/showcase/ShowcasePage.tsx'
 import { NotFoundPage } from '../shared/NotFoundPage.tsx'
 import { RouteError } from '../shared/RouteError.tsx'
 import { EventLayout } from './EventLayout.tsx'
+import { HomeLayout } from './HomeLayout.tsx'
+import { RouteFocus } from './RouteFocus.tsx'
 
 export const routes: RouteObject[] = [
   {
+    element: <RouteFocus />,
     errorElement: <RouteError />,
     children: [
-      { path: '/', element: <EventsPage /> },
+      {
+        element: <HomeLayout />,
+        children: [{ path: '/', element: <EventsPage /> }],
+      },
       {
         path: '/events/:eventId',
         element: <EventLayout />,
@@ -24,14 +31,15 @@ export const routes: RouteObject[] = [
           { index: true, element: <Navigate to="dashboard" replace /> },
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'guests', element: <GuestsPage /> },
-          { path: 'messages', element: <MessagesPage /> },
           { path: 'rsvp', element: <RsvpSettingsPage /> },
+          { path: 'messages', element: <MessagesPage /> },
           { path: 'layout', element: <EventLayoutPage /> },
           { path: 'settings', element: <EventSettingsPage /> },
           { path: 'permissions', element: <PermissionsPage /> },
         ],
       },
       { path: '/rsvp/:rsvpId', element: <PublicRsvpPage /> },
+      { path: '/showcase', element: <ShowcasePage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

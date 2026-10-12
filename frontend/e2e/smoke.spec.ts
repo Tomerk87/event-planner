@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { openNavigation } from './helpers.ts'
 
 test('home page loads', async ({ page }) => {
   await page.goto('/')
@@ -13,10 +14,12 @@ test('event pages are reachable through the event navigation', async ({
   await expect(page).toHaveURL(/\/events\/e1\/dashboard$/)
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 
-  await page.getByRole('link', { name: 'Guests' }).click()
+  const nav = await openNavigation(page)
+  await nav.getByRole('link', { name: 'Guests' }).click()
 
   await expect(page).toHaveURL(/\/events\/e1\/guests$/)
   await expect(page.getByRole('heading', { name: 'Guests' })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 })
 
 test('public RSVP page loads without event navigation', async ({ page }) => {

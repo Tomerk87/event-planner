@@ -7,7 +7,10 @@ export default defineConfig({
   testDir: './e2e',
   forbidOnly: !!process.env.CI,
   use: { baseURL },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+  ],
   webServer: {
     command: `npm run dev -- --port ${port} --strictPort`,
     url: baseURL,

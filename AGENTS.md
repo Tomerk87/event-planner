@@ -115,7 +115,7 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 
 - There is one public RSVP URL per event, shared by all guests.
 - RSVP language is fixed per event.
-- Public RSVP asks for name, phone number, response, and attendee count when Approved.
+- Public RSVP asks for name, phone number, number of attendees, and response. Number of attendees is always required; for Declined and Not Sure the submitted number is discarded.
 - Known guests are matched by normalized phone number.
 - Unmatched responses are stored as Unknown Guests for organizer review.
 - RSVP states: `NO_RESPONSE`, `APPROVED`, `NOT_SURE`, `DECLINED`.
@@ -264,10 +264,12 @@ Before implementing or modifying any user-facing page or tab:
 8. Do not invent a substantially different visual language or page structure when a mapped mockup exists.
 9. Do not select a mockup based only on visual similarity when `mockups/README.md` provides an explicit mapping.
 10. If desktop and mobile mockups differ structurally, treat that difference as intentional unless it clearly conflicts with an approved product requirement.
-11. If multiple mockups or requirements conflict:
-   - follow the approved product requirement for behavior;
-   - use the most relevant/recent mockup for visual guidance;
-   - document the discrepancy in `PLAN.md` when it affects implementation.
+11. The mockups were created after the PRD. If a mapped mockup differs from or adds to the PRD:
+   - build what the mockup shows (layout, navigation, fields, panels, buttons);
+   - keep the PRD as the source of truth for business rules (calculations, validation, permissions, RSVP and seating behavior, lifecycle);
+   - update `docs/PRD.md` in the same phase so it stays accurate;
+   - if a mockup element's behavior is not evident, or mockups contradict each other, ask the product owner instead of guessing;
+   - record the outcome in `docs/DOMAIN.md` and `docs/MOCKUP_NOTES.md`.
 12. When implementing a page or state with no direct mockup:
    - reuse established patterns from the closest relevant mockups;
    - reuse existing shared components;
@@ -355,6 +357,7 @@ When fixing a bug, add or update a regression test whenever practical.
 - Update documentation when behavior, setup, schema, API contracts, or architecture changes.
 - Keep `PLAN.md` synchronized with implementation progress.
 - Keep product requirements in `docs/PRD.md`, implementation rules in `AGENTS.md`, execution steps in `PLAN.md`, and exact screen-to-image mappings in `mockups/README.md`.
+- Keep `docs/FUTURE_FEATURES.md` as the list of everything left out of the MVP. Whenever a feature is left out (by a scope decision, or because a mockup shows something that is not being built now), add it there in the same change.
 - If the files conflict, flag the disagreement instead of silently overriding an approved product requirement.
 
 ## Completion protocol

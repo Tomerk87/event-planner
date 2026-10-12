@@ -1,0 +1,424 @@
+.shell {
+  min-block-size: 100dvh;
+}
+
+.skipLink {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+  z-index: 50;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-weight: var(--font-weight-semibold);
+  transform: translateY(-200%);
+}
+
+.skipLink:focus-visible {
+  transform: none;
+}
+
+/* Sidebar (desktop) and drawer (compact) share the same dark surface. */
+.sidebar,
+.drawerSurface {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+  background: linear-gradient(
+    180deg,
+    var(--color-sidebar) 0%,
+    var(--color-sidebar-end) 100%
+  );
+  color: var(--color-sidebar-text);
+  overflow-y: auto;
+}
+
+.sidebar {
+  display: none;
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--sidebar-width);
+}
+
+.sidebar :focus-visible,
+.drawerSurface :focus-visible {
+  box-shadow: 0 0 0 2px var(--color-sidebar-focus);
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-inline: var(--space-2);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: inherit;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.logoMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.logoMark svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.selectorButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  inline-size: 100%;
+  padding: var(--space-3);
+  background: var(--color-sidebar-raised);
+  border: var(--border-width) solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.selectorButton:disabled {
+  cursor: default;
+}
+
+.selectorThumb {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-sidebar-overlay-strong);
+}
+
+.selectorThumb svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.selectorName {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.selectorChevron {
+  flex-shrink: 0;
+  inline-size: 1rem;
+  block-size: 1rem;
+  color: var(--color-sidebar-muted);
+}
+
+.selectorList {
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  background: var(--color-sidebar-raised);
+  border: var(--border-width) solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
+}
+
+.selectorOption {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-sidebar-text);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.selectorOption:hover {
+  background: var(--color-sidebar-overlay-strong);
+}
+
+.nav {
+  flex: 1;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-sidebar-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  background: var(--color-sidebar-overlay);
+  color: var(--color-sidebar-text);
+}
+
+.navLinkActive,
+.navLinkActive:hover {
+  background: var(--color-sidebar-raised);
+  color: var(--color-sidebar-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.navIcon {
+  flex-shrink: 0;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+:global([dir='rtl']) .directional {
+  transform: scaleX(-1);
+}
+
+.sidebarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.language {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.languageSelect {
+  appearance: none;
+  inline-size: 100%;
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-10);
+  background: var(--color-sidebar-raised);
+  border: var(--border-width) solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
+  color: var(--color-sidebar-text);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.languageSelect option {
+  color: var(--color-text);
+}
+
+.languageIcon,
+.languageChevron {
+  position: absolute;
+  pointer-events: none;
+  color: var(--color-sidebar-muted);
+}
+
+.languageIcon {
+  inset-inline-start: var(--space-3);
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.languageChevron {
+  inset-inline-end: var(--space-3);
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.drawer {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  margin: 0;
+  padding: 0;
+  inline-size: min(18rem, 86vw);
+  block-size: 100dvh;
+  max-block-size: none;
+  border: 0;
+  background: transparent;
+}
+
+.drawer::backdrop {
+  background: var(--color-overlay);
+}
+
+.drawerSurface {
+  block-size: 100%;
+}
+
+.drawerClose,
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height);
+  block-size: var(--control-height);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.drawerClose {
+  background: transparent;
+  border: 0;
+  color: var(--color-sidebar-text);
+}
+
+.menuButton {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  color: var(--color-text);
+}
+
+.drawerClose svg,
+.menuButton svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+}
+
+.topbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: var(--topbar-height);
+  padding-inline: var(--space-4);
+  background: var(--color-surface);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+.topbarLogo {
+  color: var(--color-text);
+}
+
+.topbarEnd {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+.user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Compact layout: the name is hidden visually but kept for screen readers. */
+.userName {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.userRole {
+  display: inline-flex;
+}
+
+.userRole svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.roleOWNER {
+  color: var(--color-role-owner);
+}
+
+.roleADMIN {
+  color: var(--color-primary);
+}
+
+.roleVIEWER {
+  color: var(--color-neutral);
+}
+
+.main {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.main:focus-visible {
+  box-shadow: none;
+}
+
+.content {
+  max-inline-size: var(--content-max-width);
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-4) var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+  }
+
+  .column {
+    margin-inline-start: var(--sidebar-width);
+  }
+
+  .menuButton,
+  .topbarLogo {
+    display: none;
+  }
+
+  .topbar {
+    padding-inline: var(--space-8);
+  }
+
+  .userName {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+
+  .content {
+    padding: var(--space-6) var(--space-8) var(--space-10);
+  }
+}

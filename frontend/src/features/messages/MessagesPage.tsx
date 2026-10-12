@@ -1,5 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { PlaceholderPage } from '../../shared/PlaceholderPage.tsx'
 
 export function MessagesPage() {
-  return <PlaceholderPage title="Messages" />
+  const { t } = useTranslation()
+
+  return <PlaceholderPage title={t('pages.messages')} />
 }

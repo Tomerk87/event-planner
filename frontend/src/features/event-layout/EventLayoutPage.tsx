@@ -1,5 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { PlaceholderPage } from '../../shared/PlaceholderPage.tsx'
 
 export function EventLayoutPage() {
-  return <PlaceholderPage title="Event Layout" />
+  const { t } = useTranslation()
+
+  return <PlaceholderPage title={t('pages.eventLayout')} />
 }

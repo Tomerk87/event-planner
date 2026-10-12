@@ -1,0 +1,25 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 100dvh;
+  padding: var(--space-4);
+}
+
+.panel {
+  inline-size: min(32rem, 100%);
+}
+
+.panel h1 {
+  margin-block-end: var(--space-4);
+  font-size: var(--font-size-2xl);
+  text-align: center;
+}
+
+.centered {
+  text-align: center;
+}
+
+.page:focus-visible {
+  box-shadow: none;
+}
