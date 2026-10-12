@@ -64,17 +64,17 @@
 
 ### Checklist
 - [x] Scaffold frontend using a lightweight React + TypeScript toolchain (prefer Vite unless existing code dictates otherwise).
-- [ ] Set up strict TypeScript, lint, formatting, unit/component test runner, and browser end-to-end testing strategy.
-- [ ] Set up frontend routing for Homepage/Events, Dashboard, Guests, Messages, RSVP Settings, Event Layout, Event Settings, Permissions, and public RSVP.
-- [ ] Create feature-oriented folders and typed domain model/service-contract locations.
-- [ ] Create local development startup scripts/README instructions.
-- [ ] Ensure the frontend can build static production assets.
-- [ ] Establish `.env.example` with a safe configuration switch for mock vs API providers (no secrets).
+- [x] Set up strict TypeScript, lint, formatting, unit/component test runner, and browser end-to-end testing strategy.
+- [x] Set up frontend routing for Homepage/Events, Dashboard, Guests, Messages, RSVP Settings, Event Layout, Event Settings, Permissions, and public RSVP.
+- [x] Create feature-oriented folders and typed domain model/service-contract locations.
+- [x] Create local development startup scripts/README instructions.
+- [x] Ensure the frontend can build static production assets.
+- [x] Establish `.env.example` with a safe configuration switch for mock vs API providers (no secrets).
 
 ### Validation and exit criteria
-- [ ] `npm` scripts for dev, build, typecheck, lint and tests work.
-- [ ] App loads locally without NestJS, PostgreSQL or Docker.
-- [ ] Unimplemented routes have clear placeholders, not silent crashes.
+- [x] `npm` scripts for dev, build, typecheck, lint and tests work.
+- [x] App loads locally without NestJS, PostgreSQL or Docker.
+- [x] Unimplemented routes have clear placeholders, not silent crashes.
 
 ---
 
@@ -88,6 +88,7 @@
 - [ ] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
 - [ ] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation.
 - [ ] Add `i18next`/`react-i18next` with `en` and `he` translation resources and language persistence.
+- [ ] Move the hard-coded English strings left from Phase 1 (placeholder, not-found and error pages, event navigation labels) into translation resources.
 - [ ] Switch root `lang` and `dir` properly; use logical CSS properties and handle LTR phone/email/URL values inside RTL.
 - [ ] Add a fixed guest-facing RSVP language per event, distinct from the organizer UI language.
 - [ ] Create reusable read-only/past-event and role-restricted UI primitives.
@@ -119,8 +120,9 @@
 - [ ] Provide simulated WhatsApp send behavior without opening real recipient links or sending communications.
 - [ ] Simulate loading and error states deliberately; provide sample invalid/edge cases.
 - [ ] Add demo role-switching for Viewer/Admin/Owner and optionally Super User simulation, without granting real authorization.
-- [ ] Add provider selection at the app boundary; real API implementation will arrive later.
+- [ ] Add provider selection at the app boundary; real API implementation will arrive later. Wire it to `parseDataProvider` in `frontend/src/services/providerConfig.ts`, which is defined and tested but not yet called.
 - [ ] Add basic fixture integrity and mock-service contract tests.
+- [ ] Add Playwright projects for a mobile viewport and for Hebrew/RTL once real UI exists (currently desktop Chromium only).
 
 ### Validation and exit criteria
 - [ ] First Demo launch generates data without manual seeding.
@@ -484,6 +486,7 @@
 - [ ] Build optimized production frontend static assets outside the target VM where practical.
 - [ ] Build production NestJS container image outside the target VM where practical.
 - [ ] Configure Nginx to serve React static files and reverse-proxy backend/public RSVP routes.
+- [ ] Configure Nginx to fall back to `index.html` for client-side routes (for example `/events/:eventId/guests` and `/rsvp/:rsvpId`) so deep links and refreshes work.
 - [ ] Create Docker Compose stack for Nginx, NestJS and PostgreSQL; no production frontend dev server.
 - [ ] Configure persistent PostgreSQL volume and safe upload storage volume.
 - [ ] Add health checks, startup dependencies, restart policies and conservative resource settings.
@@ -595,6 +598,26 @@ Follow-ups/risks:
 - Mockup sample content (names, phone-style numbers) was taken to be placeholder data; owner to confirm none of it is real personal information.
 - An empty, untracked `skills/` directory exists in the repository root; purpose unknown, left untouched.
 Next: Phase 1 — strict TypeScript, lint, formatting, test runner and e2e strategy.
+```
+
+```text
+2026-10-12 — Phase 1 — completed the remaining checklist items and exit criteria.
+Done:
+- Strict TypeScript made explicit (`strict`, `noUncheckedIndexedAccess`); kept oxlint; added Prettier, Vitest + React Testing Library + jsdom, Playwright (Chromium) and React Router.
+- npm scripts: dev, build, preview, typecheck, lint, format, format:check, test, test:watch, test:e2e.
+- Routes for Homepage/Events, the seven event pages, public RSVP, a not-found page and a route error page; each page is a placeholder. Route table documented in docs/ARCHITECTURE.md.
+- Folders: src/app, src/features/*, src/domain, src/services, src/shared, src/test, e2e.
+- frontend/.env.example with VITE_DATA_PROVIDER (mock | api) and a validated parser; root README.md with setup and commands.
+Validation (all run from frontend/, no backend, database or Docker running): `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm test` 22 passed (route placeholders, redirect, not-found, error page, provider config); `npm run test:e2e` 4 passed in Chromium against the dev server; `npm run build` emitted dist/.
+Mockups reviewed: none (placeholders only, no product UI).
+Follow-ups/risks (added as checklist items in the phases named):
+- Placeholder, not-found, error and navigation strings are hard-coded English until i18n (Phase 2).
+- `parseDataProvider` is not called by the app yet; provider selection is wired in Phase 3.
+- Playwright covers desktop Chromium only; mobile viewport and RTL projects come with real UI (Phase 3 item).
+- Client-side routes need an `index.html` fallback in Nginx (Phase 18).
+- The event navigation is unstyled plain links, replaced by the real shell in Phase 2.
+- Work was done on branch `phase_1_completion`, created from `main`; nothing committed.
+Next: Phase 2 — needs owner decisions D7–D9 (docs/DOMAIN.md) before the application shell is built.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

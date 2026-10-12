@@ -10,6 +10,8 @@ Update this file when a decision is made or changed. Do not record a choice here
 |---|---|---|
 | Delivery order | Frontend-first and mock-driven: interactive React prototype → UX approval gate (Phase 12) → NestJS/PostgreSQL backend → API integration → Docker/AWS | `AGENTS.md` Development strategy; `PLAN.md` |
 | Frontend | React + TypeScript, built with Vite. Scaffolded in `frontend/` (Vite 8, React 19, TypeScript 6, npm) | `AGENTS.md` Technical direction; `PLAN.md` Phase 1 |
+| Frontend tooling | oxlint (lint), Prettier (format), Vitest + React Testing Library + jsdom (unit/component tests), Playwright (end-to-end), React Router (routing) | Adopted in Phase 1 |
+| Data provider switch | `VITE_DATA_PROVIDER` = `mock` (default) or `api`, validated by `frontend/src/services/providerConfig.ts` | Adopted in Phase 1 |
 | Localization | `i18next` + `react-i18next`; locales `en` and `he`; root `lang`/`dir` follow the active locale; CSS logical properties | `AGENTS.md` Internationalization |
 | Backend | Node.js + NestJS; thin controllers, rules in application/domain services | `AGENTS.md` Technical direction, Backend standards |
 | Database | PostgreSQL, with Prisma for ORM and migrations | `AGENTS.md` Technical direction |
@@ -29,9 +31,6 @@ These are implementation choices that the approved documents leave open. Each is
 
 | Choice | Decide in |
 |---|---|
-| Linter: keep oxlint (shipped by the Vite template) or switch to ESLint | Phase 1 |
-| Formatter, unit/component test runner, end-to-end test tool | Phase 1 |
-| Routing library | Phase 1 |
 | Styling approach and design-token mechanism | Phase 2 |
 | Server-state and UI-state management libraries | Phase 2–3 |
 | Demo persistence: `localStorage` or IndexedDB (depends on measured dataset size) | Phase 3 |
@@ -62,4 +61,36 @@ Added when their phase begins:
   docker-compose.yml single-VM stack (Phase 18)
 ```
 
-Inside `frontend/src/`, feature-oriented folders and the locations for domain types and service contracts are defined in Phase 1 (`PLAN.md`, "Create feature-oriented folders…").
+Inside `frontend/`:
+
+```text
+  e2e/               Playwright end-to-end tests
+  src/
+    app/             router, route table, application-level layout and provider selection
+    features/        one folder per page/feature (events, dashboard, guests, messages,
+                     rsvp-settings, event-layout, event-settings, permissions, public-rsvp)
+    domain/          domain types and business rules, independent of React and data source
+    services/        typed service contracts and their mock/API providers
+    shared/          UI shared across features
+    test/            test setup
+```
+
+Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
+
+## Routes
+
+| Path | Page |
+|---|---|
+| `/` | Homepage / Events |
+| `/events/:eventId` | Redirects to the event's dashboard |
+| `/events/:eventId/dashboard` | Dashboard |
+| `/events/:eventId/guests` | Guests |
+| `/events/:eventId/messages` | WhatsApp Messages |
+| `/events/:eventId/rsvp` | RSVP Settings |
+| `/events/:eventId/layout` | Event Layout |
+| `/events/:eventId/settings` | Event Settings |
+| `/events/:eventId/permissions` | Permissions |
+| `/rsvp/:rsvpId` | Public RSVP (outside the event layout) |
+| anything else | Not-found page |
+
+These are client-side routes, so the production web server must serve `index.html` for unknown paths (tracked in `PLAN.md` Phase 18).

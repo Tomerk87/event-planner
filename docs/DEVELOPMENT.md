@@ -41,11 +41,11 @@ Coverage target: at least 80% on relevant application logic (`AGENTS.md`), never
 | Purpose | Tool | Status |
 |---|---|---|
 | Build and dev server | Vite | In place (`frontend/`) |
-| Type-check | `tsc -b` (runs as part of `npm run build`) | In place |
-| Lint | oxlint (`npm run lint`) | In place from the Vite template; keep-or-replace decision in Phase 1 |
-| Format | — | Chosen in Phase 1 |
-| Unit and component tests | — | Chosen in Phase 1 |
-| End-to-end tests | — | Chosen in Phase 1 |
+| Type-check | `tsc -b` (`npm run typecheck`), strict mode with `noUncheckedIndexedAccess` | In place |
+| Lint | oxlint (`npm run lint`) | In place |
+| Format | Prettier (`npm run format`, `npm run format:check`) | In place |
+| Unit and component tests | Vitest + React Testing Library + jsdom (`npm test`) | In place |
+| End-to-end tests | Playwright, Chromium only so far (`npm run test:e2e`) | In place; mobile viewports and RTL projects are added with the first real UI |
 
 Update this table when a tool is adopted.
 
