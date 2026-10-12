@@ -4,7 +4,7 @@
 **Status:** Product baseline for POC/MVP development  
 **Primary market:** Israel  
 **Supported languages:** English and Hebrew  
-**Supported devices:** Desktop, tablet, and mobile browsers  
+**Supported devices:** Desktop and mobile browsers (tablets receive the desktop or mobile layout that fits their width; dedicated tablet layouts are deferred)  
 **Implementation reference:** `AGENTS.md` and `PLAN.md`  
 **Visual reference:** `mockups/README.md` and the mapped images in `mockups/`
 
@@ -82,7 +82,11 @@ Inviting or granting access to an email without an existing account, account act
 6. Event Settings
 7. Permissions
 
-The event navigation is identical on every event-level page and uses this order. Permissions is not shown to Viewers. Entries that appear in some mockups but are not listed here (Budget, Vendors, Timeline, Photo Sharing) are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
+The event navigation is identical on every event-level page and uses this order. The event selector, which shows the current event and switches between events, sits at the top of the sidebar. Permissions is not shown to Viewers. Entries that appear in some mockups but are not listed here (Budget, Vendors, Timeline, Photo Sharing) are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
+
+Inside an event, the user's avatar carries an icon for their role in that event, using the same icons as the role badges on the Permissions page: crown for Owner, shield for Admin, people icon for Viewer. A Super User without a membership in the event shows the Owner crown. No role icon is shown outside an event, including the Homepage.
+
+The notification bell and the Profile and Settings entries that appear in the mockups are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
 
 Use concise navigation labels that match the product's UI language.
 
@@ -339,6 +343,7 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 - Translate all user-facing copy, including validation errors, statuses, confirmation dialogs, empty states, and demo controls.
 - Handle phone numbers, URLs, email addresses, dates, and other mixed-direction values intelligibly in Hebrew.
 - All core pages and workflows must work on mobile. Desktop tables should be adapted into usable mobile patterns rather than simply shrunk.
+- Desktop and phone layouts are designed and verified for the MVP. Tablets are not a separate target: they receive whichever of the two layouts fits their width.
 - The mobile tab structure in the RSVP Settings, WhatsApp Message, and Event Layout mockups is intentional and should be followed.
 - Follow accessible focus, label, contrast, and keyboard interaction practices.
 

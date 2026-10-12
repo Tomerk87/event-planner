@@ -8,7 +8,8 @@ Before implementing any page or tab:
 3. Preserve the overall layout, spacing, visual hierarchy, controls, and page structure.
 4. Adapt as needed for RTL/Hebrew, responsiveness, accessibility, and shared component consistency.
 5. Do not invent a substantially different page structure when a matching mockup exists.
-6. The event sidebar is the same on every event-level page: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Where a mockup's sidebar differs, this order applies.
+6. The notification bell, and the Profile and Settings entries on the homepage sidebar, are not built in the MVP. The event selector is in the sidebar only. Inside an event the avatar shows an icon for the user's role in that event (crown for Owner, shield for Admin, people icon for Viewer); outside an event it shows none.
+7. The event sidebar is the same on every event-level page: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Where a mockup's sidebar differs, this order applies.
 
 ## Homepage
 
@@ -102,6 +103,7 @@ Notes:
 
 - Desktop mockups are 1448×1086 or 1536×1024.
 - Mobile mockups are 941×1672 (portrait phone).
-- There are no tablet mockups and no Hebrew/RTL mockups; adapt from the mapped images.
+- There are no Hebrew/RTL mockups; adapt from the mapped images.
+- There are no tablet mockups. Tablet layouts are not designed for the MVP; a tablet gets the desktop or mobile layout that fits its width.
 
 Differences between these mockups and the approved requirements are recorded in `docs/MOCKUP_NOTES.md`.

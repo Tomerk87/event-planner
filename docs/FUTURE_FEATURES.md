@@ -44,6 +44,15 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Payments and full event-production management | | PRD §17 |
 | Reusable event templates | | PRD §17 |
 
+## Account and application shell
+
+| Feature | Notes | Source |
+|---|---|---|
+| Notifications | The bell shown in the top bar of every mockup. No requirements written: what triggers a notification and where it is listed are undefined. | All mockups; owner decision 2026-10-12 |
+| Profile page | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
+| Account settings | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
+| Dedicated tablet layouts | In the MVP only desktop and phone layouts are designed and verified; a tablet gets whichever fits its width. | PRD header and §13; owner decision 2026-10-12 |
+
 ## Analytics and history
 
 | Feature | Notes | Source |

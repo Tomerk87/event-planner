@@ -27,9 +27,9 @@ How the mockups show it:
 
 - **Decided (2026-10-12):** the event sidebar is identical on every event-level page: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Permissions is hidden for Viewers. This order differs from the mockups, which show Messages before RSVP.
 - `event_layout.png` and `permissions.png` show sidebar entries **Budget, Vendors, Timeline, Photo Sharing**, place Permissions directly after Event Layout, and label the last entry "Settings". The owner confirmed these two sidebars are wrong; the four extra entries are not built and are listed in `docs/FUTURE_FEATURES.md`.
-- The event selector appears in the sidebar (`dashboard.png`, `guests.png`, `whatsapp_message.png`, `rsvp_settings.png`), in the top bar (`event_layout.png`, `permissions.png`), and in both at once (`event_settings.png`). One placement must be chosen in Phase 2. **Decision needed.**
-- Every screen shows a **notification bell**, and `homepage.png` shows **Profile** and **Settings** account pages. The PRD defines no notifications, profile or account-settings features. **Decision needed.**
-- A **crown icon** appears beside the user avatar on mobile screens and on `permissions.png`. Its meaning (Owner of the current event, Super User, or decoration) is not defined. **Decision needed.**
+- The event selector appears in the sidebar (`dashboard.png`, `guests.png`, `whatsapp_message.png`, `rsvp_settings.png`), in the top bar (`event_layout.png`, `permissions.png`), and in both at once (`event_settings.png`). **Decided (2026-10-12):** the selector is in the sidebar only.
+- Every screen shows a **notification bell**, and `homepage.png` shows **Profile** and **Settings** account pages. The PRD defines no notifications, profile or account-settings features. **Decided (2026-10-12):** all three are left out of the MVP and listed in `docs/FUTURE_FEATURES.md`.
+- A **crown icon** appears beside the user avatar on mobile screens and on `permissions.png`. **Decided (2026-10-12):** it is the user's role in the current event, using the same icons as the Permissions role badges (crown for Owner, shield for Admin, people icon for Viewer). No icon is shown outside an event, so the crown on the homepage mockups is not reproduced. A Super User without a membership shows the crown.
 - No mockup shows the **Try Demo** entry, the Demo Mode indicator, Reset Demo, or the demo role switcher required by PRD §12.
 
 ### Homepage / Events
@@ -102,4 +102,4 @@ Built from the established visual language and shared components (`AGENTS.md`, U
 - Past-event read-only presentation and Viewer-restricted presentation of each page
 - Loading, empty and error states
 - Every Hebrew/RTL layout (all mockups are English/LTR)
-- Tablet layouts (the PRD lists tablet as supported; mockups cover desktop and phone only)
+- Tablet layouts: not designed or verified for the MVP (owner decision 2026-10-12); a tablet gets the desktop or phone layout that fits its width

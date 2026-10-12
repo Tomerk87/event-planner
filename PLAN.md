@@ -88,7 +88,7 @@
 - [ ] Read `mockups/README.md`; inspect all supplied screen types to extract common patterns.
 - [ ] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
 - [ ] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
-- [ ] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers).
+- [ ] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). The event selector is in the sidebar only. Do not build the notification bell, Profile or account Settings. Inside an event the avatar shows the user's role icon (crown Owner, shield Admin, people icon Viewer; Super User without membership shows the crown); no icon outside an event. Design and verify desktop and phone widths; tablets are not a separate target.
 - [ ] Add `i18next`/`react-i18next` with `en` and `he` translation resources and language persistence.
 - [ ] Move the hard-coded English strings left from Phase 1 (placeholder, not-found and error pages, event navigation labels) into translation resources.
 - [ ] Switch root `lang` and `dir` properly; use logical CSS properties and handle LTR phone/email/URL values inside RTL.
@@ -635,6 +635,15 @@ Decisions:
 Changed: AGENTS.md, docs/PRD.md (sections 4.2, 8.1, 11.4, 17, 18, 19), docs/DOMAIN.md (D6, D10, D15, D18, D20, D21 resolved; R1–R3 added), docs/MOCKUP_NOTES.md, mockups/README.md, docs/ARCHITECTURE.md, Phases 2, 9 and 10 of this plan, and the placeholder navigation order in frontend/src/app/EventLayout.tsx.
 Validation: after the navigation change, from frontend/: `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm test` 22 passed; `npm run test:e2e` 4 passed. Searched the docs for the superseded wording; none left.
 Follow-ups/risks: still open before Phase 2 — D7 (event selector placement), D8 (notification bell, Profile, account Settings), D9 (crown icon).
+Next: Phase 2.
+```
+
+```text
+2026-10-12 — Phase 2 owner decisions recorded (no phase item completed)
+Decisions: D7 event selector in the sidebar only; D8 notification bell, Profile and account Settings left out of the MVP; D9 avatar icon shows the role in the current event (crown Owner, shield Admin, people icon Viewer), none outside an event, Super User shows the crown; D24 tablet layouts not designed or verified for the MVP.
+Changed: docs/DOMAIN.md, docs/FUTURE_FEATURES.md, docs/PRD.md (header, sections 4.2 and 13), docs/MOCKUP_NOTES.md, mockups/README.md, Phase 2 shell item in this plan.
+Validation: documentation only, no code changed. Checked that docs/DOMAIN.md has no open decision needed by Phase 2 and searched the docs for wording that contradicts the outcomes.
+Follow-ups/risks: none blocking Phase 2. Open decisions D11–D14, D16, D17, D19, D22 and D23 belong to Phase 3 and later.
 Next: Phase 2.
 ```
 

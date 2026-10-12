@@ -56,9 +56,6 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 
 | # | Decision | Needed by |
 |---|---|---|
-| D7 | Event selector placement: sidebar or top bar | Phase 2 |
-| D8 | Notification bell, Profile and account Settings: build, stub or omit | Phase 2 |
-| D9 | Meaning of the crown icon beside the user avatar | Phase 2 |
 | D11 | Dashboard Recent Guest Activity: derive from last-sent/last-response timestamps or add an activity record | Phase 5 |
 | D12 | Target of the Dashboard "View Event" button and the Event Settings "View Event Rules" button | Phase 5 / Phase 7 |
 | D13 | Bulk selection on the Guests table: which bulk actions, if any | Phase 6 |
@@ -73,7 +70,6 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 | # | Decision | Needed by |
 |---|---|---|
 | D23 | Phone number range used for generated demo guests, so that numbers are realistic in format but cannot reach a real person | Phase 3 |
-| D24 | Tablet layouts: the PRD lists tablet as supported, but no tablet mockups exist | Phase 2 |
 
 ## Resolved decisions
 
@@ -85,8 +81,12 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | R2 | **Event navigation** is identical on every event-level page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Permissions is hidden for Viewers. Budget, Vendors, Timeline and Photo Sharing are not built (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |
 | R3 | **Public RSVP form:** number of attendees is always required before any response. For Declined and Not Sure the submitted number is discarded; stored values stay `0` and `null`. | 2026-10-12 |
 | D6 | **Arrangement** stays deferred. The Table Arrangement tab is shown with a "Soon" badge and is disabled. The Arrangement Preview panel is not shown. | 2026-10-12 |
+| D7 | **Event selector** is in the sidebar, under the logo, on every event-level page. It is not shown in the top bar. | 2026-10-12 |
+| D8 | **Notification bell, Profile and account Settings** are left out of the MVP (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |
+| D9 | **Avatar role icon** shows the user's role in the current event, using the same icons as the role badges on the Permissions page: crown for Owner, shield for Admin, people icon for Viewer. No icon is shown outside an event, including the homepage. A Super User without a membership shows the Owner crown. | 2026-10-12 |
 | D10 | **Event cover image:** built as the mockup shows (by R1). Add the field to the PRD in Phase 4. | 2026-10-12 |
 | D15 | **Per-send message history:** built as the mockup shows (by R1). Add the record to the PRD in Phase 8. | 2026-10-12 |
 | D18 | **Event location and RSVP display title:** built as the mockups show (by R1). Add the fields to the PRD in Phase 7 / Phase 9. | 2026-10-12 |
 | D20 | **QR code for the RSVP link:** built as the mockup shows (by R1). | 2026-10-12 |
 | D21 | **Limits:** 500 characters per RSVP message; background image JPG or PNG up to 5MB, as the mockup states (by R1). | 2026-10-12 |
+| D24 | **Tablet layouts** are not designed or verified for the MVP. A tablet gets whichever of the desktop or phone layouts fits its width (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |
