@@ -343,6 +343,7 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 - Translate all user-facing copy, including validation errors, statuses, confirmation dialogs, empty states, and demo controls.
 - Handle phone numbers, URLs, email addresses, dates, and other mixed-direction values intelligibly in Hebrew.
 - All core pages and workflows must work on mobile. Desktop tables should be adapted into usable mobile patterns rather than simply shrunk.
+- On a phone, form pages that are saved (Event Settings, WhatsApp Messages, RSVP Settings) show their actions in a bar pinned to the bottom of the screen. The bar is aligned with the page content, its buttons share the width equally, and it never covers the end of the page.
 - Desktop and phone layouts are designed and verified for the MVP. Tablets are not a separate target: they receive whichever of the two layouts fits their width.
 - The mobile tab structure in the RSVP Settings, WhatsApp Message, and Event Layout mockups is intentional and should be followed.
 - Follow accessible focus, label, contrast, and keyboard interaction practices.

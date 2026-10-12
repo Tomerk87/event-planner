@@ -92,6 +92,12 @@ How the mockups show it:
 - **Typeface.** The mockups use an Inter-style typeface. The app asks for Inter and falls back to the system font; no font file is bundled.
 - **Empty top bar.** Until a signed-in user exists (Phase 4), the desktop top bar on real pages is empty.
 
+## Phone bottom action bar
+
+- `whatsapp_message_editor_mobile.png`, `whatsapp_message_preview_mobile.png`, `rsvp_settings_settings_mobile.png` and `rsvp_settings_preview_mobile.png` draw a two-button bar at the bottom that is wider than the page content. The owner confirmed this is a mockup error (2026-10-12); the proportions are not reproduced.
+- **Decided (2026-10-12):** the bar's edges line up with the page content and its buttons share the width equally. It stays pinned to the bottom of the screen while the page scrolls. The primary action is on the inline-end side, so it mirrors in Hebrew.
+- **Decided (2026-10-12):** on a phone, every form page that is saved uses this bar: Event Settings, WhatsApp Messages and RSVP Settings. `event_settings_mobile.png` shows Save Changes beside the page title; the bottom bar is used there instead, for consistency. List pages keep their create and export buttons where their own mockups show them. Desktop layouts are unchanged.
+
 ## Mockup content
 
 The images use sample names, `example.com` email addresses, placeholder-style phone numbers (such as `050-123-4567`) and the domain `rsvp.eventplanner.com`. None of this is copied into the product. Demo data is generated separately under the rules in `AGENTS.md` (fictional names, non-routable contacts).

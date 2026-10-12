@@ -5,10 +5,12 @@ import {
   CircleX,
   Clock,
   Download,
+  Eye,
   Globe,
   Mail,
   Pencil,
   Plus,
+  Save,
   Search,
   Trash2,
   UserPlus,
@@ -137,13 +139,24 @@ export function ShowcasePage() {
         <PageHeader
           title={t('showcase.title')}
           subtitle={t('showcase.subtitle')}
-          actions={<ReadOnlyBadge />}
+          compactActions="bar"
+          actions={
+            <>
+              <Button variant="secondary" icon={<Eye />}>
+                {t('showcase.actions.preview')}
+              </Button>
+              <EditGate>
+                <Button icon={<Save />}>{t('showcase.actions.save')}</Button>
+              </EditGate>
+            </>
+          }
         />
 
         <div className={styles.sections}>
           <Card
             title={t('showcase.preview.title')}
             subtitle={t('showcase.preview.subtitle')}
+            actions={<ReadOnlyBadge />}
           >
             <div className={styles.grid}>
               <SelectField

@@ -8,6 +8,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Keep focused fields clear of a pinned bottom action bar. */
+  scroll-padding-block-end: var(--action-bar-space, 0px);
 }
 
 body {
@@ -18,6 +20,8 @@ body {
   font-size: var(--font-size-md);
   line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
+  /* Room for a pinned bottom action bar, so it never covers the page end. */
+  padding-block-end: var(--action-bar-space, 0px);
 }
 
 h1,

@@ -65,6 +65,7 @@
     "close": "Close",
     "cancel": "Cancel",
     "soon": "Soon",
+    "pageActions": "Page actions",
     "characterCount": "{{count}}/{{max}}"
   },
   "states": {
@@ -210,6 +211,10 @@
       "subtitle": "Editing controls are removed for Viewers and for past events. Change the preview settings above.",
       "editableAction": "Add Guest",
       "restricted": "Editing controls are hidden in this state."
+    },
+    "actions": {
+      "preview": "Preview",
+      "save": "Save Changes"
     },
     "direction": {
       "title": "Mixed-direction values and formats",
