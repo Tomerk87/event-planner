@@ -83,3 +83,22 @@ Desktop:
 
 Mobile:
 - `event_settings_mobile.png`
+
+## Permissions
+
+Desktop:
+- `permissions.png`
+
+Mobile:
+- `permissions_mobile.png`
+
+Notes:
+- The desktop mockup's sidebar shows entries (Budget, Vendors, Timeline, Photo Sharing) that are outside the approved scope, and a different navigation order. Follow `docs/PRD.md` for navigation; see `docs/MOCKUP_NOTES.md`.
+
+## Breakpoints
+
+- Desktop mockups are 1448×1086 or 1536×1024.
+- Mobile mockups are 941×1672 (portrait phone).
+- There are no tablet mockups and no Hebrew/RTL mockups; adapt from the mapped images.
+
+Differences between these mockups and the approved requirements are recorded in `docs/MOCKUP_NOTES.md`.
