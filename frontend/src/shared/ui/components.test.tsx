@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { setViewportWidth } from '../../test/matchMedia.ts'
 import { Avatar } from './Avatar.tsx'
 import { Badge } from './Badge.tsx'
+import { BottomActionBar } from './BottomActionBar.tsx'
 import { Button, IconButton } from './Button.tsx'
 import { ButtonLink } from './ButtonLink.tsx'
 import { Card, KpiCard, KpiGrid } from './Card.tsx'
@@ -696,5 +697,126 @@ describe('EmptyState', () => {
     expect(
       screen.getByRole('button', { name: 'Add Guest' }),
     ).toBeInTheDocument()
+  })
+})
+
+describe('BottomActionBar', () => {
+  it('is a labelled region holding its actions', () => {
+    render(
+      <BottomActionBar label="Page actions">
+        <button>Preview</button>
+        <button>Save Changes</button>
+      </BottomActionBar>,
+    )
+
+    const bar = screen.getByRole('region', { name: 'Page actions' })
+    expect(
+      within(bar)
+        .getAllByRole('button')
+        .map((button) => button.textContent),
+    ).toEqual(['Preview', 'Save Changes'])
+  })
+
+  it('comes after the page content in the document, so focus reaches it last', () => {
+    render(
+      <>
+        <BottomActionBar label="Page actions">
+          <button>Save Changes</button>
+        </BottomActionBar>
+        <input aria-label="Event Name" />
+      </>,
+    )
+
+    const field = screen.getByRole('textbox', { name: 'Event Name' })
+    const save = screen.getByRole('button', { name: 'Save Changes' })
+    expect(
+      field.compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('reserves space at the end of the page while shown and releases it when removed', () => {
+    const root = document.documentElement
+    expect(root.style.getPropertyValue('--action-bar-space')).toBe('')
+
+    const { unmount } = render(
+      <BottomActionBar label="Page actions">
+        <button>Save Changes</button>
+      </BottomActionBar>,
+    )
+    expect(root.style.getPropertyValue('--action-bar-space')).toMatch(/px$/)
+
+    unmount()
+    expect(root.style.getPropertyValue('--action-bar-space')).toBe('')
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
+  })
+})
+
+describe('PageHeader actions placement', () => {
+  function Header({ compactActions }: { compactActions?: 'inline' | 'bar' }) {
+    return (
+      <PageHeader
+        title="Event Settings"
+        compactActions={compactActions}
+        actions={<button>Save Changes</button>}
+      />
+    )
+  }
+
+  it('keeps actions in the header at desktop width', () => {
+    render(<Header compactActions="bar" />)
+
+    expect(
+      within(screen.getByRole('banner')).getByRole('button', {
+        name: 'Save Changes',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
+  })
+
+  it('moves actions into the bottom bar below desktop width', () => {
+    setViewportWidth(1023)
+    render(<Header compactActions="bar" />)
+
+    const bar = screen.getByRole('region', { name: 'Page actions' })
+    expect(
+      within(bar).getByRole('button', { name: 'Save Changes' }),
+    ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('banner')).queryByRole('button'),
+    ).not.toBeInTheDocument()
+    expect(screen.getAllByRole('button')).toHaveLength(1)
+  })
+
+  it('moves actions between the header and the bar when the width changes', () => {
+    render(<Header compactActions="bar" />)
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
+
+    act(() => setViewportWidth(400))
+    expect(screen.getByRole('region')).toBeInTheDocument()
+
+    act(() => setViewportWidth(1024))
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
+    expect(
+      document.documentElement.style.getPropertyValue('--action-bar-space'),
+    ).toBe('')
+  })
+
+  it('keeps actions under the title on a phone by default', () => {
+    setViewportWidth(400)
+    render(<Header />)
+
+    expect(
+      within(screen.getByRole('banner')).getByRole('button', {
+        name: 'Save Changes',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
+  })
+
+  it('renders no bar when there are no actions', () => {
+    setViewportWidth(400)
+    render(<PageHeader title="Guests" compactActions="bar" />)
+
+    expect(screen.queryByRole('region')).not.toBeInTheDocument()
   })
 })

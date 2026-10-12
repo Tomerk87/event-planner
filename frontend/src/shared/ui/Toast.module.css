@@ -1,6 +1,6 @@
 .region {
   position: fixed;
-  inset-block-end: var(--space-4);
+  inset-block-end: calc(var(--space-4) + var(--action-bar-space, 0px));
   inset-inline-end: var(--space-4);
   z-index: 100;
   display: flex;

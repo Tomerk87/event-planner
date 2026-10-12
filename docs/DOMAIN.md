@@ -89,4 +89,6 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D18 | **Event location and RSVP display title:** built as the mockups show (by R1). Add the fields to the PRD in Phase 7 / Phase 9. | 2026-10-12 |
 | D20 | **QR code for the RSVP link:** built as the mockup shows (by R1). | 2026-10-12 |
 | D21 | **Limits:** 500 characters per RSVP message; background image JPG or PNG up to 5MB, as the mockup states (by R1). | 2026-10-12 |
+| R4 | **Phone bottom action bar:** aligned with the page content, buttons of equal width, pinned to the bottom of the screen while the page scrolls. The wider bar drawn in four phone mockups is a mockup error and is not reproduced. | 2026-10-12 |
+| R5 | **Bottom bar on every phone form page:** Event Settings, WhatsApp Messages and RSVP Settings all use it, including Event Settings, whose phone mockup shows Save at the top. List pages and desktop layouts are unchanged. | 2026-10-12 |
 | D24 | **Tablet layouts** are not designed or verified for the MVP. A tablet gets whichever of the desktop or phone layouts fits its width (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |

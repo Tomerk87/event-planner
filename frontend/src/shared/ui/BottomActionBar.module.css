@@ -1,0 +1,29 @@
+.bar {
+  position: fixed;
+  inset-block-end: 0;
+  inset-inline: 0;
+  z-index: 20;
+  /* Side padding matches the page content, so the buttons line up with it. */
+  padding: var(--space-3) var(--space-4)
+    calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  background: var(--color-surface);
+  border-block-start: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-bar);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-3);
+  max-inline-size: var(--content-max-width);
+  margin-inline: auto;
+}
+
+/* Equal widths; long labels wrap instead of pushing the bar wider. */
+.row > * {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  padding-inline: var(--space-2);
+  white-space: normal;
+  text-align: center;
+  line-height: var(--line-height-tight);
+}

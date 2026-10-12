@@ -67,6 +67,9 @@ Settings tab:
 Preview tab:
 - `rsvp_settings_preview_mobile.png`
 
+Notes:
+- The two-button bar at the bottom of both mobile mockups is drawn wider than the page. That is a mockup error. Build it aligned with the page content, with equal-width buttons, pinned to the bottom of the screen.
+
 ## WhatsApp Message
 
 Desktop:
@@ -80,6 +83,9 @@ Message Editor tab:
 Preview tab:
 - `whatsapp_message_preview_mobile.png`
 
+Notes:
+- The two-button bar at the bottom of both mobile mockups is drawn wider than the page. That is a mockup error. Build it aligned with the page content, with equal-width buttons, pinned to the bottom of the screen.
+
 ## Event Settings
 
 Desktop:
@@ -87,6 +93,9 @@ Desktop:
 
 Mobile:
 - `event_settings_mobile.png`
+
+Notes:
+- The mobile mockup shows Save Changes beside the page title. On a phone it goes in the pinned bottom action bar instead, as on the other form pages.
 
 ## Permissions
 

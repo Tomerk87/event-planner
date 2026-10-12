@@ -224,6 +224,7 @@
 - [ ] Warn but permit changes where configured table seats differ from maximum attendees.
 - [ ] Ensure past events and Viewers cannot save changes; other applicable roles may edit.
 - [ ] Persist edits in mock state across refresh.
+- [ ] On a phone, put Save Changes in the pinned bottom action bar (`PageHeader` with `compactActions="bar"`), not beside the title as `event_settings_mobile.png` shows.
 
 ### Validation and exit criteria
 - [ ] All invalid bounds produce clear feedback; valid edits update other demo screens.
@@ -241,7 +242,7 @@
 - Mobile Preview tab: `whatsapp_message_preview_mobile.png`.
 
 ### Checklist
-- [ ] Build desktop editor/preview layout and explicit mobile Editor and Preview tabs.
+- [ ] Build desktop editor/preview layout and explicit mobile Editor and Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
 - [ ] Support configured message template and approved event/guest placeholders.
 - [ ] Provide accurate preview substituting fictional guest/event values.
 - [ ] Integrate WhatsApp action from Guests; in Demo Mode simulate initiation only.
@@ -268,7 +269,7 @@
 - The public RSVP experience may require additional visual guidance; follow the approved PRD and established design language.
 
 ### Checklist
-- [ ] Build desktop RSVP settings and mobile Settings/Preview tabs.
+- [ ] Build desktop RSVP settings and mobile Settings/Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
 - [ ] Configure Welcome, Approved, Declined, and Not Sure messages; background image and transparency/overlay.
 - [ ] Create one shared RSVP URL/identifier per event, not per guest; simulate deep links in mock mode.
 - [ ] Build public RSVP with guest name, phone, number of attendees and status selection. Number of attendees is always required; discard it for Declined and Not Sure.
@@ -700,6 +701,16 @@ Follow-ups/risks:
 - axe detects only what a tool can; no manual screen-reader pass has been done.
 - Lowest-covered file is the showcase page (about 68% lines), which is a demonstration page; App.tsx is exercised only by the end-to-end tests.
 - Work is on branch phase_2_completion; nothing committed.
+Next: Phase 3 — needs owner decision D23 (phone-number range for generated demo guests).
+```
+
+```text
+2026-10-12 — Phase 2 addition — phone bottom action bar.
+Decisions (owner): the two-button bottom bar in four phone mockups is drawn wider than the page and is a mockup error; the bar is aligned with the page content with equal-width buttons, stays pinned to the bottom of the screen, and is used on every phone form page that is saved, including Event Settings.
+Done: BottomActionBar component; PageHeader option compactActions="bar" that moves header actions into the bar below 1024px; space reserved at the end of the page so the bar never covers content, focused fields or toasts; demonstrated on /showcase; decisions recorded in docs/MOCKUP_NOTES.md, docs/DOMAIN.md (R4, R5), docs/PRD.md section 13, mockups/README.md and Phases 7, 8 and 9 of this plan.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 142 passed, coverage 94.43% statements, 91.66% branches, 90.85% functions, 94.22% lines; `npm run test:e2e` 62 passed, 12 skipped by design (tests that apply to only one of the two layouts), zero axe violations; `npm run build` succeeded. End-to-end checks on the phone project: bar edges match the content cards in English and Hebrew, buttons equal width, primary action on the right in English and left in Hebrew, bar stays in place while scrolling, does not cover the page end, toasts sit above it, fits a 320px-wide phone, single allowed action spans the full width. Phone screenshots in English and Hebrew reviewed by the agent.
+Mockups reviewed: whatsapp_message_editor_mobile.png, whatsapp_message_preview_mobile.png, rsvp_settings_settings_mobile.png, rsvp_settings_preview_mobile.png, event_settings_mobile.png.
+Follow-ups/risks: the bar is built for widths below 1024px only; it has not been tried on a real phone with an on-screen keyboard open. Work is on branch phase_2_bottom_action_bar, created from main; nothing committed.
 Next: Phase 3 — needs owner decision D23 (phone-number range for generated demo guests).
 ```
 
