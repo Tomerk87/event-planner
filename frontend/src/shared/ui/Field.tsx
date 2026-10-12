@@ -38,7 +38,6 @@ function FieldShell({
   trailing,
   children,
 }: FieldShellProps) {
-  const { t } = useTranslation()
   const id = useId()
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
@@ -51,14 +50,9 @@ function FieldShell({
         <label htmlFor={id} className={styles.label}>
           {label}
           {required && (
-            <>
-              <span className={styles.required} aria-hidden="true">
-                {' *'}
-              </span>
-              <span className="visually-hidden">
-                {` (${t('common.required')})`}
-              </span>
-            </>
+            <span className={styles.required} aria-hidden="true">
+              {' *'}
+            </span>
           )}
         </label>
         {trailing}

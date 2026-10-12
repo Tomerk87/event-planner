@@ -28,15 +28,14 @@ function DialogFrame({
 }: DialogFrameProps) {
   const { t } = useTranslation()
   const titleId = useId()
-  const { ref, onBackdropClick } = useModalDialog(open, onClose)
+  const { ref, requestClose, dialogProps } = useModalDialog(open, onClose)
 
   return (
     <dialog
       ref={ref}
       className={cx(styles.dialog, styles[placement])}
       aria-labelledby={titleId}
-      onClose={onClose}
-      onClick={onBackdropClick}
+      {...dialogProps}
     >
       {open && (
         <div className={styles.surface}>
@@ -47,7 +46,7 @@ function DialogFrame({
             <IconButton
               label={t('common.close')}
               variant="ghost"
-              onClick={onClose}
+              onClick={requestClose}
             >
               <X />
             </IconButton>

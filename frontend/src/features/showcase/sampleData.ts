@@ -69,3 +69,15 @@ export const sampleGuests: SampleGuest[] = [
     table: null,
   },
 ]
+
+export const sampleKpis = {
+  totalGuests: 1640,
+  invitationsSent: 1270,
+  awaitingResponse: 210,
+  confirmedAttendees: 2140,
+}
+
+export const sampleEventStart = {
+  at: new Date('2027-06-15T15:30:00Z'),
+  timeZone: 'Asia/Jerusalem',
+}

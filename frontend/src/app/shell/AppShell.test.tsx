@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { CalendarDays } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import type { EventRole } from '../../domain/roles.ts'
+import { setViewportWidth } from '../../test/matchMedia.ts'
 import { AppShell } from './AppShell.tsx'
 import { getEventNavItems } from './eventNav.ts'
 
@@ -27,9 +28,9 @@ function EventShell({ role }: { role?: EventRole }) {
   )
 }
 
-function renderEventShell(role?: EventRole) {
+function renderEventShell(role?: EventRole, path = '/events/e1/guests') {
   return render(
-    <MemoryRouter initialEntries={['/events/e1/guests']}>
+    <MemoryRouter initialEntries={[path]}>
       <EventShell role={role} />
     </MemoryRouter>,
   )
@@ -79,6 +80,15 @@ describe('event navigation', () => {
     )
     expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute(
       'aria-current',
+    )
+  })
+
+  it('keeps an entry marked on a page beneath it', () => {
+    renderEventShell('OWNER', '/events/e1/guests/unknown')
+
+    expect(screen.getByRole('link', { name: 'Guests' })).toHaveAttribute(
+      'aria-current',
+      'page',
     )
   })
 
@@ -155,6 +165,29 @@ describe('event selector', () => {
     expect(button).toHaveAttribute('aria-expanded', 'false')
   })
 
+  it('closes when clicking or focusing outside it', () => {
+    renderEventShell('OWNER')
+    const button = screen.getByRole('button', { name: /Switch event/ })
+
+    fireEvent.click(button)
+    fireEvent.pointerDown(screen.getByText('Page content'))
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.click(button)
+    fireEvent.focusIn(screen.getByRole('link', { name: 'Guests' }))
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('stays open when interacting inside it', () => {
+    renderEventShell('OWNER')
+    const button = screen.getByRole('button', { name: /Switch event/ })
+    fireEvent.click(button)
+
+    fireEvent.pointerDown(screen.getByRole('link', { name: 'Autumn Gala' }))
+
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+  })
+
   it('is absent when there is no current event', () => {
     render(
       <MemoryRouter>
@@ -197,6 +230,7 @@ describe('shell chrome', () => {
   })
 
   it('opens the navigation in a drawer from the menu button and closes it on navigation', () => {
+    setViewportWidth(400)
     renderEventShell('OWNER')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
@@ -210,6 +244,59 @@ describe('shell chrome', () => {
     fireEvent.click(within(drawer).getByRole('link', { name: 'Dashboard' }))
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('closes the drawer from its close button', () => {
+    setViewportWidth(400)
+    renderEventShell('OWNER')
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('closes the drawer when the window widens to the desktop layout', () => {
+    setViewportWidth(400)
+    renderEventShell('OWNER')
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+    expect(screen.getByRole('dialog', { name: 'Menu' })).toBeInTheDocument()
+
+    act(() => setViewportWidth(1024))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('keeps the user name in the page at every width', () => {
+    setViewportWidth(400)
+    renderEventShell('OWNER')
+
+    expect(screen.getByText('Alex Morgan')).toBeInTheDocument()
+  })
+
+  it('marks back-style navigation icons for mirroring in right-to-left layouts', () => {
+    render(
+      <MemoryRouter>
+        <AppShell
+          navLabel="Event navigation"
+          navItems={[]}
+          footerLink={{
+            to: '/',
+            label: 'Back to My Events',
+            icon: CalendarDays,
+            directional: true,
+            exact: true,
+          }}
+        >
+          <p>Page</p>
+        </AppShell>
+      </MemoryRouter>,
+    )
+
+    const icon = screen
+      .getByRole('link', { name: 'Back to My Events' })
+      .querySelector('svg')
+    expect(icon?.getAttribute('class')).toMatch(/directional/)
   })
 
   it('provides a skip link to the main content', () => {

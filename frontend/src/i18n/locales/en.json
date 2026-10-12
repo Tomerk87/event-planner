@@ -64,7 +64,6 @@
     "retry": "Try again",
     "close": "Close",
     "cancel": "Cancel",
-    "required": "required",
     "soon": "Soon",
     "characterCount": "{{count}}/{{max}}"
   },
@@ -213,11 +212,13 @@
       "restricted": "Editing controls are hidden in this state."
     },
     "direction": {
-      "title": "Mixed-direction values",
-      "subtitle": "Phone numbers, email addresses and links keep their left-to-right order in Hebrew.",
+      "title": "Mixed-direction values and formats",
+      "subtitle": "Phone numbers, email addresses and links keep their left-to-right order in Hebrew. Numbers, dates and times follow the interface language.",
       "phone": "Phone",
       "email": "Email",
-      "link": "RSVP link"
+      "link": "RSVP link",
+      "date": "Event date",
+      "time": "Event time"
     },
     "rsvpLanguage": {
       "title": "Guest-facing language",

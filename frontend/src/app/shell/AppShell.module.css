@@ -26,7 +26,11 @@
   flex-direction: column;
   gap: var(--space-4);
   padding: var(--space-5) var(--space-4);
-  background: linear-gradient(180deg, #0f1535 0%, #151c47 100%);
+  background: linear-gradient(
+    180deg,
+    var(--color-sidebar) 0%,
+    var(--color-sidebar-end) 100%
+  );
   color: var(--color-sidebar-text);
   overflow-y: auto;
 }
@@ -41,7 +45,7 @@
 
 .sidebar :focus-visible,
 .drawerSurface :focus-visible {
-  box-shadow: 0 0 0 2px #ffffff;
+  box-shadow: 0 0 0 2px var(--color-sidebar-focus);
 }
 
 .sidebarHeader {
@@ -111,7 +115,7 @@
   inline-size: 2.5rem;
   block-size: 2.5rem;
   border-radius: var(--radius-sm);
-  background: rgb(255 255 255 / 12%);
+  background: var(--color-sidebar-overlay-strong);
 }
 
 .selectorThumb svg {
@@ -154,7 +158,7 @@
 }
 
 .selectorOption:hover {
-  background: rgb(255 255 255 / 10%);
+  background: var(--color-sidebar-overlay-strong);
 }
 
 .nav {
@@ -184,7 +188,7 @@
 }
 
 .navLink:hover {
-  background: rgb(255 255 255 / 6%);
+  background: var(--color-sidebar-overlay);
   color: var(--color-sidebar-text);
 }
 
@@ -340,8 +344,14 @@
   gap: var(--space-2);
 }
 
+/* Compact layout: the name is hidden visually but kept for screen readers. */
 .userName {
-  display: none;
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
 }
@@ -356,7 +366,7 @@
 }
 
 .roleOWNER {
-  color: #d97706;
+  color: var(--color-role-owner);
 }
 
 .roleADMIN {
@@ -401,7 +411,11 @@
   }
 
   .userName {
-    display: inline;
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
   }
 
   .content {

@@ -674,4 +674,33 @@ Follow-ups/risks (added as checklist items in the phases named):
 Next: Phase 3 — needs owner decision D23 (phone-number range for generated demo guests).
 ```
 
+```text
+2026-10-12 — Phase 2 follow-up — fixed fourteen items found in a review of the Phase 2 code.
+Bugs fixed:
+- Dialog and drawer close handler ran twice; it now runs exactly once, and not at all when the parent closes the dialog.
+- User name was removed from assistive technology on narrow screens; it is now only visually hidden.
+- Required fields were announced twice; the duplicate hidden text is removed.
+- Showcase welcome message did not follow a language switch.
+- Mobile drawer stayed open over the desktop layout after widening the window.
+Rule gaps closed:
+- Accessibility is now measured: axe runs in the end-to-end suite on the homepage, an event page, the showcase (plain, dialog open, Viewer of a past event, toasts shown, drawer open), public RSVP and not-found, in English and Hebrew, on desktop and phone. Its first run found real colour-contrast failures (danger badges and notice titles, subtle grey text); `--color-danger`, `--color-danger-hover` and `--color-text-subtle` were darkened in tokens.css to pass.
+- Coverage is now measured with an 80% threshold, and tests were added for components that had none.
+- Each page sets the browser tab title, and focus moves to the main content after navigation.
+- Error toasts stay until dismissed.
+Improvements:
+- DataTable renders only the table or only the cards, chosen by screen width.
+- Shell colours moved into design tokens.
+- Navigation entries stay highlighted on pages beneath them.
+- Event selector closes on a click or focus move outside it.
+- Number, date and time formatting helpers per language, with an explicit time zone.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 134 passed, coverage 94.41% statements, 92.09% branches, 90.62% functions, 94.19% lines; `npm run test:e2e` 53 passed, 3 skipped by design (one desktop-only and two phone-only tests on the other project), with zero axe violations; `npm run build` emitted dist/. Fresh screenshots in desktop/phone and English/Hebrew reviewed by the agent after the colour changes.
+Mockups reviewed: none newly; colour changes compared against the earlier screenshots.
+Follow-ups/risks:
+- The danger red is slightly darker than in the mockups, by necessity for contrast; the owner has not yet reviewed it.
+- axe detects only what a tool can; no manual screen-reader pass has been done.
+- Lowest-covered file is the showcase page (about 68% lines), which is a demonstration page; App.tsx is exercised only by the end-to-end tests.
+- Work is on branch phase_2_completion; nothing committed.
+Next: Phase 3 — needs owner decision D23 (phone-number range for generated demo guests).
+```
+
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

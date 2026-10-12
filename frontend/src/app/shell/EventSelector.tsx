@@ -1,5 +1,5 @@
 import { CalendarDays, ChevronDown } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { ShellEvent } from './AppShell.tsx'
@@ -18,11 +18,33 @@ export function EventSelector({
 }: EventSelectorProps) {
   const { t } = useTranslation()
   const listId = useId()
+  const containerRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const others = events.filter((event) => event.id !== current.id)
 
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+    function closeIfOutside(event: Event) {
+      if (
+        event.target instanceof Node &&
+        !containerRef.current?.contains(event.target)
+      ) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', closeIfOutside)
+    document.addEventListener('focusin', closeIfOutside)
+    return () => {
+      document.removeEventListener('pointerdown', closeIfOutside)
+      document.removeEventListener('focusin', closeIfOutside)
+    }
+  }, [open])
+
   return (
     <div
+      ref={containerRef}
       className={styles.selector}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {

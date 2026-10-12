@@ -21,6 +21,8 @@ Requirement or mockup conflicts are recorded (in `docs/MOCKUP_NOTES.md` or `docs
 | Unit tests for domain and business rules | Any change to rules, mock services, or backend services |
 | Component tests | Important UI behavior |
 | End-to-end tests | Critical flows listed in `AGENTS.md` |
+| Automated accessibility check (axe) with zero violations, in English and Hebrew, desktop and phone | Every new page and every new visual state of a shared component |
+| Coverage at or above the 80% threshold (`npm run test:coverage`) | Every code change |
 | Mockup comparison in desktop LTR, desktop RTL, mobile LTR, mobile RTL | Every UI change |
 | Demo Mode still uses the shared UI | UI and service changes |
 | Broader regression run | Changes to shared components, contracts or rules |
@@ -45,6 +47,8 @@ Coverage target: at least 80% on relevant application logic (`AGENTS.md`), never
 | Lint | oxlint (`npm run lint`) | In place |
 | Format | Prettier (`npm run format`, `npm run format:check`) | In place |
 | Unit and component tests | Vitest + React Testing Library + jsdom (`npm test`) | In place |
+| Coverage | `@vitest/coverage-v8` (`npm run test:coverage`); the run fails below 80% statements, branches, functions or lines | In place |
+| Accessibility | `@axe-core/playwright`, run inside the end-to-end suite (`e2e/accessibility.spec.ts`). It catches what a tool can detect, including colour contrast; it does not replace manual keyboard and screen-reader checks | In place |
 | End-to-end tests | Playwright on Chromium with two projects, `desktop` and `mobile` (Pixel 7 viewport); Hebrew/RTL is covered by tests that switch the language (`npm run test:e2e`) | In place |
 
 Update this table when a tool is adopted.

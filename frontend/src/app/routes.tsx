@@ -13,9 +13,11 @@ import { NotFoundPage } from '../shared/NotFoundPage.tsx'
 import { RouteError } from '../shared/RouteError.tsx'
 import { EventLayout } from './EventLayout.tsx'
 import { HomeLayout } from './HomeLayout.tsx'
+import { RouteFocus } from './RouteFocus.tsx'
 
 export const routes: RouteObject[] = [
   {
+    element: <RouteFocus />,
     errorElement: <RouteError />,
     children: [
       {

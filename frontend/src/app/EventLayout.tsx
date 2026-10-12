@@ -17,6 +17,7 @@ export function EventLayout() {
         label: t('nav.backToMyEvents'),
         icon: ArrowLeft,
         directional: true,
+        exact: true,
       }}
     >
       <Outlet />

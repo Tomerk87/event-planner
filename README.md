@@ -34,7 +34,8 @@ Run from `frontend/`.
 | `npm run format:check` | Check formatting without writing |
 | `npm test` | Run unit and component tests (Vitest) |
 | `npm run test:watch` | Run tests in watch mode |
-| `npm run test:e2e` | Run end-to-end tests (Playwright) |
+| `npm run test:coverage` | Run tests with a coverage report; fails below 80% |
+| `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright) |
 
 The first end-to-end run needs a browser: `npx playwright install chromium`.
 

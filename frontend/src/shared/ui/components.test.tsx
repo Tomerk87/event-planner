@@ -1,14 +1,22 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
+import { setViewportWidth } from '../../test/matchMedia.ts'
+import { Avatar } from './Avatar.tsx'
+import { Badge } from './Badge.tsx'
 import { Button, IconButton } from './Button.tsx'
+import { ButtonLink } from './ButtonLink.tsx'
+import { Card, KpiCard, KpiGrid } from './Card.tsx'
 import { DataTable } from './DataTable.tsx'
-import { Dialog } from './Dialog.tsx'
+import { Dialog, Drawer } from './Dialog.tsx'
 import { SelectField, TextArea, TextField } from './Field.tsx'
 import { LtrText } from './LtrText.tsx'
 import { Notice } from './Notice.tsx'
-import { ErrorState, LoadingState } from './States.tsx'
+import { PageHeader } from './PageHeader.tsx'
+import { RoleIcon } from './RoleIcon.tsx'
+import { EmptyState, ErrorState, LoadingState } from './States.tsx'
 import { Tabs } from './Tabs.tsx'
 import { useToast } from './toastContext.ts'
 import { ToastProvider } from './ToastProvider.tsx'
@@ -72,7 +80,7 @@ describe('form fields', () => {
     expect(input).toHaveAccessibleDescription(
       'Allowed range: 50 – 3000. Enter a number between 50 and 3000.',
     )
-    expect(screen.getByText('(required)')).toBeInTheDocument()
+    expect(screen.queryByText(/required/i)).not.toBeInTheDocument()
   })
 
   it('is valid and undescribed without a hint or error', () => {
@@ -201,21 +209,96 @@ describe('Tabs', () => {
 })
 
 describe('Dialog', () => {
-  function Harness() {
+  function Harness({ onClosed }: { onClosed?: () => void }) {
     const [open, setOpen] = useState(false)
     return (
       <>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <Dialog
           open={open}
-          onClose={() => setOpen(false)}
+          onClose={() => {
+            onClosed?.()
+            setOpen(false)
+          }}
           title="Delete table?"
+          footer={<Button onClick={() => setOpen(false)}>Confirm</Button>}
         >
           Guests are not deleted.
         </Dialog>
       </>
     )
   }
+
+  it('reports a close exactly once from the close button', () => {
+    const onClosed = vi.fn()
+    render(<Harness onClosed={onClosed} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(onClosed).toHaveBeenCalledOnce()
+  })
+
+  it('reports a close exactly once from the backdrop', () => {
+    const onClosed = vi.fn()
+    render(<Harness onClosed={onClosed} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+
+    fireEvent.click(screen.getByRole('dialog'))
+
+    expect(onClosed).toHaveBeenCalledOnce()
+  })
+
+  it('reports a close exactly once when the browser closes it (Escape)', () => {
+    const onClosed = vi.fn()
+    render(<Harness onClosed={onClosed} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+
+    act(() => screen.getByRole<HTMLDialogElement>('dialog').close())
+
+    expect(onClosed).toHaveBeenCalledOnce()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('does not report a close when the parent closes it', () => {
+    const onClosed = vi.fn()
+    render(<Harness onClosed={onClosed} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(onClosed).not.toHaveBeenCalled()
+  })
+
+  it('can be reopened after closing', () => {
+    render(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+
+    expect(
+      screen.getByRole('dialog', { name: 'Delete table?' }),
+    ).toBeInTheDocument()
+  })
+
+  it('renders a drawer with the same behaviour', () => {
+    const onClose = vi.fn()
+    render(
+      <Drawer open onClose={onClose} title="Filters">
+        More filters
+      </Drawer>,
+    )
+
+    expect(screen.getByRole('dialog', { name: 'Filters' })).toHaveTextContent(
+      'More filters',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(onClose).toHaveBeenCalledOnce()
+  })
 
   it('renders nothing until opened, then is labelled by its title', () => {
     render(<Harness />)
@@ -288,7 +371,29 @@ describe('toasts', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Changes saved.')
   })
 
-  it('removes a toast by itself after five seconds', () => {
+  it('keeps an error toast until it is dismissed', () => {
+    vi.useFakeTimers()
+    try {
+      render(
+        <ToastProvider>
+          <Trigger tone="danger" />
+        </ToastProvider>,
+      )
+      fireEvent.click(screen.getByRole('button', { name: 'Show' }))
+
+      act(() => {
+        vi.advanceTimersByTime(60_000)
+      })
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('removes a success toast by itself after five seconds', () => {
     vi.useFakeTimers()
     try {
       render(
@@ -348,19 +453,28 @@ describe('DataTable', () => {
     { id: 'b', name: 'Sam Carter', allowed: 4 },
   ]
 
-  it('renders the rows as a captioned table and as a card list', () => {
-    render(
+  function renderTable() {
+    return render(
       <DataTable
         caption="Guests"
         columns={[
           { id: 'name', header: 'Name', cell: (row) => row.name },
-          { id: 'allowed', header: 'Allowed', cell: (row) => row.allowed },
+          {
+            id: 'allowed',
+            header: 'Allowed',
+            cell: (row) => row.allowed,
+            align: 'end',
+          },
         ]}
         rows={rows}
         getRowKey={(row) => row.id}
         renderCard={(row) => <p>{`Card ${row.name}`}</p>}
       />,
     )
+  }
+
+  it('renders a captioned table, and no cards, on a wide screen', () => {
+    renderTable()
 
     const table = screen.getByRole('table', { name: 'Guests' })
     expect(
@@ -371,11 +485,29 @@ describe('DataTable', () => {
     expect(within(table).getAllByRole('row')).toHaveLength(3)
     expect(
       within(table).getByRole('cell', { name: 'Sam Carter' }),
-    ).toBeVisible()
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+  })
+
+  it('renders cards, and no table, on a phone', () => {
+    setViewportWidth(400)
+    renderTable()
 
     const list = screen.getByRole('list', { name: 'Guests' })
     expect(within(list).getAllByRole('listitem')).toHaveLength(2)
     expect(within(list).getByText('Card Jordan Reed')).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+  })
+
+  it('switches presentation when the screen is resized', () => {
+    renderTable()
+    expect(screen.getByRole('table')).toBeInTheDocument()
+
+    act(() => setViewportWidth(767))
+    expect(screen.getByRole('list')).toBeInTheDocument()
+
+    act(() => setViewportWidth(768))
+    expect(screen.getByRole('table')).toBeInTheDocument()
   })
 })
 
@@ -412,5 +544,157 @@ describe('LtrText', () => {
     )
 
     expect(screen.getByText('+972 00-000-0001')).toHaveAttribute('dir', 'ltr')
+  })
+})
+
+describe('cards and badges', () => {
+  it('renders a titled card as a section with its actions', () => {
+    render(
+      <Card title="Tables" subtitle="All tables" actions={<button>Add</button>}>
+        <p>Body</p>
+      </Card>,
+    )
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Tables' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('All tables')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument()
+    expect(screen.getByText('Body')).toBeInTheDocument()
+  })
+
+  it('renders an untitled card without a heading', () => {
+    render(
+      <Card>
+        <p>Body</p>
+      </Card>,
+    )
+
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+  })
+
+  it('groups KPI cards under a label and shows each label and value', () => {
+    render(
+      <KpiGrid label="Summary">
+        <KpiCard label="Total Guests" value="1,640" icon={<Plus />} />
+        <KpiCard label="Declined" value={43} icon={<Plus />} tone="danger" />
+      </KpiGrid>,
+    )
+
+    const group = screen.getByRole('region', { name: 'Summary' })
+    expect(within(group).getByText('Total Guests')).toBeInTheDocument()
+    expect(within(group).getByText('1,640')).toBeInTheDocument()
+    expect(within(group).getByText('43')).toBeInTheDocument()
+  })
+
+  it('shows badge text and hides its icon from assistive technology', () => {
+    render(
+      <Badge tone="success" icon={<Plus data-testid="badge-icon" />}>
+        Approved
+      </Badge>,
+    )
+
+    expect(screen.getByText('Approved')).toBeInTheDocument()
+    expect(screen.getByTestId('badge-icon').parentElement).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+  })
+})
+
+describe('PageHeader', () => {
+  it('renders the page heading, subtitle and actions, and sets the tab title', () => {
+    render(
+      <PageHeader
+        title="Guests"
+        subtitle="Manage your guest list."
+        actions={<button>Add Guest</button>}
+      />,
+    )
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Guests' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Manage your guest list.')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Add Guest' }),
+    ).toBeInTheDocument()
+    expect(document.title).toBe('Guests · Event Planner')
+  })
+})
+
+describe('Avatar', () => {
+  it.each([
+    ['Alex Morgan', 'AM'],
+    ['alex', 'A'],
+    ['  Noa  Ben  David ', 'ND'],
+    ['דנה לוי', 'דל'],
+  ])('shows initials for %j', (name, initials) => {
+    const { container } = render(<Avatar name={name} />)
+
+    expect(container.firstElementChild).toHaveTextContent(
+      new RegExp(`^${initials}$`),
+    )
+    expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('shows nothing for an empty name', () => {
+    const { container } = render(<Avatar name="" />)
+
+    expect(container.firstElementChild).toBeEmptyDOMElement()
+  })
+})
+
+describe('ButtonLink', () => {
+  it('is a link to its destination', () => {
+    render(
+      <MemoryRouter>
+        <ButtonLink to="/" icon={<Plus />}>
+          Back to My Events
+        </ButtonLink>
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByRole('link', { name: 'Back to My Events' }),
+    ).toHaveAttribute('href', '/')
+  })
+})
+
+describe('RoleIcon', () => {
+  it('renders a different decorative icon for each role', () => {
+    const { container } = render(
+      <>
+        <RoleIcon role="OWNER" />
+        <RoleIcon role="ADMIN" />
+        <RoleIcon role="VIEWER" />
+      </>,
+    )
+    const icons = [...container.querySelectorAll('svg')]
+
+    expect(icons).toHaveLength(3)
+    expect(new Set(icons.map((icon) => icon.innerHTML)).size).toBe(3)
+    for (const icon of icons) {
+      expect(icon).toHaveAttribute('aria-hidden', 'true')
+    }
+  })
+})
+
+describe('EmptyState', () => {
+  it('shows its title, description and action', () => {
+    render(
+      <EmptyState
+        icon={<Plus />}
+        title="No guests yet"
+        description="Add your first guest."
+        action={<button>Add Guest</button>}
+      />,
+    )
+
+    expect(screen.getByText('No guests yet')).toBeInTheDocument()
+    expect(screen.getByText('Add your first guest.')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Add Guest' }),
+    ).toBeInTheDocument()
   })
 })

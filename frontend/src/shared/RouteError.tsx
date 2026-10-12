@@ -1,15 +1,17 @@
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import styles from './StandalonePage.module.css'
+import { useDocumentTitle } from './useDocumentTitle.ts'
 import { ButtonLink } from './ui/ButtonLink.tsx'
 import { Card } from './ui/Card.tsx'
 import { ErrorState } from './ui/States.tsx'
 
 export function RouteError() {
   const { t } = useTranslation()
+  useDocumentTitle(t('routeError.title'))
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" tabIndex={-1} className={styles.page}>
       <div className={styles.panel}>
         <Card>
           <ErrorState

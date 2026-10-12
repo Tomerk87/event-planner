@@ -9,7 +9,14 @@ export function HomeLayout() {
   return (
     <AppShell
       navLabel={t('nav.main')}
-      navItems={[{ to: '/', label: t('nav.myEvents'), icon: CalendarDays }]}
+      navItems={[
+        {
+          to: '/',
+          label: t('nav.myEvents'),
+          icon: CalendarDays,
+          exact: true,
+        },
+      ]}
     >
       <Outlet />
     </AppShell>

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useDocumentTitle } from '../useDocumentTitle.ts'
 import styles from './PageHeader.module.css'
 
 interface PageHeaderProps {
@@ -8,6 +9,8 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
+  useDocumentTitle(title)
+
   return (
     <header className={styles.header}>
       <div className={styles.text}>

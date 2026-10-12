@@ -20,6 +20,7 @@ import { AppShell } from '../../app/shell/AppShell.tsx'
 import { getEventNavItems } from '../../app/shell/eventNav.ts'
 import type { EventAccess } from '../../domain/access.ts'
 import { EVENT_ROLES, type EventRole } from '../../domain/roles.ts'
+import { useFormatters } from '../../i18n/format.ts'
 import { LocaleScope } from '../../i18n/LocaleScope.tsx'
 import {
   EditGate,
@@ -47,7 +48,9 @@ import { useToast } from '../../shared/ui/toastContext.ts'
 import {
   sampleContact,
   sampleEvents,
+  sampleEventStart,
   sampleGuests,
+  sampleKpis,
   sampleUserName,
   statusTones,
   type SampleGuest,
@@ -74,9 +77,9 @@ export function ShowcasePage() {
   const [isPastEvent, setIsPastEvent] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [message, setMessage] = useState(() =>
-    t('showcase.fields.welcomeMessageValue'),
-  )
+  const [editedMessage, setEditedMessage] = useState<string | null>(null)
+  const message = editedMessage ?? t('showcase.fields.welcomeMessageValue')
+  const format = useFormatters()
   const access = useMemo<EventAccess>(
     () => ({ role, isPastEvent }),
     [role, isPastEvent],
@@ -125,6 +128,7 @@ export function ShowcasePage() {
           label: t('nav.backToMyEvents'),
           icon: ArrowLeft,
           directional: true,
+          exact: true,
         }}
         event={currentEvent}
         events={sampleEvents}
@@ -234,7 +238,7 @@ export function ShowcasePage() {
                 label={t('showcase.fields.welcomeMessage')}
                 value={message}
                 maxLength={500}
-                onChange={(event) => setMessage(event.target.value)}
+                onChange={(event) => setEditedMessage(event.target.value)}
               />
             </div>
           </Card>
@@ -272,24 +276,24 @@ export function ShowcasePage() {
           <KpiGrid label={t('showcase.kpis.title')}>
             <KpiCard
               label={t('showcase.kpis.totalGuests')}
-              value={164}
+              value={format.number(sampleKpis.totalGuests)}
               icon={<Users />}
             />
             <KpiCard
               label={t('showcase.kpis.invitationsSent')}
-              value={127}
+              value={format.number(sampleKpis.invitationsSent)}
               icon={<Mail />}
               tone="neutral"
             />
             <KpiCard
               label={t('showcase.kpis.awaitingResponse')}
-              value={21}
+              value={format.number(sampleKpis.awaitingResponse)}
               icon={<Clock />}
               tone="warning"
             />
             <KpiCard
               label={t('showcase.kpis.confirmedAttendees')}
-              value={214}
+              value={format.number(sampleKpis.confirmedAttendees)}
               icon={<CircleCheck />}
               tone="success"
             />
@@ -518,6 +522,14 @@ export function ShowcasePage() {
               <dt>{t('showcase.direction.link')}</dt>
               <dd>
                 <LtrText>{sampleContact.url}</LtrText>
+              </dd>
+              <dt>{t('showcase.direction.date')}</dt>
+              <dd>
+                {format.date(sampleEventStart.at, sampleEventStart.timeZone)}
+              </dd>
+              <dt>{t('showcase.direction.time')}</dt>
+              <dd>
+                {format.time(sampleEventStart.at, sampleEventStart.timeZone)}
               </dd>
             </dl>
           </Card>

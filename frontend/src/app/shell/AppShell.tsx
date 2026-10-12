@@ -6,6 +6,7 @@ import type { EventRole } from '../../domain/roles.ts'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
 import { cx } from '../../shared/ui/cx.ts'
 import { RoleIcon } from '../../shared/ui/RoleIcon.tsx'
+import { DESKTOP_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
 import { useModalDialog } from '../../shared/ui/useModalDialog.ts'
 import styles from './AppShell.module.css'
 import { EventSelector } from './EventSelector.tsx'
@@ -17,6 +18,8 @@ export interface ShellNavItem {
   icon: LucideIcon
   /** Mirror the icon in right-to-left layouts (arrows that mean back/forward). */
   directional?: boolean
+  /** Highlight only on this exact address, not on pages beneath it. */
+  exact?: boolean
 }
 
 export interface ShellEvent {
@@ -65,7 +68,7 @@ function NavItemLink({
   return (
     <NavLink
       to={item.to}
-      end
+      end={item.exact}
       className={({ isActive }) =>
         cx(styles.navLink, isActive && styles.navLinkActive)
       }
@@ -143,7 +146,13 @@ export function AppShell({ user, children, ...sidebar }: AppShellProps) {
   const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
-  const { ref, onBackdropClick } = useModalDialog(menuOpen, closeMenu)
+  const { ref, requestClose, dialogProps } = useModalDialog(menuOpen, closeMenu)
+
+  // The drawer belongs to the compact layout; drop it if the window widens.
+  const isDesktop = useMediaQuery(DESKTOP_QUERY)
+  if (isDesktop && menuOpen) {
+    setMenuOpen(false)
+  }
 
   return (
     <div className={styles.shell}>
@@ -162,8 +171,7 @@ export function AppShell({ user, children, ...sidebar }: AppShellProps) {
         ref={ref}
         className={styles.drawer}
         aria-label={t('nav.menu')}
-        onClose={closeMenu}
-        onClick={onBackdropClick}
+        {...dialogProps}
       >
         {menuOpen && (
           <div className={styles.drawerSurface}>
@@ -173,7 +181,7 @@ export function AppShell({ user, children, ...sidebar }: AppShellProps) {
                 type="button"
                 className={styles.drawerClose}
                 aria-label={t('nav.closeMenu')}
-                onClick={closeMenu}
+                onClick={requestClose}
               >
                 <X aria-hidden="true" />
               </button>

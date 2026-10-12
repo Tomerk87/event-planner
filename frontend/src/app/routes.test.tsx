@@ -1,6 +1,7 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
+import { changeLanguage } from '../i18n/i18n.ts'
 import { RouteError } from '../shared/RouteError.tsx'
 import { ToastProvider } from '../shared/ui/ToastProvider.tsx'
 import { routes } from './routes.tsx'
@@ -35,6 +36,51 @@ describe('routes', () => {
     expect(
       screen.getByText('This page is not implemented yet.'),
     ).toBeInTheDocument()
+  })
+
+  it.each([
+    ['/', 'My Events · Event Planner'],
+    ['/events/e1/messages', 'WhatsApp Messages · Event Planner'],
+    ['/rsvp/abc123', 'RSVP · Event Planner'],
+    ['/showcase', 'Design System · Event Planner'],
+    ['/nope', 'Page not found · Event Planner'],
+  ])('sets the browser tab title at %s', async (path, title) => {
+    renderAt(path)
+
+    await screen.findByRole('heading', { level: 1 })
+    expect(document.title).toBe(title)
+  })
+
+  it('translates the browser tab title', async () => {
+    renderAt('/events/e1/guests')
+    await screen.findByRole('heading', { level: 1 })
+
+    await changeLanguage('he')
+
+    await screen.findByRole('heading', { level: 1, name: 'אורחים' })
+    expect(document.title).toBe('אורחים · Event Planner')
+  })
+
+  it('moves focus to the main content after navigating, but not on first load', async () => {
+    renderAt('/events/e1/guests')
+    await screen.findByRole('heading', { level: 1, name: 'Guests' })
+    expect(screen.getByRole('main')).not.toHaveFocus()
+
+    fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
+
+    await screen.findByRole('heading', { level: 1, name: 'Dashboard' })
+    expect(screen.getByRole('main')).toHaveFocus()
+    expect(document.title).toBe('Dashboard · Event Planner')
+  })
+
+  it('moves focus to the main content when navigating to a page outside the shell', async () => {
+    const router = renderAt('/events/e1/guests')
+    await screen.findByRole('heading', { level: 1, name: 'Guests' })
+
+    await router.navigate('/rsvp/abc123')
+
+    await screen.findByRole('heading', { level: 1, name: 'RSVP' })
+    expect(screen.getByRole('main')).toHaveFocus()
   })
 
   it('redirects an event root to its dashboard', async () => {

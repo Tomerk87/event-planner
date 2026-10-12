@@ -40,10 +40,16 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
   const { t } = useTranslation()
   const Icon = icons[toast.tone]
 
+  // An error stays until the user dismisses it; other toasts clear themselves.
+  const persistent = toast.tone === 'danger'
+
   useEffect(() => {
+    if (persistent) {
+      return
+    }
     const timer = window.setTimeout(() => onDismiss(toast.id), DISMISS_AFTER_MS)
     return () => window.clearTimeout(timer)
-  }, [toast.id, onDismiss])
+  }, [toast.id, persistent, onDismiss])
 
   return (
     <div
