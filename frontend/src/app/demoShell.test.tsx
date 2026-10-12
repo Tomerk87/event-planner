@@ -110,10 +110,10 @@ describe('application frame on demo data', () => {
       createTestServices({ delayMs: 40 }),
     )
 
-    expect(screen.getByRole('status')).toHaveTextContent('Loading…')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Loading…' }),
+      await screen.findByRole('heading', { level: 1, name: 'Loading…' }),
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Loading…')
     expect(navLinks()).not.toContain('Permissions')
 
     await screen.findByRole('heading', { level: 1, name: 'Guests' })
@@ -324,10 +324,15 @@ describe('demo controls', () => {
 })
 
 describe('createServices', () => {
+  const DEMO = { workspace: 'demo' } as const
   const location = { search: '', origin: 'https://demo.example.com' }
 
   it('creates the demo provider for "mock", stored in the given browser storage', async () => {
-    const services = createServices('mock', location, window.localStorage)
+    const services = createServices(
+      'mock',
+      location,
+      window.localStorage,
+    ).servicesFor(DEMO)
 
     expect(await services.events.list()).toHaveLength(6)
     expect(services.demo).not.toBeNull()
@@ -345,7 +350,7 @@ describe('createServices', () => {
       'mock',
       { ...location, search: '?demoDelay=0&demoFail=events.list,guests.list' },
       window.localStorage,
-    )
+    ).servicesFor(DEMO)
 
     await expect(services.events.list()).rejects.toMatchObject({
       code: 'UNAVAILABLE',
@@ -360,7 +365,7 @@ describe('createServices', () => {
         'mock',
         { ...location, search: `?demoDelay=${value}` },
         window.localStorage,
-      )
+      ).servicesFor(DEMO)
 
       await expect(services.events.list()).resolves.toHaveLength(6)
     },

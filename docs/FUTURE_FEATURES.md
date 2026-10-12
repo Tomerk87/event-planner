@@ -43,6 +43,9 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Photo Sharing | Sidebar entry shown in two mockups. No requirements written. | Same |
 | Payments and full event-production management | | PRD §17 |
 | Reusable event templates | | PRD §17 |
+| Event cover image upload | Uploading a photo for an event when creating it and in Event Settings; shown on the event card and in the event selector. In the MVP each event shows a generated cover (a gradient with an icon). | Mockups `homepage.png`, `homepage_mobile.png`; owner decision 2026-10-12 |
+| Duplicating an event with its guest list | In the MVP a duplicate copies the event's details, RSVP settings, message template and tables, without guests. | Owner decision 2026-10-12 |
+| Recoverable event deletion | Restoring a deleted event within a period. In the MVP deletion is permanent. | Owner decision 2026-10-12 |
 
 ## Account and application shell
 
@@ -51,6 +54,8 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Notifications | The bell shown in the top bar of every mockup. No requirements written: what triggers a notification and where it is listed are undefined. | All mockups; owner decision 2026-10-12 |
 | Profile page | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
 | Account settings | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
+| "How it works" section | A header link on the landing page mockup with no matching section. | Mockups `landing_page.png`; Phase 4 plan approved 2026-10-13 |
+| Password reset and account management | No requirements written. Real sign-in arrives with the backend (`PLAN.md` Phase 14). | Phase 4 plan approved 2026-10-13 |
 | Dedicated tablet layouts | In the MVP only desktop and phone layouts are designed and verified; a tablet gets whichever fits its width. | PRD header and §13; owner decision 2026-10-12 |
 
 ## Analytics and history

@@ -1,6 +1,10 @@
 import { DomainError } from '../../domain/errors.ts'
 import { isEventPast } from '../../domain/eventTime.ts'
-import { EVENT_LIMITS, validateEventInput } from '../../domain/events.ts'
+import {
+  assertStartsInFuture,
+  EVENT_LIMITS,
+  validateEventInput,
+} from '../../domain/events.ts'
 import {
   addGuest,
   editGuest,
@@ -65,6 +69,15 @@ export interface MockOptions {
   failOperations?: ReadonlySet<string>
   /** Origin used to build the public RSVP address in messages. */
   baseUrl?: string
+  /**
+   * The signed-in account, for a workspace shared by several accounts. The
+   * demo has a single built-in user and leaves this out.
+   */
+  actingUserId?: Id
+  /** The data a new workspace starts with; the generated demo by default. */
+  seed?: (now: Date) => DemoState
+  /** Whether the demo-only controls (simulated role, reset) are offered. */
+  demoControls?: boolean
 }
 
 interface EventContext {
@@ -86,6 +99,9 @@ export function createMockServices(options: MockOptions): Services {
     delayMs = 0,
     failOperations = new Set<string>(),
     baseUrl = '',
+    actingUserId,
+    seed = generateDemoState,
+    demoControls = true,
   } = options
 
   let regenerated = false
@@ -93,12 +109,16 @@ export function createMockServices(options: MockOptions): Services {
 
   function load(): DemoState {
     const stored = persistence.load()
-    if (isUsableStoredDemo(stored)) {
+    if (
+      isUsableStoredDemo(stored, {
+        requireCurrentUser: actingUserId === undefined,
+      })
+    ) {
       return stored.state
     }
     // Nothing stored is a first visit; anything else is stale or damaged data.
     regenerated = stored !== null
-    return save(generateDemoState(now()))
+    return save(seed(now()))
   }
 
   function save(next: DemoState): DemoState {
@@ -135,11 +155,13 @@ export function createMockServices(options: MockOptions): Services {
     throw new DomainError('NOT_FOUND', { entity })
   }
 
+  function currentUserId(): Id {
+    return actingUserId ?? state.currentUserId
+  }
+
   function currentUser(): User {
-    return (
-      state.users.find((user) => user.id === state.currentUserId) ??
-      notFound('user')
-    )
+    const id = currentUserId()
+    return state.users.find((user) => user.id === id) ?? notFound('user')
   }
 
   /**
@@ -247,7 +269,7 @@ export function createMockServices(options: MockOptions): Services {
     return {
       user,
       role: membership.role,
-      isCurrentUser: user.id === state.currentUserId,
+      isCurrentUser: user.id === currentUserId(),
     }
   }
 
@@ -312,6 +334,7 @@ export function createMockServices(options: MockOptions): Services {
       create: (input) =>
         run('events.create', () => {
           const fields = validateEventInput(input)
+          assertStartsInFuture(fields.startsAt, now())
           const id = newId('evt')
           const event: Event = {
             ...fields,
@@ -324,7 +347,7 @@ export function createMockServices(options: MockOptions): Services {
             events: [...state.events, event],
             memberships: [
               ...state.memberships,
-              { eventId: id, userId: state.currentUserId, role: 'OWNER' },
+              { eventId: id, userId: currentUserId(), role: 'OWNER' },
             ],
             rsvpSettings: [...state.rsvpSettings, defaultRsvpSettings(event)],
             messageTemplates: [
@@ -333,6 +356,78 @@ export function createMockServices(options: MockOptions): Services {
             ],
           })
           return event
+        }),
+
+      duplicate: (eventId, input) =>
+        run('events.duplicate', () => {
+          const { event: source } = authorize(eventId, 'DUPLICATE_EVENT')
+          const fields = validateEventInput({
+            ...source,
+            name: input.name,
+            startsAt: input.startsAt,
+          })
+          assertStartsInFuture(fields.startsAt, now())
+          const id = newId('evt')
+          const event: Event = {
+            ...fields,
+            id,
+            coverImage: source.coverImage,
+            rsvpSlug: `${id}-${state.nextId.toString(36)}`,
+          }
+          const settings =
+            state.rsvpSettings.find(
+              (candidate) => candidate.eventId === eventId,
+            ) ?? defaultRsvpSettings(event)
+          const template =
+            state.messageTemplates.find(
+              (candidate) => candidate.eventId === eventId,
+            ) ?? defaultMessageTemplate(event)
+          const tables = eventTables(eventId).map((table) => ({
+            ...table,
+            id: newId('tbl'),
+            eventId: id,
+          }))
+          commit({
+            ...state,
+            events: [...state.events, event],
+            memberships: [
+              ...state.memberships,
+              { eventId: id, userId: currentUserId(), role: 'OWNER' },
+            ],
+            rsvpSettings: [
+              ...state.rsvpSettings,
+              {
+                ...settings,
+                eventId: id,
+                calendar: { ...settings.calendar },
+                youtube: { ...settings.youtube },
+              },
+            ],
+            messageTemplates: [
+              ...state.messageTemplates,
+              { ...template, eventId: id },
+            ],
+            tables: [...state.tables, ...tables],
+          })
+          return event
+        }),
+
+      remove: (eventId) =>
+        run('events.remove', () => {
+          authorize(eventId, 'DELETE_EVENT')
+          const kept = <Item extends { eventId: Id }>(items: Item[]): Item[] =>
+            items.filter((item) => item.eventId !== eventId)
+          commit({
+            ...state,
+            events: state.events.filter((event) => event.id !== eventId),
+            memberships: kept(state.memberships),
+            guests: kept(state.guests),
+            unknownRsvps: kept(state.unknownRsvps),
+            rsvpSettings: kept(state.rsvpSettings),
+            messageTemplates: kept(state.messageTemplates),
+            messageSends: kept(state.messageSends),
+            tables: kept(state.tables),
+          })
         }),
 
       update: (eventId, input) =>
@@ -859,25 +954,27 @@ export function createMockServices(options: MockOptions): Services {
         }),
     },
 
-    demo: {
-      getRole: () => run('demo.getRole', () => state.demoRole),
+    demo: !demoControls
+      ? null
+      : {
+          getRole: () => run('demo.getRole', () => state.demoRole),
 
-      setRole: (role) =>
-        run('demo.setRole', () => {
-          commit({ ...state, demoRole: role })
-        }),
+          setRole: (role) =>
+            run('demo.setRole', () => {
+              commit({ ...state, demoRole: role })
+            }),
 
-      reset: () =>
-        run('demo.reset', () => {
-          persistence.clear()
-          commit(generateDemoState(now()))
-        }),
+          reset: () =>
+            run('demo.reset', () => {
+              persistence.clear()
+              commit(generateDemoState(now()))
+            }),
 
-      consumeRegeneratedNotice: () => {
-        const result = regenerated
-        regenerated = false
-        return result
-      },
-    },
+          consumeRegeneratedNotice: () => {
+            const result = regenerated
+            regenerated = false
+            return result
+          },
+        },
   }
 }

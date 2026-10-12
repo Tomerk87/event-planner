@@ -1,21 +1,21 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { createBrowserRouter, RouterProvider } from 'react-router'
-import type { Services } from '../services/contracts/index.ts'
+import type { Backend } from '../services/contracts/index.ts'
 import { createServices } from '../services/createServices.ts'
 import { parseDataProvider } from '../services/providerConfig.ts'
-import { ServicesContext } from '../services/servicesContext.ts'
 import styles from '../shared/StandalonePage.module.css'
 import { Card } from '../shared/ui/Card.tsx'
 import { ErrorState } from '../shared/ui/States.tsx'
 import { ToastProvider } from '../shared/ui/ToastProvider.tsx'
 import { useDocumentTitle } from '../shared/useDocumentTitle.ts'
 import { routes } from './routes.tsx'
+import { SessionProvider } from './session/SessionProvider.tsx'
 
 const router = createBrowserRouter(routes)
 
-// Demo data is local and changes only through mutations, which invalidate
-// what they affect, so nothing is retried or refetched on its own.
+// Data is local and changes only through mutations, which invalidate what
+// they affect, so nothing is retried or refetched on its own.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, refetchOnWindowFocus: false },
@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
 })
 
 /** The data provider for this deployment, or null if it cannot be created. */
-function createAppServices(): Services | null {
+function createAppBackend(): Backend | null {
   try {
     return createServices(
       parseDataProvider(import.meta.env.VITE_DATA_PROVIDER),
@@ -35,7 +35,7 @@ function createAppServices(): Services | null {
   }
 }
 
-const services = createAppServices()
+const backend = createAppBackend()
 
 function ProviderUnavailable() {
   const { t } = useTranslation()
@@ -57,17 +57,17 @@ function ProviderUnavailable() {
 }
 
 export function App() {
-  if (!services) {
+  if (!backend) {
     return <ProviderUnavailable />
   }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ServicesContext.Provider value={services}>
+      <SessionProvider backend={backend}>
         <ToastProvider>
           <RouterProvider router={router} />
         </ToastProvider>
-      </ServicesContext.Provider>
+      </SessionProvider>
     </QueryClientProvider>
   )
 }

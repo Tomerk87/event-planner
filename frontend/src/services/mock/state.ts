@@ -53,8 +53,33 @@ const COLLECTIONS = [
   'tables',
 ] as const satisfies readonly (keyof DemoState)[]
 
-/** Demo data comes from the browser, so it is checked before it is trusted. */
-export function isUsableStoredDemo(value: unknown): value is StoredDemo {
+/** A workspace with no data yet; accounts are added to it as people sign up. */
+export function createEmptyState(): DemoState {
+  return {
+    currentUserId: '',
+    demoRole: null,
+    nextId: 1,
+    users: [],
+    events: [],
+    memberships: [],
+    guests: [],
+    unknownRsvps: [],
+    rsvpSettings: [],
+    messageTemplates: [],
+    messageSends: [],
+    tables: [],
+  }
+}
+
+/**
+ * Stored data comes from the browser, so it is checked before it is trusted.
+ * The demo always has a current user; the accounts workspace has none of its
+ * own, because the session says who is signed in.
+ */
+export function isUsableStoredDemo(
+  value: unknown,
+  { requireCurrentUser = true }: { requireCurrentUser?: boolean } = {},
+): value is StoredDemo {
   if (typeof value !== 'object' || value === null) {
     return false
   }
@@ -71,8 +96,9 @@ export function isUsableStoredDemo(value: unknown): value is StoredDemo {
     typeof candidate.currentUserId === 'string' &&
     typeof candidate.nextId === 'number' &&
     COLLECTIONS.every((key) => Array.isArray(candidate[key])) &&
-    (candidate.users as User[]).some(
-      (user) => user.id === candidate.currentUserId,
-    )
+    (!requireCurrentUser ||
+      (candidate.users as User[]).some(
+        (user) => user.id === candidate.currentUserId,
+      ))
   )
 }

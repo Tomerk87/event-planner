@@ -17,6 +17,8 @@ export type DomainErrorCode =
   | 'SELF_PERMISSION'
   | 'ALREADY_MEMBER'
   | 'RSVP_CLOSED'
+  | 'EMAIL_TAKEN'
+  | 'ACCOUNT_NOT_FOUND'
   | 'UNAVAILABLE'
 
 export type ErrorDetails = Readonly<Record<string, string | number>>

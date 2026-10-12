@@ -1,7 +1,12 @@
 import { DomainError } from '../domain/errors.ts'
-import type { Services } from './contracts/index.ts'
-import { createMockServices } from './mock/mockServices.ts'
-import { createBrowserPersistence } from './mock/persistence.ts'
+import type { Backend } from './contracts/index.ts'
+import { createMockBackend } from './mock/mockBackend.ts'
+import {
+  ACCOUNTS_STORAGE_KEY,
+  createBrowserPersistence,
+  DEMO_STORAGE_KEY,
+  SESSION_STORAGE_KEY,
+} from './mock/persistence.ts'
 import type { DataProvider } from './providerConfig.ts'
 
 const DEFAULT_DELAY_MS = 150
@@ -16,24 +21,29 @@ function parseDelay(value: string | null): number {
 
 /**
  * Builds the application's data provider. This is the one place that decides
- * between demo data and the backend.
+ * between browser-local data and the backend.
  *
- * For reviewing loading and error states of the demo, two address parameters
- * are read once at start-up: `demoDelay` (milliseconds) and `demoFail` (a
+ * For reviewing loading and error states, two address parameters are read
+ * once at start-up: `demoDelay` (milliseconds) and `demoFail` (a
  * comma-separated list of operations such as `events.get`).
  */
 export function createServices(
   provider: DataProvider,
   location: Pick<Location, 'search' | 'origin'>,
   storage: Storage,
-): Services {
+): Backend {
   if (provider === 'api') {
     throw new DomainError('UNAVAILABLE', { provider })
   }
 
   const params = new URLSearchParams(location.search)
-  return createMockServices({
-    persistence: createBrowserPersistence(storage),
+  return createMockBackend({
+    demoPersistence: createBrowserPersistence(storage, DEMO_STORAGE_KEY),
+    accountsPersistence: createBrowserPersistence(
+      storage,
+      ACCOUNTS_STORAGE_KEY,
+    ),
+    sessionPersistence: createBrowserPersistence(storage, SESSION_STORAGE_KEY),
     delayMs: parseDelay(params.get('demoDelay')),
     failOperations: new Set(
       (params.get('demoFail') ?? '').split(',').filter(Boolean),

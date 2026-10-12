@@ -1,8 +1,9 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
+import { startInDemo } from './helpers.ts'
 
 const pages = [
-  ['homepage', '/'],
+  ['My Events', '/events'],
   ['event page', '/events/evt-1/dashboard'],
   ['showcase', '/showcase'],
   ['public RSVP', '/rsvp/abc123'],
@@ -24,6 +25,7 @@ async function expectNoViolations(page: Page) {
 for (const language of ['en', 'he'] as const) {
   test.describe(`accessibility in ${language}`, () => {
     test.beforeEach(async ({ page }) => {
+      await startInDemo(page)
       await page.addInitScript((value) => {
         window.localStorage.setItem('event-planner.language', value)
       }, language)

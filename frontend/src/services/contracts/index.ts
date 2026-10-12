@@ -1,3 +1,4 @@
+import type { SignInInput, SignUpInput } from '../../domain/accounts.ts'
 import type { EventInput } from '../../domain/events.ts'
 import type { GuestInput } from '../../domain/guests.ts'
 import type {
@@ -54,6 +55,19 @@ export interface EventsService {
   /** Creates an event; the creator becomes its Owner. */
   create(input: EventInput): Promise<Event>
   update(eventId: Id, input: EventInput): Promise<Event>
+  /**
+   * Creates a new event from an existing one: its details, RSVP settings,
+   * message template and tables. Guests, responses, sent messages and other
+   * members are not copied. The user duplicating becomes the copy's Owner.
+   */
+  duplicate(eventId: Id, input: DuplicateEventInput): Promise<Event>
+  /** Permanently deletes the event and everything that belongs to it. */
+  remove(eventId: Id): Promise<void>
+}
+
+export interface DuplicateEventInput {
+  name: string
+  startsAt: IsoDateTime
 }
 
 export interface GuestRsvpInput {
@@ -195,6 +209,30 @@ export interface DemoControl {
    * older dataset version or could not be read.
    */
   consumeRegeneratedNotice(): boolean
+}
+
+/**
+ * Who is using the application: a visitor exploring the demo, or a signed-in
+ * account. The two never share data.
+ */
+export type Session =
+  { workspace: 'demo' } | { workspace: 'account'; userId: Id }
+
+export interface AuthService {
+  /** The session remembered from an earlier visit, if any. */
+  getSession(): Promise<Session | null>
+  signUp(input: SignUpInput): Promise<Session>
+  signIn(input: SignInInput): Promise<Session>
+  /** Opens the demo; needs no account. */
+  enterDemo(): Promise<Session>
+  signOut(): Promise<void>
+}
+
+/** Everything the application needs from its data provider. */
+export interface Backend {
+  auth: AuthService
+  /** The data operations available to a session. */
+  servicesFor(session: Session): Services
 }
 
 export interface Services {

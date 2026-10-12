@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { openNavigation } from './helpers.ts'
+import { openNavigation, startInDemo } from './helpers.ts'
 
-test('home page loads', async ({ page }) => {
-  await page.goto('/')
+test.beforeEach(async ({ page }) => {
+  await startInDemo(page)
+})
+
+test('My Events loads', async ({ page }) => {
+  await page.goto('/events')
 
   await expect(page.getByRole('heading', { name: 'My Events' })).toBeVisible()
 })

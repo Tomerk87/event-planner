@@ -61,3 +61,13 @@ export function validateEventInput(input: EventInput): EventFields {
     rsvpTitle: optionalText(input.rsvpTitle),
   }
 }
+
+/**
+ * A new event must start in the future: from its start an event is past and
+ * read-only, so one created in the past could never be set up.
+ */
+export function assertStartsInFuture(startsAt: IsoDateTime, now: Date): void {
+  if (!(new Date(startsAt).getTime() > now.getTime())) {
+    throw new DomainError('VALIDATION', { field: 'startsAt', reason: 'past' })
+  }
+}

@@ -13,7 +13,6 @@ import { renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
   it.each([
-    ['/', 'My Events'],
     ['/events/evt-1/dashboard', 'Dashboard'],
     ['/events/evt-1/guests', 'Guests'],
     ['/events/evt-1/rsvp', 'RSVP Settings'],
@@ -34,7 +33,7 @@ describe('routes', () => {
   })
 
   it.each([
-    ['/', 'My Events · Event Planner'],
+    ['/events', 'My Events · Event Planner'],
     ['/events/evt-1/messages', 'WhatsApp Messages · Event Planner'],
     ['/rsvp/abc123', 'RSVP · Event Planner'],
     ['/showcase', 'Design System · Event Planner'],
@@ -94,11 +93,11 @@ describe('routes', () => {
     expect(within(nav).getAllByRole('link')).toHaveLength(7)
     expect(
       screen.getByRole('link', { name: 'Back to My Events' }),
-    ).toHaveAttribute('href', '/')
+    ).toHaveAttribute('href', '/events')
   })
 
   it('shows the main navigation on the homepage', async () => {
-    renderApp('/')
+    renderApp('/events')
 
     const nav = await screen.findByRole('navigation', {
       name: 'Main navigation',

@@ -15,6 +15,7 @@ import { NotFoundPage } from '../shared/NotFoundPage.tsx'
 import { Card } from '../shared/ui/Card.tsx'
 import { ErrorState, LoadingState } from '../shared/ui/States.tsx'
 import { AppShell } from './shell/AppShell.tsx'
+import { useSignOut } from './session/useSignOut.ts'
 import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
 import { getEventNavItems } from './shell/eventNav.ts'
 
@@ -24,6 +25,7 @@ export function EventLayout() {
   const user = useCurrentUser()
   const events = useEvents()
   const info = useEventAccessInfo(eventId)
+  const signOut = useSignOut()
   const role = info.data?.role
   const isPastEvent = info.data?.isPast
   const access = useMemo<EventAccess | null>(
@@ -43,7 +45,7 @@ export function EventLayout() {
       navLabel={t('nav.event')}
       navItems={getEventNavItems(t, eventId, role)}
       footerLink={{
-        to: '/',
+        to: '/events',
         label: t('nav.backToMyEvents'),
         icon: ArrowLeft,
         directional: true,
@@ -57,6 +59,7 @@ export function EventLayout() {
         name: event.name,
       }))}
       user={user.data && { name: user.data.name, role }}
+      onSignOut={signOut}
       banner={<DemoBadge />}
       tools={<DemoTools />}
     >

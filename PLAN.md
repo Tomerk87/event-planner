@@ -135,28 +135,30 @@
 
 ---
 
-## Phase 4 — Homepage / Events and simulated authentication
+## Phase 4 — Landing page, Homepage / Events and simulated authentication
 
 **Goal:** make the first impression and event-selection flow fully interactive using mock services.
 
 ### Mockup mapping
-- Desktop: `homepage.png`; mobile: `homepage_mobile.png`.
+- Landing page — desktop: `landing_page.png`; mobile: `landing_page_mobile.png` (added 2026-10-13).
+- Homepage / My Events — desktop: `homepage.png`; mobile: `homepage_mobile.png`.
 
 ### Checklist
-- [ ] Build the Homepage/Events UI from the mapped mockups.
-- [ ] Show event cards with event name, date/time, active/past state and accessible role where relevant.
-- [ ] Provide prominent **Try Demo** entry without sign-in and clear Demo Mode indicator.
-- [ ] Implement simulated sign-in/session and account UI for frontend prototyping; **never mistake it for secure production authentication**. Includes the user menu beside the avatar and Log out in the homepage sidebar, which the shell does not have yet.
-- [ ] Show the event cover image as the thumbnail in the sidebar event selector (currently a calendar icon).
-- [ ] Implement create/open/duplicate/delete event interactions in mock services subject to role and lifecycle rules. Create exists in the service layer since Phase 3; duplicate and delete are not in the service contracts yet and need decision D3 first.
-- [ ] New event creator becomes Owner; support membership across multiple events.
-- [ ] Implement past-event read-only interactions and export availability.
-- [ ] Build appropriate empty/loading/error and mobile states.
+- [x] Build the landing page from the mapped mockups, with the three entry flows: Sign Up → account created → My Events; Sign In → My Events; Try Demo → the populated demo.
+- [x] Build the Homepage/Events UI from the mapped mockups.
+- [x] Show event cards with event name, date/time, active/past state and accessible role where relevant.
+- [x] Provide prominent **Try Demo** entry without sign-in and clear Demo Mode indicator.
+- [x] Implement simulated sign-up, sign-in/session and account UI for frontend prototyping; **never mistake it for secure production authentication**. Includes the user menu beside the avatar and Log out in the homepage sidebar. No password is stored or checked, and the forms say so.
+- [x] Show the event cover as the thumbnail in the sidebar event selector. Covers are generated (a gradient with an icon) until image upload is built (`docs/FUTURE_FEATURES.md`).
+- [x] Implement create/open/duplicate/delete event interactions in mock services subject to role and lifecycle rules (decision D3, `docs/DOMAIN.md`).
+- [x] New event creator becomes Owner; support membership across multiple events.
+- [x] Implement past-event read-only interactions and export availability. On this page: a past event is labelled Past, offers View Event, and opens read-only; it can still be duplicated or deleted by an Owner. Exports arrive with the pages that have them (Phases 6 and 10).
+- [x] Build appropriate empty/loading/error and mobile states.
 
 ### Validation and exit criteria
-- [ ] Visitor can launch demo without credentials and open a prepopulated event.
-- [ ] Event create/open and role restrictions function with mock data.
-- [ ] Page visually reviewed against both homepage PNGs, LTR and RTL.
+- [x] Visitor can launch demo without credentials and open a prepopulated event.
+- [x] Event create/open and role restrictions function with mock data.
+- [x] Pages compared against the landing and homepage PNGs, desktop and phone, LTR and RTL, by the agent from screenshots. The owner's own visual review is still to come.
 
 ---
 
@@ -174,6 +176,7 @@
 - [ ] Add event maximum vs confirmed warning, chairs vs event maximum warning (either direction), and over-capacity table warning.
 - [ ] Reflect changes to RSVP, messages and tables immediately via shared mock state.
 - [ ] Add loading/empty/error presentations.
+- [ ] Replace the drawn product preview on the landing page with a real screenshot of the Dashboard, or confirm the drawing stays.
 
 ### Validation and exit criteria
 - [ ] Five sends to one guest count as one Invitations Sent guest.
@@ -282,6 +285,7 @@
 - [ ] Provide optional Google Calendar and YouTube post-approval actions as specified, simulated safely when necessary.
 - [ ] Respect fixed event RSVP language independent of organizer UI language.
 - [ ] Preview should update when settings change.
+- [ ] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
 
 ### Validation and exit criteria
 - [ ] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
@@ -453,6 +457,7 @@
 - [ ] Ensure uploaded images work through storage API rather than assumptions about local browser paths.
 - [ ] Verify Demo Mode remains public, isolated, resettable and functional with no database interaction.
 - [ ] Add provider contract parity and integration tests.
+- [ ] Replace the browser-local accounts workspace (`services/mock/mockBackend.ts`) with the API for Sign Up and Sign In; keep the demo workspace as it is. Remove the "Preview version" notice from the forms.
 
 ### Validation and exit criteria
 - [ ] All MVP flows work against PostgreSQL-backed APIs.
@@ -736,6 +741,27 @@ Follow-ups/risks:
 - The demo's names and Hebrew sample texts were written by the agent.
 - Work is on branch phase_3_completion, created from main; nothing committed.
 Next: Phase 4 — needs owner decisions D3 (what duplicating and deleting an event do) and D10's follow-up (what cover images the demo events show).
+```
+
+```text
+2026-10-13 — Phase 4 complete.
+Decisions (owner): D3 — duplicate copies details, RSVP settings, message template and tables, without guests; delete is Owner-only and permanent, confirmed by typing the name. Event covers are generated until image upload is built. Landing-page mockups added, with three entry flows (sign up, sign in, try demo). Recorded in docs/DOMAIN.md (D3, D10, D25–D27), docs/PRD.md and docs/MOCKUP_NOTES.md.
+Done:
+- Landing page (/), simulated Sign Up (/signup) and Sign In (/signin), session that survives reloads, route guards, Log out in the user menu and the homepage sidebar.
+- Two browser-local workspaces that never share data: the generated demo, and accounts created by sign-up (start with no events). Reset Demo affects the demo only. No password is stored or checked.
+- My Events (/events, moved from /): event cards with generated cover, status, date, time, maximum attendees, role, confirmed/capacity bar; All/Upcoming/Past tabs with counts, search, grid and list layouts (kept in the address); Create, Duplicate and Delete dialogs; empty, no-match, loading and error states.
+- Service contracts: events.duplicate, events.remove, auth (sign up, sign in, enter demo, sign out). New rule: a new or duplicated event must start in the future.
+- Shared components: Menu, EventCover; Button/ButtonLink gained a large size, a soft variant and a trailing icon.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 530 passed, coverage 97.94% statements, 93.57% branches, 97.3% functions, 97.91% lines; `npm run test:e2e` 133 passed, 13 skipped by design (tests that apply to only one of the two screen sizes), zero accessibility violations on the landing page, both forms, My Events in both layouts, the card menu and each dialog, in English and Hebrew; `npm run build` succeeds.
+Mockups reviewed: landing_page.png, landing_page_mobile.png, homepage.png, homepage_mobile.png, compared with screenshots at desktop and phone widths in English and Hebrew.
+Differences from the mockups, by decision: generated covers instead of photos; the landing hero shows a drawn preview of this product instead of the mockup's screenshot of a different one; "How it works" link left out; three feature texts reworded to what the MVP does; cards also show the user's role.
+Follow-ups/risks:
+- The owner has not yet reviewed the pages visually, nor the Hebrew wording, which the agent wrote.
+- Sign-up and sign-in are a simulation. Anyone using the same browser can open any preview account by its email.
+- The public RSVP page cannot yet find events of the accounts workspace (added to Phase 9).
+- P1–P8 in docs/DOMAIN.md still await the owner's confirmation; P5 is needed in Phase 5.
+- Work is on branch phase_4_completion, created from phase_3_completion (not yet merged to main when this phase started); nothing committed.
+Next: Phase 5 — Dashboard. Needs owner decision D12 (where the Dashboard's "View Event" button leads) and confirmation of default P5 (docs/DOMAIN.md).
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

@@ -3,13 +3,17 @@ import { render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { routes } from '../app/routes.tsx'
-import type { Services } from '../services/contracts/index.ts'
+import { SessionProvider } from '../app/session/SessionProvider.tsx'
+import type { Backend, Services, Session } from '../services/contracts/index.ts'
+import {
+  createMockBackend,
+  type MockBackendOptions,
+} from '../services/mock/mockBackend.ts'
 import {
   createMockServices,
   type MockOptions,
 } from '../services/mock/mockServices.ts'
 import { createMemoryPersistence } from '../services/mock/persistence.ts'
-import { ServicesContext } from '../services/servicesContext.ts'
 import { ToastProvider } from '../shared/ui/ToastProvider.tsx'
 
 /** The moment the demo dataset is generated at in tests. */
@@ -34,11 +38,37 @@ export function createTestServices(
   })
 }
 
+export type TestSession = 'demo' | 'none'
+
+/**
+ * A whole browser-local backend for tests. By default the demo is already
+ * open, so pages inside the application can be rendered directly.
+ */
+export function createTestBackend(
+  options: {
+    services?: Services
+    session?: TestSession
+  } & Partial<MockBackendOptions> = {},
+): Backend {
+  const { services, session = 'demo', ...rest } = options
+  return createMockBackend({
+    demoPersistence: createMemoryPersistence(),
+    accountsPersistence: createMemoryPersistence(),
+    sessionPersistence:
+      session === 'demo'
+        ? createMemoryPersistence<Session>({ workspace: 'demo' })
+        : createMemoryPersistence<Session>(),
+    now: () => TEST_NOW,
+    demoServices: services,
+    ...rest,
+  })
+}
+
 export function AppProviders({
-  services,
+  backend,
   children,
 }: {
-  services: Services
+  backend: Backend
   children: ReactNode
 }) {
   const queryClient = new QueryClient({
@@ -46,23 +76,30 @@ export function AppProviders({
   })
   return (
     <QueryClientProvider client={queryClient}>
-      <ServicesContext.Provider value={services}>
+      <SessionProvider backend={backend}>
         <ToastProvider>{children}</ToastProvider>
-      </ServicesContext.Provider>
+      </SessionProvider>
     </QueryClientProvider>
   )
 }
 
-/** Renders the application's real route table at an address, on demo data. */
+/**
+ * Renders the application's real route table at an address. With no further
+ * arguments the visitor is inside the demo; pass `session: 'none'` to start
+ * signed out.
+ */
 export function renderApp(
   path: string,
   services: Services = createTestServices(),
+  options: { session?: TestSession; backend?: Backend } = {},
 ) {
+  const backend =
+    options.backend ?? createTestBackend({ services, session: options.session })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const view = render(
-    <AppProviders services={services}>
+    <AppProviders backend={backend}>
       <RouterProvider router={router} />
     </AppProviders>,
   )
-  return { ...view, router, services }
+  return { ...view, router, services, backend }
 }

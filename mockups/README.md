@@ -11,6 +11,21 @@ Before implementing any page or tab:
 6. The notification bell, and the Profile and Settings entries on the homepage sidebar, are not built in the MVP. The event selector is in the sidebar only. Inside an event the avatar shows an icon for the user's role in that event (crown for Owner, shield for Admin, people icon for Viewer); outside an event it shows none.
 7. The event sidebar is the same on every event-level page: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Where a mockup's sidebar differs, this order applies.
 
+## Landing Page
+
+Desktop:
+- `landing_page.png`
+
+Mobile:
+- `landing_page_mobile.png`
+
+Notes:
+- This is what a visitor sees before signing in or opening the demo. Three flows start here: Sign Up → account created → My Events; Sign In → My Events; Try Demo → the populated demo.
+- The product screenshot in the hero shows a different product (Overview, RSVPs, Seating, Analytics, Share Event). It is not copied: a decorative preview is drawn in its place with this product's navigation names and fictional figures.
+- The "How it works" link has no section in the mockups and is not built (`docs/FUTURE_FEATURES.md`). "Features" scrolls to the feature cards.
+- Three feature texts promise things the MVP does not do (reminders, sending from inside the app, designing a seating plan, "real sample data"). The wording is adjusted to what exists; see `docs/MOCKUP_NOTES.md`.
+- There are no mockups for the Sign In and Sign Up forms; they are built from the shared components.
+
 ## Homepage
 
 Desktop:
@@ -18,6 +33,11 @@ Desktop:
 
 Mobile:
 - `homepage_mobile.png`
+
+Notes:
+- The mockup cards show a photo per event. Events have no photo yet, so each card shows a generated cover: a gradient with an icon, chosen from the event. Uploading a cover image is a future feature (`docs/FUTURE_FEATURES.md`).
+- The "⋯" menu on a card holds Open, Duplicate and Delete. Duplicate and Delete are shown to an Owner only.
+- Each card also shows the user's role in the event, which the mockups omit.
 
 ## Dashboard
 

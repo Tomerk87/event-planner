@@ -126,6 +126,141 @@ export function describeServicesContract(
         expect(await services.permissions.list(created.id)).toHaveLength(1)
       })
 
+      it('refuses to create an event that starts in the past', async () => {
+        const { services, events } = setup()
+        const { event: past } = await services.events.get(events.past)
+
+        expect(await codeOf(services.events.create({ ...past }))).toBe(
+          'VALIDATION',
+        )
+      })
+
+      it('duplicates an event’s set-up, without its guests, for an Owner only', async () => {
+        const { services, events } = setup()
+        const copy = {
+          name: 'Second Night',
+          startsAt: '2031-03-01T17:00:00.000Z',
+        }
+        const { event: source } = await services.events.get(events.owner)
+        await services.messages.updateTemplate(
+          events.owner,
+          'Join us {{rsvp_url}}',
+        )
+        const sourceTables = await services.tables.list(events.owner)
+        const sourceMembers = await services.permissions.list(events.owner)
+
+        const created = await services.events.duplicate(events.owner, copy)
+
+        expect(created).toMatchObject({
+          name: 'Second Night',
+          startsAt: copy.startsAt,
+          timeZone: source.timeZone,
+          maxAttendees: source.maxAttendees,
+          defaultAllowedAttendees: source.defaultAllowedAttendees,
+          rsvpLanguage: source.rsvpLanguage,
+        })
+        expect(created.id).not.toBe(source.id)
+        expect(created.rsvpSlug).not.toBe(source.rsvpSlug)
+        expect((await services.events.get(created.id)).role).toBe('OWNER')
+        expect((await services.messages.getTemplate(created.id)).body).toBe(
+          'Join us {{rsvp_url}}',
+        )
+        expect(await services.rsvp.getSettings(created.id)).toMatchObject({
+          welcomeMessage: (await services.rsvp.getSettings(events.owner))
+            .welcomeMessage,
+        })
+        const tables = await services.tables.list(created.id)
+        expect(tables.map(({ table }) => table.number)).toEqual(
+          sourceTables.map(({ table }) => table.number),
+        )
+        expect(tables.every(({ assigned }) => assigned === 0)).toBe(true)
+        expect(await services.guests.list(created.id)).toEqual([])
+        expect(await services.unknownGuests.list(created.id)).toEqual([])
+        expect(await services.messages.listSends(created.id)).toEqual([])
+        expect(await services.permissions.list(created.id)).toHaveLength(1)
+
+        // The original is untouched.
+        expect(await services.tables.list(events.owner)).toEqual(sourceTables)
+        expect(await services.permissions.list(events.owner)).toEqual(
+          sourceMembers,
+        )
+        expect(
+          await codeOf(services.events.duplicate(events.admin, copy)),
+        ).toBe('FORBIDDEN')
+        expect(
+          await codeOf(services.events.duplicate(events.viewer, copy)),
+        ).toBe('FORBIDDEN')
+      })
+
+      it('duplicates a past event, and validates the new name and date', async () => {
+        const { services, events } = setup()
+        const { role } = await services.events.get(events.past)
+        expect(role).toBe('OWNER')
+
+        const created = await services.events.duplicate(events.past, {
+          name: 'Garden Party Again',
+          startsAt: '2031-05-01T16:00:00.000Z',
+        })
+
+        expect((await services.events.get(created.id)).isPast).toBe(false)
+        expect(
+          await codeOf(
+            services.events.duplicate(events.past, {
+              name: ' ',
+              startsAt: '2031-05-01T16:00:00.000Z',
+            }),
+          ),
+        ).toBe('VALIDATION')
+        expect(
+          await codeOf(
+            services.events.duplicate(events.past, {
+              name: 'Too Late',
+              startsAt: '2020-05-01T16:00:00.000Z',
+            }),
+          ),
+        ).toBe('VALIDATION')
+      })
+
+      it('deletes an event and everything in it, for an Owner only', async () => {
+        const { services, events } = setup()
+        const { event } = await services.events.get(events.owner)
+
+        expect(await codeOf(services.events.remove(events.admin))).toBe(
+          'FORBIDDEN',
+        )
+        expect(await codeOf(services.events.remove(events.viewer))).toBe(
+          'FORBIDDEN',
+        )
+        expect(await codeOf(services.events.remove('no-such-event'))).toBe(
+          'NOT_FOUND',
+        )
+
+        await services.events.remove(events.owner)
+
+        expect(await codeOf(services.events.get(events.owner))).toBe(
+          'NOT_FOUND',
+        )
+        expect(await codeOf(services.guests.list(events.owner))).toBe(
+          'NOT_FOUND',
+        )
+        expect(await codeOf(services.rsvp.getPublicEvent(event.rsvpSlug))).toBe(
+          'NOT_FOUND',
+        )
+        const remaining = await services.events.list()
+        expect(remaining).toHaveLength(5)
+        expect(remaining.map((item) => item.event.id)).not.toContain(
+          events.owner,
+        )
+      })
+
+      it('deletes a past event', async () => {
+        const { services, events } = setup()
+
+        await services.events.remove(events.past)
+
+        expect(await codeOf(services.events.get(events.past))).toBe('NOT_FOUND')
+      })
+
       it('validates event input on create and update', async () => {
         const { services, events } = setup()
         const { event } = await services.events.get(events.owner)

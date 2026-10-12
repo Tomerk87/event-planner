@@ -17,7 +17,8 @@
     "backToMyEvents": "Back to My Events",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "logOut": "Log out"
   },
   "language": {
     "label": "Language",
@@ -34,7 +35,8 @@
     "list": "Your events"
   },
   "user": {
-    "roleInEvent": "Your role in this event: {{role}}"
+    "roleInEvent": "Your role in this event: {{role}}",
+    "menu": "Account menu for {{name}}"
   },
   "pages": {
     "events": "My Events",
@@ -119,11 +121,190 @@
     "ALREADY_MEMBER": "This person already has access to the event.",
     "RSVP_CLOSED": "RSVP is closed because the event has started.",
     "UNAVAILABLE": "The service is not available right now. Please try again.",
-    "UNKNOWN": "Something went wrong. Please try again."
+    "UNKNOWN": "Something went wrong. Please try again.",
+    "EMAIL_TAKEN": "An account with this email already exists. Sign in instead.",
+    "ACCOUNT_NOT_FOUND": "No account with this email was found in this browser. Sign up, or try the demo."
   },
   "unavailable": {
     "title": "The application cannot start",
     "body": "The data service for this deployment is not available yet."
+  },
+  "landing": {
+    "documentTitle": "Plan every guest",
+    "nav": "Landing page",
+    "tryDemo": "Try Demo",
+    "headline": {
+      "first": "Plan every guest.",
+      "second": "Manage every detail."
+    },
+    "lead": "Manage guests, RSVP responses, WhatsApp invitations, tables, seating and event analytics in one place.",
+    "note": "No account required. Explore fully populated demo events.",
+    "features": {
+      "link": "Features",
+      "title": "Features",
+      "guests": {
+        "title": "Guest Management",
+        "body": "Keep all your guests in one place, with search, filters and import from a spreadsheet."
+      },
+      "rsvp": {
+        "title": "RSVP Tracking",
+        "body": "One RSVP link per event. See who is coming, who is not sure and who declined."
+      },
+      "whatsapp": {
+        "title": "WhatsApp Invitations",
+        "body": "Write your invitation once and open it in WhatsApp for each guest, ready to send."
+      },
+      "seating": {
+        "title": "Seating & Tables",
+        "body": "Set up your tables and assign confirmed guests, with capacity checked for you."
+      }
+    },
+    "band": {
+      "title": "Explore the demo — no setup required.",
+      "body": "Discover every feature with fully populated events and fictional sample data."
+    },
+    "preview": {
+      "event": "Garden Celebration",
+      "overview": "RSVP overview",
+      "share": "{{percent}}%",
+      "kpi": {
+        "total": "Total guests",
+        "approved": "Approved",
+        "awaiting": "Awaiting",
+        "declined": "Declined"
+      },
+      "guests": {
+        "first": "Noa Pelegrin",
+        "second": "Idan Maroz",
+        "third": "Tali Sharvit",
+        "fourth": "Omer Galron"
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "action": "Sign In",
+      "title": "Sign in",
+      "subtitle": "Welcome back. Sign in to manage your events.",
+      "noAccount": "Don't have an account?"
+    },
+    "signUp": {
+      "action": "Sign Up",
+      "title": "Create your account",
+      "subtitle": "Start planning your first event.",
+      "haveAccount": "Already have an account?"
+    },
+    "fields": {
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least {{min}} characters."
+    },
+    "errors": {
+      "name": "Enter your name.",
+      "email": "Enter a valid email address.",
+      "passwordRequired": "Enter your password.",
+      "passwordLength": "Use at least {{min}} characters."
+    },
+    "prototype": {
+      "title": "Preview version",
+      "body": "Accounts are kept in this browser only. Your password is not saved or checked, so do not enter a real one."
+    },
+    "tryDemoInstead": "Or explore the demo without an account"
+  },
+  "events": {
+    "subtitle": "Manage your events, guests, and RSVPs all in one place.",
+    "listLabel": "Events",
+    "filter": {
+      "label": "Filter events",
+      "all": "All Events",
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "search": {
+      "label": "Search events",
+      "placeholder": "Search events…",
+      "toggle": "Search events"
+    },
+    "view": {
+      "label": "Layout",
+      "grid": "Grid view",
+      "list": "List view"
+    },
+    "status": {
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
+    "card": {
+      "open": "Open Event",
+      "view": "View Event",
+      "openNamed": "{{action}}: {{name}}",
+      "actions": "Actions for {{name}}",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "date": "Date:",
+      "time": "Time:",
+      "role": "Your role:",
+      "maxAttendees": "{{formatted}} maximum attendees",
+      "confirmed": "{{formatted}} confirmed",
+      "capacity": "{{formatted}} capacity",
+      "attendance": "Confirmed attendees of {{name}}"
+    },
+    "create": {
+      "action": "Create Event",
+      "title": "Create event",
+      "submit": "Create Event",
+      "done": "The event was created."
+    },
+    "duplicate": {
+      "title": "Duplicate event",
+      "submit": "Duplicate Event",
+      "done": "The event was duplicated.",
+      "defaultName": "Copy of {{name}}",
+      "noticeTitle": "What is copied",
+      "noticeBody": "The event details, RSVP settings, message template and tables. Guests, responses, sent messages and other members are not copied. You will be the Owner of the new event.",
+      "timeZone": "Time zone: {{timeZone}} (same as the original event)"
+    },
+    "delete": {
+      "title": "Delete event",
+      "submit": "Delete Event",
+      "done": "The event was deleted.",
+      "warningTitle": "Delete “{{name}}” permanently?",
+      "warningBody": "The event and all its guests, responses, messages, tables and permissions will be removed for everyone. This cannot be undone.",
+      "confirmLabel": "Event name",
+      "confirmHint": "Type {{name}} to confirm."
+    },
+    "form": {
+      "name": "Event name",
+      "date": "Date",
+      "time": "Time",
+      "timeZone": "Time zone",
+      "maxAttendees": "Maximum attendees",
+      "maxAttendeesHint": "Between {{min}} and {{max}}.",
+      "defaultAllowedAttendees": "Allowed attendees per guest",
+      "defaultAllowedAttendeesHint": "Default for new guests, {{min}} to {{max}}.",
+      "rsvpLanguage": "RSVP language",
+      "rsvpLanguageHint": "The language of the public RSVP page.",
+      "location": "Location",
+      "errors": {
+        "name": "Enter the event name.",
+        "startsAt": "Choose the date and time of the event.",
+        "startsAtPast": "Choose a date and time in the future.",
+        "timeZone": "Choose a time zone.",
+        "maxAttendees": "Enter a whole number between {{min}} and {{max}}.",
+        "defaultAllowedAttendees": "Enter a whole number between {{min}} and {{max}}."
+      }
+    },
+    "empty": {
+      "title": "No events yet",
+      "body": "Create your first event to start adding guests and sending invitations.",
+      "action": "Create your first event"
+    },
+    "noMatch": {
+      "title": "No events match",
+      "body": "Try a different search or filter.",
+      "action": "Clear search and filter"
+    }
   },
   "showcase": {
     "title": "Design System",

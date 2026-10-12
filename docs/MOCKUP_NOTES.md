@@ -1,6 +1,6 @@
 # Mockup notes: scope and differences from the PRD
 
-Recorded after reviewing all 19 images in `mockups/` against `docs/PRD.md` (2026-10-12). `mockups/README.md` remains the authoritative page-to-image mapping; this file records where the images and the approved requirements disagree or leave gaps.
+Recorded after reviewing all 19 images in `mockups/` against `docs/PRD.md` (2026-10-12); the two landing-page images were added and reviewed on 2026-10-13. `mockups/README.md` remains the authoritative page-to-image mapping; this file records where the images and the approved requirements disagree or leave gaps.
 
 Rule applied throughout (`AGENTS.md`, owner decision 2026-10-12): the mockups were created after the PRD, so where a mockup differs from or adds to the PRD, the mockup is built. The PRD remains the source of truth for business rules and is updated in the same phase. Items marked **Decision needed** are ones this rule does not settle, because mockups contradict each other or do not show what an element does; they are listed in `docs/DOMAIN.md` and are not to be resolved by guessing. Items marked **Decided** record an owner decision.
 
@@ -30,13 +30,36 @@ How the mockups show it:
 - The event selector appears in the sidebar (`dashboard.png`, `guests.png`, `whatsapp_message.png`, `rsvp_settings.png`), in the top bar (`event_layout.png`, `permissions.png`), and in both at once (`event_settings.png`). **Decided (2026-10-12):** the selector is in the sidebar only.
 - Every screen shows a **notification bell**, and `homepage.png` shows **Profile** and **Settings** account pages. The PRD defines no notifications, profile or account-settings features. **Decided (2026-10-12):** all three are left out of the MVP and listed in `docs/FUTURE_FEATURES.md`.
 - A **crown icon** appears beside the user avatar on mobile screens and on `permissions.png`. **Decided (2026-10-12):** it is the user's role in the current event, using the same icons as the Permissions role badges (crown for Owner, shield for Admin, people icon for Viewer). No icon is shown outside an event, so the crown on the homepage mockups is not reproduced. A Super User without a membership shows the crown.
-- No mockup shows the **Try Demo** entry, the Demo Mode indicator, Reset Demo, or the demo role switcher required by PRD §12.
+- The **Try Demo** entry is on the landing page (`landing_page.png`, added 2026-10-13). No mockup shows the Demo Mode indicator, Reset Demo, or the demo role switcher required by PRD §12.
+
+### Landing page
+
+Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-defined flows (2026-10-13): Landing → Sign Up → account created → My Events; Landing → Sign In → My Events; Landing → Try Demo → the populated demo.
+
+- **Hero screenshot.** The mockup shows a different product: navigation "Overview, Guests, RSVPs, WhatsApp, Seating, Tables, Analytics", a "Share Event" button and statuses "Confirmed / Pending / Not Attending". None of that exists here. A decorative preview is drawn in the same position with this product's navigation names, status names and fictional figures. It can be replaced by a real screenshot of the Dashboard once Phase 5 is built.
+- **"How it works"** is a header link with no matching section. Not built; listed in `docs/FUTURE_FEATURES.md`. "Features" scrolls to the feature cards.
+- **Wording adjusted to the MVP** (owner approved with the Phase 4 plan, 2026-10-13):
+
+  | Mockup text | Built text | Why |
+  |---|---|---|
+  | "Send beautiful WhatsApp invitations and reminders directly from the app." | "Write your invitation once and open it in WhatsApp for each guest, ready to send." | The MVP opens WhatsApp for the organizer to send; reminders are out of scope (PRD §7.1, §17) |
+  | "Design your seating plan, manage tables, and easily assign guests." | "Set up your tables and assign confirmed guests, with capacity checked for you." | The visual seating plan is deferred (PRD §11.4) |
+  | "Track responses in real time and see who's coming, pending or not attending." | "One RSVP link per event. See who is coming, who is not sure and who declined." | Uses the product's own statuses; nothing is pushed in real time |
+  | "…a fully populated event and real sample data." | "…fully populated events and fictional sample data." | Demo data is fictional by rule (`AGENTS.md`), and there are several demo events |
+
+- The mockup text contains a typo ("res:ponses"), not copied.
+- The headline's second line is a gradient in the mockup; it is built in the solid primary colour so its contrast can be verified.
+- On a phone the mockup shows only a menu button; the menu holds Sign In, Sign Up and Try Demo.
+- The Sign In and Sign Up **forms** have no mockup.
 
 ### Homepage / Events
 
-- Event cards show a **cover image** per event. The PRD has no event image field. Built as shown; the field is added to the PRD in Phase 4.
-- Cards have a "⋯" menu whose contents are not shown. It is the only visible place for Duplicate/Delete, since `event_settings.png` has neither.
-- Search, grid/list toggle and All/Upcoming/Past tabs are not in the PRD; treated as presentation of existing data.
+- Event cards show a **cover image** per event. **Decided (2026-10-12):** until organizers can upload one, each card shows a generated cover — a gradient with an icon, chosen from the event's id, drawn in the browser. Uploading an image when creating an event and in Event Settings is listed in `docs/FUTURE_FEATURES.md`.
+- Cards have a "⋯" menu whose contents are not shown. It is the only visible place for Duplicate/Delete, since `event_settings.png` has neither. Built with Open, Duplicate and Delete; the last two for an Owner (or Super User) only.
+- Search, grid/list toggle and All/Upcoming/Past tabs are not in the PRD; treated as presentation of existing data. The chosen tab, search text and layout are kept in the page address.
+- The mockups show only the grid on desktop and only the list on a phone. Both layouts are available at every width; the list uses the phone mockup's card.
+- The phone mockup shows Create Event below the tabs; built as shown.
+- Cards additionally show the user's role in the event (`PLAN.md` Phase 4), which the mockups omit.
 
 ### Dashboard
 
@@ -86,11 +109,10 @@ How the mockups show it:
 
 ## Found while building the design system (Phase 2)
 
-- **User menu.** The mockups draw a chevron beside the user name, implying a menu, but never show its contents. The shell shows the avatar, name and role icon without a menu; the menu arrives with sign-in and log-out in Phase 4.
-- **Event selector thumbnail.** The mockups show the event's cover image in the selector. The shell shows a calendar icon until the cover image exists (Phase 4).
-- **Homepage sidebar.** With Profile and Settings left out, the homepage sidebar holds only My Events and the language selector. Log out is added in Phase 4.
+- **User menu.** The mockups draw a chevron beside the user name, implying a menu, but never show its contents. Since Phase 4 it holds Log out.
+- **Event selector thumbnail.** The mockups show the event's cover image in the selector. Since Phase 4 it shows the event's generated cover.
+- **Homepage sidebar.** With Profile and Settings left out, the homepage sidebar holds My Events, the language selector and, since Phase 4, Log out.
 - **Typeface.** The mockups use an Inter-style typeface. The app asks for Inter and falls back to the system font; no font file is bundled.
-- **Empty top bar.** Until a signed-in user exists (Phase 4), the desktop top bar on real pages is empty.
 
 ## Phone bottom action bar
 
@@ -106,7 +128,7 @@ The images use sample names, `example.com` email addresses, placeholder-style ph
 
 Built from the established visual language and shared components (`AGENTS.md`, UI mockups rule 12):
 
-- Sign-in, create-event form, account menu
+- Sign-in and sign-up forms, create-event form, duplicate-event and delete-event dialogs, account menu
 - Demo Mode entry, indicator, Reset Demo confirmation, demo role switcher
 - Unknown Guests tab content and its review / convert / merge / reject actions
 - Guest add/edit form, guest import flow (mapping, preview, errors), export menu

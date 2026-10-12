@@ -1,10 +1,18 @@
-import { CalendarCheck, Menu, X, type LucideIcon } from 'lucide-react'
+import {
+  CalendarCheck,
+  ChevronDown,
+  LogOut,
+  Menu as MenuIcon,
+  X,
+  type LucideIcon,
+} from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink } from 'react-router'
 import type { EventRole } from '../../domain/roles.ts'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
 import { cx } from '../../shared/ui/cx.ts'
+import { Menu } from '../../shared/ui/Menu.tsx'
 import { RoleIcon } from '../../shared/ui/RoleIcon.tsx'
 import { DESKTOP_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
 import { useModalDialog } from '../../shared/ui/useModalDialog.ts'
@@ -40,6 +48,10 @@ interface AppShellProps {
   event?: ShellEvent
   events?: ShellEvent[]
   user?: ShellUser
+  /** Ends the session; offered in the user menu and, if asked, the sidebar. */
+  onSignOut?: () => void
+  /** Also show Log out at the foot of the sidebar (the homepage does). */
+  signOutInSidebar?: boolean
   /** Shown in the top bar at every width. */
   banner?: ReactNode
   /** Shown in the top bar on desktop and inside the drawer below it. */
@@ -101,8 +113,12 @@ function SidebarContent({
   event,
   events = [],
   tools,
+  onSignOut,
+  signOutInSidebar = false,
   onNavigate,
 }: SidebarContentProps) {
+  const { t } = useTranslation()
+
   return (
     <>
       {event && (
@@ -127,26 +143,73 @@ function SidebarContent({
         {footerLink && (
           <NavItemLink item={footerLink} onNavigate={onNavigate} />
         )}
+        {signOutInSidebar && onSignOut && (
+          <button
+            type="button"
+            className={cx(styles.navLink, styles.navButton)}
+            onClick={() => {
+              onNavigate()
+              onSignOut()
+            }}
+          >
+            <LogOut
+              className={cx(styles.navIcon, styles.directional)}
+              aria-hidden="true"
+            />
+            <span>{t('nav.logOut')}</span>
+          </button>
+        )}
       </div>
     </>
   )
 }
 
-function UserBadge({ user }: { user: ShellUser }) {
+function UserBadge({
+  user,
+  onSignOut,
+}: {
+  user: ShellUser
+  onSignOut?: () => void
+}) {
   const { t } = useTranslation()
+  const role = user.role && (
+    <span className={cx(styles.userRole, styles[`role${user.role}`])}>
+      <RoleIcon role={user.role} />
+      <span className="visually-hidden">
+        {t('user.roleInEvent', { role: t(`roles.${user.role}`) })}
+      </span>
+    </span>
+  )
+
+  if (!onSignOut) {
+    return (
+      <div className={styles.user}>
+        <Avatar name={user.name} />
+        {role}
+        <span className={styles.userName}>{user.name}</span>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.user}>
-      <Avatar name={user.name} />
-      {user.role && (
-        <span className={cx(styles.userRole, styles[`role${user.role}`])}>
-          <RoleIcon role={user.role} />
-          <span className="visually-hidden">
-            {t('user.roleInEvent', { role: t(`roles.${user.role}`) })}
-          </span>
-        </span>
-      )}
-      <span className={styles.userName}>{user.name}</span>
+      {role}
+      <Menu
+        label={t('user.menu', { name: user.name })}
+        triggerClassName={styles.userButton}
+        items={[
+          {
+            id: 'logout',
+            label: t('nav.logOut'),
+            icon: <LogOut />,
+            onSelect: onSignOut,
+          },
+        ]}
+      >
+        <Avatar name={user.name} />
+        <span className={styles.userName}>{user.name}</span>
+        <ChevronDown className={styles.userChevron} aria-hidden="true" />
+      </Menu>
     </div>
   )
 }
@@ -158,6 +221,7 @@ export function AppShell({
   children,
   ...sidebar
 }: AppShellProps) {
+  const { onSignOut } = sidebar
   const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
@@ -214,7 +278,7 @@ export function AppShell({
             aria-label={t('nav.openMenu')}
             onClick={() => setMenuOpen(true)}
           >
-            <Menu aria-hidden="true" />
+            <MenuIcon aria-hidden="true" />
           </button>
           <div className={styles.topbarLogo}>
             <Logo />
@@ -222,7 +286,7 @@ export function AppShell({
           <div className={styles.topbarEnd}>
             {banner}
             {isDesktop && tools}
-            {user && <UserBadge user={user} />}
+            {user && <UserBadge user={user} onSignOut={onSignOut} />}
           </div>
         </header>
         <main id="main-content" tabIndex={-1} className={styles.main}>

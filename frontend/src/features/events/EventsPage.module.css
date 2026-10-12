@@ -1,0 +1,94 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-end: var(--space-5);
+}
+
+.tabs {
+  min-inline-size: 0;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-inline-start: auto;
+}
+
+.search {
+  inline-size: min(22rem, 40vw);
+}
+
+.viewToggle {
+  display: inline-flex;
+  padding: var(--space-1);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.viewButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.viewButton svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.viewButtonActive {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.phoneRow {
+  margin-block-end: var(--space-4);
+}
+
+.events {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.events > li {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.events > li > * {
+  flex: 1;
+}
+
+.grid {
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+}
+
+.list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 767px) {
+  .toolbar {
+    margin-block-end: var(--space-4);
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

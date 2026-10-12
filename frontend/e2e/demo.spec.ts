@@ -1,5 +1,9 @@
 import { expect, test, type Page } from '@playwright/test'
-import { openNavigation } from './helpers.ts'
+import { openNavigation, startInDemo } from './helpers.ts'
+
+test.beforeEach(async ({ page }) => {
+  await startInDemo(page)
+})
 
 const MAIN_EVENT = '/events/evt-1/guests'
 
@@ -99,6 +103,7 @@ test('demo data is kept per browser and not shared between visitors', async ({
 
   const otherVisitor = await browser.newContext()
   const otherPage = await otherVisitor.newPage()
+  await startInDemo(otherPage)
   await otherPage.goto(`${new URL(page.url()).origin}${MAIN_EVENT}`)
 
   await expect(otherPage.getByRole('heading', { name: 'Guests' })).toBeVisible()

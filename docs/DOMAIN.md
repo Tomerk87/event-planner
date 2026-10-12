@@ -45,7 +45,6 @@ The open items below are ones the precedence rule (see Resolved decisions, R1) d
 | # | Decision | Needed by |
 |---|---|---|
 | D2 | Public RSVP abuse prevention: rate limits or extra verification | Phase 15 |
-| D3 | Event duplication scope (which records are copied) and deleted-event retention | Phase 4 |
 | D4 | Permission invite flow for an email with no account | Phase 11 |
 
 ### Raised by the mockup review
@@ -103,3 +102,8 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D11 | **Recent Guest Activity** is derived from the per-send message history and each guest's latest response; no separate activity record. | 2026-10-12 |
 | D23 | **Demo phone numbers** are Israeli-style but undialable (`+972 00-…`). Phone validation checks length and digits, not the operator prefix. | 2026-10-12 |
 | D24 | **Tablet layouts** are not designed or verified for the MVP. A tablet gets whichever of the desktop or phone layouts fits its width (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |
+| D3 | **Duplicate event:** Owner or Super User only. Copies the event's details, RSVP settings, message template and tables (with nobody seated). Does not copy guests, responses, unknown responses, sent messages or other members. The person duplicating becomes the copy's Owner and gives it a new name and date. Allowed on a past event. **Delete event:** Owner or Super User only; permanent; removes the event and everything in it; confirmed by typing the event's name. Allowed on a past event. | 2026-10-12 |
+| D10 | **Event cover:** until image upload exists, each event shows a cover generated in the browser (a gradient with an icon, chosen from the event's id). | 2026-10-12 |
+| D25 | **Entry flows:** Landing → Sign Up → account created → My Events; Landing → Sign In → My Events; Landing → Try Demo → the populated demo. A signed-out visitor who opens an application address is sent to the landing page; a visitor with a session who opens the landing page goes to My Events. | 2026-10-13 |
+| D26 | **Accounts before the backend exist only in the browser.** Sign-up and sign-in are simulated: accounts and their events are kept in the visitor's browser, in a workspace separate from the demo, and the two never share data. A password is asked for but never stored or checked, and the forms say so. This is not authentication and guards nothing real; it is replaced in Phase 14/16. | 2026-10-13 |
+| D27 | **A new or duplicated event must start in the future.** From its start an event is read-only, so one created in the past could not be set up. | 2026-10-13 |

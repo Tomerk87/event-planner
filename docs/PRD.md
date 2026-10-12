@@ -32,7 +32,9 @@ The POC targets a lightweight single-machine deployment; this is a delivery cons
 
 ### 3.1 Organizer accounts
 
-Authenticated users see an Events homepage containing events they can access. Each event card shows at minimum the name and date, and opens that event. Users can have different roles in different events.
+A visitor first sees a landing page with three ways in: **Sign Up** (create an account, then the Events homepage), **Sign In** (the Events homepage) and **Try Demo** (the populated demo, no account; section 12). A signed-out visitor who opens an application address is sent to the landing page.
+
+Authenticated users see an Events homepage containing events they can access. Each event card shows at minimum the name and date, and opens that event; it also shows the time, maximum attendees, confirmed attendees against capacity, whether the event is upcoming or past, and the user's role. The list can be filtered (all, upcoming, past) and searched by name. Users can have different roles in different events. A new account has no events until it creates one or is given access to one.
 
 ### 3.2 Roles
 
@@ -66,7 +68,8 @@ Inviting or granting access to an email without an existing account, account act
 
 ### 4.1 Account level
 
-- Sign in / authentication
+- Landing page
+- Sign up and sign in
 - Homepage / Events list
 - Create event
 - Open event
@@ -106,9 +109,9 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
 | Location | Optional; shown in the event selector and on the public RSVP page |
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
-| Cover image | Optional; shown on the event card and in the event selector |
+| Cover image | Optional; shown on the event card and in the event selector. Until upload is built (deferred, section 17), a cover is generated for each event |
 
-The event creator becomes an Owner. The application UI language can differ from the event's fixed guest-facing RSVP language.
+The event creator becomes an Owner. A new event must start in the future. The application UI language can differ from the event's fixed guest-facing RSVP language.
 
 ### 5.2 Past events
 
@@ -116,7 +119,20 @@ Once an event's date/time is reached (interpreted in its configured timezone), i
 
 ### 5.3 Duplication and deletion
 
-Only Owners and Super Users may duplicate or delete events. The precise duplication scope and event-deletion retention strategy require confirmation before implementation; do not silently assume which guests, RSVP records, permissions, or layout objects are copied.
+Only Owners and Super Users may duplicate or delete events. Both are allowed on past events.
+
+**Duplicate** creates a new event from an existing one, under a new name and a new start date and time (which must be in the future):
+
+| Copied | Not copied |
+|---|---|
+| Event details (time zone, maximum attendees, default allowed attendees, RSVP language, location, RSVP title) | Guests and their RSVP responses |
+| RSVP settings | Unknown RSVP responses |
+| Message template | Sent-message history and invitation counters |
+| Tables (number, name, capacity, shape), with nobody seated | Other members and their roles |
+
+The person duplicating becomes the Owner of the new event, which gets its own public RSVP link.
+
+**Delete** is permanent: the event and all its guests, responses, messages, tables and memberships are removed, and its public RSVP link stops working. The user confirms by typing the event's name. There is no recovery period in the MVP.
 
 ## 6. Guest management
 
@@ -306,7 +322,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 ### 12.1 Entry and scope
 
-- Visitors can choose **Try Demo** without authenticating.
+- Visitors can choose **Try Demo** on the landing page without authenticating. Leaving the demo (Log out) returns to the landing page and keeps the visitor's demo data.
 - Demo loads a prepopulated fictional event and allows visitors to explore the same pages/components as the real application.
 - Demo visitors can perform simulated guest CRUD, RSVPs, WhatsApp actions, seating changes, and role-aware exploration of Permissions, with restrictions corresponding to the selected demo role.
 - Demo Mode is clearly labeled and can be disabled by deployment configuration.
@@ -360,6 +376,7 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 
 | Page | Desktop | Mobile |
 |---|---|---|
+| Landing page | `landing_page.png` | `landing_page_mobile.png` |
 | Homepage / Events | `homepage.png` | `homepage_mobile.png` |
 | Dashboard | `dashboard.png` | `dashboard_mobile.png` |
 | Guests | `guests.png` | `guests_mobile.png` |
@@ -416,7 +433,7 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 
 1. ~~**Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?~~ Resolved 2026-10-12: the event's default allowed attendees (section 8.3).
 2. **Public RSVP abuse prevention:** What rate limits or additional verification are appropriate without creating an unnecessarily difficult guest experience?
-3. **Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?
+3. ~~**Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?~~ Resolved 2026-10-12: section 5.3.
 4. **Permission invite flow:** What happens when an organizer grants access to an email not yet registered?
 5. ~~**Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?~~ Resolved 2026-10-12: fresh RSVP, no table, invitation counter kept (section 6.2).
 6. ~~**Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?~~ Resolved 2026-10-12: stays deferred. The tab is shown as "Soon" and disabled, with no preview panel (section 11.4).
