@@ -1,0 +1,54 @@
+# Event Planner
+
+Web application for event organizers: guests, WhatsApp invitations, public RSVP, attendance dashboard, tables and seating, exports, and event-level permissions.
+
+The project is being built frontend-first. At this stage only the React frontend exists, and it runs without a backend, database or Docker.
+
+## Prerequisites
+
+- Node.js (developed and tested on v26)
+- npm
+
+## Run the frontend
+
+```sh
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173.
+
+## Commands
+
+Run from `frontend/`.
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | Type-check and build static assets into `dist/` |
+| `npm run preview` | Serve the built assets locally |
+| `npm run typecheck` | Type-check only |
+| `npm run lint` | Lint with oxlint |
+| `npm run format` | Format with Prettier |
+| `npm run format:check` | Check formatting without writing |
+| `npm test` | Run unit and component tests (Vitest) |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run test:e2e` | Run end-to-end tests (Playwright) |
+
+The first end-to-end run needs a browser: `npx playwright install chromium`.
+
+## Configuration
+
+Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DATA_PROVIDER` selects the data source: `mock` (default, browser-local data) or `api` (backend, not yet available).
+
+## Documentation
+
+- `AGENTS.md` — engineering rules
+- `PLAN.md` — implementation plan and progress log
+- `docs/PRD.md` — product requirements
+- `docs/ARCHITECTURE.md` — technical decisions and repository structure
+- `docs/DOMAIN.md` — glossary and open decisions
+- `docs/DEVELOPMENT.md` — workflow, validation and tooling
+- `docs/MOCKUP_NOTES.md` — differences between mockups and requirements
+- `mockups/README.md` — page-to-mockup mapping
