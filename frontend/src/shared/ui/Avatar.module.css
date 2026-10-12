@@ -1,0 +1,13 @@
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-border);
+  color: var(--color-primary-hover);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}

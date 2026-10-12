@@ -1,31 +1,25 @@
-import { NavLink, Outlet } from 'react-router'
-
-const eventNavItems = [
-  { to: 'dashboard', label: 'Dashboard' },
-  { to: 'guests', label: 'Guests' },
-  { to: 'rsvp', label: 'RSVP' },
-  { to: 'messages', label: 'Messages' },
-  { to: 'layout', label: 'Event Layout' },
-  { to: 'settings', label: 'Event Settings' },
-  { to: 'permissions', label: 'Permissions' },
-]
+import { ArrowLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { Outlet, useParams } from 'react-router'
+import { AppShell } from './shell/AppShell.tsx'
+import { getEventNavItems } from './shell/eventNav.ts'
 
 export function EventLayout() {
+  const { t } = useTranslation()
+  const { eventId = '' } = useParams()
+
   return (
-    <>
-      <nav aria-label="Event">
-        <ul>
-          {eventNavItems.map((item) => (
-            <li key={item.to}>
-              <NavLink to={item.to}>{item.label}</NavLink>
-            </li>
-          ))}
-          <li>
-            <NavLink to="/">Back to My Events</NavLink>
-          </li>
-        </ul>
-      </nav>
+    <AppShell
+      navLabel={t('nav.event')}
+      navItems={getEventNavItems(t, eventId)}
+      footerLink={{
+        to: '/',
+        label: t('nav.backToMyEvents'),
+        icon: ArrowLeft,
+        directional: true,
+      }}
+    >
       <Outlet />
-    </>
+    </AppShell>
   )
 }

@@ -1,0 +1,230 @@
+{
+  "app": {
+    "name": "Event Planner"
+  },
+  "nav": {
+    "main": "Main navigation",
+    "event": "Event navigation",
+    "menu": "Menu",
+    "myEvents": "My Events",
+    "dashboard": "Dashboard",
+    "guests": "Guests",
+    "rsvp": "RSVP",
+    "messages": "Messages",
+    "eventLayout": "Event Layout",
+    "eventSettings": "Event Settings",
+    "permissions": "Permissions",
+    "backToMyEvents": "Back to My Events",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "skipToContent": "Skip to content"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "he": "עברית"
+  },
+  "roles": {
+    "OWNER": "Owner",
+    "ADMIN": "Admin",
+    "VIEWER": "Viewer"
+  },
+  "eventSelector": {
+    "label": "Current event: {{name}}. Switch event",
+    "list": "Your events"
+  },
+  "user": {
+    "roleInEvent": "Your role in this event: {{role}}"
+  },
+  "pages": {
+    "events": "My Events",
+    "dashboard": "Dashboard",
+    "guests": "Guests",
+    "messages": "WhatsApp Messages",
+    "rsvpSettings": "RSVP Settings",
+    "eventLayout": "Event Layout",
+    "eventSettings": "Event Settings",
+    "permissions": "Permissions",
+    "publicRsvp": "RSVP"
+  },
+  "placeholder": {
+    "title": "Coming soon",
+    "body": "This page is not implemented yet."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The address you opened does not match any page."
+  },
+  "routeError": {
+    "title": "Something went wrong",
+    "body": "This page could not be displayed."
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "close": "Close",
+    "cancel": "Cancel",
+    "required": "required",
+    "soon": "Soon",
+    "characterCount": "{{count}}/{{max}}"
+  },
+  "states": {
+    "errorTitle": "Something went wrong",
+    "errorBody": "We could not load this. Please try again."
+  },
+  "access": {
+    "PAST_EVENT": {
+      "title": "This event has ended",
+      "body": "Past events are read-only. You can still view all data and download exports."
+    },
+    "VIEWER": {
+      "title": "View-only access",
+      "body": "You can view this event and download exports, but you cannot make changes."
+    }
+  },
+  "toast": {
+    "region": "Notifications",
+    "dismiss": "Dismiss"
+  },
+  "showcase": {
+    "title": "Design System",
+    "subtitle": "Shared components and layout used across Event Planner.",
+    "preview": {
+      "title": "Preview settings",
+      "subtitle": "Change the simulated role and event state to see how the shell and restricted elements respond.",
+      "role": "Role in this event",
+      "eventState": "Event state",
+      "active": "Upcoming event",
+      "past": "Past event"
+    },
+    "buttons": {
+      "title": "Buttons",
+      "subtitle": "Primary, secondary, ghost and destructive actions.",
+      "addGuest": "Add Guest",
+      "export": "Export",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "saving": "Saving",
+      "disabled": "Disabled",
+      "small": "Small",
+      "edit": "Edit guest",
+      "remove": "Remove guest"
+    },
+    "fields": {
+      "title": "Form fields",
+      "subtitle": "Labels, hints, required markers and validation errors.",
+      "eventName": "Event Name",
+      "eventNameValue": "Garden Celebration",
+      "maxAttendees": "Maximum Attendees",
+      "maxAttendeesHint": "Allowed range: 50 – 3000 attendees.",
+      "maxAttendeesError": "Enter a number between 50 and 3000.",
+      "rsvpLanguage": "RSVP Language",
+      "rsvpLanguageHint": "This language will be used for the public RSVP page.",
+      "welcomeMessage": "Welcome Message",
+      "welcomeMessageValue": "We are so excited to celebrate with you! Please let us know if you will be joining us.",
+      "search": "Search guests",
+      "searchPlaceholder": "Search by name, phone number or invitation name…"
+    },
+    "badges": {
+      "title": "Badges",
+      "subtitle": "Status labels for RSVP, events, tables and roles.",
+      "approved": "Approved",
+      "declined": "Declined",
+      "notSure": "Not Sure",
+      "awaiting": "Awaiting Response",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "overCapacity": "Over Capacity",
+      "almostFull": "Almost Full"
+    },
+    "kpis": {
+      "title": "KPI cards",
+      "subtitle": "Summary figures at the top of a page.",
+      "totalGuests": "Total Guests",
+      "invitationsSent": "Invitations Sent",
+      "awaitingResponse": "Awaiting Response",
+      "confirmedAttendees": "Confirmed Attendees"
+    },
+    "notices": {
+      "title": "Notices",
+      "subtitle": "Inline messages for information, warnings and errors.",
+      "infoTitle": "Guests can override this value",
+      "infoBody": "This is the default value for new guests, but you can set a different maximum for each guest.",
+      "successTitle": "RSVP page is active",
+      "successBody": "Guests can submit and update their RSVP until the event start time.",
+      "warningTitle": "Seating capacity below event capacity",
+      "warningBody": "275 seats are configured for an event capacity of 300. Add 25 more seats.",
+      "dangerTitle": "2 tables over capacity",
+      "dangerBody": "Table 12 exceeds capacity by 2 attendees. Table 14 exceeds capacity by 1 attendee.",
+      "action": "View tables"
+    },
+    "tabs": {
+      "title": "Tabs",
+      "subtitle": "Underline tabs for lists and segmented tabs for page views. Use the arrow keys to move between tabs.",
+      "guests": "Guests",
+      "unknownGuests": "Unknown Guests",
+      "guestsPanel": "The known guests list appears here.",
+      "unknownGuestsPanel": "RSVP responses that did not match a guest appear here.",
+      "tables": "Tables",
+      "arrangement": "Table Arrangement",
+      "tablesPanel": "The tables list appears here.",
+      "underlineLabel": "Guest lists",
+      "segmentedLabel": "Event layout views"
+    },
+    "table": {
+      "title": "Table and mobile cards",
+      "subtitle": "A table on wide screens; the same rows as cards on a phone.",
+      "caption": "Sample guests",
+      "name": "Name",
+      "phone": "Phone",
+      "allowed": "Allowed",
+      "status": "RSVP Status",
+      "tableNumber": "Table",
+      "noTable": "No table",
+      "tableValue": "Table {{number}}",
+      "allowedValue": "Allowed {{count}}"
+    },
+    "overlays": {
+      "title": "Dialogs, drawers and toasts",
+      "subtitle": "Overlays trap keyboard focus and close with Escape.",
+      "openDialog": "Open dialog",
+      "openDrawer": "Open drawer",
+      "showToast": "Show toast",
+      "showErrorToast": "Show error toast",
+      "dialogTitle": "Delete table?",
+      "dialogBody": "The guests assigned to this table will become unassigned. Guests are not deleted.",
+      "drawerTitle": "Filters",
+      "drawerBody": "Additional filters appear here.",
+      "confirm": "Delete table",
+      "toastSuccess": "Changes saved.",
+      "toastError": "Could not save changes."
+    },
+    "states": {
+      "title": "Empty, loading and error states",
+      "subtitle": "Shown in place of content.",
+      "emptyTitle": "No guests yet",
+      "emptyBody": "Add your first guest or import a list to get started.",
+      "emptyAction": "Add Guest"
+    },
+    "access": {
+      "title": "Read-only and restricted access",
+      "subtitle": "Editing controls are removed for Viewers and for past events. Change the preview settings above.",
+      "editableAction": "Add Guest",
+      "restricted": "Editing controls are hidden in this state."
+    },
+    "direction": {
+      "title": "Mixed-direction values",
+      "subtitle": "Phone numbers, email addresses and links keep their left-to-right order in Hebrew.",
+      "phone": "Phone",
+      "email": "Email",
+      "link": "RSVP link"
+    },
+    "rsvpLanguage": {
+      "title": "Guest-facing language",
+      "subtitle": "RSVP content uses the language fixed for the event, whatever the interface language is.",
+      "sample": "Number of attendees",
+      "english": "Event with English RSVP",
+      "hebrew": "Event with Hebrew RSVP"
+    }
+  }
+}

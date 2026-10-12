@@ -1,0 +1,75 @@
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width) solid;
+  border-radius: var(--radius-lg);
+}
+
+.icon {
+  flex-shrink: 0;
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+}
+
+.content {
+  flex: 1;
+  min-inline-size: 12rem;
+}
+
+.title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.body {
+  margin-block-start: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.action {
+  align-self: center;
+}
+
+.info {
+  background: var(--color-info-soft);
+  border-color: var(--color-info-border);
+}
+
+.info .icon,
+.info .title {
+  color: var(--color-info);
+}
+
+.success {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+}
+
+.success .icon,
+.success .title {
+  color: var(--color-success);
+}
+
+.warning {
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning-border);
+}
+
+.warning .icon,
+.warning .title {
+  color: var(--color-warning);
+}
+
+.danger {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
+}
+
+.danger .icon,
+.danger .title {
+  color: var(--color-danger);
+}

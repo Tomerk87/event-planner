@@ -1,0 +1,115 @@
+.card {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+  min-inline-size: 0;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+}
+
+.subtitle {
+  margin-block-start: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.kpi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.kpiLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.kpiValue {
+  margin-block-start: var(--space-1);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+.kpiIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-pill);
+}
+
+.kpiIcon svg {
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+}
+
+.success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.info {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.neutral {
+  background: var(--color-neutral-soft);
+  color: var(--color-neutral);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 767px) {
+  .kpi {
+    padding: var(--space-4);
+  }
+
+  .kpiIcon {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+
+  .kpiIcon svg {
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kpiGrid {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-4);
+  }
+}

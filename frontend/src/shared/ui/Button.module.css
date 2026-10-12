@@ -1,0 +1,118 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-5);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms,
+    border-color 120ms;
+}
+
+.button:focus-visible {
+  border-radius: var(--radius-md);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sm {
+  min-block-size: var(--control-height-sm);
+  padding-inline: var(--space-3);
+}
+
+.fullWidth {
+  inline-size: 100%;
+}
+
+.iconOnly {
+  inline-size: var(--control-height-sm);
+  min-block-size: var(--control-height-sm);
+  padding: 0;
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.icon svg,
+.spinner {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.spinner {
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.secondary {
+  background: var(--color-surface);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--color-neutral-soft);
+  color: var(--color-text);
+}
+
+.danger {
+  background: var(--color-danger);
+  color: var(--color-on-primary);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--color-danger-hover);
+}
+
+.iconOnly.danger {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.iconOnly.danger:hover:not(:disabled) {
+  background: var(--color-danger-border);
+}
+
+.link {
+  text-decoration: none;
+}
+
+:global([dir='rtl']) .link .icon {
+  transform: scaleX(-1);
+}

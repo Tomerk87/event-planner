@@ -85,22 +85,22 @@
 **Goal:** establish one reusable visual language from the actual desktop/mobile mockups before creating feature pages.
 
 ### Checklist
-- [ ] Read `mockups/README.md`; inspect all supplied screen types to extract common patterns.
-- [ ] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
-- [ ] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
-- [ ] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). The event selector is in the sidebar only. Do not build the notification bell, Profile or account Settings. Inside an event the avatar shows the user's role icon (crown Owner, shield Admin, people icon Viewer; Super User without membership shows the crown); no icon outside an event. Design and verify desktop and phone widths; tablets are not a separate target.
-- [ ] Add `i18next`/`react-i18next` with `en` and `he` translation resources and language persistence.
-- [ ] Move the hard-coded English strings left from Phase 1 (placeholder, not-found and error pages, event navigation labels) into translation resources.
-- [ ] Switch root `lang` and `dir` properly; use logical CSS properties and handle LTR phone/email/URL values inside RTL.
-- [ ] Add a fixed guest-facing RSVP language per event, distinct from the organizer UI language.
-- [ ] Create reusable read-only/past-event and role-restricted UI primitives.
-- [ ] Build a representative layout/component showcase against the provided mockups.
-- [ ] Document any mockup gaps or conflicts; do not introduce unrelated visual patterns.
+- [x] Read `mockups/README.md`; inspect all supplied screen types to extract common patterns.
+- [x] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
+- [x] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
+- [x] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). The event selector is in the sidebar only. Do not build the notification bell, Profile or account Settings. Inside an event the avatar shows the user's role icon (crown Owner, shield Admin, people icon Viewer; Super User without membership shows the crown); no icon outside an event. Design and verify desktop and phone widths; tablets are not a separate target.
+- [x] Add `i18next`/`react-i18next` with `en` and `he` translation resources and language persistence.
+- [x] Move the hard-coded English strings left from Phase 1 (placeholder, not-found and error pages, event navigation labels) into translation resources.
+- [x] Switch root `lang` and `dir` properly; use logical CSS properties and handle LTR phone/email/URL values inside RTL.
+- [x] Add a fixed guest-facing RSVP language per event, distinct from the organizer UI language. Done as the `LocaleScope` primitive; the per-event language value arrives with the event model in Phase 3 and is applied to the public RSVP page in Phase 9.
+- [x] Create reusable read-only/past-event and role-restricted UI primitives.
+- [x] Build a representative layout/component showcase against the provided mockups.
+- [x] Document any mockup gaps or conflicts; do not introduce unrelated visual patterns.
 
 ### Validation and exit criteria
-- [ ] Components render at desktop/mobile widths and in English LTR/Hebrew RTL.
-- [ ] Keyboard focus and labels work in common components.
-- [ ] UI foundation visually resembles the reference images.
+- [x] Components render at desktop/mobile widths and in English LTR/Hebrew RTL.
+- [x] Keyboard focus and labels work in common components.
+- [x] UI foundation visually resembles the reference images.
 
 ---
 
@@ -124,7 +124,8 @@
 - [ ] Add demo role-switching for Viewer/Admin/Owner and optionally Super User simulation, without granting real authorization.
 - [ ] Add provider selection at the app boundary; real API implementation will arrive later. Wire it to `parseDataProvider` in `frontend/src/services/providerConfig.ts`, which is defined and tested but not yet called.
 - [ ] Add basic fixture integrity and mock-service contract tests.
-- [ ] Add Playwright projects for a mobile viewport and for Hebrew/RTL once real UI exists (currently desktop Chromium only).
+- [x] Add Playwright projects for a mobile viewport and for Hebrew/RTL once real UI exists (currently desktop Chromium only). Done in Phase 2: `desktop` and `mobile` projects; RTL covered by tests that switch the language.
+- [ ] Supply the application shell with real data from the services: current event and event list for the selector, and the user's role for the avatar icon and for hiding Permissions (the shell accepts these as props; real pages currently pass none).
 
 ### Validation and exit criteria
 - [ ] First Demo launch generates data without manual seeding.
@@ -145,7 +146,8 @@
 - [ ] Build the Homepage/Events UI from the mapped mockups.
 - [ ] Show event cards with event name, date/time, active/past state and accessible role where relevant.
 - [ ] Provide prominent **Try Demo** entry without sign-in and clear Demo Mode indicator.
-- [ ] Implement simulated sign-in/session and account UI for frontend prototyping; **never mistake it for secure production authentication**.
+- [ ] Implement simulated sign-in/session and account UI for frontend prototyping; **never mistake it for secure production authentication**. Includes the user menu beside the avatar and Log out in the homepage sidebar, which the shell does not have yet.
+- [ ] Show the event cover image as the thumbnail in the sidebar event selector (currently a calendar icon).
 - [ ] Implement create/open/duplicate/delete event interactions in mock services subject to role and lifecycle rules.
 - [ ] New event creator becomes Owner; support membership across multiple events.
 - [ ] Implement past-event read-only interactions and export availability.
@@ -353,6 +355,8 @@
 - [ ] Check all mock services adhere to service contracts and approved domain rules.
 - [ ] Collect user feedback and iterate on the frontend until approved.
 - [ ] Record accepted UI/interaction decisions and remaining nonblocking visual issues.
+- [ ] Have the Hebrew translations reviewed by a Hebrew speaker; they were written by the coding agent.
+- [ ] Decide whether the `/showcase` route stays reachable in the deployed application or is limited to development.
 - [ ] **Request and record explicit user approval to proceed to the backend phase.**
 
 ### Validation and exit criteria
@@ -645,6 +649,29 @@ Changed: docs/DOMAIN.md, docs/FUTURE_FEATURES.md, docs/PRD.md (header, sections 
 Validation: documentation only, no code changed. Checked that docs/DOMAIN.md has no open decision needed by Phase 2 and searched the docs for wording that contradicts the outcomes.
 Follow-ups/risks: none blocking Phase 2. Open decisions D11–D14, D16, D17, D19, D22 and D23 belong to Phase 3 and later.
 Next: Phase 2.
+```
+
+```text
+2026-10-12 — Phase 2 — completed all checklist items and exit criteria, in three passes (build, review and fix, final validation).
+Done:
+- Design tokens (colors, typography, spacing, radius, borders, shadows, semantic statuses, documented breakpoints) in frontend/src/styles/tokens.css.
+- Shared components in frontend/src/shared/ui: Button, IconButton, ButtonLink, TextField, TextArea, SelectField, Badge, Card, KpiCard, KpiGrid, Notice, Tabs (underline and segmented, disabled "Soon" tab), PageHeader, DataTable with phone cards, Dialog, Drawer, toasts, Empty/Loading/Error states, Avatar, RoleIcon, LtrText.
+- Application shell: dark sidebar with event selector, event navigation in the approved order, language selector and Back to My Events; top bar with avatar, name and role icon; drawer navigation behind a menu button below 1024px; skip link.
+- i18next with English and Hebrew resources (168 keys each, type-checked), language remembered across reloads, root lang/dir switching, LocaleScope for guest-facing content.
+- Read-only primitives: access rules in src/domain/access.ts, ReadOnlyNotice, ReadOnlyBadge, EditGate.
+- Phase 1 hard-coded strings moved to translation resources.
+- Showcase page at /showcase.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm test` 90 passed; `npm run test:e2e` 19 passed, 1 skipped by design (desktop-only sidebar position test on the mobile project), across desktop and mobile projects, covering RTL switching and persistence, sidebar side in both directions, no horizontal overflow, dialog focus and Escape, table-to-cards, and hidden editing controls for Viewer and past events; `npm run build` emitted dist/. Screenshots of the showcase, an event page, the homepage, the mobile drawer and a dialog were captured in desktop LTR, desktop RTL, mobile LTR and mobile RTL and compared by the agent with the mockups.
+Mockups reviewed: all 19 (for the shell, sidebar, top bar, KPI cards, badges, notices, tabs, tables, mobile cards and form fields).
+Fixed during review: Back arrow not mirrored in Hebrew; KPI cards stacked one per row on phones where the mockups show two.
+Follow-ups/risks (added as checklist items in the phases named):
+- Real pages show the frame without event selector, user or role, because no data exists yet; only /showcase shows them, with sample values (Phase 3 item).
+- User menu, Log out and selector cover thumbnail are not built (Phase 4 items).
+- Hebrew translations were written by the agent and need a Hebrew speaker's review; /showcase reachability in production is undecided (Phase 12 items).
+- The interface language is stored in localStorage outside the demo persistence adapter; isolated in src/i18n/languageStorage.ts and recorded in docs/ARCHITECTURE.md.
+- Visual comparison with the mockups was done by the agent from screenshots; the owner has not yet reviewed it.
+- Work is on branch phase_2_completion; nothing committed.
+Next: Phase 3 — needs owner decision D23 (phone-number range for generated demo guests).
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

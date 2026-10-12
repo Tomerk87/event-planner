@@ -1,0 +1,60 @@
+.tableView {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.table th {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.table tbody tr {
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.table .end {
+  text-align: end;
+}
+
+.cardView {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 767px) {
+  .tableView {
+    display: none;
+  }
+
+  .cardView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}

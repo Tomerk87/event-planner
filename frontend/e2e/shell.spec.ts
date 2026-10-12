@@ -1,0 +1,118 @@
+import { expect, test } from '@playwright/test'
+import { openNavigation } from './helpers.ts'
+
+test('switching to Hebrew flips the layout and is remembered after a reload', async ({
+  page,
+}) => {
+  await page.goto('/events/e1/guests')
+  await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
+
+  const nav = await openNavigation(page)
+  await nav.getByRole('combobox', { name: 'Language' }).selectOption('he')
+
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'he')
+  await expect(page.getByRole('heading', { name: 'אורחים' })).toBeVisible()
+
+  await page.reload()
+
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await expect(page.getByRole('heading', { name: 'אורחים' })).toBeVisible()
+})
+
+test('the sidebar sits on the inline-start edge in both directions', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'the sidebar is a drawer on the compact layout')
+  await page.goto('/events/e1/guests')
+  const sidebar = page.getByRole('complementary')
+  const viewportWidth = page.viewportSize()?.width ?? 0
+
+  const ltrBox = await sidebar.boundingBox()
+  expect(ltrBox?.x).toBe(0)
+
+  await sidebar.getByRole('combobox', { name: 'Language' }).selectOption('he')
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+
+  const rtlBox = await sidebar.boundingBox()
+  expect((rtlBox?.x ?? 0) + (rtlBox?.width ?? 0)).toBe(viewportWidth)
+})
+
+test('the page does not scroll sideways', async ({ page }) => {
+  for (const path of ['/', '/events/e1/dashboard', '/showcase']) {
+    await page.goto(path)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    )
+    expect(overflow, `horizontal overflow at ${path}`).toBe(0)
+  }
+})
+
+test('a dialog keeps focus off the page behind it, closes with Escape and returns focus to its opener', async ({
+  page,
+}) => {
+  await page.goto('/showcase')
+  const opener = page.getByRole('button', { name: 'Open dialog' })
+
+  await opener.click()
+  const dialog = page.getByRole('dialog', { name: 'Delete table?' })
+  await expect(dialog).toBeVisible()
+
+  // A native modal dialog lets Tab leave to the browser's own controls (the
+  // page reports <body> as focused then) but never to the content behind it.
+  for (let presses = 0; presses < 8; presses += 1) {
+    await page.keyboard.press('Tab')
+    const focusIsOnPageBehind = await dialog.evaluate((element) => {
+      const active = document.activeElement
+      return active !== document.body && !element.contains(active)
+    })
+    expect(focusIsOnPageBehind).toBe(false)
+  }
+
+  await page.keyboard.press('Escape')
+
+  await expect(dialog).toBeHidden()
+  await expect(opener).toBeFocused()
+})
+
+test('the showcase table becomes cards on a phone', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto('/showcase')
+
+  await expect(page.getByRole('table', { name: 'Sample guests' })).toBeVisible({
+    visible: !isMobile,
+  })
+  await expect(page.getByRole('list', { name: 'Sample guests' })).toBeVisible({
+    visible: isMobile,
+  })
+})
+
+test('the showcase hides editing controls for a Viewer and for a past event', async ({
+  page,
+}) => {
+  await page.goto('/showcase')
+  const addGuest = page.getByRole('button', { name: 'Add Guest' })
+  const baseline = await addGuest.count()
+
+  await page
+    .getByRole('combobox', { name: 'Role in this event' })
+    .selectOption('VIEWER')
+
+  await expect(addGuest).toHaveCount(baseline - 1)
+  await expect(page.getByText('View-only access').first()).toBeVisible()
+
+  await page
+    .getByRole('combobox', { name: 'Role in this event' })
+    .selectOption('OWNER')
+  await page.getByRole('combobox', { name: 'Event state' }).selectOption('past')
+
+  await expect(addGuest).toHaveCount(baseline - 1)
+  await expect(page.getByText('This event has ended').first()).toBeVisible()
+})

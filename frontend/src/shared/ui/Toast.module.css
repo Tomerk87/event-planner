@@ -1,0 +1,74 @@
+.region {
+  position: fixed;
+  inset-block-end: var(--space-4);
+  inset-inline-end: var(--space-4);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  inline-size: min(24rem, calc(100vw - 2 * var(--space-4)));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-inline-start-width: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  pointer-events: auto;
+}
+
+.icon {
+  flex-shrink: 0;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.message {
+  flex: 1;
+  font-size: var(--font-size-sm);
+}
+
+.dismiss {
+  display: inline-flex;
+  padding: var(--space-1);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.dismiss svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.success {
+  border-inline-start-color: var(--color-success);
+}
+
+.success .icon {
+  color: var(--color-success);
+}
+
+.danger {
+  border-inline-start-color: var(--color-danger);
+}
+
+.danger .icon {
+  color: var(--color-danger);
+}
+
+.info {
+  border-inline-start-color: var(--color-info);
+}
+
+.info .icon {
+  color: var(--color-info);
+}

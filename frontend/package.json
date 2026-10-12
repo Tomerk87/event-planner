@@ -16,8 +16,11 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "i18next": "^26.4.4",
+    "lucide-react": "^1.55.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-i18next": "^17.0.16",
     "react-router": "^8.4.0"
   },
   "devDependencies": {

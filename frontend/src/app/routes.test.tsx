@@ -1,12 +1,17 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { RouteError } from '../shared/RouteError.tsx'
+import { ToastProvider } from '../shared/ui/ToastProvider.tsx'
 import { routes } from './routes.tsx'
 
 function renderAt(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] })
-  render(<RouterProvider router={router} />)
+  render(
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>,
+  )
   return router
 }
 
@@ -15,8 +20,8 @@ describe('routes', () => {
     ['/', 'My Events'],
     ['/events/e1/dashboard', 'Dashboard'],
     ['/events/e1/guests', 'Guests'],
-    ['/events/e1/messages', 'Messages'],
     ['/events/e1/rsvp', 'RSVP Settings'],
+    ['/events/e1/messages', 'WhatsApp Messages'],
     ['/events/e1/layout', 'Event Layout'],
     ['/events/e1/settings', 'Event Settings'],
     ['/events/e1/permissions', 'Permissions'],
@@ -41,18 +46,45 @@ describe('routes', () => {
     expect(router.state.location.pathname).toBe('/events/e1/dashboard')
   })
 
-  it('shows event navigation inside an event', async () => {
+  it('shows the event navigation inside an event', async () => {
     renderAt('/events/e1/guests')
+
+    const nav = await screen.findByRole('navigation', {
+      name: 'Event navigation',
+    })
+    expect(within(nav).getAllByRole('link')).toHaveLength(7)
     expect(
-      await screen.findByRole('navigation', { name: 'Event' }),
-    ).toBeInTheDocument()
+      screen.getByRole('link', { name: 'Back to My Events' }),
+    ).toHaveAttribute('href', '/')
   })
 
-  it('does not show event navigation on the public RSVP page', async () => {
+  it('shows the main navigation on the homepage', async () => {
+    renderAt('/')
+
+    const nav = await screen.findByRole('navigation', {
+      name: 'Main navigation',
+    })
+    expect(
+      within(nav).getByRole('link', { name: 'My Events' }),
+    ).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('does not show navigation on the public RSVP page', async () => {
     renderAt('/rsvp/abc123')
 
     await screen.findByRole('heading', { level: 1, name: 'RSVP' })
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+  })
+
+  it('renders the design-system showcase', async () => {
+    renderAt('/showcase')
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Design System' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Garden Celebration/ }),
+    ).toBeInTheDocument()
   })
 
   it.each(['/nope', '/events/e1/nope'])(

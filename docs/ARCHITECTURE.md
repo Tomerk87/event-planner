@@ -11,6 +11,12 @@ Update this file when a decision is made or changed. Do not record a choice here
 | Delivery order | Frontend-first and mock-driven: interactive React prototype → UX approval gate (Phase 12) → NestJS/PostgreSQL backend → API integration → Docker/AWS | `AGENTS.md` Development strategy; `PLAN.md` |
 | Frontend | React + TypeScript, built with Vite. Scaffolded in `frontend/` (Vite 8, React 19, TypeScript 6, npm) | `AGENTS.md` Technical direction; `PLAN.md` Phase 1 |
 | Frontend tooling | oxlint (lint), Prettier (format), Vitest + React Testing Library + jsdom (unit/component tests), Playwright (end-to-end), React Router (routing) | Adopted in Phase 1 |
+| Styling | Plain CSS with design tokens as custom properties (`frontend/src/styles/tokens.css`) and CSS Modules per component. No CSS framework. Logical properties only, so one stylesheet serves LTR and RTL | Adopted in Phase 2 |
+| Icons | `lucide-react` | Adopted in Phase 2 |
+| Overlays | Dialogs, drawers and the mobile navigation use the native `<dialog>` element, which provides focus containment, Escape to close and focus return | Adopted in Phase 2 |
+| Interface language | `i18next` initialised in `frontend/src/i18n/i18n.ts`; resources in `src/i18n/locales/{en,he}.json`; keys are type-checked. The chosen language is remembered in `localStorage` by `src/i18n/languageStorage.ts` — the one use of browser storage outside the demo persistence adapter, kept out of presentation components | Adopted in Phase 2 |
+| Guest-facing language | `LocaleScope` (`src/i18n/LocaleScope.tsx`) renders a subtree in a fixed language and direction, independent of the interface language | Adopted in Phase 2 |
+| Breakpoints | Below 768px: phone presentation (tables become cards). Below 1024px: sidebar becomes a drawer. 1024px and up: fixed sidebar | Adopted in Phase 2 |
 | Data provider switch | `VITE_DATA_PROVIDER` = `mock` (default) or `api`, validated by `frontend/src/services/providerConfig.ts` | Adopted in Phase 1 |
 | Localization | `i18next` + `react-i18next`; locales `en` and `he`; root `lang`/`dir` follow the active locale; CSS logical properties | `AGENTS.md` Internationalization |
 | Backend | Node.js + NestJS; thin controllers, rules in application/domain services | `AGENTS.md` Technical direction, Backend standards |
@@ -31,7 +37,6 @@ These are implementation choices that the approved documents leave open. Each is
 
 | Choice | Decide in |
 |---|---|
-| Styling approach and design-token mechanism | Phase 2 |
 | Server-state and UI-state management libraries | Phase 2–3 |
 | Demo persistence: `localStorage` or IndexedDB (depends on measured dataset size) | Phase 3 |
 | Phone normalization implementation | Phase 3 |
@@ -72,6 +77,11 @@ Inside `frontend/`:
     domain/          domain types and business rules, independent of React and data source
     services/        typed service contracts and their mock/API providers
     shared/          UI shared across features
+      ui/            design-system components (buttons, fields, cards, tabs, dialogs, …)
+      access/        read-only and role-restricted primitives
+    app/shell/       application frame: sidebar, top bar, event selector, language switcher
+    i18n/            language setup, translation resources, LocaleScope
+    styles/          design tokens and base styles
     test/            test setup
 ```
 
@@ -91,6 +101,7 @@ Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
 | `/events/:eventId/settings` | Event Settings |
 | `/events/:eventId/permissions` | Permissions |
 | `/rsvp/:rsvpId` | Public RSVP (outside the event layout) |
+| `/showcase` | Design-system showcase: the application frame and every shared component, with sample values |
 | anything else | Not-found page |
 
 These are client-side routes, so the production web server must serve `index.html` for unknown paths (tracked in `PLAN.md` Phase 18).

@@ -84,6 +84,14 @@ How the mockups show it:
 - **Invite User** corresponds to the unspecified invite flow (PRD §3.3, §18 item 4). **Decision needed** before Phase 11.
 - The role explanation says "Viewer can only view the event". Per the PRD, Viewers can also export.
 
+## Found while building the design system (Phase 2)
+
+- **User menu.** The mockups draw a chevron beside the user name, implying a menu, but never show its contents. The shell shows the avatar, name and role icon without a menu; the menu arrives with sign-in and log-out in Phase 4.
+- **Event selector thumbnail.** The mockups show the event's cover image in the selector. The shell shows a calendar icon until the cover image exists (Phase 4).
+- **Homepage sidebar.** With Profile and Settings left out, the homepage sidebar holds only My Events and the language selector. Log out is added in Phase 4.
+- **Typeface.** The mockups use an Inter-style typeface. The app asks for Inter and falls back to the system font; no font file is bundled.
+- **Empty top bar.** Until a signed-in user exists (Phase 4), the desktop top bar on real pages is empty.
+
 ## Mockup content
 
 The images use sample names, `example.com` email addresses, placeholder-style phone numbers (such as `050-123-4567`) and the domain `rsvp.eventplanner.com`. None of this is copied into the product. Demo data is generated separately under the rules in `AGENTS.md` (fictional names, non-routable contacts).

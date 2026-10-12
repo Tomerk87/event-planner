@@ -1,0 +1,97 @@
+.list {
+  display: flex;
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+.tab {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-5);
+  background: transparent;
+  border: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+
+.tab:disabled {
+  cursor: not-allowed;
+  color: var(--color-text-subtle);
+}
+
+.count {
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-soft);
+  color: var(--color-neutral);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.underline {
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+.underline .tab {
+  border-block-end: 2px solid transparent;
+  margin-block-end: -1px;
+  border-start-start-radius: var(--radius-md);
+  border-start-end-radius: var(--radius-md);
+}
+
+.underline .selected {
+  background: var(--color-primary-soft);
+  border-block-end-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.underline .selected .count {
+  background: var(--color-primary-border);
+  color: var(--color-primary-hover);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: var(--space-1);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.segmented .tab {
+  min-inline-size: 9rem;
+  min-block-size: var(--control-height-sm);
+  border-radius: var(--radius-sm);
+}
+
+.segmented .selected {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.panel {
+  padding-block-start: var(--space-4);
+}
+
+@media (max-width: 767px) {
+  .segmented {
+    display: flex;
+  }
+
+  .segmented .tab {
+    flex: 1;
+    min-inline-size: 0;
+    padding-inline: var(--space-2);
+  }
+}

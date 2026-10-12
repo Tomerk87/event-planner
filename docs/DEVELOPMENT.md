@@ -45,7 +45,7 @@ Coverage target: at least 80% on relevant application logic (`AGENTS.md`), never
 | Lint | oxlint (`npm run lint`) | In place |
 | Format | Prettier (`npm run format`, `npm run format:check`) | In place |
 | Unit and component tests | Vitest + React Testing Library + jsdom (`npm test`) | In place |
-| End-to-end tests | Playwright, Chromium only so far (`npm run test:e2e`) | In place; mobile viewports and RTL projects are added with the first real UI |
+| End-to-end tests | Playwright on Chromium with two projects, `desktop` and `mobile` (Pixel 7 viewport); Hebrew/RTL is covered by tests that switch the language (`npm run test:e2e`) | In place |
 
 Update this table when a tool is adopted.
 

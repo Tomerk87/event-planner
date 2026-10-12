@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173.
+Open http://localhost:5173. The design-system showcase is at http://localhost:5173/showcase.
 
 ## Commands
 

@@ -1,0 +1,91 @@
+/*
+ * Design tokens, taken from the mockups in /mockups.
+ * Breakpoints (media queries cannot read custom properties):
+ *   phone layout   below 768px   — tables become cards
+ *   compact shell  below 1024px  — sidebar becomes a drawer behind a menu button
+ *   desktop        1024px and up — fixed sidebar
+ */
+:root {
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8f9fc;
+  --color-border: #e5e8f0;
+  --color-border-strong: #cfd4e2;
+
+  --color-text: #0f1433;
+  --color-text-muted: #5b6480;
+  --color-text-subtle: #6f7892;
+
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-soft: #eef0ff;
+  --color-primary-border: #c9cdfb;
+  --color-on-primary: #ffffff;
+
+  --color-sidebar: #0f1535;
+  --color-sidebar-raised: #1b2350;
+  --color-sidebar-border: #262e5c;
+  --color-sidebar-text: #f1f3fb;
+  --color-sidebar-muted: #b4bbd6;
+
+  /* Semantic statuses: text, soft background, border */
+  --color-success: #15803d;
+  --color-success-soft: #e6f7ec;
+  --color-success-border: #bde5cb;
+  --color-warning: #b45309;
+  --color-warning-soft: #fff4e3;
+  --color-warning-border: #f8d8a4;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fdecec;
+  --color-danger-border: #f6c4c4;
+  --color-info: #4338ca;
+  --color-info-soft: #eef0ff;
+  --color-info-border: #c9cdfb;
+  --color-neutral: #475069;
+  --color-neutral-soft: #eceff5;
+  --color-neutral-border: #d9deea;
+
+  --color-overlay: rgb(15 20 51 / 55%);
+
+  --font-sans:
+    Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Hebrew',
+    Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --border-width: 1px;
+  --shadow-sm: 0 1px 2px rgb(15 20 51 / 6%);
+  --shadow-md: 0 8px 24px rgb(15 20 51 / 12%);
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+
+  --control-height: 2.75rem;
+  --control-height-sm: 2.25rem;
+  --sidebar-width: 15.5rem;
+  --topbar-height: 4rem;
+  --content-max-width: 80rem;
+}

@@ -1,11 +1,28 @@
-import { Link } from 'react-router'
+import { ArrowLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import styles from './StandalonePage.module.css'
+import { ButtonLink } from './ui/ButtonLink.tsx'
+import { Card } from './ui/Card.tsx'
+import { ErrorState } from './ui/States.tsx'
 
 export function RouteError() {
+  const { t } = useTranslation()
+
   return (
-    <main role="alert">
-      <h1>Something went wrong</h1>
-      <p>This page could not be displayed.</p>
-      <Link to="/">Back to My Events</Link>
+    <main className={styles.page}>
+      <div className={styles.panel}>
+        <Card>
+          <ErrorState
+            title={t('routeError.title')}
+            description={t('routeError.body')}
+          />
+          <p className={styles.centered}>
+            <ButtonLink to="/" variant="secondary" icon={<ArrowLeft />}>
+              {t('nav.backToMyEvents')}
+            </ButtonLink>
+          </p>
+        </Card>
+      </div>
     </main>
   )
 }

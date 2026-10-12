@@ -1,0 +1,70 @@
+.dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  max-inline-size: none;
+  max-block-size: none;
+}
+
+.dialog::backdrop {
+  background: var(--color-overlay);
+}
+
+.center {
+  inline-size: min(32rem, calc(100vw - 2 * var(--space-4)));
+}
+
+.side {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  margin: 0;
+  inline-size: min(26rem, 100vw);
+  block-size: 100dvh;
+}
+
+.surface {
+  display: flex;
+  flex-direction: column;
+  max-block-size: calc(100dvh - 2 * var(--space-4));
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.side .surface {
+  block-size: 100%;
+  max-block-size: none;
+  border-radius: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+  color: var(--color-text-muted);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
