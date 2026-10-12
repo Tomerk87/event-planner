@@ -38,6 +38,8 @@ A glossary of the terms used across the PRD, plan and code, followed by the deci
 
 None of these are to be inferred. Each is raised with the product owner at or before the phase shown.
 
+The open items below are ones the precedence rule (see Resolved decisions, R1) does not settle: the mockups either contradict each other or show an element without showing what it does.
+
 ### From PRD §18
 
 | # | Decision | Needed by |
@@ -47,7 +49,6 @@ None of these are to be inferred. Each is raised with the product owner at or be
 | D3 | Event duplication scope (which records are copied) and deleted-event retention | Phase 4 |
 | D4 | Permission invite flow for an email with no account | Phase 11 |
 | D5 | Which RSVP and seating values survive when a soft-deleted guest is restored | Phase 6 |
-| D6 | Visual Arrangement: stay deferred or move into POC scope; and whether the read-only preview in the mockups is shown in the MVP | Phase 10 |
 
 ### Raised by the mockup review
 
@@ -58,18 +59,13 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 | D7 | Event selector placement: sidebar or top bar | Phase 2 |
 | D8 | Notification bell, Profile and account Settings: build, stub or omit | Phase 2 |
 | D9 | Meaning of the crown icon beside the user avatar | Phase 2 |
-| D10 | Event cover image: add as an event field or use a placeholder | Phase 4 |
 | D11 | Dashboard Recent Guest Activity: derive from last-sent/last-response timestamps or add an activity record | Phase 5 |
 | D12 | Target of the Dashboard "View Event" button and the Event Settings "View Event Rules" button | Phase 5 / Phase 7 |
 | D13 | Bulk selection on the Guests table: which bulk actions, if any | Phase 6 |
 | D14 | Display label for a guest with no invitation sent and no response | Phase 6 |
-| D15 | Per-send message history ("Recent Sent Messages") versus counter and last-sent time only | Phase 8 |
 | D16 | "Send Test Message": include or omit, and what it does | Phase 8 |
 | D17 | Message editor formatting controls | Phase 8 |
-| D18 | Event location and a separate RSVP display title as event fields | Phase 7 / Phase 9 |
 | D19 | RSVP language: which page owns it and at what point it becomes fixed | Phase 7 |
-| D20 | QR code for the RSVP link | Phase 9 |
-| D21 | Confirm the limits shown in the mockup: 500 characters per RSVP message; background image JPG/PNG up to 5MB | Phase 9 |
 | D22 | Thresholds for table status labels (Ready / Almost Full / Over Capacity) | Phase 10 |
 
 ### Other
@@ -85,4 +81,12 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 
 | # | Outcome | Date |
 |---|---|---|
-| — | — | — |
+| R1 | **Precedence rule.** The mockups were created after the PRD. Where a mockup differs from or adds to the PRD, build what the mockup shows; the PRD stays the source of truth for business rules and is updated in the same phase. | 2026-10-12 |
+| R2 | **Event navigation** is identical on every event-level page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Permissions is hidden for Viewers. Budget, Vendors, Timeline and Photo Sharing are not built (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |
+| R3 | **Public RSVP form:** number of attendees is always required before any response. For Declined and Not Sure the submitted number is discarded; stored values stay `0` and `null`. | 2026-10-12 |
+| D6 | **Arrangement** stays deferred. The Table Arrangement tab is shown with a "Soon" badge and is disabled. The Arrangement Preview panel is not shown. | 2026-10-12 |
+| D10 | **Event cover image:** built as the mockup shows (by R1). Add the field to the PRD in Phase 4. | 2026-10-12 |
+| D15 | **Per-send message history:** built as the mockup shows (by R1). Add the record to the PRD in Phase 8. | 2026-10-12 |
+| D18 | **Event location and RSVP display title:** built as the mockups show (by R1). Add the fields to the PRD in Phase 7 / Phase 9. | 2026-10-12 |
+| D20 | **QR code for the RSVP link:** built as the mockup shows (by R1). | 2026-10-12 |
+| D21 | **Limits:** 500 characters per RSVP message; background image JPG or PNG up to 5MB, as the mockup states (by R1). | 2026-10-12 |

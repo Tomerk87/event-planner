@@ -33,6 +33,8 @@
 - No Redis, Kubernetes, microservices, managed RDS, or background workers for the POC unless justified and approved.
 - The **visual venue Arrangement editor** remains post-MVP as previously specified; the MVP includes Tables and seating. Preserve its mobile/desktop mockups for later. If full interactive Arrangement is desired earlier, record a scope decision before moving it.
 - Mockup mapping lives in `mockups/README.md`. Never guess which tab's PNG to use when the mapping exists.
+- **Mockups were created after the PRD.** Where a mockup differs from or adds to the PRD, build what the mockup shows; the PRD stays the source of truth for business rules and is updated in the same phase. Ask the owner when a mockup element's behavior is not evident.
+- Features left out of the MVP are listed in `docs/FUTURE_FEATURES.md`; add to it whenever something is deferred.
 
 ---
 
@@ -86,7 +88,7 @@
 - [ ] Read `mockups/README.md`; inspect all supplied screen types to extract common patterns.
 - [ ] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
 - [ ] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
-- [ ] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation.
+- [ ] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers).
 - [ ] Add `i18next`/`react-i18next` with `en` and `he` translation resources and language persistence.
 - [ ] Move the hard-coded English strings left from Phase 1 (placeholder, not-found and error pages, event navigation labels) into translation resources.
 - [ ] Switch root `lang` and `dir` properly; use logical CSS properties and handle LTR phone/email/URL values inside RTL.
@@ -267,7 +269,7 @@
 - [ ] Build desktop RSVP settings and mobile Settings/Preview tabs.
 - [ ] Configure Welcome, Approved, Declined, and Not Sure messages; background image and transparency/overlay.
 - [ ] Create one shared RSVP URL/identifier per event, not per guest; simulate deep links in mock mode.
-- [ ] Build public RSVP with guest name, phone, status selection and Approved attendee count.
+- [ ] Build public RSVP with guest name, phone, number of attendees and status selection. Number of attendees is always required; discard it for Declined and Not Sure.
 - [ ] Match known guests via normalized phone; store submitted Invitation Name without overwriting organizer First/Last Name.
 - [ ] Store unmatched responses as Unknown Guests.
 - [ ] Approved: positive integer from 1 through allowed attendees; Declined: 0; Not Sure: no confirmed count.
@@ -303,7 +305,7 @@
 - [ ] Confirm deletion of populated tables and clear assignments without deleting guests.
 - [ ] Warn rather than block when total chairs differ from event maximum capacity.
 - [ ] Implement venue-ready detailed CSV/XLSX export and table summary export.
-- [ ] Make a clear scope-safe Arrangements tab presentation if included in navigation; **do not claim the full drag/drop editor is implemented**.
+- [ ] Show the Table Arrangement tab with a "Soon" badge, disabled and not selectable, on desktop and mobile. Do not build the Arrangement Preview panel. **Do not claim the full drag/drop editor is implemented**.
 
 ### Validation and exit criteria
 - [ ] Table rules, deletion, conflicts, assignments and exports work with demo state.
@@ -549,6 +551,8 @@
 
 ## Deferred / future backlog
 
+`docs/FUTURE_FEATURES.md` is the full, maintained list of features left out of the MVP. The items below are the ones this plan tracks directly.
+
 - [ ] WhatsApp Business API, actual delivery/read/failure tracking and automated reminders.
 - [ ] RSVP configurable deadline before event start.
 - [ ] Individual attendee identities and split groups across tables.
@@ -618,6 +622,20 @@ Follow-ups/risks (added as checklist items in the phases named):
 - The event navigation is unstyled plain links, replaced by the real shell in Phase 2.
 - Work was done on branch `phase_1_completion`, created from `main`; nothing committed.
 Next: Phase 2 — needs owner decisions D7–D9 (docs/DOMAIN.md) before the application shell is built.
+```
+
+```text
+2026-10-12 — Owner decisions recorded (no phase item completed)
+Decisions:
+- Mockups were created after the PRD: where they differ from or add to it, build the mockup; the PRD stays the source of truth for business rules and is updated in the same phase.
+- Event navigation, identical on all event pages: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). Budget, Vendors, Timeline and Photo Sharing are not built.
+- Arrangement: tab shown as "Soon" and disabled; no Arrangement Preview panel.
+- Public RSVP: number of attendees always required; discarded for Declined and Not Sure.
+- New docs/FUTURE_FEATURES.md lists everything left out of the MVP and is kept current.
+Changed: AGENTS.md, docs/PRD.md (sections 4.2, 8.1, 11.4, 17, 18, 19), docs/DOMAIN.md (D6, D10, D15, D18, D20, D21 resolved; R1–R3 added), docs/MOCKUP_NOTES.md, mockups/README.md, docs/ARCHITECTURE.md, Phases 2, 9 and 10 of this plan, and the placeholder navigation order in frontend/src/app/EventLayout.tsx.
+Validation: after the navigation change, from frontend/: `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm test` 22 passed; `npm run test:e2e` 4 passed. Searched the docs for the superseded wording; none left.
+Follow-ups/risks: still open before Phase 2 — D7 (event selector placement), D8 (notification bell, Profile, account Settings), D9 (crown icon).
+Next: Phase 2.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

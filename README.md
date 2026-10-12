@@ -51,4 +51,5 @@ Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VIT
 - `docs/DOMAIN.md` — glossary and open decisions
 - `docs/DEVELOPMENT.md` — workflow, validation and tooling
 - `docs/MOCKUP_NOTES.md` — differences between mockups and requirements
+- `docs/FUTURE_FEATURES.md` — features left out of the MVP
 - `mockups/README.md` — page-to-mockup mapping

@@ -3,8 +3,8 @@ import { NavLink, Outlet } from 'react-router'
 const eventNavItems = [
   { to: 'dashboard', label: 'Dashboard' },
   { to: 'guests', label: 'Guests' },
-  { to: 'messages', label: 'Messages' },
   { to: 'rsvp', label: 'RSVP' },
+  { to: 'messages', label: 'Messages' },
   { to: 'layout', label: 'Event Layout' },
   { to: 'settings', label: 'Event Settings' },
   { to: 'permissions', label: 'Permissions' },

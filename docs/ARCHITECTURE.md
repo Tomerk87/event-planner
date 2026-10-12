@@ -85,8 +85,8 @@ Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
 | `/events/:eventId` | Redirects to the event's dashboard |
 | `/events/:eventId/dashboard` | Dashboard |
 | `/events/:eventId/guests` | Guests |
-| `/events/:eventId/messages` | WhatsApp Messages |
 | `/events/:eventId/rsvp` | RSVP Settings |
+| `/events/:eventId/messages` | WhatsApp Messages |
 | `/events/:eventId/layout` | Event Layout |
 | `/events/:eventId/settings` | Event Settings |
 | `/events/:eventId/permissions` | Permissions |

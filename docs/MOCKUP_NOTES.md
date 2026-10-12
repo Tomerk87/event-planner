@@ -2,7 +2,7 @@
 
 Recorded after reviewing all 19 images in `mockups/` against `docs/PRD.md` (2026-10-12). `mockups/README.md` remains the authoritative page-to-image mapping; this file records where the images and the approved requirements disagree or leave gaps.
 
-Rule applied throughout (`AGENTS.md`): the PRD decides behavior, the mockups decide visual composition. Items marked **Decision needed** are listed in `docs/DOMAIN.md` under open decisions and are not to be resolved by guessing.
+Rule applied throughout (`AGENTS.md`, owner decision 2026-10-12): the mockups were created after the PRD, so where a mockup differs from or adds to the PRD, the mockup is built. The PRD remains the source of truth for business rules and is updated in the same phase. Items marked **Decision needed** are ones this rule does not settle, because mockups contradict each other or do not show what an element does; they are listed in `docs/DOMAIN.md` and are not to be resolved by guessing. Items marked **Decided** record an owner decision.
 
 ## Visual Arrangement scope
 
@@ -19,14 +19,14 @@ How the mockups show it:
 - `event_layout_arrangement_mobile.png` shows a functioning read-only Arrangement tab ("View Mode", "Fullscreen", pinch to zoom) with a Selected Table panel.
 - The mockups include venue objects the PRD does not list (Food Station, Entrance, plants). PRD §11.4 lists divider/wall, steps, stage and bar.
 
-For the MVP the Arrangement tab is presented as not yet available (`PLAN.md` Phase 10: "do not claim the full drag/drop editor is implemented"). The Arrangement mockups are kept as guidance for Phase 20. Whether the desktop Arrangement Preview panel and the mobile read-only view are shown, hidden or stubbed in the MVP is **Decision needed** (PRD §18 item 6).
+**Decided (2026-10-12):** in the MVP the Table Arrangement tab is shown with the "Soon" badge and is disabled, on desktop and mobile. The Arrangement Preview panel and the mobile read-only floor plan are not built. The Arrangement mockups are kept as guidance for Phase 20, and the deferred pieces are listed in `docs/FUTURE_FEATURES.md`.
 
 ## Differences that affect behavior or scope
 
 ### Navigation and shell
 
-- `event_layout.png` and `permissions.png` show sidebar entries **Budget, Vendors, Timeline, Photo Sharing**. These are out of scope (PRD §17) and are not built. The other event-level mockups show only the six in-scope entries.
-- `permissions.png` places Permissions directly after Event Layout and labels the last entry "Settings". PRD §3.3 and §4.2 put Permissions last, after Event Settings. The PRD order is followed.
+- **Decided (2026-10-12):** the event sidebar is identical on every event-level page: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Permissions is hidden for Viewers. This order differs from the mockups, which show Messages before RSVP.
+- `event_layout.png` and `permissions.png` show sidebar entries **Budget, Vendors, Timeline, Photo Sharing**, place Permissions directly after Event Layout, and label the last entry "Settings". The owner confirmed these two sidebars are wrong; the four extra entries are not built and are listed in `docs/FUTURE_FEATURES.md`.
 - The event selector appears in the sidebar (`dashboard.png`, `guests.png`, `whatsapp_message.png`, `rsvp_settings.png`), in the top bar (`event_layout.png`, `permissions.png`), and in both at once (`event_settings.png`). One placement must be chosen in Phase 2. **Decision needed.**
 - Every screen shows a **notification bell**, and `homepage.png` shows **Profile** and **Settings** account pages. The PRD defines no notifications, profile or account-settings features. **Decision needed.**
 - A **crown icon** appears beside the user avatar on mobile screens and on `permissions.png`. Its meaning (Owner of the current event, Super User, or decoration) is not defined. **Decision needed.**
@@ -34,7 +34,7 @@ For the MVP the Arrangement tab is presented as not yet available (`PLAN.md` Pha
 
 ### Homepage / Events
 
-- Event cards show a **cover image** per event. The PRD has no event image field. **Decision needed.**
+- Event cards show a **cover image** per event. The PRD has no event image field. Built as shown; the field is added to the PRD in Phase 4.
 - Cards have a "⋯" menu whose contents are not shown. It is the only visible place for Duplicate/Delete, since `event_settings.png` has neither.
 - Search, grid/list toggle and All/Upcoming/Past tabs are not in the PRD; treated as presentation of existing data.
 
@@ -55,18 +55,18 @@ For the MVP the Arrangement tab is presented as not yet available (`PLAN.md` Pha
 
 ### WhatsApp Messages
 
-- **Recent Sent Messages** lists each send with time, status "Opened WhatsApp" and a message preview. The PRD stores a counter and the last send time, not a per-send history. **Decision needed.**
+- **Recent Sent Messages** lists each send with time, status "Opened WhatsApp" and a message preview. The PRD stores a counter and the last send time, not a per-send history. Built as shown; the per-send record is added to the PRD in Phase 8.
 - **Send Test Message** is not in the PRD. **Decision needed.**
 - The editor toolbar offers bold, italic, underline, link and emoji. WhatsApp has its own plain-text formatting markers and no underline. **Decision needed** on which formatting controls are kept.
 - The variable set shown is `first_name`, `last_name`, `event_name`, `event_date`, `event_time`, `rsvp_url`. PRD §7 gives these as examples; this set is taken as the approved list.
 
 ### RSVP Settings and public RSVP
 
-- The public form shows **Number of attendees as a required field above the three response buttons**. PRD §8.1 asks for the attendee count only when approving. The PRD behavior is followed; the layout needs adapting.
-- The RSVP page shows a **location** ("Tel Aviv, Israel") and a short **display title** ("Deborah & Tomer") that differs from the event name. The event header in other mockups also shows a location. The PRD has no event location or RSVP title field; location exists only inside the Google Calendar action. **Decision needed.**
+- The public form shows **Number of attendees as a required field above the three response buttons**. **Decided (2026-10-12):** the field is always required, as drawn. For Declined and Not Sure the submitted number is discarded. PRD §8.1 has been updated.
+- The RSVP page shows a **location** ("Tel Aviv, Israel") and a short **display title** ("Deborah & Tomer") that differs from the event name. The event header in other mockups also shows a location. The PRD has no event location or RSVP title field; location exists only inside the Google Calendar action. Built as shown; the fields are added to the PRD in Phase 7 / Phase 9.
 - An **RSVP Language selector** appears on both RSVP Settings and Event Settings. The PRD calls the language "fixed per event" without saying when it becomes fixed or which page owns it. **Decision needed.**
-- **QR code** button and "RSVP page is active" status are not in the PRD. **Decision needed** for the QR code.
-- The mockup states limits the PRD does not: 500 characters per message, and background image "1920 × 1080, JPG or PNG, up to 5MB". **Decision needed** to confirm them as requirements.
+- **QR code** button and "RSVP page is active" status are not in the PRD. Built as shown.
+- The mockup states limits the PRD does not: 500 characters per message, and background image "1920 × 1080, JPG or PNG, up to 5MB". Adopted as requirements.
 - The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state.
 
 ### Event Layout

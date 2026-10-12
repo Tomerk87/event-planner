@@ -76,13 +76,17 @@ Inviting or granting access to an email without an existing account, account act
 
 1. Dashboard
 2. Guests
-3. WhatsApp Message / Messages
-4. RSVP Settings
+3. RSVP (RSVP Settings)
+4. Messages (WhatsApp Messages)
 5. Event Layout
 6. Event Settings
 7. Permissions
 
-Use concise navigation labels that match the product's UI language. The referenced mockups determine visual composition; approved requirements determine behavior.
+The event navigation is identical on every event-level page and uses this order. Permissions is not shown to Viewers. Entries that appear in some mockups but are not listed here (Budget, Vendors, Timeline, Photo Sharing) are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
+
+Use concise navigation labels that match the product's UI language.
+
+The mockups were created after the PRD. Where a mapped mockup differs from or adds to the PRD, build what the mockup shows (layout, navigation, fields, panels, buttons). The PRD remains the source of truth for business rules (calculations, validation, permissions, RSVP and seating behavior, lifecycle), and is updated in the same phase so that it stays accurate. Where a mockup element's behavior is not evident, it is confirmed with the product owner rather than inferred.
 
 ## 5. Events and lifecycle
 
@@ -164,7 +168,7 @@ An authorized organizer selects a guest and invokes the WhatsApp button. The sys
 
 Each event can generate **one public RSVP URL**, shared by every guest. No guest-specific RSVP tokens or authenticated guest accounts are required for the MVP.
 
-The form requests the guest's **name, phone number, response, and number of attendees when approving**. The guest's submitted name populates Invitation Name, without overwriting organizer-maintained first and last name.
+The form requests the guest's **name, phone number, number of attendees, and response**. Number of attendees is **always required**, whichever response the guest chooses. When the response is Declined or Not Sure the submitted number is discarded and the stored values follow section 8.3. The guest's submitted name populates Invitation Name, without overwriting organizer-maintained first and last name.
 
 ### 8.2 Identification
 
@@ -284,6 +288,8 @@ The visual venue blueprint/Arrangement editor is currently a **post-MVP feature*
 
 The existing Arrangement mockups remain applicable visual guidance even while implementation is deferred.
 
+In the MVP the Event Layout page shows the **Table Arrangement** tab with a "Soon" badge, disabled and not selectable. The Arrangement Preview panel shown in the mockups is not displayed.
+
 ## 12. Public Demo Mode — MVP requirement
 
 Demo Mode is a **permanent user-facing product capability**, not a disposable development fixture.
@@ -383,7 +389,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 
 ## 17. Out of scope or deferred
 
-Unless separately approved for the POC:
+`docs/FUTURE_FEATURES.md` is the maintained list of everything left out of the MVP, including items shown in mockups that are not being built. Unless separately approved for the POC:
 
 - Visual Arrangement canvas editor (the planned post-MVP phase).
 - Automated WhatsApp Business API delivery, bulk sending, reminders, and delivery/read tracking.
@@ -401,7 +407,7 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 3. **Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?
 4. **Permission invite flow:** What happens when an organizer grants access to an email not yet registered?
 5. **Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?
-6. **Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?
+6. ~~**Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?~~ Resolved 2026-10-12: stays deferred. The tab is shown as "Soon" and disabled, with no preview panel (section 11.4).
 
 ## 19. Document ownership and change control
 
@@ -409,5 +415,6 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 - `AGENTS.md` defines coding-agent rules and technical constraints.
 - `PLAN.md` defines implementation sequencing, validation gates, and a living progress log.
 - `mockups/README.md` maps screens/tabs to their reference images.
+- `docs/FUTURE_FEATURES.md` lists features left out of the MVP.
 
 If technical implementation uncovers a conflict or unspecified product behavior, record the decision and update this PRD rather than silently changing functionality. Keep completed plan steps and implementation notes in `PLAN.md`, not here.
