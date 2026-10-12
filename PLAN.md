@@ -63,7 +63,7 @@
 **Goal:** run a local React + TypeScript application independently of backend, database and Docker.
 
 ### Checklist
-- [ ] Scaffold frontend using a lightweight React + TypeScript toolchain (prefer Vite unless existing code dictates otherwise).
+- [x] Scaffold frontend using a lightweight React + TypeScript toolchain (prefer Vite unless existing code dictates otherwise).
 - [ ] Set up strict TypeScript, lint, formatting, unit/component test runner, and browser end-to-end testing strategy.
 - [ ] Set up frontend routing for Homepage/Events, Dashboard, Guests, Messages, RSVP Settings, Event Layout, Event Settings, Permissions, and public RSVP.
 - [ ] Create feature-oriented folders and typed domain model/service-contract locations.
@@ -560,6 +560,19 @@ Validation: commands and tests actually executed (or why not)
 Mockups reviewed: exact files when UI is involved
 Follow-ups/risks: new tasks or none
 Next: earliest pending task
+```
+
+```text
+2026-10-12 — Phase 1 — Scaffolded `frontend/` with Vite 8 `react-ts` template (React 19, TypeScript 6, npm); trimmed template demo content to a single placeholder heading.
+Validation: `npm run build` (tsc -b + vite build) passed; `npm run lint` (oxlint) passed; `npm run dev` served `/` and `/src/App.tsx` with HTTP 200 (checked with curl, not opened in a browser).
+Mockups reviewed: none (no product UI implemented).
+Follow-ups/risks:
+- Phase 0 checklist is still unchecked; Phase 1 was started ahead of it on user direction. Phase 0 items remain to be verified.
+- The current Vite template ships oxlint (`.oxlintrc.json`), not ESLint; decide in the next Phase 1 item whether to keep it.
+- `frontend/src/App.tsx` has a hard-coded placeholder string "Event Planner"; replace when i18n lands in Phase 2.
+- `frontend/README.md` is still the Vite template text; replace in the Phase 1 README item.
+- `mockups/permissions.png` and `mockups/permissions_mobile.png` exist but are not indexed in `mockups/README.md`, and `docs/PRD.md` says Permissions has no direct mockup; resolve in Phase 0 / before Phase 11.
+Next: Phase 1 — strict TypeScript, lint, formatting, test runner and e2e strategy.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
