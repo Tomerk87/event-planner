@@ -366,7 +366,7 @@
         "declined": "Declined",
         "notSure": "Not Sure",
         "awaiting": "Awaiting Response",
-        "notInvited": "Not Invited Yet"
+        "notInvited": "Not Sent"
       },
       "emptyTitle": "No guests yet",
       "emptyBody": "Add guests to see how they respond."

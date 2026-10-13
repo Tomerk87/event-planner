@@ -169,7 +169,11 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 - Provide a WhatsApp action for each guest.
 - Desktop table and intentionally adapted mobile list/card layout.
 - CSV and XLSX import, with field mapping, preview, validation, duplicate detection, and error reporting.
-- CSV guest export (XLSX guest export may use the same export infrastructure).
+- Guest export as CSV and as Excel (XLSX). An export contains every field, whatever columns are visible on screen.
+- Selecting rows offers two bulk actions: delete the selected guests (with confirmation) and export the selected guests. Bulk sending is out of scope (section 17).
+- On desktop, a column chooser lets the organizer show or hide table columns. Name and Phone are always shown. The choice is remembered in the browser.
+- A guest's details can be opened in a panel from the list.
+- Status labels: a guest with no invitation sent and no response is shown as **Not Sent**; **Awaiting Response** is used only once an invitation has been sent.
 - Unknown Guests tab (see section 8).
 
 ## 7. WhatsApp messages and invitation counting
@@ -246,7 +250,7 @@ Authorized organizers can:
 - Review an unknown response.
 - Add/convert it to a known guest, preserving response data.
 - Match/merge it with a known guest, with deterministic duplicate resolution.
-- Reject/remove an unknown record according to an approved retention policy.
+- Reject an unknown record. A rejected record leaves the review list and is kept in a Rejected list, from which it can be restored.
 
 Unknown responses do not automatically become known Guest records. Consequently, standard guest-based Dashboard metrics exclude them until resolved; the UI should keep unknown submissions visible for follow-up. Their separate impact on operational planning can be surfaced without silently altering defined KPIs.
 
@@ -271,9 +275,9 @@ There is no separate ambiguous Expected Attendees KPI in MVP: the authoritative 
 
 All ten figures are shown as KPI cards, each stating what it counts: invitations (guest records), people (attendees) or chairs.
 
-The RSVP Status chart places every active guest in exactly one group — Approved, Declined, Not Sure, Awaiting Response, or not yet invited (no invitation sent and no response) — so the groups add up to Total Guests.
+The RSVP Status chart places every active guest in exactly one group — Approved, Declined, Not Sure, Awaiting Response, or not yet invited (no invitation sent and no response) — so the groups add up to Total Guests. The last group is labelled Not Sent.
 
-The Recent Guest Activity list is derived from existing records: every recorded send, and each guest's latest RSVP response. No separate activity record is kept, so a guest who changed their answer appears once, with the latest answer. A response changed by an organizer counts as the guest's latest response.
+The Recent Guest Activity list is derived from existing records: every recorded send, and each guest's latest RSVP response. No separate activity record is kept, so a guest who changed their answer appears once, with the latest answer. A response changed by an organizer counts as the guest's latest response. Activity times are shown in the viewer's own time zone.
 
 The Dashboard has an **Event Settings** button that opens the Event Settings page, and a Quick Actions panel of shortcuts to other pages of the event.
 

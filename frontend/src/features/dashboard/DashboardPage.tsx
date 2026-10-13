@@ -97,13 +97,8 @@ const ACTIVITY_STYLE = {
   INVITATION_SENT: { icon: Send, tone: 'info' },
 } as const satisfies Record<string, { icon: LucideIcon; tone: Tone }>
 
-function ActivityList({
-  items,
-  timeZone,
-}: {
-  items: readonly ActivityItem[]
-  timeZone: string
-}) {
+/** Times are shown on the viewer's own clock, like the rest of their device. */
+function ActivityList({ items }: { items: readonly ActivityItem[] }) {
   const { t } = useTranslation()
   const format = useFormatters()
   const [now] = useState(() => new Date())
@@ -125,11 +120,11 @@ function ActivityList({
   }
 
   function when(at: Date): string {
-    const day = relativeDay(at, now, timeZone)
-    const time = format.time(at, timeZone)
+    const day = relativeDay(at, now)
+    const time = format.time(at)
     return day === 'other'
       ? t('dashboard.activity.onDate', {
-          date: format.date(at, timeZone),
+          date: format.date(at),
           time,
         })
       : t(`dashboard.activity.${day}`, { time })
@@ -179,7 +174,7 @@ function DashboardContent({
   const format = useFormatters()
   const [activityOpen, setActivityOpen] = useState(false)
   const { metrics, warnings, recentActivity } = data
-  const { maxAttendees, timeZone } = info.event
+  const { maxAttendees } = info.event
   const base = `/events/${eventId}`
   const number = format.number
 
@@ -556,10 +551,7 @@ function DashboardContent({
               description={t('dashboard.activity.emptyBody')}
             />
           ) : (
-            <ActivityList
-              items={recentActivity.slice(0, ACTIVITY_PREVIEW)}
-              timeZone={timeZone}
-            />
+            <ActivityList items={recentActivity.slice(0, ACTIVITY_PREVIEW)} />
           )}
         </Card>
 
@@ -599,7 +591,7 @@ function DashboardContent({
         title={t('dashboard.activity.title')}
         scrollableContent
       >
-        <ActivityList items={recentActivity} timeZone={timeZone} />
+        <ActivityList items={recentActivity} />
       </Dialog>
     </div>
   )

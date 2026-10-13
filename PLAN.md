@@ -195,18 +195,26 @@
 ### Mockup mapping
 - Desktop: `guests.png`; mobile: `guests_mobile.png`.
 - Reuse visual language for Unknown Guests tab if separate mockup is unavailable.
+- Decisions for the controls the mockups do not explain: D13, D14, D31–D36 in `docs/DOMAIN.md`.
 
 ### Checklist
-- [ ] Build desktop guest table and dedicated mobile card/list layout.
-- [ ] Implement guest create/edit/soft-delete, find/search, sort, and pagination as needed.
+- [ ] Build desktop guest table and dedicated mobile card/list layout, with the KPI strip and the Guests / Unknown Guests tabs.
+- [ ] Implement guest create/edit/soft-delete, find/search, sort, the three filters (RSVP status, invitation status, table) and pagination with rows per page.
 - [ ] Enforce event-scoped normalized phone uniqueness; re-add soft-deleted phone restores its record.
 - [ ] Support First Name, Last Name, guest-entered Invitation Name, Allowed/Confirmed Attendees, RSVP status, Invitation Sent Count and Table.
+- [ ] Label a guest with no invitation sent and no response "Not Sent"; use "Awaiting Response" only after a send (D14).
 - [ ] Implement authorized manual RSVP edits and appropriate assignment clearing/state changes.
 - [ ] Provide editable Table selector for Approved guests; enforce mock table capacity rules.
-- [ ] Implement Unknown Guests list and actions: review, add as guest, match/merge, reject.
+- [ ] Guest details panel, opened from the ">" arrow on a phone and the guest's name on desktop; "⋯" menu with Change RSVP and Delete (D33).
+- [ ] Bulk selection with Delete selected (confirmed) and Export selected (D13).
+- [ ] Column chooser on the desktop table: every column with a checkbox, Select all and Clear, Name and Phone always shown, choice remembered in the browser through the persistence adapter (D34).
+- [ ] Clear filters button (D35).
+- [ ] Show the per-row WhatsApp button disabled with a "Soon" hint (D36).
+- [ ] Implement Unknown Guests list and actions: review, add as guest, match/merge, reject. Rejected responses move to a Rejected list and can be restored (D31).
 - [ ] Prototype CSV/XLSX guest import with validation, mapping, preview, and error reporting.
-- [ ] Implement guest CSV export; add XLSX guest export if adopted in MVP scope.
+- [ ] Implement guest export as CSV and Excel, always with every field (D32).
 - [ ] Ensure Viewer may view/export but cannot modify.
+- [ ] Refresh the event's data after every change, so the Dashboard and the event list show it.
 
 ### Validation and exit criteria
 - [ ] Realistic guest CRUD, search, phone matching, restoration and Unknown Guest reconciliation work with mock data.
@@ -256,6 +264,7 @@
 - [ ] Never decrement count; Dashboard Invitations Sent remains distinct per guest.
 - [ ] Include appropriate failures, empty template and restricted role states.
 - [ ] Ensure no real WhatsApp recipient is opened in Demo Mode.
+- [ ] Enable the per-row WhatsApp button on the Guests page, which Phase 6 shows disabled (D36).
 
 ### Validation and exit criteria
 - [ ] Editor and preview stay synchronized; mobile tabs work.
@@ -794,6 +803,18 @@ Follow-ups/risks:
 - Charts are drawn with plain SVG and CSS; no chart library was added.
 - Work is on branch phase_5_completion; nothing committed.
 Next: Phase 6 — Guests and Unknown Guests. Needs owner decisions D13 (bulk selection) and D14 (label for a guest not yet invited), and confirmation of defaults P2, P3 and P6.
+```
+
+```text
+2026-10-13 — Phase 5 follow-ups and Phase 6 decisions.
+Decisions (owner): Guests — bulk delete and export of selected rows (D13); label "Not Sent" for a guest not yet invited (D14); rejected unknown responses are kept in a restorable Rejected list (D31); export as CSV and Excel (D32); details panel and row menu (D33); the sliders button is a column chooser with Name and Phone always shown, remembered in the browser, desktop only (D34); a Clear filters button (D35); the per-row WhatsApp button is disabled until Phase 8 (D36). Defaults P2, P3, P6, P10, P11 and P13 confirmed. P12 changed: activity times use the viewer's own time zone. Recorded in docs/DOMAIN.md, docs/PRD.md, docs/MOCKUP_NOTES.md, mockups/README.md and docs/FUTURE_FEATURES.md; the Phase 6 checklist was rewritten to match.
+Done: Dashboard chart group renamed from "Not Invited Yet" to "Not Sent"; Recent Guest Activity times now follow the viewer's time zone.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 571 passed, coverage 97.96% statements, 93.58% branches; `npm run test:e2e` 168 passed, 14 skipped by design; `npm run build` succeeds.
+Follow-ups/risks:
+- The owner's visual review of the Dashboard and its Hebrew wording is still to come.
+- Phase 6 needs additions to the service contracts (rejected unknown responses, bulk delete, a stored column preference) and a library for reading and writing CSV and Excel files, to be chosen and recorded when it starts.
+- Work is on branch phase_5_followups, created from phase_5_completion; nothing committed.
+Next: Phase 6 — Guests and Unknown Guests. No open decisions remain for it.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

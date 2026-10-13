@@ -34,4 +34,12 @@ describe('relativeDay', () => {
       ),
     ).toBe('yesterday')
   })
+
+  it('uses the viewer’s own calendar when no time zone is given', () => {
+    const now = new Date(2026, 9, 12, 9, 0)
+
+    expect(relativeDay(new Date(2026, 9, 12, 0, 5), now)).toBe('today')
+    expect(relativeDay(new Date(2026, 9, 11, 23, 55), now)).toBe('yesterday')
+    expect(relativeDay(new Date(2026, 9, 10, 23, 55), now)).toBe('other')
+  })
 })

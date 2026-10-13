@@ -285,17 +285,13 @@ describe('Dashboard', () => {
       }),
     ).toBeInTheDocument()
     expect(legendRows()).toEqual(
-      [
-        'Approved',
-        'Declined',
-        'Not Sure',
-        'Awaiting Response',
-        'Not Invited Yet',
-      ].map((label, index) => [
-        label,
-        String(shares[index]?.count),
-        `${shares[index]?.percent}%`,
-      ]),
+      ['Approved', 'Declined', 'Not Sure', 'Awaiting Response', 'Not Sent'].map(
+        (label, index) => [
+          label,
+          String(shares[index]?.count),
+          `${shares[index]?.percent}%`,
+        ],
+      ),
     )
     expect(shares.reduce((sum, share) => sum + share.count, 0)).toBe(
       metrics.totalGuests,
