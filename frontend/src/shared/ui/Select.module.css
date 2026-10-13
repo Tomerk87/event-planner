@@ -1,0 +1,71 @@
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  inline-size: 100%;
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-4) var(--space-3);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 120ms;
+}
+
+.trigger:hover:not(:disabled),
+.trigger[aria-expanded='true'] {
+  border-color: var(--color-primary);
+}
+
+.trigger:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.trigger[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.value {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.icon svg,
+.chevron {
+  flex-shrink: 0;
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.chevron {
+  color: var(--color-text-muted);
+}
+
+/* Pinned to the screen; its place is worked out when it opens. */
+.list {
+  position: fixed;
+  inset: auto;
+  max-inline-size: calc(100vw - 1rem);
+  color: var(--color-text);
+  text-align: start;
+  font-weight: var(--font-weight-regular, 400);
+}
+
+.optionLabel {
+  flex: 1;
+  white-space: nowrap;
+}

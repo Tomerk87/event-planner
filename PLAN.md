@@ -940,4 +940,17 @@ Follow-ups/risks:
 Next: Phase 9 — RSVP Settings and public RSVP.
 ```
 
+```text
+2026-10-13 — Phase 8 follow-up — one dropdown design everywhere (owner).
+Decision (owner): every dropdown shares the design of the Group picker, without the create row; the column chooser keeps its own design (D58).
+Done: new shared Select (button with combobox role and a listbox; arrow keys, Home/End, typing to jump, Escape; list positioned against the screen, opening upwards near the bottom and following its button on scroll). SelectField now renders it, so every dropdown changed at once: Guests filters, the Table selector in each row, Rows per page, the guest form's Table, Preview for, time zone, RSVP language, import column matching, demo role, showcase. The language selector uses it too. List styles shared with the group picker. Test helpers chooseOption/optionLabels for unit and browser tests. Rule written into AGENTS.md and docs/ARCHITECTURE.md.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 853 passed, coverage 96.43% statements, 90.87% branches; `npm run test:e2e` 243 passed, 23 skipped by design; `npm run build` succeeds. Dropdowns checked from desktop screenshots (table row selector, language selector).
+Follow-ups/risks:
+- Phones no longer get the system's own picker wheel for dropdowns; they get the same list as desktop.
+- The time zone list has about 400 entries and is found by scrolling or typing its first letters; it has no search box.
+- Hebrew and phone looks passed automated checks only.
+- Nothing committed; branch phase_8_followups.
+Next: Phase 9 — RSVP Settings and public RSVP.
+```
+
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

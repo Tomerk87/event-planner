@@ -3,7 +3,7 @@ import { expect, test, type Download, type Page } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 import { readSheet } from 'read-excel-file/node'
 import writeXlsxFile from 'write-excel-file/node'
-import { startInDemo } from './helpers.ts'
+import { chooseOption, startInDemo } from './helpers.ts'
 
 const GUESTS = '/events/evt-1/guests'
 const WEDDING_FILE = 'Maya & Daniel’s Wedding - guests'
@@ -131,19 +131,22 @@ test('filters, sorting and paging are kept in the address across a reload', asyn
   isMobile,
 }) => {
   await page.goto(GUESTS)
-  await page.getByLabel('RSVP Status').selectOption('APPROVED')
-  await page.getByLabel('Rows per page').selectOption('25')
+  await chooseOption(page.getByLabel('RSVP Status'), 'APPROVED')
+  await chooseOption(page.getByLabel('Rows per page'), '25')
   await page.getByRole('button', { name: 'Next page' }).click()
   await expect(page.getByText(/^26–50 of \d+ guests$/)).toBeVisible()
 
   await page.reload()
 
   await expect(page.getByText(/^26–50 of \d+ guests$/)).toBeVisible()
-  await expect(page.getByLabel('RSVP Status')).toHaveValue('APPROVED')
+  await expect(page.getByLabel('RSVP Status')).toHaveAttribute(
+    'value',
+    'APPROVED',
+  )
   await expect(guestList(page, isMobile).getByText('Approved')).toHaveCount(25)
 
   await page.getByRole('button', { name: 'Clear filters' }).click()
-  await expect(page.getByLabel('RSVP Status')).toHaveValue('ALL')
+  await expect(page.getByLabel('RSVP Status')).toHaveAttribute('value', 'ALL')
 })
 
 test('the column choice is remembered, and Name and Phone cannot be hidden', async ({
@@ -268,7 +271,7 @@ test('guests are imported from a CSV file, with unusable rows reported', async (
     ),
   })
   await expect(dialog.getByText(/^list\.csv: 4 rows\./)).toBeVisible()
-  await expect(dialog.getByLabel(/Phone Number/)).toHaveValue('2')
+  await expect(dialog.getByLabel(/Phone Number/)).toHaveAttribute('value', '2')
   await dialog.getByRole('button', { name: 'Preview' }).click()
   await expect(dialog.getByText('2 will be imported')).toBeVisible()
   await expect(dialog.getByText('Phone Number is not valid')).toBeVisible()
@@ -508,7 +511,7 @@ for (const language of ['en', 'he'] as const) {
         mimeType: 'text/csv',
         buffer: Buffer.from('First Name,Phone\nA,050-555-0401\nB,12\n'),
       })
-      await expect(dialog.locator('select').first()).toBeVisible()
+      await expect(dialog.getByRole('combobox').first()).toBeVisible()
       await expectNoViolations(page)
       await dialog.locator('button').last().click()
       await expect(dialog.locator('table')).toBeVisible()
@@ -564,7 +567,7 @@ test('a guest can be put in a group, and the list filtered by it', async ({
   await confirm.getByRole('button', { name: 'Create Group' }).click()
   await expect(page.getByText('The guest was added.')).toBeVisible()
 
-  await page.getByRole('combobox', { name: 'Group' }).selectOption('Choir')
+  await chooseOption(page.getByRole('combobox', { name: 'Group' }), 'Choir')
 
   await expect(page).toHaveURL(/group=Choir/)
   await expect(page.getByText('1–1 of 1 guests')).toBeVisible()

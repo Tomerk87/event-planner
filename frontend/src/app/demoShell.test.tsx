@@ -13,6 +13,7 @@ import {
   renderApp,
   TEST_NOW,
 } from '../test/renderApp.tsx'
+import { change, optionLabels } from '../test/controls.ts'
 
 async function openEvent(eventId: string, page = 'layout') {
   const view = renderApp(`/events/${eventId}/${page}`)
@@ -167,7 +168,7 @@ describe('demo controls', () => {
     const { services } = await openEvent(DEMO_EVENTS.owner)
     expect(roleSelect()).toHaveValue('OWN')
 
-    fireEvent.change(roleSelect(), { target: { value: 'VIEWER' } })
+    change(roleSelect(), { target: { value: 'VIEWER' } })
 
     expect(
       await screen.findByText('Your role in this event: Viewer'),
@@ -177,7 +178,7 @@ describe('demo controls', () => {
     expect(roleSelect()).toHaveValue('VIEWER')
     expect(await services.demo?.getRole()).toBe('VIEWER')
 
-    fireEvent.change(roleSelect(), { target: { value: 'OWN' } })
+    change(roleSelect(), { target: { value: 'OWN' } })
 
     expect(
       await screen.findByText('Your role in this event: Owner'),
@@ -188,7 +189,7 @@ describe('demo controls', () => {
   it('simulates a Super User as Owner on an event where the user is a Viewer', async () => {
     await openEvent(DEMO_EVENTS.viewer)
 
-    fireEvent.change(roleSelect(), { target: { value: 'SUPER_USER' } })
+    change(roleSelect(), { target: { value: 'SUPER_USER' } })
 
     expect(
       await screen.findByText('Your role in this event: Owner'),
@@ -199,11 +200,7 @@ describe('demo controls', () => {
   it('offers every simulated role, each labelled as a simulation', async () => {
     await openEvent(DEMO_EVENTS.owner)
 
-    expect(
-      within(roleSelect())
-        .getAllByRole('option')
-        .map((option) => option.textContent),
-    ).toEqual([
+    expect(optionLabels(roleSelect())).toEqual([
       'Role: my own',
       'Simulate Owner',
       'Simulate Admin',
@@ -220,7 +217,7 @@ describe('demo controls', () => {
       phone: '+972 00-777-0001',
       allowedAttendees: 2,
     })
-    fireEvent.change(roleSelect(), { target: { value: 'ADMIN' } })
+    change(roleSelect(), { target: { value: 'ADMIN' } })
     await screen.findByText('Your role in this event: Admin')
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset Demo' }))

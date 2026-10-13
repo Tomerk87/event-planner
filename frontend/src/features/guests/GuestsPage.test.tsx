@@ -11,6 +11,7 @@ import {
   DEMO_EVENTS,
   renderApp,
 } from '../../test/renderApp.tsx'
+import { change, optionLabels } from '../../test/controls.ts'
 
 const downloads: { name: string; blob: Blob }[] = []
 
@@ -77,7 +78,7 @@ async function lastDownload() {
 }
 
 function search(text: string) {
-  fireEvent.change(screen.getByRole('searchbox', { name: 'Search guests' }), {
+  change(screen.getByRole('searchbox', { name: 'Search guests' }), {
     target: { value: text },
   })
 }
@@ -94,7 +95,7 @@ function fillGuestForm(
   const fields = within(dialog)
   const set = (label: RegExp, value: string | undefined) => {
     if (value !== undefined) {
-      fireEvent.change(fields.getByLabelText(label), { target: { value } })
+      change(fields.getByLabelText(label), { target: { value } })
     }
   }
   set(/First Name/, values.firstName)
@@ -207,30 +208,30 @@ describe('Guests list', () => {
       screen.queryByRole('button', { name: 'Clear filters' }),
     ).not.toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('RSVP Status'), {
+    change(screen.getByLabelText('RSVP Status'), {
       target: { value: 'DECLINED' },
     })
     total(count((guest) => guest.rsvpStatus === 'DECLINED'))
     expect(router.state.location.search).toBe('?rsvp=DECLINED')
 
-    fireEvent.change(screen.getByLabelText('RSVP Status'), {
+    change(screen.getByLabelText('RSVP Status'), {
       target: { value: 'ALL' },
     })
-    fireEvent.change(screen.getByLabelText('Invitation Status'), {
+    change(screen.getByLabelText('Invitation Status'), {
       target: { value: 'NOT_SENT' },
     })
     total(count((guest) => guest.invitationSentCount === 0))
 
-    fireEvent.change(screen.getByLabelText('Invitation Status'), {
+    change(screen.getByLabelText('Invitation Status'), {
       target: { value: 'ALL' },
     })
-    fireEvent.change(screen.getByLabelText('Table'), {
+    change(screen.getByLabelText('Table'), {
       target: { value: 'NONE' },
     })
     total(count((guest) => guest.tableId === null))
 
     const seated = guests.find((guest) => guest.tableId !== null)!
-    fireEvent.change(screen.getByLabelText('Table'), {
+    change(screen.getByLabelText('Table'), {
       target: { value: seated.tableId },
     })
     total(count((guest) => guest.tableId === seated.tableId))
@@ -285,7 +286,7 @@ describe('Guests list', () => {
       within(pages).getByRole('button', { name: 'Page 2' }),
     ).toHaveAttribute('aria-current', 'page')
 
-    fireEvent.change(screen.getByLabelText('Rows per page'), {
+    change(screen.getByLabelText('Rows per page'), {
       target: { value: '50' },
     })
     expect(screen.getByText(`1–50 of ${total} guests`)).toBeInTheDocument()
@@ -297,13 +298,13 @@ describe('Guests list', () => {
     const { router } = await openGuests()
 
     // No waiting between the changes: each must build on the one before.
-    fireEvent.change(screen.getByLabelText('RSVP Status'), {
+    change(screen.getByLabelText('RSVP Status'), {
       target: { value: 'APPROVED' },
     })
-    fireEvent.change(screen.getByLabelText('Invitation Status'), {
+    change(screen.getByLabelText('Invitation Status'), {
       target: { value: 'SENT' },
     })
-    fireEvent.change(screen.getByLabelText('Rows per page'), {
+    change(screen.getByLabelText('Rows per page'), {
       target: { value: '25' },
     })
     search('a')
@@ -687,7 +688,7 @@ describe('Changing guests', () => {
     ).not.toBeInTheDocument()
 
     fireEvent.click(within(dialog).getByRole('radio', { name: 'Approved' }))
-    fireEvent.change(within(dialog).getByLabelText(/Confirmed Attendees/), {
+    change(within(dialog).getByLabelText(/Confirmed Attendees/), {
       target: { value: String(guest.allowedAttendees + 1) },
     })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
@@ -697,7 +698,7 @@ describe('Changing guests', () => {
       ),
     ).toBeInTheDocument()
 
-    fireEvent.change(within(dialog).getByLabelText(/Confirmed Attendees/), {
+    change(within(dialog).getByLabelText(/Confirmed Attendees/), {
       target: { value: '1' },
     })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
@@ -758,20 +759,20 @@ describe('Changing guests', () => {
     const select = () =>
       within(rowOf(name)).getByRole('combobox', { name: `Table for ${name}` })
 
-    fireEvent.change(select(), { target: { value: full.table.id } })
+    change(select(), { target: { value: full.table.id } })
     expect(
       await screen.findByText(/^This table has 0 seats left/),
     ).toBeVisible()
     expect(select()).toHaveValue('NONE')
 
-    fireEvent.change(select(), { target: { value: roomy.table.id } })
+    change(select(), { target: { value: roomy.table.id } })
     await waitFor(() => expect(select()).toHaveValue(roomy.table.id))
     expect(
       (await services.guests.list(MAIN)).find((item) => item.id === guest.id)
         ?.tableId,
     ).toBe(roomy.table.id)
 
-    fireEvent.change(select(), { target: { value: 'NONE' } })
+    change(select(), { target: { value: 'NONE' } })
     await waitFor(() => expect(select()).toHaveValue('NONE'))
   })
 })
@@ -989,10 +990,9 @@ describe('Choosing columns', () => {
 
 describe('Importing guests', () => {
   function chooseFile(dialog: HTMLElement, name: string, content: string) {
-    fireEvent.change(
-      within(dialog).getByLabelText('Choose a CSV or Excel file'),
-      { target: { files: [new File([content], name, { type: 'text/csv' })] } },
-    )
+    change(within(dialog).getByLabelText('Choose a CSV or Excel file'), {
+      target: { files: [new File([content], name, { type: 'text/csv' })] },
+    })
   }
 
   it('imports a file in steps, skipping and reporting the rows it cannot use', async () => {
@@ -1085,10 +1085,10 @@ describe('Importing guests', () => {
       ),
     ).toBeInTheDocument()
 
-    fireEvent.change(within(dialog).getByLabelText(/First Name/), {
+    change(within(dialog).getByLabelText(/First Name/), {
       target: { value: '0' },
     })
-    fireEvent.change(within(dialog).getByLabelText(/Phone Number/), {
+    change(within(dialog).getByLabelText(/Phone Number/), {
       target: { value: '1' },
     })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Preview' }))
@@ -1191,14 +1191,14 @@ describe('Unknown Guests', () => {
     )
     expect(within(dialog).getByText(unknown.phone)).toBeInTheDocument()
 
-    fireEvent.change(within(dialog).getByLabelText(/First Name/), {
+    change(within(dialog).getByLabelText(/First Name/), {
       target: { value: ' ' },
     })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Add as guest' }),
     )
     expect(within(dialog).getByText('Enter a first name.')).toBeInTheDocument()
-    fireEvent.change(within(dialog).getByLabelText(/First Name/), {
+    change(within(dialog).getByLabelText(/First Name/), {
       target: { value: 'Known' },
     })
     fireEvent.click(
@@ -1243,13 +1243,13 @@ describe('Unknown Guests', () => {
     })
     expect(submit).toBeDisabled()
 
-    fireEvent.change(within(dialog).getByLabelText('Find a guest'), {
+    change(within(dialog).getByLabelText('Find a guest'), {
       target: { value: 'zzzz no one' },
     })
     expect(
       within(dialog).getByText('No guest matches this search.'),
     ).toBeInTheDocument()
-    fireEvent.change(within(dialog).getByLabelText('Find a guest'), {
+    change(within(dialog).getByLabelText('Find a guest'), {
       target: { value: guest.phone },
     })
     fireEvent.click(
@@ -1294,7 +1294,7 @@ describe('Unknown Guests', () => {
       }),
     )
     const dialog = screen.getByRole('dialog', { name: 'Match to a guest' })
-    fireEvent.change(within(dialog).getByLabelText('Find a guest'), {
+    change(within(dialog).getByLabelText('Find a guest'), {
       target: { value: guest.phone },
     })
     fireEvent.click(within(dialog).getByRole('radio'))
@@ -1519,11 +1519,7 @@ describe('Groups, and the Table field of the guest form', () => {
     expect(inFamily.length).toBeGreaterThan(0)
     expect(inNone.length).toBeGreaterThan(0)
     const filter = screen.getByRole('combobox', { name: 'Group' })
-    expect(
-      within(filter)
-        .getAllByRole('option')
-        .map((option) => option.textContent),
-    ).toEqual([
+    expect(optionLabels(filter)).toEqual([
       'All Groups',
       'No Group',
       'Family',
@@ -1532,7 +1528,7 @@ describe('Groups, and the Table field of the guest form', () => {
       'Work',
     ])
 
-    fireEvent.change(filter, { target: { value: 'Family' } })
+    change(filter, { target: { value: 'Family' } })
 
     expect(
       await screen.findByText(new RegExp(`of ${inFamily.length} guests`)),
@@ -1542,7 +1538,7 @@ describe('Groups, and the Table field of the guest form', () => {
       rows().every((row) => within(row).queryByText('Family') !== null),
     ).toBe(true)
 
-    fireEvent.change(filter, { target: { value: '~none' } })
+    change(filter, { target: { value: '~none' } })
     expect(
       await screen.findByText(new RegExp(`of ${inNone.length} guests`)),
     ).toBeInTheDocument()
@@ -1597,7 +1593,7 @@ describe('Groups, and the Table field of the guest form', () => {
       lastName: 'Guest',
       phone: '050-555-0177',
     })
-    fireEvent.change(group, { target: { value: ' friends ' } })
+    change(group, { target: { value: ' friends ' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
 
     // An existing group, whatever the capitals, is joined without asking.
@@ -1633,15 +1629,13 @@ describe('Groups, and the Table field of the guest form', () => {
     expect(table).toBeEnabled()
     expect(table).toHaveValue(guest.tableId)
     expect(
-      within(table)
-        .getAllByRole('option')
-        .every((option) =>
-          /^(No table|\d+|\d+ \(\d+ free\))$/.test(option.textContent ?? ''),
-        ),
+      optionLabels(table).every((label) =>
+        /^(No table|\d+|\d+ \(\d+ free\))$/.test(label),
+      ),
     ).toBe(true)
 
-    fireEvent.change(table, { target: { value: target.table.id } })
-    fireEvent.change(within(dialog).getByRole('combobox', { name: 'Group' }), {
+    change(table, { target: { value: target.table.id } })
+    change(within(dialog).getByRole('combobox', { name: 'Group' }), {
       target: { value: 'Choir' },
     })
     fireEvent.click(
@@ -1688,7 +1682,7 @@ describe('Groups, and the Table field of the guest form', () => {
       within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
     )
     const dialog = await screen.findByRole('dialog', { name: 'Edit Guest' })
-    fireEvent.change(within(dialog).getByLabelText('Table'), {
+    change(within(dialog).getByLabelText('Table'), {
       target: { value: full.table.id },
     })
     fireEvent.click(
@@ -1719,9 +1713,8 @@ describe('Groups, and the Table field of the guest form', () => {
     const selector = within(rowOf(name)).getByRole('combobox', {
       name: `Table for ${name}`,
     })
-    expect(
-      within(selector).getByRole('option', { selected: true }),
-    ).toHaveTextContent(new RegExp(`^${table.table.number}$`))
+    // The closed selector shows the number alone.
+    expect(selector).toHaveTextContent(new RegExp(`^${table.table.number}$`))
   })
 })
 
@@ -1745,7 +1738,7 @@ describe('Choosing a group in the guest form', () => {
   it('narrows the groups as you type, offers to create a new one, and can be cleared', async () => {
     const { dialog, group } = await openAddGuest()
 
-    fireEvent.change(group, { target: { value: 'fr' } })
+    change(group, { target: { value: 'fr' } })
     expect(options(dialog)).toEqual(['No Group', 'Friends', 'Create "fr"'])
 
     fireEvent.click(within(dialog).getByRole('option', { name: 'Friends' }))
@@ -1794,7 +1787,7 @@ describe('Choosing a group in the guest form', () => {
     const { services, dialog, group } = await openAddGuest()
     const before = (await services.guests.list(MAIN)).length
 
-    fireEvent.change(group, { target: { value: 'Famly' } })
+    change(group, { target: { value: 'Famly' } })
     fireEvent.click(
       within(dialog).getByRole('option', { name: 'Create "Famly"' }),
     )
@@ -1817,7 +1810,7 @@ describe('Choosing a group in the guest form', () => {
     expect(await services.guests.list(MAIN)).toHaveLength(before)
     expect(group).toHaveValue('Famly')
 
-    fireEvent.change(group, { target: { value: 'Choir' } })
+    change(group, { target: { value: 'Choir' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
     fireEvent.click(
       within(

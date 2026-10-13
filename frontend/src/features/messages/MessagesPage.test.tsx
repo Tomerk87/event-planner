@@ -11,6 +11,7 @@ import {
   renderApp,
   TEST_NOW,
 } from '../../test/renderApp.tsx'
+import { change } from '../../test/controls.ts'
 
 const MAIN = DEMO_EVENTS.owner
 let open: ReturnType<typeof vi.spyOn>
@@ -38,7 +39,7 @@ function editor(): HTMLTextAreaElement {
 }
 
 function type(text: string) {
-  fireEvent.change(editor(), { target: { value: text } })
+  change(editor(), { target: { value: text } })
 }
 
 /** The phone preview, once the guest's details have loaded. */
@@ -98,7 +99,7 @@ describe('WhatsApp Messages', () => {
       ),
     ).toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('Preview for'), {
+    change(screen.getByLabelText('Preview for'), {
       target: { value: other.id },
     })
 

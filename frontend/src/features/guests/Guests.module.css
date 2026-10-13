@@ -202,10 +202,9 @@
   text-align: start;
 }
 
-.tableSelect select {
+.tableSelect button {
   min-block-size: var(--control-height-sm);
-  padding-inline-start: var(--space-3);
-  text-overflow: ellipsis;
+  padding-inline: var(--space-3) var(--space-2);
 }
 
 .nameCell > :first-child {
@@ -247,7 +246,7 @@
   font-weight: var(--font-weight-regular);
 }
 
-.pageSize select {
+.pageSize button {
   inline-size: 5.5rem;
 }
 

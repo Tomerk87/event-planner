@@ -1,6 +1,6 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { startInDemo } from './helpers.ts'
+import { chooseOption, startInDemo } from './helpers.ts'
 
 const DASHBOARD = '/events/evt-1/dashboard'
 
@@ -127,7 +127,7 @@ test('a figure changed elsewhere is kept after a reload', async ({ page }) => {
     'role switcher is in the drawer on a phone',
   )
 
-  await role.selectOption('VIEWER')
+  await chooseOption(role, 'VIEWER')
   await expect(page.getByText('View-only access')).toBeVisible()
   await page.reload()
 

@@ -51,7 +51,7 @@ import { PHONE_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
 import { useQueryParams } from '../../shared/useQueryParams.ts'
 import { SendMessageDialog } from '../messages/SendMessageDialog.tsx'
 import { ColumnChooser } from './ColumnChooser.tsx'
-import { TableOptions } from './TableOptions.tsx'
+import { useTableOptions } from './TableOptions.tsx'
 import { DeleteGuestsDialog } from './DeleteGuestsDialog.tsx'
 import { resolveGuestColumns, type GuestColumnId } from './guestColumns.ts'
 import { GuestDetailsDrawer } from './GuestDetailsDrawer.tsx'
@@ -118,6 +118,7 @@ export function GuestsTab({
   const storedColumns = useGuestColumns()
   const setColumns = useSetGuestColumns()
   const assignTable = useAssignTable(eventId)
+  const tableOptions = useTableOptions()
 
   const eventTables = tablesOf(tables)
   const tableById = new Map(tables.map((item) => [item.table.id, item]))
@@ -219,7 +220,7 @@ export function GuestsTab({
           onChange={(change) => changeTable(guest, change.target.value)}
         >
           <option value={NO_TABLE}>{NONE}</option>
-          <TableOptions tables={tables} ownTableId={guest.tableId} />
+          {tableOptions(tables, guest.tableId)}
         </SelectField>
       </div>
     )

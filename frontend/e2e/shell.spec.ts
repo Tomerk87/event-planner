@@ -1,6 +1,6 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { openNavigation, startInDemo } from './helpers.ts'
+import { chooseOption, openNavigation, startInDemo } from './helpers.ts'
 
 test.beforeEach(async ({ page }) => {
   await startInDemo(page)
@@ -13,7 +13,7 @@ test('switching to Hebrew flips the layout and is remembered after a reload', as
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
 
   const nav = await openNavigation(page)
-  await nav.getByRole('combobox', { name: 'Language' }).selectOption('he')
+  await chooseOption(nav.getByRole('combobox', { name: 'Language' }), 'he')
 
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(page.locator('html')).toHaveAttribute('lang', 'he')
@@ -37,7 +37,7 @@ test('the sidebar sits on the inline-start edge in both directions', async ({
   const ltrBox = await sidebar.boundingBox()
   expect(ltrBox?.x).toBe(0)
 
-  await sidebar.getByRole('combobox', { name: 'Language' }).selectOption('he')
+  await chooseOption(sidebar.getByRole('combobox', { name: 'Language' }), 'he')
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
 
   const rtlBox = await sidebar.boundingBox()
@@ -128,17 +128,22 @@ test('the showcase hides editing controls for a Viewer and for a past event', as
   const addGuest = page.getByRole('button', { name: 'Add Guest' })
   const baseline = await addGuest.count()
 
-  await page
-    .getByRole('combobox', { name: 'Role in this event' })
-    .selectOption('VIEWER')
+  await chooseOption(
+    page.getByRole('combobox', { name: 'Role in this event' }),
+    'VIEWER',
+  )
 
   await expect(addGuest).toHaveCount(baseline - 1)
   await expect(page.getByText('View-only access').first()).toBeVisible()
 
-  await page
-    .getByRole('combobox', { name: 'Role in this event' })
-    .selectOption('OWNER')
-  await page.getByRole('combobox', { name: 'Event state' }).selectOption('past')
+  await chooseOption(
+    page.getByRole('combobox', { name: 'Role in this event' }),
+    'OWNER',
+  )
+  await chooseOption(
+    page.getByRole('combobox', { name: 'Event state' }),
+    'past',
+  )
 
   await expect(addGuest).toHaveCount(baseline - 1)
   await expect(page.getByText('This event has ended').first()).toBeVisible()

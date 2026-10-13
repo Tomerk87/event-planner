@@ -179,6 +179,7 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 - Guest export as CSV and as Excel (XLSX). An export contains every field, whatever columns are visible on screen. Text that a spreadsheet would run as a formula is exported as plain text, because invitation names are typed by guests.
 - Selecting rows offers two bulk actions: delete the selected guests (with confirmation) and export the selected guests. Bulk sending is out of scope (section 17).
 - On desktop, a column chooser lets the organizer show or hide table columns. Name and Phone are always shown. The choice is remembered in the browser. Clicking anywhere on a column's row toggles it, and the chooser stays open until a click outside it or Escape.
+- Every dropdown in the product shares one design (the product's own list, not the browser's); the column chooser, with its checkboxes, is the exception.
 - Every data table in the product follows the same guidelines on desktop: headings centred; number columns centred and text columns start-aligned; English headings in Title Case; the actions column last, pinned, with its heading hidden.
 - A guest's details can be opened in a panel from the list.
 - Status labels: a guest with no invitation sent and no response is shown as **Not Sent**; **Awaiting Response** is used only once an invitation has been sent.

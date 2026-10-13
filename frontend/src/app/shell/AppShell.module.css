@@ -205,40 +205,14 @@
   align-items: center;
 }
 
-.languageSelect {
-  appearance: none;
-  inline-size: 100%;
-  min-block-size: var(--control-height);
-  padding-inline: var(--space-10);
+.language .languageSelect {
   background: var(--color-sidebar-raised);
-  border: var(--border-width) solid var(--color-sidebar-border);
-  border-radius: var(--radius-md);
+  border-color: var(--color-sidebar-border);
   color: var(--color-sidebar-text);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
 }
 
-.languageSelect option {
-  color: var(--color-text);
-}
-
-.languageIcon,
-.languageChevron {
-  position: absolute;
-  pointer-events: none;
+.language .languageSelect svg {
   color: var(--color-sidebar-muted);
-}
-
-.languageIcon {
-  inset-inline-start: var(--space-3);
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-}
-
-.languageChevron {
-  inset-inline-end: var(--space-3);
-  inline-size: 1rem;
-  block-size: 1rem;
 }
 
 .drawer {
@@ -500,13 +474,12 @@
 }
 
 /* The language selector on a light background (landing and sign-in pages). */
-.languageLight .languageSelect {
+.language.languageLight .languageSelect {
   background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text);
 }
 
-.languageLight .languageIcon,
-.languageLight .languageChevron {
+.language.languageLight .languageSelect svg {
   color: var(--color-text-muted);
 }

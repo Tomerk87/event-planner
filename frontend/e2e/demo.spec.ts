@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { openNavigation, startInDemo } from './helpers.ts'
+import { chooseOption, openNavigation, startInDemo } from './helpers.ts'
 
 test.beforeEach(async ({ page }) => {
   await startInDemo(page)
@@ -48,9 +48,10 @@ test('a simulated role changes what is shown and survives a reload', async ({
   await expect(page.getByRole('heading', { name: 'Guests' })).toBeVisible()
 
   const tools = await openDemoTools(page)
-  await tools
-    .getByRole('combobox', { name: 'Simulated role' })
-    .selectOption('VIEWER')
+  await chooseOption(
+    tools.getByRole('combobox', { name: 'Simulated role' }),
+    'VIEWER',
+  )
   await closeDrawerIfOpen(page)
 
   await expect(page.getByText('Your role in this event: Viewer')).toBeAttached()
@@ -69,9 +70,10 @@ test('Reset Demo asks for confirmation and restores the original state', async (
 }) => {
   await page.goto(MAIN_EVENT)
   let tools = await openDemoTools(page)
-  await tools
-    .getByRole('combobox', { name: 'Simulated role' })
-    .selectOption('VIEWER')
+  await chooseOption(
+    tools.getByRole('combobox', { name: 'Simulated role' }),
+    'VIEWER',
+  )
   await closeDrawerIfOpen(page)
   await expect(page.getByText('View-only access')).toBeVisible()
 
@@ -95,9 +97,10 @@ test('demo data is kept per browser and not shared between visitors', async ({
 }) => {
   await page.goto(MAIN_EVENT)
   const tools = await openDemoTools(page)
-  await tools
-    .getByRole('combobox', { name: 'Simulated role' })
-    .selectOption('VIEWER')
+  await chooseOption(
+    tools.getByRole('combobox', { name: 'Simulated role' }),
+    'VIEWER',
+  )
   await closeDrawerIfOpen(page)
   await expect(page.getByText('View-only access')).toBeVisible()
 

@@ -7,6 +7,7 @@ import {
   DEMO_EVENTS,
   renderApp,
 } from '../../test/renderApp.tsx'
+import { change } from '../../test/controls.ts'
 
 const WEDDING = 'Maya & Daniel’s Wedding'
 
@@ -54,17 +55,17 @@ function fillEventForm(
 ) {
   const fields = within(dialog)
   if (values.name !== undefined) {
-    fireEvent.change(fields.getByLabelText(/Event Name/), {
+    change(fields.getByLabelText(/Event Name/), {
       target: { value: values.name },
     })
   }
   if (values.date !== undefined) {
-    fireEvent.change(fields.getByLabelText(/^Date/), {
+    change(fields.getByLabelText(/^Date/), {
       target: { value: values.date },
     })
   }
   if (values.time !== undefined) {
-    fireEvent.change(fields.getByLabelText(/^Time \*/), {
+    change(fields.getByLabelText(/^Time \*/), {
       target: { value: values.time },
     })
   }
@@ -170,7 +171,7 @@ describe('My Events', () => {
     await openEvents()
     const search = screen.getByRole('searchbox', { name: 'Search events' })
 
-    fireEvent.change(search, { target: { value: 'LEVI' } })
+    change(search, { target: { value: 'LEVI' } })
 
     expect(names()).toEqual(['Levi Family Birthday'])
     expect(
@@ -180,7 +181,7 @@ describe('My Events', () => {
       screen.getByRole('tab', { name: tabName('Past', 0) }),
     ).toBeInTheDocument()
 
-    fireEvent.change(search, { target: { value: 'no such event' } })
+    change(search, { target: { value: 'no such event' } })
 
     expect(screen.getByText('No events match')).toBeInTheDocument()
     fireEvent.click(
@@ -225,7 +226,7 @@ describe('My Events', () => {
     fireEvent.click(toggle)
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Search events' }), {
+    change(screen.getByRole('searchbox', { name: 'Search events' }), {
       target: { value: 'gala' },
     })
     expect(names()).toEqual(['Annual Company Gala'])
@@ -271,7 +272,7 @@ describe('My Events', () => {
       }),
     ).toBeInTheDocument()
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Simulated role' }), {
+    change(screen.getByRole('combobox', { name: 'Simulated role' }), {
       target: { value: 'VIEWER' },
     })
     await waitFor(() =>
@@ -297,16 +298,16 @@ describe('My Events', () => {
       date: '2031-01-01',
       time: '20:00',
     })
-    fireEvent.change(within(dialog).getByLabelText(/Time Zone/), {
+    change(within(dialog).getByLabelText(/Time Zone/), {
       target: { value: 'Asia/Jerusalem' },
     })
-    fireEvent.change(within(dialog).getByLabelText(/Maximum Attendees/), {
+    change(within(dialog).getByLabelText(/Maximum Attendees/), {
       target: { value: '80' },
     })
-    fireEvent.change(within(dialog).getByLabelText(/RSVP Language/), {
+    change(within(dialog).getByLabelText(/RSVP Language/), {
       target: { value: 'he' },
     })
-    fireEvent.change(within(dialog).getByLabelText('Location'), {
+    change(within(dialog).getByLabelText('Location'), {
       target: { value: 'The Old Mill' },
     })
     fireEvent.click(
@@ -344,10 +345,10 @@ describe('My Events', () => {
     const dialog = screen.getByRole('dialog', { name: 'Create event' })
     const fields = within(dialog)
 
-    fireEvent.change(fields.getByLabelText(/Maximum Attendees/), {
+    change(fields.getByLabelText(/Maximum Attendees/), {
       target: { value: '49' },
     })
-    fireEvent.change(fields.getByLabelText(/Expected Attendees per Guest/), {
+    change(fields.getByLabelText(/Expected Attendees per Guest/), {
       target: { value: '2.5' },
     })
     fireEvent.click(fields.getByRole('button', { name: 'Create Event' }))
@@ -479,14 +480,14 @@ describe('My Events', () => {
     ).toBeInTheDocument()
     expect(confirm).toBeDisabled()
 
-    fireEvent.change(within(dialog).getByLabelText('Event Name'), {
+    change(within(dialog).getByLabelText('Event Name'), {
       target: { value: 'Spring Garden' },
     })
     expect(confirm).toBeDisabled()
     fireEvent.submit(within(dialog).getByLabelText('Event Name'))
     expect(await services.events.list()).toHaveLength(6)
 
-    fireEvent.change(within(dialog).getByLabelText('Event Name'), {
+    change(within(dialog).getByLabelText('Event Name'), {
       target: { value: ' Spring Garden Party ' },
     })
     fireEvent.click(confirm)
@@ -510,7 +511,7 @@ describe('My Events', () => {
       within(openMenu(WEDDING)).getByRole('menuitem', { name: 'Delete' }),
     )
     const dialog = screen.getByRole('dialog', { name: 'Delete event' })
-    fireEvent.change(within(dialog).getByLabelText('Event Name'), {
+    change(within(dialog).getByLabelText('Event Name'), {
       target: { value: WEDDING },
     })
     fireEvent.click(

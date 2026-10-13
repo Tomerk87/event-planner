@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { changeLanguage } from '../i18n/i18n.ts'
 import { setViewportWidth } from '../test/matchMedia.ts'
 import { createTestBackend, renderApp } from '../test/renderApp.tsx'
+import { change } from '../test/controls.ts'
 
 const HEADLINE = 'Plan every guest. Manage every detail.'
 
@@ -18,7 +19,7 @@ async function landing() {
 }
 
 function fill(label: RegExp | string, value: string) {
-  fireEvent.change(screen.getByLabelText(label), { target: { value } })
+  change(screen.getByLabelText(label), { target: { value } })
 }
 
 function signUpAs(name: string, email: string, password = 'long-enough') {
@@ -191,13 +192,13 @@ describe('sign up, log out and sign in', () => {
       screen.getByRole('button', { name: 'Create your first event' }),
     )
     const dialog = screen.getByRole('dialog', { name: 'Create event' })
-    fireEvent.change(within(dialog).getByLabelText(/Event Name/), {
+    change(within(dialog).getByLabelText(/Event Name/), {
       target: { value: 'Housewarming' },
     })
-    fireEvent.change(within(dialog).getByLabelText(/^Date/), {
+    change(within(dialog).getByLabelText(/^Date/), {
       target: { value: '2031-02-02' },
     })
-    fireEvent.change(within(dialog).getByLabelText(/^Time \*/), {
+    change(within(dialog).getByLabelText(/^Time \*/), {
       target: { value: '18:00' },
     })
     fireEvent.click(

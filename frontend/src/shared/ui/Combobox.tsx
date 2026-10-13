@@ -1,6 +1,6 @@
-import { ChevronDown, Plus } from 'lucide-react'
+import { Check, ChevronDown, Plus } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
-import styles from './Combobox.module.css'
+import styles from './Listbox.module.css'
 import { cx } from './cx.ts'
 import fieldStyles from './Field.module.css'
 
@@ -211,7 +211,10 @@ export function Combobox({
                 onClick={() => choose(row)}
               >
                 {row.kind === 'create' && <Plus aria-hidden="true" />}
-                {rowLabel(row)}
+                <span className={styles.optionLabel}>{rowLabel(row)}</span>
+                {row.kind === 'option' && same(row.value, value) && (
+                  <Check aria-hidden="true" />
+                )}
               </li>
             ))}
           </ul>

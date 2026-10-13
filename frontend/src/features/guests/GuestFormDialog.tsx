@@ -19,7 +19,7 @@ import {
   useCreateGuest,
   useUpdateGuest,
 } from './guestQueries.ts'
-import { TableOptions } from './TableOptions.tsx'
+import { useTableOptions } from './TableOptions.tsx'
 
 const NO_TABLE = 'NONE'
 
@@ -53,6 +53,7 @@ function GuestForm({
   const create = useCreateGuest(eventId)
   const update = useUpdateGuest(eventId)
   const assignTable = useAssignTable(eventId)
+  const tableOptions = useTableOptions()
   const [firstName, setFirstName] = useState(guest?.firstName ?? '')
   const [lastName, setLastName] = useState(guest?.lastName ?? '')
   const [phone, setPhone] = useState(guest?.phone ?? '')
@@ -243,7 +244,7 @@ function GuestForm({
           }
         >
           <option value={NO_TABLE}>{t('guests.table.noTable')}</option>
-          <TableOptions tables={tables} ownTableId={guest?.tableId ?? null} />
+          {tableOptions(tables, guest?.tableId ?? null)}
         </SelectField>
       </div>
       <div className={styles.formActions}>

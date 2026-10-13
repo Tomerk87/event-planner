@@ -58,6 +58,15 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.option[aria-selected='true'] svg {
+  color: var(--color-primary);
+}
+
+.option[aria-disabled='true'] {
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
 .special {
   color: var(--color-primary);
 }
@@ -66,4 +75,8 @@
   flex-shrink: 0;
   inline-size: 1rem;
   block-size: 1rem;
+}
+
+.optionLabel {
+  flex: 1;
 }
