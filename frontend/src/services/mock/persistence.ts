@@ -14,6 +14,8 @@ export const DEMO_STORAGE_KEY = 'event-planner.demo'
 /** Accounts created through the simulated sign-up, and their events. */
 export const ACCOUNTS_STORAGE_KEY = 'event-planner.accounts'
 export const SESSION_STORAGE_KEY = 'event-planner.session'
+/** Display choices of this browser, such as visible table columns. */
+export const PREFERENCES_STORAGE_KEY = 'event-planner.preferences'
 
 /**
  * Stores a value in the visitor's own browser profile. This is the only

@@ -255,9 +255,11 @@ describe('demo dataset generator', () => {
     expect(
       count((guest) => guest.allowedAttendees !== main.defaultAllowedAttendees),
     ).toBeGreaterThan(0)
-    expect(
-      state.unknownRsvps.filter((unknown) => unknown.eventId === main.id),
-    ).toHaveLength(8)
+    const unknown = state.unknownRsvps.filter(
+      (candidate) => candidate.eventId === main.id,
+    )
+    expect(unknown.filter((candidate) => !candidate.rejectedAt)).toHaveLength(8)
+    expect(unknown.filter((candidate) => candidate.rejectedAt)).toHaveLength(1)
     expect(
       tables.some(
         (table) => tableOccupancy(table.id, guests) === table.capacity,

@@ -5,6 +5,7 @@ import {
   ACCOUNTS_STORAGE_KEY,
   createBrowserPersistence,
   DEMO_STORAGE_KEY,
+  PREFERENCES_STORAGE_KEY,
   SESSION_STORAGE_KEY,
 } from './mock/persistence.ts'
 import type { DataProvider } from './providerConfig.ts'
@@ -44,6 +45,10 @@ export function createServices(
       ACCOUNTS_STORAGE_KEY,
     ),
     sessionPersistence: createBrowserPersistence(storage, SESSION_STORAGE_KEY),
+    preferencesPersistence: createBrowserPersistence(
+      storage,
+      PREFERENCES_STORAGE_KEY,
+    ),
     delayMs: parseDelay(params.get('demoDelay')),
     failOperations: new Set(
       (params.get('demoFail') ?? '').split(',').filter(Boolean),

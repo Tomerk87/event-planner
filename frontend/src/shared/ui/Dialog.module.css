@@ -15,6 +15,10 @@
   inline-size: min(32rem, calc(100vw - 2 * var(--space-4)));
 }
 
+.center.wide {
+  inline-size: min(50rem, calc(100vw - 2 * var(--space-4)));
+}
+
 .side {
   position: fixed;
   inset-block: 0;

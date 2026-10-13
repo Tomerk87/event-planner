@@ -1,0 +1,503 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+/* Let a wide table scroll inside its own frame instead of widening the page. */
+.stack > * {
+  min-inline-size: 0;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.directional {
+  display: block;
+}
+
+:global([dir='rtl']) .directional {
+  transform: scaleX(-1);
+}
+
+/* Header buttons that open a menu, styled like the secondary button */
+.exportButton,
+.bulkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-5);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-primary-border);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.exportButton:hover,
+.bulkButton:hover {
+  background: var(--color-primary-soft);
+}
+
+.exportButton svg,
+.bulkButton svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.bulkButton {
+  min-block-size: var(--control-height-sm);
+  padding-inline: var(--space-3);
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.search {
+  flex: 1 1 18rem;
+  min-inline-size: 0;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.filters > * {
+  flex: 0 1 auto;
+}
+
+.iconControl {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height);
+  block-size: var(--control-height);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.iconControl:hover {
+  border-color: var(--color-primary);
+}
+
+.iconControl svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.rowActions .iconControl {
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.rowActions .iconControl:hover {
+  background: var(--color-neutral-soft);
+  color: var(--color-text);
+}
+
+/* Column chooser */
+.chooser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.chooserActions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block-end: var(--space-2);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+.chooserList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Bulk bar */
+.bulkBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary-soft);
+  border: var(--border-width) solid var(--color-primary-border);
+  border-radius: var(--radius-lg);
+}
+
+.bulkCount {
+  margin-inline-end: auto;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Table cells */
+.nameCell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nameButton {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+  cursor: pointer;
+}
+
+.nameButton:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.tableSelect {
+  inline-size: 6.5rem;
+}
+
+.tableSelect select {
+  min-block-size: var(--control-height-sm);
+  padding-inline-start: var(--space-3);
+  text-overflow: ellipsis;
+}
+
+.nameCell > :first-child {
+  inline-size: 2rem;
+  block-size: 2rem;
+  font-size: var(--font-size-xs);
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+.whatsapp {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+  color: var(--color-success);
+}
+
+/* Footer: rows per page, range and page numbers */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.pageSize > div {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pageSize label {
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.pageSize select {
+  inline-size: 5.5rem;
+}
+
+.range {
+  margin-inline-end: auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Phone cards */
+.guestCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.cardIdentity {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: var(--font-size-sm);
+}
+
+.cardName {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.cardFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.unknownActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Forms inside dialogs */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-text);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-block-end: var(--space-2);
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: var(--control-height);
+  padding-inline: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.choice:has(input:checked) {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+}
+
+.choice input {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+.bullets {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Details panel */
+.details {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-block-end: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.detail:last-child {
+  border-block-end: 0;
+}
+
+.detail dt {
+  color: var(--color-text-muted);
+}
+
+.detail dd {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+/* Import */
+.fileChooser {
+  position: relative;
+}
+
+.fileLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-block-size: 5rem;
+  padding: var(--space-4);
+  background: var(--color-primary-soft);
+  border: 2px dashed var(--color-primary-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.fileLabel svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+/* The real input covers the label, so it is clickable and focusable. */
+.fileInput {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.fileChooser:focus-within .fileLabel {
+  box-shadow: var(--focus-ring);
+}
+
+.importSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.previewScroll {
+  max-block-size: 18rem;
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.previewTable {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.previewTable th,
+.previewTable td {
+  padding: var(--space-2) var(--space-3);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.previewTable th {
+  position: sticky;
+  inset-block-start: 0;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.previewTable tbody tr {
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.rowError {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 767px) {
+  .filters {
+    inline-size: 100%;
+  }
+
+  .filters > * {
+    flex: 1 1 9rem;
+  }
+
+  .rowActions {
+    justify-content: flex-end;
+  }
+
+  .unknownActions {
+    justify-content: stretch;
+  }
+
+  .unknownActions > * {
+    flex: 1;
+  }
+}
+
+@media (max-width: 479px) {
+  .formRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .formActions > * {
+    flex: 1;
+  }
+}

@@ -118,3 +118,18 @@
     gap: var(--space-4);
   }
 }
+
+@media (min-width: 1024px) {
+  .kpiGridDense {
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  }
+
+  .kpiGridDense .kpi {
+    padding: var(--space-4);
+  }
+
+  .kpiGridDense .kpiIcon {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+}

@@ -1001,24 +1001,188 @@ export function describeServicesContract(
         expect(await services.unknownGuests.list(events.owner)).toHaveLength(7)
       })
 
-      it('rejects an unknown response, and guards all review actions', async () => {
+      it('keeps a rejected response out of review, restorable, and guards all review actions', async () => {
         const { services, events } = setup()
         const [unknown] = await services.unknownGuests.list(events.owner)
+        const rejectedBefore = await services.unknownGuests.listRejected(
+          events.owner,
+        )
 
         await services.unknownGuests.reject(events.owner, unknown!.id)
 
         expect(await services.unknownGuests.list(events.owner)).toHaveLength(7)
+        const rejected = await services.unknownGuests.listRejected(events.owner)
+        expect(rejected).toHaveLength(rejectedBefore.length + 1)
+        expect(rejected[0]).toMatchObject({
+          id: unknown!.id,
+          name: unknown!.name,
+          rsvpStatus: unknown!.rsvpStatus,
+        })
+        expect(rejected[0]?.rejectedAt).not.toBeNull()
+        // A rejected response cannot be acted on until it is restored.
         expect(
           await codeOf(
             services.unknownGuests.reject(events.owner, unknown!.id),
           ),
         ).toBe('NOT_FOUND')
+        expect(
+          await codeOf(
+            services.unknownGuests.convertToGuest(events.owner, unknown!.id, {
+              firstName: 'Late',
+              lastName: 'Comer',
+              allowedAttendees: 5,
+            }),
+          ),
+        ).toBe('NOT_FOUND')
+
+        const restored = await services.unknownGuests.restore(
+          events.owner,
+          unknown!.id,
+        )
+
+        expect(restored).toEqual({ ...unknown, rejectedAt: null })
+        expect(await services.unknownGuests.list(events.owner)).toHaveLength(8)
+        expect(
+          await services.unknownGuests.listRejected(events.owner),
+        ).toHaveLength(rejectedBefore.length)
+        expect(
+          await codeOf(
+            services.unknownGuests.restore(events.owner, unknown!.id),
+          ),
+        ).toBe('NOT_FOUND')
+
+        const [viewerUnknown] = await services.unknownGuests.list(events.viewer)
+        if (viewerUnknown) {
+          expect(
+            await codeOf(
+              services.unknownGuests.reject(events.viewer, viewerUnknown.id),
+            ),
+          ).toBe('FORBIDDEN')
+        }
         const [pastUnknown] = await services.unknownGuests.list(events.past)
         expect(
           await codeOf(
             services.unknownGuests.reject(events.past, pastUnknown!.id),
           ),
         ).toBe('EVENT_READ_ONLY')
+      })
+
+      it('returns a rejected response to review when the same phone answers again', async () => {
+        const { services, events } = setup()
+        const { event } = await services.events.get(events.owner)
+        const [unknown] = await services.unknownGuests.list(events.owner)
+        await services.unknownGuests.reject(events.owner, unknown!.id)
+
+        await services.rsvp.submit(event.rsvpSlug, {
+          name: 'Changed Mind',
+          phone: unknown!.phone,
+          status: 'DECLINED',
+          attendees: 1,
+        })
+
+        const pending = await services.unknownGuests.list(events.owner)
+        expect(pending).toHaveLength(8)
+        expect(pending.find((item) => item.id === unknown!.id)).toMatchObject({
+          name: 'Changed Mind',
+          rsvpStatus: 'DECLINED',
+          rejectedAt: null,
+        })
+      })
+
+      it('soft-deletes several guests at once, or none if one is unknown', async () => {
+        const { services, events } = setup()
+        const before = await services.guests.list(events.owner)
+        const [first, second] = before
+
+        expect(
+          await codeOf(
+            services.guests.removeMany(events.owner, [first!.id, 'no-such']),
+          ),
+        ).toBe('NOT_FOUND')
+        expect(await services.guests.list(events.owner)).toHaveLength(
+          before.length,
+        )
+
+        await services.guests.removeMany(events.owner, [
+          first!.id,
+          second!.id,
+          first!.id,
+        ])
+
+        const after = await services.guests.list(events.owner)
+        expect(after).toHaveLength(before.length - 2)
+        expect(after.map((guest) => guest.id)).not.toContain(first!.id)
+        expect(
+          await codeOf(services.guests.removeMany(events.viewer, [])),
+        ).toBe('FORBIDDEN')
+        expect(await codeOf(services.guests.removeMany(events.past, []))).toBe(
+          'EVENT_READ_ONLY',
+        )
+      })
+
+      it('imports many guests in one step, restoring a deleted phone, or nothing if one is invalid', async () => {
+        const { services, events } = setup()
+        const before = await services.guests.list(events.owner)
+        const deleted = before[0]!
+        await services.guests.remove(events.owner, deleted.id)
+        const fresh = (suffix: string) => ({
+          firstName: `Imported ${suffix}`,
+          lastName: 'Guest',
+          phone: `+972 00-888-000${suffix}`,
+          allowedAttendees: 3,
+        })
+
+        expect(
+          await codeOf(
+            services.guests.importMany(events.owner, [
+              fresh('1'),
+              { ...fresh('2'), phone: before[1]!.phone },
+            ]),
+          ),
+        ).toBe('DUPLICATE_PHONE')
+        expect(
+          await codeOf(
+            services.guests.importMany(events.owner, [fresh('1'), fresh('1')]),
+          ),
+        ).toBe('DUPLICATE_PHONE')
+        expect(await services.guests.list(events.owner)).toHaveLength(
+          before.length - 1,
+        )
+
+        const outcome = await services.guests.importMany(events.owner, [
+          fresh('1'),
+          fresh('2'),
+          { ...fresh('3'), phone: deleted.phone },
+        ])
+
+        expect(outcome).toEqual({ created: 2, restored: 1 })
+        const after = await services.guests.list(events.owner)
+        expect(after).toHaveLength(before.length + 2)
+        expect(after.find((guest) => guest.id === deleted.id)).toMatchObject({
+          firstName: 'Imported 3',
+          rsvpStatus: 'NO_RESPONSE',
+          tableId: null,
+        })
+        expect(
+          await codeOf(services.guests.importMany(events.viewer, [fresh('9')])),
+        ).toBe('FORBIDDEN')
+        expect(
+          await codeOf(services.guests.importMany(events.past, [fresh('9')])),
+        ).toBe('EVENT_READ_ONLY')
+      })
+
+      it('remembers the chosen guest columns', async () => {
+        const { services } = setup()
+
+        expect(await services.preferences.getGuestColumns()).toBeNull()
+
+        await services.preferences.setGuestColumns(['name', 'phone', 'status'])
+
+        expect(await services.preferences.getGuestColumns()).toEqual([
+          'name',
+          'phone',
+          'status',
+        ])
       })
 
       it('reads and saves RSVP settings with validation', async () => {

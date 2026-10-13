@@ -168,8 +168,8 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 - Allow authorized users to manually update RSVP status, confirmed attendees, and table assignments subject to the same rules as public RSVP and Event Layout.
 - Provide a WhatsApp action for each guest.
 - Desktop table and intentionally adapted mobile list/card layout.
-- CSV and XLSX import, with field mapping, preview, validation, duplicate detection, and error reporting.
-- Guest export as CSV and as Excel (XLSX). An export contains every field, whatever columns are visible on screen.
+- CSV and XLSX import, with field mapping, preview, validation, duplicate detection, and error reporting. Each imported row is checked like a guest added by hand. A row whose phone an active guest already has, or that repeats a phone from earlier in the file, is skipped and reported; an import never changes an existing guest. A phone belonging to a soft-deleted guest restores that guest (section 6.2). Up to 5,000 rows and 5 MB per file.
+- Guest export as CSV and as Excel (XLSX). An export contains every field, whatever columns are visible on screen. Text that a spreadsheet would run as a formula is exported as plain text, because invitation names are typed by guests.
 - Selecting rows offers two bulk actions: delete the selected guests (with confirmation) and export the selected guests. Bulk sending is out of scope (section 17).
 - On desktop, a column chooser lets the organizer show or hide table columns. Name and Phone are always shown. The choice is remembered in the browser.
 - A guest's details can be opened in a panel from the list.

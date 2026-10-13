@@ -86,10 +86,27 @@ export interface GuestsService {
   /** Organizer's manual RSVP edit; same rules as the public form. */
   setRsvp(eventId: Id, guestId: Id, input: GuestRsvpInput): Promise<Guest>
   assignTable(eventId: Id, guestId: Id, tableId: Id | null): Promise<Guest>
+  /** Soft-deletes several guests at once; all of them or none. */
+  removeMany(eventId: Id, guestIds: readonly Id[]): Promise<void>
+  /**
+   * Adds many guests at once, with the same rules as `create`. If any entry
+   * is invalid nothing is saved.
+   */
+  importMany(eventId: Id, inputs: readonly GuestInput[]): Promise<ImportOutcome>
+}
+
+export interface ImportOutcome {
+  /** Guests added as new records. */
+  created: number
+  /** Soft-deleted guests brought back because their phone was imported. */
+  restored: number
 }
 
 export interface UnknownGuestsService {
+  /** Responses awaiting review, newest first. */
   list(eventId: Id): Promise<UnknownRsvp[]>
+  /** Responses an organizer rejected, most recently rejected first. */
+  listRejected(eventId: Id): Promise<UnknownRsvp[]>
   /** Adds the responder as a known guest, keeping their response. */
   convertToGuest(
     eventId: Id,
@@ -98,7 +115,20 @@ export interface UnknownGuestsService {
   ): Promise<Guest>
   /** Applies the response to an existing guest and removes the unknown record. */
   mergeIntoGuest(eventId: Id, unknownId: Id, guestId: Id): Promise<Guest>
+  /** Moves the response out of the review list; it is kept and can be restored. */
   reject(eventId: Id, unknownId: Id): Promise<void>
+  /** Returns a rejected response to the review list. */
+  restore(eventId: Id, unknownId: Id): Promise<UnknownRsvp>
+}
+
+/**
+ * Choices about how the application looks to this person, kept apart from
+ * any event's data.
+ */
+export interface PreferencesService {
+  /** Ids of the Guests table columns to show; null when never chosen. */
+  getGuestColumns(): Promise<string[] | null>
+  setGuestColumns(columns: readonly string[]): Promise<void>
 }
 
 export type RsvpSettingsInput = Omit<RsvpSettings, 'eventId'>
@@ -245,6 +275,7 @@ export interface Services {
   tables: TablesService
   permissions: PermissionsService
   dashboard: DashboardService
+  preferences: PreferencesService
   /** Present only when the application runs on demo data. */
   demo: DemoControl | null
 }

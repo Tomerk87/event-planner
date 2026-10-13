@@ -1,0 +1,24 @@
+.popover {
+  position: relative;
+  display: inline-flex;
+}
+
+.panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-1));
+  z-index: 20;
+  min-inline-size: 15rem;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.start {
+  inset-inline-start: 0;
+}
+
+.end {
+  inset-inline-end: 0;
+}

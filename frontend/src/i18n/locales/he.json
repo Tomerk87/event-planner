@@ -414,6 +414,272 @@
       }
     }
   },
+  "guests": {
+    "subtitle": "ניהול רשימת האורחים, שליחת הזמנות ומעקב אחר אישורי הגעה.",
+    "actions": {
+      "import": "ייבוא אורחים",
+      "export": "ייצוא",
+      "exportCsv": "קובץ CSV",
+      "exportXlsx": "קובץ Excel",
+      "add": "הוספת אורח"
+    },
+    "kpis": {
+      "label": "נתוני אורחים",
+      "total": "סך האורחים",
+      "sent": "הזמנות שנשלחו",
+      "notSent": "לא נשלחו",
+      "approved": "אישרו",
+      "notSure": "לא בטוחים",
+      "declined": "לא מגיעים"
+    },
+    "tabs": {
+      "label": "רשימות אורחים",
+      "guests": "אורחים",
+      "unknown": "אורחים לא מזוהים"
+    },
+    "status": {
+      "NOT_SENT": "לא נשלחה",
+      "AWAITING": "ממתין לתשובה",
+      "APPROVED": "אישר הגעה",
+      "NOT_SURE": "לא בטוח",
+      "DECLINED": "לא מגיע"
+    },
+    "rsvp": {
+      "NO_RESPONSE": "ללא תשובה",
+      "APPROVED": "אישר הגעה",
+      "NOT_SURE": "לא בטוח",
+      "DECLINED": "לא מגיע"
+    },
+    "search": {
+      "label": "חיפוש אורחים",
+      "placeholder": "חיפוש לפי שם, מספר טלפון או שם בהזמנה…"
+    },
+    "filters": {
+      "rsvp": "סטטוס אישור הגעה",
+      "rsvpAll": "כל סטטוסי ההגעה",
+      "invitation": "סטטוס הזמנה",
+      "invitationAll": "כל סטטוסי ההזמנה",
+      "sent": "ההזמנה נשלחה",
+      "notSent": "ההזמנה לא נשלחה",
+      "table": "שולחן",
+      "tableAll": "כל השולחנות",
+      "tableOption": "שולחן {{number}}",
+      "clear": "ניקוי הסינון"
+    },
+    "columns": {
+      "button": "בחירת עמודות",
+      "selectAll": "בחירת הכול",
+      "clear": "ניקוי",
+      "alwaysShown": "{{column}} (מוצגת תמיד)",
+      "name": "שם",
+      "invitationName": "שם בהזמנה",
+      "phone": "טלפון",
+      "allowed": "מותרים",
+      "confirmed": "מאושרים",
+      "status": "סטטוס הגעה",
+      "sent": "הזמנות שנשלחו",
+      "table": "שולחן",
+      "actions": "פעולות"
+    },
+    "table": {
+      "caption": "אורחים",
+      "sortBy": "מיון לפי {{column}}",
+      "selectAll": "בחירת כל האורחים בעמוד זה",
+      "selectRow": "בחירת {{name}}",
+      "tableFor": "שולחן עבור {{name}}",
+      "noTable": "ללא שולחן",
+      "tableChoice": "{{number}} · {{name}} ({{available}} פנויים)"
+    },
+    "row": {
+      "whatsapp": "שליחת הודעת וואטסאפ אל {{name}} (יהיה זמין בקרוב)",
+      "edit": "עריכת {{name}}",
+      "more": "פעולות נוספות עבור {{name}}",
+      "details": "הצגת הפרטים של {{name}}",
+      "changeRsvp": "שינוי אישור ההגעה",
+      "delete": "מחיקה"
+    },
+    "card": {
+      "allowed": "מותרים {{count}}",
+      "confirmed": "מאושרים {{count}}",
+      "sent": "נשלחו {{count}}"
+    },
+    "pagination": {
+      "label": "עמודי אורחים",
+      "rowsPerPage": "שורות בעמוד",
+      "range": "{{from}}–{{to}} מתוך {{total}} אורחים",
+      "previous": "העמוד הקודם",
+      "next": "העמוד הבא",
+      "page": "עמוד {{page}}"
+    },
+    "bulk": {
+      "label": "אורחים שנבחרו",
+      "selected": "נבחרו {{count}}",
+      "export": "ייצוא הנבחרים",
+      "delete": "מחיקת הנבחרים",
+      "clear": "ביטול הבחירה"
+    },
+    "form": {
+      "addTitle": "הוספת אורח",
+      "editTitle": "עריכת אורח",
+      "firstName": "שם פרטי",
+      "lastName": "שם משפחה",
+      "phone": "מספר טלפון",
+      "phoneHint": "משמש להתאמת אישור ההגעה של האורח. חייב להיות ייחודי באירוע.",
+      "allowed": "משתתפים מותרים",
+      "allowedHint": "בין {{min}} ל־{{max}}.",
+      "add": "הוספת אורח",
+      "save": "שמירת השינויים",
+      "added": "האורח נוסף.",
+      "saved": "האורח עודכן.",
+      "errors": {
+        "firstName": "יש להזין שם פרטי.",
+        "phone": "יש להזין מספר טלפון תקין.",
+        "duplicate": "לאורח אחר באירוע הזה כבר יש את מספר הטלפון הזה.",
+        "allowed": "יש להזין מספר שלם בין {{min}} ל־{{max}}.",
+        "belowConfirmed": "האורח כבר אישר {{count}} משתתפים, ולכן אי אפשר להקטין את המספר המותר מתחת לכך."
+      }
+    },
+    "rsvpDialog": {
+      "title": "שינוי אישור ההגעה",
+      "for": "התשובה של {{name}}",
+      "attendees": "משתתפים מאושרים",
+      "attendeesHint": "בין 1 ל־{{max}}.",
+      "attendeesError": "יש להזין מספר שלם בין 1 ל־{{max}}.",
+      "tableNotice": "האורח יוסר משולחן {{number}}, כי רק אורחים שאישרו הגעה משובצים לשולחן.",
+      "save": "שמירת אישור ההגעה",
+      "saved": "אישור ההגעה עודכן."
+    },
+    "delete": {
+      "titleOne": "מחיקת אורח",
+      "titleMany": "מחיקת אורחים",
+      "bodyOne": "למחוק את {{name}} מהאירוע?",
+      "bodyMany": "למחוק את {{count}} האורחים שנבחרו מהאירוע?",
+      "note": "המקומות שלהם בשולחנות יתפנו. הוספה חוזרת של אותו מספר טלפון תחזיר את האורח.",
+      "confirm": "מחיקה",
+      "doneOne": "האורח נמחק.",
+      "doneMany": "{{count}} אורחים נמחקו."
+    },
+    "details": {
+      "title": "פרטי האורח",
+      "lastSent": "ההזמנה האחרונה נשלחה",
+      "lastResponse": "התשובה האחרונה",
+      "never": "אף פעם",
+      "edit": "עריכה"
+    },
+    "empty": {
+      "title": "עדיין אין אורחים",
+      "body": "הוסיפו את האורח הראשון או ייבאו רשימה כדי להתחיל.",
+      "bodyReadOnly": "לאירוע הזה אין אורחים.",
+      "noMatchTitle": "לא נמצאו אורחים",
+      "noMatchBody": "נסו חיפוש או סינון אחר."
+    },
+    "export": {
+      "fileName": "{{event}} - אורחים",
+      "sheet": "אורחים",
+      "done": "הקובץ הורד.",
+      "headings": {
+        "firstName": "שם פרטי",
+        "lastName": "שם משפחה",
+        "invitationName": "שם בהזמנה",
+        "phone": "טלפון",
+        "allowedAttendees": "משתתפים מותרים",
+        "confirmedAttendees": "משתתפים מאושרים",
+        "status": "סטטוס הגעה",
+        "invitationSentCount": "הזמנות שנשלחו",
+        "tableNumber": "שולחן"
+      }
+    },
+    "import": {
+      "title": "ייבוא אורחים",
+      "intro": "הוספת אורחים רבים בבת אחת מקובץ CSV או Excel. הקובץ נקרא בדפדפן שלכם.",
+      "ruleRequired": "לכל אורח נדרשים שם פרטי ומספר טלפון. שם משפחה ומספר משתתפים מותרים הם אופציונליים.",
+      "ruleDuplicates": "מספר טלפון שכבר שייך לאורח באירוע מדולג; אורחים קיימים אינם משתנים.",
+      "ruleLimit": "עד {{max}} שורות ו־5MB.",
+      "choose": "בחירת קובץ CSV או Excel",
+      "template": "הורדת תבנית",
+      "templateName": "תבנית לייבוא אורחים",
+      "hasHeadings": "השורה הראשונה מכילה כותרות עמודות",
+      "mapIntro": "{{file}}: {{rows}} שורות. בדקו איזו עמודה מכילה כל פרט.",
+      "columnNumber": "עמודה {{number}}",
+      "notInFile": "לא בקובץ",
+      "mapRequired": "יש לבחור את העמודות של שם פרטי ומספר טלפון כדי להמשיך.",
+      "back": "חזרה",
+      "preview": "תצוגה מקדימה",
+      "previewCaption": "שורות הקובץ ומה יקרה לכל אחת",
+      "row": "שורה",
+      "result": "תוצאה",
+      "problem": "בעיה",
+      "willImport": "{{count}} ייובאו",
+      "willSkip": "{{count}} ידולגו",
+      "previewLimit": "מוצגות {{shown}} השורות הראשונות מתוך {{total}}.",
+      "confirm": "ייבוא {{count}} אורחים",
+      "doneTitle": "הייבוא הסתיים",
+      "doneBody": "נוספו {{created}} אורחים, שוחזרו {{restored}}, דולגו {{skipped}} שורות.",
+      "downloadSkipped": "הורדת השורות שדולגו",
+      "skippedName": "שורות אורחים שדולגו",
+      "fields": {
+        "firstName": "שם פרטי",
+        "lastName": "שם משפחה",
+        "phone": "מספר טלפון",
+        "allowedAttendees": "משתתפים מותרים"
+      },
+      "outcome": {
+        "new": "אורח חדש",
+        "restore": "משחזר אורח שנמחק",
+        "error": "דולג"
+      },
+      "rowErrors": {
+        "MISSING_FIRST_NAME": "חסר שם פרטי",
+        "MISSING_PHONE": "חסר מספר טלפון",
+        "INVALID_PHONE": "מספר הטלפון אינו תקין",
+        "INVALID_ALLOWED": "מספר המשתתפים המותרים חייב להיות מספר שלם בין 1 ל־10",
+        "DUPLICATE_IN_FILE": "אותו טלפון כמו בשורה קודמת",
+        "DUPLICATE_IN_EVENT": "לאורח קיים כבר יש את הטלפון הזה"
+      },
+      "errors": {
+        "fileSize": "הקובץ גדול מ־5MB.",
+        "fileType": "יש לבחור קובץ CSV או קובץ Excel מסוג xlsx.",
+        "fileContent": "לא ניתן לקרוא את הקובץ. ודאו שזהו קובץ Excel תקין.",
+        "empty": "בקובץ אין שורות.",
+        "tooManyRows": "בקובץ יש יותר מ־{{max}} שורות."
+      },
+      "finish": "סיום"
+    },
+    "unknown": {
+      "noticeTitle": "תשובות ממספרי טלפון שאינם ברשימת האורחים",
+      "noticeBody": "הן אינן נספרות בנתוני האורחים עד שתוסיפו אותן כאורח או תתאימו אותן לאורח קיים.",
+      "views": "תשובות לא מזוהות",
+      "pending": "ממתינות לבדיקה",
+      "rejectedView": "נדחו",
+      "emptyPending": "אין תשובות לא מזוהות לבדיקה.",
+      "emptyRejected": "אין תשובות שנדחו.",
+      "convert": "הוספה כאורח",
+      "merge": "התאמה לאורח",
+      "reject": "דחייה",
+      "restore": "שחזור",
+      "converted": "התשובה נוספה כאורח.",
+      "merged": "התשובה הותאמה לאורח.",
+      "rejected": "התשובה נדחתה. אפשר לשחזר אותה מרשימת הנדחות.",
+      "restored": "התשובה הוחזרה לבדיקה.",
+      "convertTitle": "הוספה כאורח",
+      "convertIntro": "ייווצר אורח חדש עם התשובה ומספר הטלפון הזה:",
+      "mergeTitle": "התאמה לאורח",
+      "mergeIntro": "התשובה של {{name}} תחליף את אישור ההגעה של האורח שייבחר, והשם שהוקלד יהפוך לשם בהזמנה של האורח.",
+      "findGuest": "חיפוש אורח",
+      "chooseGuest": "בחירת האורח",
+      "noGuestFound": "אין אורח שמתאים לחיפוש.",
+      "refineSearch": "יש אורחים נוספים שמתאימים. דייקו את החיפוש כדי לראות אותם.",
+      "mergeOverAllowance": "התשובה היא עבור {{count}} משתתפים, אבל לאורח הזה מותרים {{max}}. יש להגדיל קודם את המספר המותר לאורח.",
+      "cardAttendees": "משתתפים {{count}}",
+      "columns": {
+        "name": "השם שנמסר",
+        "response": "תשובה",
+        "attendees": "משתתפים",
+        "submitted": "נשלחה",
+        "rejectedAt": "נדחתה"
+      }
+    }
+  },
   "showcase": {
     "title": "מערכת העיצוב",
     "subtitle": "הרכיבים והפריסה המשותפים ב-Event Planner.",
@@ -535,6 +801,19 @@
       "duplicate": "שכפול",
       "delete": "מחיקה",
       "chosen": "הפעולה נבחרה."
+    },
+    "controls": {
+      "title": "תיבות סימון, עימוד וחלוניות",
+      "subtitle": "תיבות בחירה, מספרי עמודים לרשימות ארוכות וחלונית קטנה שנפתחת מכפתור.",
+      "option": "הצגת אורחים משובצים",
+      "mixed": "חלק מהאורחים נבחרו",
+      "disabled": "מוצגת תמיד",
+      "pages": "עמודים לדוגמה",
+      "previous": "העמוד הקודם",
+      "next": "העמוד הבא",
+      "page": "עמוד {{page}}",
+      "popover": "אפשרויות לדוגמה",
+      "popoverBody": "חלונית מכילה כמה פקדים ונסגרת במקש Escape."
     },
     "states": {
       "title": "מצבי ריק, טעינה ושגיאה",

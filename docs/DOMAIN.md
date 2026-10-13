@@ -71,6 +71,16 @@ The approved documents do not settle these. Each was given the most conservative
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
 
+### Defaults applied in Phase 6, to confirm
+
+| # | Default applied | Where it matters |
+|---|---|---|
+| P14 | When a phone whose unknown response was rejected submits the RSVP form again, the response is updated and returns to the review list | Phase 9 |
+| P15 | Row selection and its bulk actions exist on the desktop table only; the phone cards have no checkboxes, as in the mobile mockup | Phase 6 |
+| P16 | Import rules: a single "Name" column is taken as the first name; a phone that an active guest already has, or that appears earlier in the file, is skipped and reported, never overwritten; a blank allowed-attendees value takes the event's default; limits of 5,000 rows and 5 MB; a nine-digit number starting with 5 gets back the leading zero a spreadsheet dropped | Phase 6 |
+| P17 | An organizer can set a guest's RSVP back to "No response" by hand. Rows per page offers 10, 25, 50 and 100 | Phase 6 |
+| P18 | A cell in an exported file that a spreadsheet would run as a formula is written as plain text (prefixed with an apostrophe in CSV, typed as text in Excel) | Phase 6 |
+
 ## Resolved decisions
 
 Move a row here, with the date and the outcome, when a decision is made. Update the PRD at the same time when the outcome changes product behavior (PRD §19).

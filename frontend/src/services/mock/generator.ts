@@ -616,9 +616,27 @@ function createEventData(
               ? 0
               : null,
         submittedAt: new Date(momentIn(windowStart, windowEnd)).toISOString(),
+        rejectedAt: null,
       }
     },
   )
+  // One response the organizer has already rejected, so the Rejected list is
+  // not empty in the main event. Built from fixed values, without drawing
+  // random numbers, so the rest of the dataset is unaffected.
+  if (eventIndex === 0) {
+    const phone = `+972 00-9${pad(eventIndex + 1, 2)}-9001`
+    unknownRsvps.push({
+      id: `unk-${eventIndex + 1}-rejected`,
+      eventId: event.id,
+      name: `${names.first[3] ?? ''} ${names.last[5] ?? ''}`.trim(),
+      phone,
+      normalizedPhone: normalizePhone(phone),
+      rsvpStatus: 'APPROVED',
+      confirmedAttendees: 2,
+      submittedAt: new Date(windowStart + 3 * DAY_MS).toISOString(),
+      rejectedAt: new Date(windowStart + 4 * DAY_MS).toISOString(),
+    })
+  }
 
   return { guests, tables, unknownRsvps, sends }
 }

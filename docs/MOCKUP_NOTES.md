@@ -90,6 +90,14 @@ Decided 2026-10-13 unless noted.
 - The KPI strip and the RSVP Status / Invitation Status / Table filters are not in the PRD; treated as presentation of existing data.
 - The Unknown Guests tab is visible only as a tab header; its content has no mockup. Rejected responses are kept in a Rejected list, also without a mockup.
 
+Found while building (Phase 6):
+
+- The desktop mockup shows no bar for selected rows; a bar with the count, Export selected, Delete selected and Clear selection appears above the table while rows are selected.
+- The phone mockup shows the sliders button and no checkboxes; neither the column chooser nor selection exists on a phone.
+- The Actions column stays pinned at the end of the table while the other columns scroll, so it is reachable in a narrow window.
+- The table selector lists each table as "number · name (seats free)".
+- Import has no mockup; it is a four-step dialog.
+
 ### WhatsApp Messages
 
 - **Recent Sent Messages** lists each send with time, status "Opened WhatsApp" and a message preview. The PRD stores a counter and the last send time, not a per-send history. Built as shown; the per-send record is added to the PRD in Phase 8.

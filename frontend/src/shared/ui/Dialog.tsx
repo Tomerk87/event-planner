@@ -17,6 +17,8 @@ interface DialogProps {
    * content itself take focus so it can be scrolled from the keyboard.
    */
   scrollableContent?: boolean
+  /** Extra width, for content such as a table. Centered dialogs only. */
+  wide?: boolean
 }
 
 interface DialogFrameProps extends DialogProps {
@@ -30,6 +32,7 @@ function DialogFrame({
   children,
   footer,
   scrollableContent = false,
+  wide = false,
   placement,
 }: DialogFrameProps) {
   const { t } = useTranslation()
@@ -39,7 +42,7 @@ function DialogFrame({
   return (
     <dialog
       ref={ref}
-      className={cx(styles.dialog, styles[placement])}
+      className={cx(styles.dialog, styles[placement], wide && styles.wide)}
       aria-labelledby={titleId}
       {...dialogProps}
     >

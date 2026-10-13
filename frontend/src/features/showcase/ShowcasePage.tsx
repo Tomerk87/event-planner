@@ -36,6 +36,7 @@ import { EventAccessContext } from '../../shared/access/eventAccessContext.ts'
 import { Badge } from '../../shared/ui/Badge.tsx'
 import { Button, IconButton } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard, KpiGrid } from '../../shared/ui/Card.tsx'
+import { Checkbox } from '../../shared/ui/Checkbox.tsx'
 import { DataTable, type Column } from '../../shared/ui/DataTable.tsx'
 import { Dialog, Drawer } from '../../shared/ui/Dialog.tsx'
 import { EventCover } from '../../shared/ui/EventCover.tsx'
@@ -44,6 +45,8 @@ import { LtrText } from '../../shared/ui/LtrText.tsx'
 import { Menu } from '../../shared/ui/Menu.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
+import { Pagination } from '../../shared/ui/Pagination.tsx'
+import { Popover } from '../../shared/ui/Popover.tsx'
 import { RoleIcon } from '../../shared/ui/RoleIcon.tsx'
 import {
   EmptyState,
@@ -83,6 +86,8 @@ export function ShowcasePage() {
   const [isPastEvent, setIsPastEvent] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [optionChecked, setOptionChecked] = useState(true)
+  const [samplePage, setSamplePage] = useState(4)
   const [editedMessage, setEditedMessage] = useState<string | null>(null)
   const message = editedMessage ?? t('showcase.fields.welcomeMessageValue')
   const format = useFormatters()
@@ -530,6 +535,51 @@ export function ShowcasePage() {
                 <EventCover eventId="sample-gala" />
               </span>
             </div>
+          </Card>
+
+          <Card
+            title={t('showcase.controls.title')}
+            subtitle={t('showcase.controls.subtitle')}
+          >
+            <div className={styles.row}>
+              <Checkbox
+                label={t('showcase.controls.option')}
+                checked={optionChecked}
+                onChange={(event) => setOptionChecked(event.target.checked)}
+              />
+              <Checkbox
+                label={t('showcase.controls.mixed')}
+                indeterminate
+                checked={false}
+                readOnly
+              />
+              <Checkbox
+                label={t('showcase.controls.disabled')}
+                checked
+                disabled
+                readOnly
+              />
+              <Popover
+                label={t('showcase.controls.popover')}
+                align="start"
+                triggerClassName={styles.menuTrigger}
+                trigger={<Globe aria-hidden="true" />}
+              >
+                {t('showcase.controls.popoverBody')}
+              </Popover>
+            </div>
+            <Pagination
+              label={t('showcase.controls.pages')}
+              page={samplePage}
+              pageCount={17}
+              previousLabel={t('showcase.controls.previous')}
+              nextLabel={t('showcase.controls.next')}
+              pageLabel={(page) =>
+                t('showcase.controls.page', { page: format.number(page) })
+              }
+              formatNumber={format.number}
+              onPage={setSamplePage}
+            />
           </Card>
 
           <Card

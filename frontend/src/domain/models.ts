@@ -85,6 +85,11 @@ export interface UnknownRsvp {
   rsvpStatus: RsvpResponse
   confirmedAttendees: number | null
   submittedAt: IsoDateTime
+  /**
+   * When an organizer rejected the response; null while it awaits review. A
+   * rejected response is kept, out of the review list, and can be restored.
+   */
+  rejectedAt: IsoDateTime | null
 }
 
 export interface RsvpSettings {
