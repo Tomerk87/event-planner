@@ -17,7 +17,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 5
+export const DATASET_VERSION = 6
 
 /**
  * Version of the accounts workspace, which holds what people created

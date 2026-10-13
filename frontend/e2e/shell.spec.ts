@@ -64,7 +64,7 @@ test('pages fit a very narrow phone without sideways scrolling', async ({
   await page.setViewportSize({ width: 320, height: 640 })
   for (const [path, content] of [
     ['/events', 'Annual Company Gala'],
-    ['/events/evt-1/layout', 'This page is not implemented yet.'],
+    ['/events/evt-1/layout', 'Capacity Warnings'],
     ['/events/evt-5/dashboard', 'Quick Actions'],
   ] as const) {
     await page.goto(path)

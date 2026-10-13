@@ -17,7 +17,7 @@ import { change, optionLabels } from '../test/controls.ts'
 
 async function openEvent(eventId: string, page = 'layout') {
   const view = renderApp(`/events/${eventId}/${page}`)
-  await screen.findByText('This page is not implemented yet.')
+  await screen.findByRole('region', { name: 'Seating figures' })
   return view
 }
 
@@ -254,7 +254,7 @@ describe('demo controls', () => {
       failOperations: new Set(['demo.reset']),
     })
     renderApp(`/events/${DEMO_EVENTS.owner}/layout`, services)
-    await screen.findByText('This page is not implemented yet.')
+    await screen.findByRole('region', { name: 'Seating figures' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset Demo' }))
     fireEvent.click(

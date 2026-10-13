@@ -721,6 +721,172 @@
       }
     }
   },
+  "layout": {
+    "subtitle": "Manage tables, seating capacity and event arrangement.",
+    "tableNumber": "Table {{number}}",
+    "attendeesOne": "1 attendee",
+    "attendeesMany": "{{count}} attendees",
+    "actions": {
+      "add": "Add Table",
+      "export": "Export Tables"
+    },
+    "tabs": {
+      "label": "Event layout views",
+      "tables": "Tables",
+      "arrangement": "Table Arrangement"
+    },
+    "kpis": {
+      "label": "Seating figures",
+      "tables": "Total Tables",
+      "capacity": "Seating Capacity",
+      "assigned": "Assigned Attendees",
+      "available": "Available Seats"
+    },
+    "status": {
+      "OVER_CAPACITY": "Over Capacity",
+      "FULL": "Full",
+      "ALMOST_FULL": "Almost Full",
+      "READY": "Ready"
+    },
+    "shapes": {
+      "CIRCLE": "Circle",
+      "RECTANGLE": "Rectangle",
+      "SQUARE": "Square"
+    },
+    "list": {
+      "title": "Tables",
+      "caption": "Tables"
+    },
+    "columns": {
+      "number": "#",
+      "shape": "Shape",
+      "capacity": "Capacity",
+      "assigned": "Assigned",
+      "available": "Available",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "search": {
+      "label": "Search tables",
+      "placeholder": "Search tables by number…"
+    },
+    "filters": {
+      "shape": "Shape",
+      "shapeAll": "All Shapes"
+    },
+    "sort": {
+      "label": "Sort tables",
+      "number": {
+        "asc": "Table number, low to high",
+        "desc": "Table number, high to low"
+      },
+      "available": {
+        "asc": "Available seats, fewest first",
+        "desc": "Available seats, most first"
+      },
+      "capacity": {
+        "asc": "Capacity, smallest first",
+        "desc": "Capacity, largest first"
+      }
+    },
+    "pagination": {
+      "label": "Table pages",
+      "range": "{{from}}–{{to}} of {{total}} tables"
+    },
+    "row": {
+      "show": "Show {{name}}",
+      "edit": "Edit {{name}}",
+      "manage": "Manage guests of {{name}}",
+      "view": "View guests of {{name}}",
+      "more": "More actions for {{name}}",
+      "delete": "Delete Table"
+    },
+    "card": {
+      "viewGuests": "View Guests ({{count}})",
+      "edit": "Edit"
+    },
+    "empty": {
+      "title": "No tables yet",
+      "body": "Add your first table to start seating confirmed guests.",
+      "bodyReadOnly": "This event has no tables.",
+      "noMatchTitle": "No tables match",
+      "noMatchBody": "Try a different number or shape."
+    },
+    "warnings": {
+      "title": "Capacity Warnings",
+      "none": "No capacity warnings."
+    },
+    "selected": {
+      "title": "Selected Table",
+      "parties": "Assigned Guest Parties ({{count}})",
+      "edit": "Edit Table",
+      "manage": "Manage Guests"
+    },
+    "form": {
+      "addTitle": "Add Table",
+      "editTitle": "Edit Table {{number}}",
+      "number": "Table Number",
+      "capacity": "Capacity",
+      "capacityHint": "The number of chairs at the table.",
+      "shape": "Shape",
+      "add": "Add Table",
+      "save": "Save Changes",
+      "added": "Table {{number}} was added.",
+      "saved": "Table {{number}} was saved.",
+      "errors": {
+        "number": "Enter a whole number from {{min}} to {{max}}.",
+        "duplicate": "Table number {{number}} is already in use.",
+        "capacity": "Enter a whole number of chairs from {{min}} to {{max}}."
+      },
+      "belowSeated": {
+        "title": "Fewer chairs than seated attendees",
+        "body": "{{seated}} attendees are seated at this table. It will be over capacity by {{over}} until guests are moved."
+      }
+    },
+    "delete": {
+      "title": "Delete Table {{number}}",
+      "body": "Table {{number}} will be deleted. No guest is deleted.",
+      "seated": "Guest parties at this table: {{parties}} (attendees: {{attendees}}). They will be left without a table.",
+      "confirm": "Delete Table",
+      "done": "Table {{number}} was deleted."
+    },
+    "manage": {
+      "title": "Guests of Table {{number}}",
+      "seated": "At this table ({{count}})",
+      "seatedLabel": "Guest parties at this table",
+      "noneSeated": "No guests are seated at this table.",
+      "remove": "Remove",
+      "removeNamed": "Remove {{name}} from this table",
+      "add": "Add guests",
+      "addHint": "Only guests who approved can be seated. A party sits together at one table.",
+      "addLabel": "Guests who can be added",
+      "search": "Search guests to add",
+      "searchPlaceholder": "Search by name or phone number…",
+      "noTable": "No table",
+      "addHere": "Add",
+      "addNamed": "Add {{name}} to this table",
+      "moveHere": "Move here",
+      "moveNamed": "Move {{name}} to this table",
+      "noFit": "Does not fit",
+      "noCandidates": "Every approved guest is already at this table.",
+      "noMatch": "No approved guests match.",
+      "more": "Showing {{shown}} of {{total}} guests. Search to find the others.",
+      "done": "Done"
+    },
+    "export": {
+      "fileName": "{{event}} - seating",
+      "sheet": "Seating",
+      "done": "The file was downloaded.",
+      "headings": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "invitationName": "Invitation Name",
+        "phone": "Phone",
+        "confirmedAttendees": "Number of Attendees",
+        "tableNumber": "Table Number"
+      }
+    }
+  },
   "messages": {
     "subtitle": "Create and customize your WhatsApp invitation message.",
     "previewSubtitle": "Preview how your WhatsApp invitation will look to guests.",

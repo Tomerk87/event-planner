@@ -16,7 +16,7 @@ import {
 import {
   buildGuestExportRows,
   buildSeatingDetailRows,
-  buildSeatingSummaryRows,
+  buildSeatingExportTable,
 } from './exports.ts'
 import {
   addGuest,
@@ -44,6 +44,9 @@ import type { EventRole } from './roles.ts'
 import { applyRsvp, resolveRsvp, validatePublicRsvpInput } from './rsvp.ts'
 import {
   assertCanAssign,
+  partiesAt,
+  seatingCandidates,
+  tableStatus,
   findTableConflicts,
   tableOccupancy,
   validateTableInput,
@@ -862,6 +865,57 @@ describe('seating', () => {
     ])
   })
 
+  it.each([
+    [10, 12, 'OVER_CAPACITY'],
+    [10, 10, 'FULL'],
+    [10, 9, 'ALMOST_FULL'],
+    [10, 8, 'ALMOST_FULL'],
+    [10, 7, 'READY'],
+    [10, 0, 'READY'],
+    [2, 0, 'ALMOST_FULL'],
+  ] as const)(
+    'labels a table of %i chairs with %i seated as %s',
+    (capacity, assigned, status) => {
+      expect(tableStatus(capacity, assigned)).toBe(status)
+    },
+  )
+
+  it('lists the parties at a table by name, and the parties that could join it', () => {
+    const here = makeApprovedGuest(2, {
+      id: 'g-here',
+      firstName: 'Zoe',
+      lastName: 'Adams',
+      tableId: 't-1',
+    })
+    const elsewhere = makeApprovedGuest(3, {
+      id: 'g-else',
+      firstName: 'Abe',
+      lastName: 'Young',
+      tableId: 't-2',
+    })
+    const waiting = makeApprovedGuest(4, {
+      id: 'g-wait',
+      firstName: 'Noa',
+      lastName: 'Zur',
+    })
+    const guests = [
+      waiting,
+      elsewhere,
+      here,
+      makeApprovedGuest(2, { id: 'g-gone', tableId: 't-1', deleted: true }),
+      makeGuest({ id: 'g-no', rsvpStatus: 'NOT_SURE' }),
+    ]
+
+    expect(partiesAt('t-1', guests).map((guest) => guest.id)).toEqual([
+      'g-here',
+    ])
+    // Guests without a table come before those who would move.
+    expect(seatingCandidates('t-1', guests).map((guest) => guest.id)).toEqual([
+      'g-wait',
+      'g-else',
+    ])
+  })
+
   describe('table input', () => {
     const existing = [
       makeTable({ id: 't-1', number: 1 }),
@@ -1248,26 +1302,30 @@ describe('exports', () => {
     ])
   })
 
-  it('summarises every table, with a negative remainder when over capacity', () => {
-    expect(buildSeatingSummaryRows(guests, tables)).toEqual([
-      {
-        tableNumber: 1,
-        capacity: 10,
-        assigned: 6,
-        remaining: 4,
-      },
-      {
-        tableNumber: 2,
-        capacity: 8,
-        assigned: 9,
-        remaining: -1,
-      },
-      {
-        tableNumber: 3,
-        capacity: 6,
-        assigned: 0,
-        remaining: 6,
-      },
+  it('writes the seating list with its headings, a row per party in table order', () => {
+    const headings = {
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      invitationName: 'Invitation Name',
+      phone: 'Phone',
+      confirmedAttendees: 'Number of Attendees',
+      tableNumber: 'Table Number',
+    }
+
+    expect(
+      buildSeatingExportTable(buildSeatingDetailRows(guests, tables), headings),
+    ).toEqual([
+      [
+        'First Name',
+        'Last Name',
+        'Invitation Name',
+        'Phone',
+        'Number of Attendees',
+        'Table Number',
+      ],
+      ['Alex', 'Carter', '', '+972 00-000-0001', 2, 1],
+      ['Sam', 'Carter', '', '+972 00-000-0002', 4, 1],
+      ['Riley', 'Brooks', 'Riley & co', '+972 00-000-0003', 9, 2],
     ])
   })
 })

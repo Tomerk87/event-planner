@@ -318,6 +318,10 @@ The organizer can create, view, update, and delete tables. Each table has a uniq
 
 Tables display assigned/available chairs and guests. Authorized users can assign or unassign guests both from the Tables view and from the Table field in Guests.
 
+Each table carries a status from its free seats: **Over Capacity** (more attendees seated than chairs), **Full** (no seat free), **Almost Full** (1 or 2 seats free), **Ready** (otherwise).
+
+A table's capacity may be lowered below the attendees already seated; the table is then Over Capacity.
+
 ### 11.2 Seating business rules
 
 - Only **Approved** guests may be assigned.
@@ -330,10 +334,9 @@ Tables display assigned/available chairs and guests. Authorized users can assign
 
 ### 11.3 Seating export
 
-Support **CSV and XLSX** exports for venue operations:
+Support **CSV and XLSX** exports of the seating list for venue operations: one row per seated party, ordered by table number, with First Name, Last Name, Invitation Name, Phone (as dialled locally), Number of Attendees (confirmed) and Table Number.
 
-- Detailed rows: Table Number, Table Name, Guest First Name, Last Name, Invitation Name, Phone, Confirmed Attendees.
-- Summary: Table Number, Capacity, Assigned, Remaining.
+A per-table summary export is deferred (`docs/FUTURE_FEATURES.md`).
 
 Exports remain available after an event becomes Past.
 

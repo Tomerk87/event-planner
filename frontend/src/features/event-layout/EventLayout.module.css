@@ -1,0 +1,335 @@
+.muted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.negative {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Warnings above the list on a phone; beside it, over the chosen table, on desktop. */
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'warnings'
+    'list'
+    'selected';
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.columns > * {
+  min-inline-size: 0;
+}
+
+.warningsArea {
+  grid-area: warnings;
+}
+
+.listArea {
+  grid-area: list;
+}
+
+.selectedArea {
+  grid-area: selected;
+}
+
+/* Below this width the list needs the whole row to show every column. */
+@media (min-width: 1360px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr) clamp(18rem, 26%, 22rem);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'list warnings'
+      'list selected';
+  }
+}
+
+.filters {
+  flex-wrap: nowrap;
+}
+
+.shape {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.shape svg {
+  flex-shrink: 0;
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  color: var(--color-primary);
+}
+
+/* Capacity warnings */
+.warnings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  align-items: start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  inline-size: 100%;
+  padding: var(--space-3);
+  border: var(--border-width) solid;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-align: start;
+  text-decoration: none;
+}
+
+button.warning {
+  cursor: pointer;
+}
+
+.warningIcon {
+  flex-shrink: 0;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.warningText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.warningTitle {
+  font-weight: var(--font-weight-semibold);
+}
+
+.chevron {
+  flex-shrink: 0;
+  align-self: center;
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  color: var(--color-text-muted);
+}
+
+:global([dir='rtl']) .chevron {
+  transform: scaleX(-1);
+}
+
+.danger {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
+}
+
+.danger .warningIcon {
+  color: var(--color-danger);
+}
+
+.caution {
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning-border);
+}
+
+.caution .warningIcon,
+.caution .warningTitle {
+  color: var(--color-warning);
+}
+
+.notice {
+  background: var(--color-info-soft);
+  border-color: var(--color-info-border);
+}
+
+.notice .warningIcon,
+.notice .warningTitle {
+  color: var(--color-info);
+}
+
+/* A table's figures: in the chosen-table panel and in the guests dialog */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.facts dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.selected {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.selectedName {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.selectedActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Lists of guest parties */
+.parties {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.partiesScroll {
+  max-block-size: 16rem;
+  overflow-y: auto;
+}
+
+.party {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-block-size: var(--control-height);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.party + .party {
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.partyName {
+  flex: 1 1 8rem;
+  min-inline-size: 0;
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+}
+
+.noFit {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.manage,
+.manageSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.manage {
+  gap: var(--space-5);
+}
+
+/* Phone cards */
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cardNumber {
+  flex: 1;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.cardFacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.cardFigures {
+  display: flex;
+  gap: var(--space-5);
+  margin: 0;
+}
+
+.cardFigures dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.cardFigures dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.cardActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.cardActions > :first-child {
+  flex: 1;
+}
+
+@media (max-width: 767px) {
+  /* The two views share the width, as drawn for a phone. */
+  .tabs [role='tablist'] {
+    display: flex;
+  }
+
+  .tabs [role='tab'] {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    padding-inline: var(--space-3);
+  }
+}
+
+@media (max-width: 479px) {
+  /* The name takes its own line, so what follows it stays on one. */
+  .party .partyName {
+    flex-basis: 100%;
+  }
+
+  .party > :last-child:not(.partyName) {
+    margin-inline-start: auto;
+  }
+}

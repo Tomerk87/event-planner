@@ -187,6 +187,9 @@ const GUEST_GROUPS: Record<RsvpLanguage, (string | null)[]> = {
 
 const TABLE_CAPACITIES = [10, 12, 8, 10, 12, 14, 10, 8, 12, 10]
 const TABLE_SHAPES: TableShape[] = ['CIRCLE', 'CIRCLE', 'RECTANGLE', 'SQUARE']
+// Chairs left empty at each table in turn, so that tables are ready, almost
+// full and full rather than all packed to the last chair.
+const TABLE_FREE_SEATS = [0, 1, 3, 0, 2, 4, 1, 0, 3, 2]
 
 interface EventSpec {
   name: string
@@ -555,10 +558,11 @@ function createEventData(
       continue
     }
     const table = tables.find(
-      (candidate) =>
+      (candidate, index) =>
         tableOccupancy(candidate.id, guests) +
           (guest.confirmedAttendees ?? 0) <=
-        candidate.capacity,
+        candidate.capacity -
+          (TABLE_FREE_SEATS[index % TABLE_FREE_SEATS.length] ?? 0),
     )
     if (table) {
       guest.tableId = table.id
