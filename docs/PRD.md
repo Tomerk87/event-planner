@@ -91,6 +91,8 @@ Inside an event, the user's avatar carries an icon for their role in that event,
 
 The notification bell and the Profile and Settings entries that appear in the mockups are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
 
+On desktop the side menu can be collapsed to a strip of icons and expanded again; the choice is remembered in the browser.
+
 Use concise navigation labels that match the product's UI language.
 
 The mockups were created after the PRD. Where a mapped mockup differs from or adds to the PRD, build what the mockup shows (layout, navigation, fields, panels, buttons). The PRD remains the source of truth for business rules (calculations, validation, permissions, RSVP and seating behavior, lifecycle), and is updated in the same phase so that it stays accurate. Where a mockup element's behavior is not evident, it is confirmed with the product owner rather than inferred.
@@ -148,7 +150,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Invitation name | Guest-entered name on the RSVP form; may differ from the organizer's name |
 | Phone number | Required; guest identifier within the event |
 | Normalized phone | Internal matching and uniqueness value |
-| Allowed attendees | Maximum attendees the invitation may approve |
+| Allowed attendees | Maximum attendees the invitation may approve. Shown to organizers as **Expected attendees** |
 | Confirmed attendees | Actual approved count; see RSVP rules |
 | RSVP status | `NO_RESPONSE`, `APPROVED`, `NOT_SURE`, `DECLINED` |
 | Invitation sent count | Nonnegative, starts at `0`, increases on each system-initiated WhatsApp action |

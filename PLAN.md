@@ -874,4 +874,16 @@ Follow-ups/risks:
 Next: Phase 8 — WhatsApp Message editor. Needs owner decisions D16 (Send Test Message) and D17 (formatting controls).
 ```
 
+```text
+2026-10-13 — Phase 7 follow-up — owner review fixes.
+Decisions (owner): a guest's allowed attendees is shown as "Expected attendees" (D42); the Guests page's Approved card counts confirmed attendees (D43); the desktop side menu collapses to icons and the choice is remembered (D44).
+Done: wording changed on the Guests table, cards, form, details, import and export, in English and Hebrew; imports accept the old and new headings. Approved card shows people with "attendees" under the figure. Burger button in the desktop top bar collapses the side menu to an icon strip; links keep their names and gain tooltips; preference stored through PreferencesService. Phone drawer unchanged.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 788 passed, coverage 96.57% statements, 91.37% branches; `npm run test:e2e` 219 passed, 19 skipped by design; `npm run build` succeeds. Collapsed menu and Guests page checked from desktop screenshots in English and Hebrew.
+Follow-ups/risks:
+- Collapsed, the event selector and language selector are hidden until the menu is expanded.
+- The Approved card and the "Approved" filter count different things (people and invitations).
+- Nothing committed; branch phase_7_completion.
+Next: Phase 8 — WhatsApp Message editor. Needs owner decisions D16 and D17.
+```
+
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

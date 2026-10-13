@@ -76,6 +76,10 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
 - On a phone the mockup shows no header button; the Event Settings button is shown full-width under the title.
 - No charting library is used; the ring and bars are drawn with SVG and CSS.
 
+### Side menu
+
+- The mockups draw a fixed side menu on desktop. **Decided (2026-10-13):** a button in the top bar collapses it to a strip of icons and expands it again; the choice is remembered in the browser.
+
 ### Guests
 
 Decided 2026-10-13 unless noted.
@@ -84,6 +88,8 @@ Decided 2026-10-13 unless noted.
 - Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. Such guests are labelled **Not Sent**.
 - The **sliders button** beside the filters has no label or drawn behaviour. It is a column chooser: a dropdown listing every column with a checkbox, with Select all and Clear; Name and Phone are always shown. It appears only with the desktop table, so the phone mockup's sliders button is not reproduced.
 - A **Clear filters** button, not in the mockup, is added beside it.
+- The column and field the mockup calls "Allowed" is named **Expected attendees**.
+- The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
 - The **"⋯" menu** holds Change RSVP and Delete. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel.
 - The **WhatsApp button** on each row is shown disabled with a "Soon" hint until Phase 8.
 - The **Export** dropdown offers CSV and Excel.

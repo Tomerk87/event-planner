@@ -12,7 +12,7 @@ A glossary of the terms used across the PRD, plan and code, followed by the deci
 | Super User | `SUPER_USER`, a system-level flag on the user, set only in the database. Gives Owner-equivalent capability on every event without a membership. Not an event role and not assignable in the UI. |
 | Guest | One invitation, also called a party. It can stand for several people. Belongs to exactly one event. |
 | Attendee | One person expected at the event. Attendees are counted, not stored as individual records. |
-| Allowed attendees | The maximum number of attendees a guest may confirm. Starts from the event default and can be overridden per guest. |
+| Allowed attendees | The maximum number of attendees a guest may confirm. Starts from the event default and can be overridden per guest. Shown on the Guests page, in the guest form, and in imports and exports as **Expected attendees**. |
 | Confirmed attendees | The number a guest confirmed. `null` for `NO_RESPONSE` and `NOT_SURE`, `0` for `DECLINED`, and an integer from 1 to allowed attendees for `APPROVED`. |
 | First name / Last name | The organizer's own name for the guest. Never overwritten by RSVP input. |
 | Invitation name | The name the guest typed on the public RSVP form. |
@@ -130,3 +130,6 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | P16 | Confirmed: import rules — a single "Name" column is the first name; a phone already used by an active guest or earlier in the file is skipped and reported, never overwritten; a blank allowed-attendees value takes the event's default; limits of 5,000 rows and 5 MB; a nine-digit number starting with 5 gets back its leading zero. | 2026-10-13 |
 | P17 | Confirmed: an organizer can set a guest's RSVP back to "No response". Rows per page offers 10, 25, 50 and 100. | 2026-10-13 |
 | P18 | Confirmed: an exported cell that a spreadsheet would run as a formula is written as plain text. | 2026-10-13 |
+| D42 | **"Expected attendees"** is the name shown for a guest's allowed attendees: Guests table and cards, Add/Edit Guest, details panel, import and export. The rule is unchanged (it is the most the guest can confirm). Imports accept the old "Allowed attendees" heading too. Event Settings keeps "Default Maximum Attendees per Guest". | 2026-10-13 |
+| D43 | **The Guests page's Approved card** shows confirmed attendees (people), labelled "attendees"; the other cards in the strip count invitations. | 2026-10-13 |
+| D44 | **Collapsible side menu:** on desktop a button in the top bar reduces the side menu to a strip of icons and restores it. Collapsed, the event selector and language selector are hidden until it is expanded. The choice is remembered in the browser. The phone drawer is unchanged. | 2026-10-13 |

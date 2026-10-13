@@ -129,6 +129,9 @@ export interface PreferencesService {
   /** Ids of the Guests table columns to show; null when never chosen. */
   getGuestColumns(): Promise<string[] | null>
   setGuestColumns(columns: readonly string[]): Promise<void>
+  /** Whether the desktop side menu is reduced to its icons. */
+  getSidebarCollapsed(): Promise<boolean>
+  setSidebarCollapsed(collapsed: boolean): Promise<void>
 }
 
 export type RsvpSettingsInput = Omit<RsvpSettings, 'eventId'>

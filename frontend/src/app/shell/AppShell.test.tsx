@@ -348,6 +348,14 @@ describe('shell chrome', () => {
     ).toBeInTheDocument()
   })
 
+  it('offers no collapse button unless the page can remember the choice', () => {
+    renderEventShell('OWNER')
+
+    expect(
+      screen.queryByRole('button', { name: 'Collapse menu' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('provides a skip link to the main content', () => {
     renderEventShell('OWNER')
 

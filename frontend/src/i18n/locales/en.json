@@ -16,6 +16,8 @@
     "permissions": "Permissions",
     "backToMyEvents": "Back to My Events",
     "openMenu": "Open menu",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
     "closeMenu": "Close menu",
     "skipToContent": "Skip to content",
     "logOut": "Log out"
@@ -430,7 +432,8 @@
       "notSent": "Not Sent",
       "approved": "Approved",
       "notSure": "Not Sure",
-      "declined": "Declined"
+      "declined": "Declined",
+      "approvedHint": "attendees"
     },
     "tabs": {
       "label": "Guest lists",
@@ -474,7 +477,7 @@
       "name": "Name",
       "invitationName": "Invitation Name",
       "phone": "Phone",
-      "allowed": "Allowed",
+      "allowed": "Expected attendees",
       "confirmed": "Confirmed",
       "status": "RSVP Status",
       "sent": "Invitations Sent",
@@ -499,7 +502,7 @@
       "delete": "Delete"
     },
     "card": {
-      "allowed": "Allowed {{count}}",
+      "allowed": "Expected {{count}}",
       "confirmed": "Confirmed {{count}}",
       "sent": "Sent {{count}}"
     },
@@ -525,7 +528,7 @@
       "lastName": "Last name",
       "phone": "Phone number",
       "phoneHint": "A local number such as 050-123-4567. For a number from another country, start with + and the country code. It must be unique within the event.",
-      "allowed": "Allowed attendees",
+      "allowed": "Expected attendees",
       "allowedHint": "Between {{min}} and {{max}}.",
       "add": "Add Guest",
       "save": "Save Changes",
@@ -536,7 +539,7 @@
         "phone": "Enter a valid phone number.",
         "duplicate": "Another guest in this event already has this phone number.",
         "allowed": "Enter a whole number between {{min}} and {{max}}.",
-        "belowConfirmed": "This guest already confirmed {{count}} attendees, so the allowance cannot be lower."
+        "belowConfirmed": "This guest already confirmed {{count}} attendees, so the expected attendees cannot be lower."
       }
     },
     "rsvpDialog": {
@@ -582,7 +585,7 @@
         "lastName": "Last name",
         "invitationName": "Invitation name",
         "phone": "Phone",
-        "allowedAttendees": "Allowed attendees",
+        "allowedAttendees": "Expected attendees",
         "confirmedAttendees": "Confirmed attendees",
         "status": "RSVP status",
         "invitationSentCount": "Invitations sent",
@@ -592,7 +595,7 @@
     "import": {
       "title": "Import guests",
       "intro": "Add many guests at once from a CSV or Excel (.xlsx) file. The file is read in your browser.",
-      "ruleRequired": "Each guest needs a first name and a phone number. Last name and allowed attendees are optional.",
+      "ruleRequired": "Each guest needs a first name and a phone number. Last name and expected attendees are optional.",
       "rulePhones": "Phone numbers can be written in any local format. A number from another country must start with + and its country code.",
       "ruleDuplicates": "A phone number that a guest in this event already has is skipped; existing guests are never changed.",
       "ruleLimit": "Up to {{max}} rows and 5 MB.",
@@ -622,7 +625,7 @@
         "firstName": "First name",
         "lastName": "Last name",
         "phone": "Phone number",
-        "allowedAttendees": "Allowed attendees"
+        "allowedAttendees": "Expected attendees"
       },
       "outcome": {
         "new": "New guest",
@@ -633,7 +636,7 @@
         "MISSING_FIRST_NAME": "No first name",
         "MISSING_PHONE": "No phone number",
         "INVALID_PHONE": "Phone number is not valid",
-        "INVALID_ALLOWED": "Allowed attendees must be a whole number from 1 to 10",
+        "INVALID_ALLOWED": "Expected attendees must be a whole number from 1 to 10",
         "DUPLICATE_IN_FILE": "Same phone as an earlier row",
         "DUPLICATE_IN_EVENT": "A guest already has this phone"
       },
@@ -670,7 +673,7 @@
       "chooseGuest": "Choose the guest",
       "noGuestFound": "No guest matches this search.",
       "refineSearch": "More guests match. Refine the search to see them.",
-      "mergeOverAllowance": "The response is for {{count}} attendees but this guest is allowed {{max}}. Raise the guest's allowance first.",
+      "mergeOverAllowance": "The response is for {{count}} attendees but this guest is expected to bring up to {{max}}. Raise the guest's expected attendees first.",
       "cardAttendees": "Attendees {{count}}",
       "columns": {
         "name": "Name given",
@@ -838,12 +841,12 @@
       "caption": "Sample guests",
       "name": "Name",
       "phone": "Phone",
-      "allowed": "Allowed",
+      "allowed": "Expected attendees",
       "status": "RSVP Status",
       "tableNumber": "Table",
       "noTable": "No table",
       "tableValue": "Table {{number}}",
-      "allowedValue": "Allowed {{count}}"
+      "allowedValue": "Expected {{count}}"
     },
     "overlays": {
       "title": "Dialogs, drawers and toasts",

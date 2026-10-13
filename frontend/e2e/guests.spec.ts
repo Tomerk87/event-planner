@@ -160,13 +160,13 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
     chooser.getByRole('checkbox', { name: 'Name (always shown)' }),
   ).toBeDisabled()
   await chooser.getByRole('checkbox', { name: 'Invitation Name' }).uncheck()
-  await chooser.getByRole('checkbox', { name: 'Allowed' }).uncheck()
+  await chooser.getByRole('checkbox', { name: 'Expected attendees' }).uncheck()
   await page.keyboard.press('Escape')
   await expect(
     page.getByRole('button', { name: 'Choose columns' }),
   ).toBeFocused()
   await expect(
-    table.getByRole('columnheader', { name: 'Allowed' }),
+    table.getByRole('columnheader', { name: 'Expected attendees' }),
   ).toHaveCount(0)
 
   await page.reload()
@@ -174,7 +174,7 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
     table.getByRole('columnheader', { name: /^Confirmed/ }),
   ).toBeVisible()
   await expect(
-    table.getByRole('columnheader', { name: 'Allowed' }),
+    table.getByRole('columnheader', { name: 'Expected attendees' }),
   ).toHaveCount(0)
   await expect(
     table.getByRole('columnheader', { name: 'Invitation Name' }),
@@ -184,7 +184,7 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
   await expect(
     page
       .getByRole('table', { name: 'Guests' })
-      .getByRole('columnheader', { name: 'Allowed' }),
+      .getByRole('columnheader', { name: 'Expected attendees' }),
   ).toHaveCount(0)
 })
 
@@ -234,7 +234,7 @@ test('all guests export to CSV and to Excel with every field', async ({
   expect(csv.suggestedFilename()).toBe(`${WEDDING_FILE}.csv`)
   const lines = await csvRows(csv)
   expect(lines[0]).toBe(
-    'First name,Last name,Invitation name,Phone,Allowed attendees,Confirmed attendees,RSVP status,Invitations sent,Table',
+    'First name,Last name,Invitation name,Phone,Expected attendees,Confirmed attendees,RSVP status,Invitations sent,Table',
   )
   expect(lines).toHaveLength(total + 1)
 

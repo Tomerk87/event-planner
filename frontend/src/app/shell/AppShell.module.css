@@ -405,6 +405,43 @@
     display: none;
   }
 
+  .menuButtonDesktop {
+    display: inline-flex;
+  }
+
+  /* Collapsed: a strip of icons. Labels stay available to assistive
+     technology; the selectors return when the menu is expanded. */
+  .collapsed .sidebar {
+    inline-size: var(--sidebar-width-collapsed);
+    padding-inline: var(--space-3);
+    align-items: center;
+  }
+
+  .collapsed .column {
+    margin-inline-start: var(--sidebar-width-collapsed);
+  }
+
+  .collapsed .sidebar .selector,
+  .collapsed .sidebar .language {
+    display: none;
+  }
+
+  .collapsed .sidebar .logoText,
+  .collapsed .sidebar .navLink span {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .collapsed .sidebar .navLink {
+    justify-content: center;
+    inline-size: var(--control-height);
+    padding-inline: 0;
+  }
+
   .topbar {
     padding-inline: var(--space-8);
   }

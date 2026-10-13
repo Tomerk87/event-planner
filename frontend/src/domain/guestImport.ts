@@ -56,6 +56,8 @@ const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
   allowedAttendees: [
     'allowed',
     'allowedattendees',
+    'expected',
+    'expectedattendees',
     'attendees',
     'guests',
     'maxattendees',
@@ -64,6 +66,8 @@ const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
     'מספרמוזמנים',
     'משתתפים',
     'משתתפיםמותרים',
+    'צפויים',
+    'משתתפיםצפויים',
     'כמות',
   ],
 }

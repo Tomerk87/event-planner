@@ -8,6 +8,7 @@ import {
   useCurrentUser,
   useEventAccessInfo,
   useEvents,
+  useSidebarCollapsed,
 } from '../services/queries.ts'
 import { EventAccessContext } from '../shared/access/eventAccessContext.ts'
 import { describeError } from '../shared/errorMessage.ts'
@@ -26,6 +27,7 @@ export function EventLayout() {
   const events = useEvents()
   const info = useEventAccessInfo(eventId)
   const signOut = useSignOut()
+  const sidebar = useSidebarCollapsed()
   const role = info.data?.role
   const isPastEvent = info.data?.isPast
   const access = useMemo<EventAccess | null>(
@@ -42,6 +44,8 @@ export function EventLayout() {
 
   return (
     <AppShell
+      collapsed={sidebar.collapsed}
+      onToggleCollapsed={sidebar.toggle}
       navLabel={t('nav.event')}
       navItems={getEventNavItems(t, eventId, role)}
       footerLink={{

@@ -100,7 +100,7 @@ function fillGuestForm(
   set(/First name/, values.firstName)
   set(/Last name/, values.lastName)
   set(/Phone number/, values.phone)
-  set(/Allowed attendees/, values.allowed)
+  set(/Expected attendees/, values.allowed)
 }
 
 async function find(
@@ -133,8 +133,11 @@ describe('Guests list', () => {
     expect(kpi('Not Sent')).toBe(
       String(guests.filter((guest) => guest.invitationSentCount === 0).length),
     )
+    // People who confirmed, not invitations: the Dashboard's figure.
     expect(kpi('Approved')).toBe(
-      String(guests.filter((guest) => guest.rsvpStatus === 'APPROVED').length),
+      String(
+        guests.reduce((sum, guest) => sum + (guest.confirmedAttendees ?? 0), 0),
+      ),
     )
     expect(tabCount('Guests')).toBe(`Guests${guests.length}`)
     expect(tabCount('Unknown Guests')).toBe('Unknown Guests8')
@@ -242,7 +245,9 @@ describe('Guests list', () => {
     const { services } = await openGuests()
     const guests = await services.guests.list(MAIN)
     const header = () =>
-      within(guestTable()).getByRole('columnheader', { name: /Allowed/ })
+      within(guestTable()).getByRole('columnheader', {
+        name: /Expected attendees/,
+      })
 
     fireEvent.click(within(header()).getByRole('button'))
     expect(header()).toHaveAttribute('aria-sort', 'ascending')
@@ -387,7 +392,7 @@ describe('Changing guests', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
     const dialog = screen.getByRole('dialog', { name: 'Add guest' })
-    expect(within(dialog).getByLabelText(/Allowed attendees/)).toHaveValue(5)
+    expect(within(dialog).getByLabelText(/Expected attendees/)).toHaveValue(5)
     fillGuestForm(dialog, {
       firstName: 'Zohar',
       lastName: 'Newcomer',
@@ -537,7 +542,7 @@ describe('Changing guests', () => {
 
     expect(
       await within(dialog).findByText(
-        `This guest already confirmed ${guest.confirmedAttendees} attendees, so the allowance cannot be lower.`,
+        `This guest already confirmed ${guest.confirmedAttendees} attendees, so the expected attendees cannot be lower.`,
       ),
     ).toBeInTheDocument()
 
@@ -803,7 +808,7 @@ describe('Exporting guests', () => {
       'Last name',
       'Invitation name',
       'Phone',
-      'Allowed attendees',
+      'Expected attendees',
       'Confirmed attendees',
       'RSVP status',
       'Invitations sent',
@@ -840,7 +845,7 @@ describe('Choosing columns', () => {
       'Name',
       'Invitation Name',
       'Phone',
-      'Allowed',
+      'Expected attendees',
       'Confirmed',
       'RSVP Status',
       'Invitations Sent',
@@ -859,8 +864,10 @@ describe('Choosing columns', () => {
       within(panel).getByRole('button', { name: 'Select all' }),
     ).toBeDisabled()
 
-    fireEvent.click(within(panel).getByRole('checkbox', { name: 'Allowed' }))
-    await waitFor(() => expect(headers()).not.toContain('Allowed'))
+    fireEvent.click(
+      within(panel).getByRole('checkbox', { name: 'Expected attendees' }),
+    )
+    await waitFor(() => expect(headers()).not.toContain('Expected attendees'))
     await waitFor(async () =>
       expect(await services.preferences.getGuestColumns()).not.toContain(
         'allowed',
@@ -1056,7 +1063,7 @@ describe('Importing guests', () => {
     const file = await lastDownload()
     expect(file.name).toBe('guest import template.csv')
     expect(file.rows).toEqual([
-      ['First name', 'Last name', 'Phone number', 'Allowed attendees'],
+      ['First name', 'Last name', 'Phone number', 'Expected attendees'],
     ])
   })
 })
@@ -1225,7 +1232,7 @@ describe('Unknown Guests', () => {
     )
 
     expect(await within(dialog).findByRole('alert')).toHaveTextContent(
-      `The response is for ${unknown.confirmedAttendees} attendees but this guest is allowed 1. Raise the guest's allowance first.`,
+      `The response is for ${unknown.confirmedAttendees} attendees but this guest is expected to bring up to 1. Raise the guest's expected attendees first.`,
     )
   })
 
@@ -1371,7 +1378,7 @@ describe('Guests page states', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Add Guest' })[1]!)
     expect(
       within(screen.getByRole('dialog', { name: 'Add guest' })).getByLabelText(
-        /Allowed attendees/,
+        /Expected attendees/,
       ),
     ).toHaveValue(2)
   })
@@ -1420,7 +1427,7 @@ describe('Guests page states', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Choose columns' })).toBeNull()
     expect(screen.queryByRole('checkbox')).toBeNull()
-    expect(within(card!).getByText(/^Allowed \d+$/)).toBeInTheDocument()
+    expect(within(card!).getByText(/^Expected \d+$/)).toBeInTheDocument()
     expect(within(card!).getByText(/^Sent \d+$/)).toBeInTheDocument()
 
     fireEvent.click(

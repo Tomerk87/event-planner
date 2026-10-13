@@ -1,3 +1,4 @@
+import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { openNavigation, startInDemo } from './helpers.ts'
 
@@ -141,4 +142,40 @@ test('the showcase hides editing controls for a Viewer and for a past event', as
 
   await expect(addGuest).toHaveCount(baseline - 1)
   await expect(page.getByText('This event has ended').first()).toBeVisible()
+})
+
+test('the side menu collapses to icons, stays usable, and is remembered', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'on a phone the menu is a drawer')
+  await page.goto('/events/evt-1/guests')
+  const sidebar = page.getByRole('complementary')
+  const expandedWidth = (await sidebar.boundingBox())?.width ?? 0
+
+  await page.getByRole('button', { name: 'Collapse menu' }).click()
+
+  await expect(page.getByRole('button', { name: 'Expand menu' })).toBeVisible()
+  const collapsedWidth = (await sidebar.boundingBox())?.width ?? 0
+  expect(collapsedWidth).toBeLessThan(expandedWidth / 2)
+  await expect(sidebar.getByRole('combobox', { name: 'Language' })).toBeHidden()
+  const results = await new AxeBuilder({ page }).analyze()
+  expect(results.violations.map((violation) => violation.id)).toEqual([])
+
+  await sidebar.getByRole('link', { name: 'Dashboard' }).click()
+  await expect(page).toHaveURL(/\/dashboard$/)
+
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Expand menu' })).toBeVisible()
+  const overflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  )
+  expect(overflow).toBe(0)
+
+  await page.getByRole('button', { name: 'Expand menu' }).click()
+  await expect(
+    sidebar.getByRole('combobox', { name: 'Language' }),
+  ).toBeVisible()
 })

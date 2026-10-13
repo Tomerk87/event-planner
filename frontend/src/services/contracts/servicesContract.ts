@@ -1274,6 +1274,24 @@ export function describeServicesContract(
         ])
       })
 
+      it('remembers whether the side menu is collapsed, apart from the columns', async () => {
+        const { services } = setup()
+
+        expect(await services.preferences.getSidebarCollapsed()).toBe(false)
+
+        await services.preferences.setGuestColumns(['name', 'phone'])
+        await services.preferences.setSidebarCollapsed(true)
+
+        expect(await services.preferences.getSidebarCollapsed()).toBe(true)
+        expect(await services.preferences.getGuestColumns()).toEqual([
+          'name',
+          'phone',
+        ])
+
+        await services.preferences.setSidebarCollapsed(false)
+        expect(await services.preferences.getSidebarCollapsed()).toBe(false)
+      })
+
       it('reads and saves RSVP settings with validation', async () => {
         const { services, events } = setup()
         const { eventId: _eventId, ...settings } =
