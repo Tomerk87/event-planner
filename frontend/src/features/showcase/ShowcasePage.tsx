@@ -115,7 +115,7 @@ export function ShowcasePage() {
       id: 'allowed',
       header: t('showcase.table.allowed'),
       cell: (g) => g.allowed,
-      align: 'end',
+      align: 'center',
     },
     {
       id: 'status',

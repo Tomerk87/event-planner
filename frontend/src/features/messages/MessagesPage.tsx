@@ -211,6 +211,7 @@ function SentMessages({
       header: t('messages.sent.columns.actions'),
       hideHeader: true,
       align: 'end',
+      pinned: true,
       cell: actions,
     },
   ]

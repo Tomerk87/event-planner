@@ -553,9 +553,16 @@
         "belowConfirmed": "This guest already confirmed {{count}} attendees, so the expected attendees cannot be lower."
       },
       "group": "Group",
-      "groupHint": "Optional. Choose a group or type a new one.",
+      "groupHint": "Optional. Choose a group, or type a new name to create one.",
       "table": "Table",
-      "tableHint": "Available once the guest approves."
+      "tableHint": "Available once the guest approves.",
+      "groupShow": "Show groups",
+      "groupCreate": "Create \"{{name}}\"",
+      "newGroup": {
+        "title": "Create a New Group?",
+        "body": "The group \"{{name}}\" does not exist yet. Create it and put this guest in it?",
+        "confirm": "Create Group"
+      }
     },
     "rsvpDialog": {
       "title": "Change RSVP",

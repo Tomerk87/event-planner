@@ -170,7 +170,7 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 - Known Guests list with create, view, update, soft-delete, search, and sortable columns.
 - Search by first name, last name, full name, Invitation Name, group, and phone number. Filter by RSVP status, invitation status, table and group.
 - Show group, attendee allowance, confirmed count, RSVP status, invitation counter, and Table Number (if assigned). Column headings are centred, and so are the number columns.
-- Add Guest and Edit Guest include Group (typed, with the event's existing groups suggested) and Table. Table can be chosen only for an Approved guest, so it is greyed when adding a guest.
+- Add Guest and Edit Guest include Group and Table. Group is a dropdown of the event's groups that can be searched by typing; a name that matches no group can be created, after a confirmation when the guest is saved. Table can be chosen only for an Approved guest, so it is greyed when adding a guest.
 - Import accepts an optional Group column; exports include it.
 - Allow authorized users to manually update RSVP status, confirmed attendees, and table assignments subject to the same rules as public RSVP and Event Layout.
 - Provide a WhatsApp action for each guest.
@@ -178,7 +178,8 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 - CSV and XLSX import, with field mapping, preview, validation, duplicate detection, and error reporting. Each imported row is checked like a guest added by hand. A row whose phone an active guest already has, or that repeats a phone from earlier in the file, is skipped and reported; an import never changes an existing guest. A phone belonging to a soft-deleted guest restores that guest (section 6.2). Up to 5,000 rows and 5 MB per file.
 - Guest export as CSV and as Excel (XLSX). An export contains every field, whatever columns are visible on screen. Text that a spreadsheet would run as a formula is exported as plain text, because invitation names are typed by guests.
 - Selecting rows offers two bulk actions: delete the selected guests (with confirmation) and export the selected guests. Bulk sending is out of scope (section 17).
-- On desktop, a column chooser lets the organizer show or hide table columns. Name and Phone are always shown. The choice is remembered in the browser.
+- On desktop, a column chooser lets the organizer show or hide table columns. Name and Phone are always shown. The choice is remembered in the browser. Clicking anywhere on a column's row toggles it, and the chooser stays open until a click outside it or Escape.
+- Every data table in the product follows the same guidelines on desktop: headings centred; number columns centred and text columns start-aligned; English headings in Title Case; the actions column last, pinned, with its heading hidden.
 - A guest's details can be opened in a panel from the list.
 - Status labels: a guest with no invitation sent and no response is shown as **Not Sent**; **Awaiting Response** is used only once an invitation has been sent.
 - Unknown Guests tab (see section 8).

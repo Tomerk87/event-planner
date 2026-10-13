@@ -262,6 +262,7 @@ Before implementing or modifying any user-facing page or tab:
    - authorization differences
    - consistency with shared design-system components
 8. Do not invent a substantially different visual language or page structure when a mapped mockup exists.
+   - Every data table follows the same guidelines on desktop (owner decision 2026-10-13): headings centred; number columns centred and text columns start-aligned; English headings in Title Case; the actions column last, pinned, with its heading hidden. Build tables with the shared `DataTable`; see `docs/ARCHITECTURE.md`.
 9. Do not select a mockup based only on visual similarity when `mockups/README.md` provides an explicit mapping.
 10. If desktop and mobile mockups differ structurally, treat that difference as intentional unless it clearly conflicts with an approved product requirement.
 11. The mockups were created after the PRD. If a mapped mockup differs from or adds to the PRD:

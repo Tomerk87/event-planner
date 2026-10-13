@@ -252,14 +252,14 @@ describe('Guests list', () => {
     fireEvent.click(within(header()).getByRole('button'))
     expect(header()).toHaveAttribute('aria-sort', 'ascending')
     const lowest = Math.min(...guests.map((guest) => guest.allowedAttendees))
-    expect(within(rows()[0]!).getAllByRole('cell')[5]).toHaveTextContent(
+    expect(within(rows()[0]!).getAllByRole('cell')[4]).toHaveTextContent(
       String(lowest),
     )
 
     fireEvent.click(within(header()).getByRole('button'))
     expect(header()).toHaveAttribute('aria-sort', 'descending')
     const highest = Math.max(...guests.map((guest) => guest.allowedAttendees))
-    expect(within(rows()[0]!).getAllByRole('cell')[5]).toHaveTextContent(
+    expect(within(rows()[0]!).getAllByRole('cell')[4]).toHaveTextContent(
       String(highest),
     )
     expect(
@@ -908,12 +908,12 @@ describe('Choosing columns', () => {
       'Name',
       'Invitation Name',
       'Phone',
-      'Group',
       'Expected Attendees',
       'Confirmed',
       'RSVP Status',
       'Invitations Sent',
       'Table',
+      'Group',
       'Actions',
     ])
     const panel = chooser()
@@ -1580,13 +1580,12 @@ describe('Groups, and the Table field of the guest form', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
     const dialog = await screen.findByRole('dialog', { name: 'Add Guest' })
-    const group = within(dialog).getByLabelText(/^Group/)
+    const group = within(dialog).getByRole('combobox', { name: 'Group' })
+    fireEvent.click(group)
     expect(
-      Array.from(
-        dialog.querySelectorAll(
-          `#${CSS.escape(group.getAttribute('list')!)} option`,
-        ),
-      ).map((option) => option.getAttribute('value')),
+      within(within(dialog).getByRole('listbox', { name: 'Group' }))
+        .getAllByRole('option')
+        .map((option) => option.textContent),
     ).toEqual(['Family', 'Friends', 'Neighbours', 'Work'])
     expect(within(dialog).getByLabelText('Table')).toBeDisabled()
     expect(
@@ -1601,7 +1600,11 @@ describe('Groups, and the Table field of the guest form', () => {
     fireEvent.change(group, { target: { value: ' friends ' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
 
+    // An existing group, whatever the capitals, is joined without asking.
     await screen.findByText('The guest was added.')
+    expect(
+      screen.queryByRole('dialog', { name: 'Create a New Group?' }),
+    ).not.toBeInTheDocument()
     const added = await find(services, (guest) => guest.firstName === 'Grouped')
     expect(added).toMatchObject({ group: 'Friends', tableId: null })
   })
@@ -1638,11 +1641,16 @@ describe('Groups, and the Table field of the guest form', () => {
     ).toBe(true)
 
     fireEvent.change(table, { target: { value: target.table.id } })
-    fireEvent.change(within(dialog).getByLabelText(/^Group/), {
+    fireEvent.change(within(dialog).getByRole('combobox', { name: 'Group' }), {
       target: { value: 'Choir' },
     })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Save Changes' }),
+    )
+    fireEvent.click(
+      within(
+        await screen.findByRole('dialog', { name: 'Create a New Group?' }),
+      ).getByRole('button', { name: 'Create Group' }),
     )
 
     await screen.findByText('The guest was updated.')
@@ -1714,5 +1722,146 @@ describe('Groups, and the Table field of the guest form', () => {
     expect(
       within(selector).getByRole('option', { selected: true }),
     ).toHaveTextContent(new RegExp(`^${table.table.number}$`))
+  })
+})
+
+describe('Choosing a group in the guest form', () => {
+  async function openAddGuest() {
+    const view = await openGuests()
+    fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Add Guest' })
+    fillGuestForm(dialog, { firstName: 'Picky', phone: '050-555-0188' })
+    return {
+      ...view,
+      dialog,
+      group: within(dialog).getByRole('combobox', { name: 'Group' }),
+    }
+  }
+  const options = (dialog: HTMLElement) =>
+    within(within(dialog).getByRole('listbox', { name: 'Group' }))
+      .getAllByRole('option')
+      .map((option) => option.textContent)
+
+  it('narrows the groups as you type, offers to create a new one, and can be cleared', async () => {
+    const { dialog, group } = await openAddGuest()
+
+    fireEvent.change(group, { target: { value: 'fr' } })
+    expect(options(dialog)).toEqual(['No Group', 'Friends', 'Create "fr"'])
+
+    fireEvent.click(within(dialog).getByRole('option', { name: 'Friends' }))
+    expect(group).toHaveValue('Friends')
+    expect(within(dialog).queryByRole('listbox')).not.toBeInTheDocument()
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Show groups' }))
+    expect(options(dialog)).toEqual([
+      'No Group',
+      'Family',
+      'Friends',
+      'Neighbours',
+      'Work',
+    ])
+    expect(
+      within(dialog).getByRole('option', { name: 'Friends' }),
+    ).toHaveAttribute('aria-selected', 'true')
+
+    fireEvent.click(within(dialog).getByRole('option', { name: 'No Group' }))
+    expect(group).toHaveValue('')
+  })
+
+  it('is usable from the keyboard, and Escape closes the list but not the form', async () => {
+    const { dialog, group } = await openAddGuest()
+
+    fireEvent.keyDown(group, { key: 'ArrowDown' })
+    expect(group).toHaveAttribute('aria-expanded', 'true')
+    fireEvent.keyDown(group, { key: 'ArrowDown' })
+    fireEvent.keyDown(group, { key: 'ArrowDown' })
+    expect(group.getAttribute('aria-activedescendant')).toBe(
+      within(dialog).getByRole('option', { name: 'Friends' }).id,
+    )
+    fireEvent.keyDown(group, { key: 'ArrowUp' })
+    fireEvent.keyDown(group, { key: 'Enter' })
+    expect(group).toHaveValue('Family')
+
+    fireEvent.keyDown(group, { key: 'ArrowDown' })
+    fireEvent.keyDown(group, { key: 'Escape' })
+    expect(within(dialog).queryByRole('listbox')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('dialog', { name: 'Add Guest' }),
+    ).toBeInTheDocument()
+  })
+
+  it('asks before creating a new group: Cancel saves nothing, Create Group saves', async () => {
+    const { services, dialog, group } = await openAddGuest()
+    const before = (await services.guests.list(MAIN)).length
+
+    fireEvent.change(group, { target: { value: 'Famly' } })
+    fireEvent.click(
+      within(dialog).getByRole('option', { name: 'Create "Famly"' }),
+    )
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
+    const confirm = await screen.findByRole('dialog', {
+      name: 'Create a New Group?',
+    })
+    expect(
+      within(confirm).getByText(
+        'The group "Famly" does not exist yet. Create it and put this guest in it?',
+      ),
+    ).toBeInTheDocument()
+
+    fireEvent.click(within(confirm).getByRole('button', { name: 'Cancel' }))
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'Create a New Group?' }),
+      ).not.toBeInTheDocument(),
+    )
+    expect(await services.guests.list(MAIN)).toHaveLength(before)
+    expect(group).toHaveValue('Famly')
+
+    fireEvent.change(group, { target: { value: 'Choir' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
+    fireEvent.click(
+      within(
+        await screen.findByRole('dialog', { name: 'Create a New Group?' }),
+      ).getByRole('button', { name: 'Create Group' }),
+    )
+
+    await screen.findByText('The guest was added.')
+    expect(
+      await find(services, (guest) => guest.firstName === 'Picky'),
+    ).toMatchObject({ group: 'Choir' })
+  })
+})
+
+describe('Column chooser panel', () => {
+  it('stays open while columns are toggled by their names, and closes on a click outside or Escape', async () => {
+    await openGuests()
+    fireEvent.click(screen.getByRole('button', { name: 'Choose columns' }))
+    const panel = screen.getByRole('group', { name: 'Choose columns' })
+
+    fireEvent.click(within(panel).getByText('Confirmed'))
+    fireEvent.click(within(panel).getByText('Group'))
+    // Focus landing on the page area around the panel is not a move away.
+    fireEvent.focusIn(screen.getByRole('main'))
+
+    expect(panel).toBeInTheDocument()
+    expect(
+      within(panel).getByRole('checkbox', { name: 'Confirmed' }),
+    ).not.toBeChecked()
+    expect(
+      within(panel).getByRole('checkbox', { name: 'Group' }),
+    ).not.toBeChecked()
+
+    fireEvent.pointerDown(screen.getByRole('heading', { level: 1 }))
+    expect(
+      screen.queryByRole('group', { name: 'Choose columns' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Choose columns' }))
+    fireEvent.keyDown(screen.getByRole('group', { name: 'Choose columns' }), {
+      key: 'Escape',
+    })
+    expect(
+      screen.queryByRole('group', { name: 'Choose columns' }),
+    ).not.toBeInTheDocument()
   })
 })

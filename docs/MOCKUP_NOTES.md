@@ -88,7 +88,7 @@ Decided 2026-10-13 unless noted.
 - Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. Such guests are labelled **Not Sent**.
 - The **sliders button** beside the filters has no label or drawn behaviour. It is a column chooser: a dropdown listing every column with a checkbox, with Select all and Clear; Name and Phone are always shown. It appears only with the desktop table, so the phone mockup's sliders button is not reproduced.
 - A **Clear filters** button, not in the mockup, is added beside it.
-- A **Group** column and an "All Groups" filter are added; the mockup has neither. Add Guest and Edit Guest gain Group and Table fields.
+- A **Group** column (last, after Table) and an "All Groups" filter are added; the mockup has neither. Add Guest and Edit Guest gain a Group dropdown, which can create a group after a confirmation, and a Table field.
 - Column headings are centred (the mockup starts them at the edge); number columns are centred as drawn.
 - The column and field the mockup calls "Allowed" is named **Expected attendees**.
 - The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.

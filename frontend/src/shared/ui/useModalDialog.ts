@@ -1,11 +1,17 @@
-import { useEffect, useRef, type MouseEvent, type RefObject } from 'react'
+import {
+  useEffect,
+  useRef,
+  type MouseEvent,
+  type RefObject,
+  type SyntheticEvent,
+} from 'react'
 
 interface ModalDialog {
   ref: RefObject<HTMLDialogElement | null>
   /** Ask the dialog to close; `onClose` then runs once from its close event. */
   requestClose: () => void
   dialogProps: {
-    onClose: () => void
+    onClose: (event: SyntheticEvent<HTMLDialogElement>) => void
     onClick: (event: MouseEvent<HTMLDialogElement>) => void
   }
 }
@@ -44,7 +50,12 @@ export function useModalDialog(
     ref,
     requestClose,
     dialogProps: {
-      onClose: () => {
+      onClose: (event) => {
+        // React passes a dialog's close event on to the dialogs around it;
+        // one opened from inside this one must not close this one too.
+        if (event.target !== event.currentTarget) {
+          return
+        }
         if (openRef.current) {
           openRef.current = false
           onClose()

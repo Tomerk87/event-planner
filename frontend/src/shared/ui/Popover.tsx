@@ -33,19 +33,30 @@ export function Popover({
     if (!open) {
       return
     }
-    function closeIfOutside(event: Event) {
+    const isOutside = (target: EventTarget | null) =>
+      target instanceof Node && !containerRef.current?.contains(target)
+    function closeOnPointer(event: Event) {
+      if (isOutside(event.target)) {
+        setOpen(false)
+      }
+    }
+    // A click on plain text inside the panel hands focus to the nearest
+    // focusable element around it (the page's main area). That element
+    // contains the panel, so it is not a move away from it.
+    function closeOnFocus(event: Event) {
+      const container = containerRef.current
       if (
-        event.target instanceof Node &&
-        !containerRef.current?.contains(event.target)
+        isOutside(event.target) &&
+        !(container && (event.target as Node).contains(container))
       ) {
         setOpen(false)
       }
     }
-    document.addEventListener('pointerdown', closeIfOutside)
-    document.addEventListener('focusin', closeIfOutside)
+    document.addEventListener('pointerdown', closeOnPointer)
+    document.addEventListener('focusin', closeOnFocus)
     return () => {
-      document.removeEventListener('pointerdown', closeIfOutside)
-      document.removeEventListener('focusin', closeIfOutside)
+      document.removeEventListener('pointerdown', closeOnPointer)
+      document.removeEventListener('focusin', closeOnFocus)
     }
   }, [open])
 

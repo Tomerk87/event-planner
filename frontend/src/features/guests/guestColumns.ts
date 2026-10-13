@@ -5,12 +5,12 @@ export const GUEST_COLUMNS = [
   'name',
   'invitationName',
   'phone',
-  'group',
   'allowed',
   'confirmed',
   'status',
   'sent',
   'table',
+  'group',
 ] as const satisfies readonly GuestSortKey[]
 
 export type GuestColumnId = (typeof GUEST_COLUMNS)[number]
