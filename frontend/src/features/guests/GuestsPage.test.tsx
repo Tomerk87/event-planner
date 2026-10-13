@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { parseCsv } from '../../domain/csv.ts'
 import { guestFullName } from '../../domain/guestList.ts'
+import { listGroups } from '../../domain/guests.ts'
 import type { Guest } from '../../domain/models.ts'
 import { changeLanguage } from '../../i18n/i18n.ts'
 import type { Services } from '../../services/contracts/index.ts'
@@ -806,6 +807,103 @@ describe('Selecting guests', () => {
     expect(screen.queryByRole('region', { name: 'Selected guests' })).toBeNull()
   })
 
+  it('adds the selected guests to an existing group, moving those who had another', async () => {
+    const { services } = await openGuests()
+    const guests = await services.guests.list(MAIN)
+    const [first, second] = shownNames()
+    const idOf = (name: string | undefined) =>
+      guests.find((guest) => guestFullName(guest) === name)!.id
+    const grouped = [first, second].filter(
+      (name) => guests.find((guest) => guest.id === idOf(name))?.group != null,
+    ).length
+    const target = listGroups(guests)[0]!
+
+    fireEvent.click(screen.getByRole('checkbox', { name: `Select ${first}` }))
+    fireEvent.click(screen.getByRole('checkbox', { name: `Select ${second}` }))
+    const bar = screen.getByRole('region', { name: 'Selected guests' })
+    fireEvent.click(within(bar).getByRole('button', { name: 'Add to Group' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Add to Group' })
+    expect(grouped).toBeGreaterThan(0)
+    expect(
+      within(dialog).getByText(
+        `${grouped} of the selected guests already have a group and will be moved.`,
+      ),
+    ).toBeInTheDocument()
+
+    change(within(dialog).getByRole('combobox', { name: 'Group' }), {
+      target: { value: target.toUpperCase() },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Add to Group' }),
+    )
+
+    expect(
+      await screen.findByText(`2 guests added to "${target.toUpperCase()}"`),
+    ).toBeInTheDocument()
+    const after = await services.guests.list(MAIN)
+    expect(after.find((guest) => guest.id === idOf(first))?.group).toBe(target)
+    expect(after.find((guest) => guest.id === idOf(second))?.group).toBe(target)
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('region', { name: 'Selected guests' }),
+      ).toBeNull(),
+    )
+  })
+
+  it('asks before creating a group for the selected guests, and can remove them from groups', async () => {
+    const { services } = await openGuests()
+    const guests = await services.guests.list(MAIN)
+    const [first] = shownNames()
+    const id = guests.find((guest) => guestFullName(guest) === first)!.id
+    const groupOf = async () =>
+      (await services.guests.list(MAIN)).find((guest) => guest.id === id)?.group
+    const open = async () => {
+      fireEvent.click(screen.getByRole('checkbox', { name: `Select ${first}` }))
+      fireEvent.click(
+        within(
+          screen.getByRole('region', { name: 'Selected guests' }),
+        ).getByRole('button', { name: 'Add to Group' }),
+      )
+      return screen.findByRole('dialog', { name: 'Add to Group' })
+    }
+
+    let dialog = await open()
+    change(within(dialog).getByRole('combobox', { name: 'Group' }), {
+      target: { value: 'Book Club' },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Add to Group' }),
+    )
+    const confirm = await screen.findByRole('dialog', {
+      name: 'Create a New Group?',
+    })
+    expect(
+      within(confirm).getByText(
+        'The group "Book Club" does not exist yet. Create it and put the 1 selected guests in it?',
+      ),
+    ).toBeInTheDocument()
+    fireEvent.click(within(confirm).getByRole('button', { name: 'Cancel' }))
+    expect(await groupOf()).not.toBe('Book Club')
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Add to Group' }),
+    )
+    fireEvent.click(
+      within(
+        await screen.findByRole('dialog', { name: 'Create a New Group?' }),
+      ).getByRole('button', { name: 'Create Group' }),
+    )
+    await screen.findByText('1 guests added to "Book Club"')
+    expect(await groupOf()).toBe('Book Club')
+
+    dialog = await open()
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Remove From Groups' }),
+    )
+    await screen.findByText('1 guests removed from their groups')
+    expect(await groupOf()).toBeNull()
+  })
+
   it('selects and clears a whole page, keeping the selection across pages', async () => {
     await openGuests()
     const all = screen.getByRole('checkbox', {
@@ -1386,6 +1484,9 @@ describe('Guests page for a read-only event', () => {
       ).toBeInTheDocument()
       expect(
         within(bar).queryByRole('button', { name: 'Delete selected' }),
+      ).toBeNull()
+      expect(
+        within(bar).queryByRole('button', { name: 'Add to Group' }),
       ).toBeNull()
 
       fireEvent.click(

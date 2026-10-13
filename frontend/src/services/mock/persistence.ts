@@ -6,6 +6,8 @@ export interface Persistence<Value> {
   load(): unknown
   save(value: Value): void
   clear(): void
+  /** Tells when another tab of the same browser changed the stored value. */
+  onChange?(listener: () => void): void
 }
 
 export type DemoPersistence = Persistence<StoredDemo>
@@ -49,6 +51,13 @@ export function createBrowserPersistence<Value = StoredDemo>(
       } catch {
         return
       }
+    },
+    onChange(listener) {
+      window.addEventListener('storage', (event) => {
+        if (event.storageArea === storage && event.key === key) {
+          listener()
+        }
+      })
     },
   }
 }

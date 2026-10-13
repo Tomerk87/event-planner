@@ -14,10 +14,8 @@ import { createTestServices, renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
   it.each([
-    ['/events/evt-1/rsvp', 'RSVP Settings'],
     ['/events/evt-1/layout', 'Event Layout'],
     ['/events/evt-1/permissions', 'Permissions'],
-    ['/rsvp/abc123', 'RSVP'],
   ])('renders a placeholder at %s', async (path, title) => {
     renderApp(path)
 
@@ -69,7 +67,10 @@ describe('routes', () => {
 
     await router.navigate('/rsvp/abc123')
 
-    await screen.findByRole('heading', { level: 1, name: 'RSVP' })
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'This RSVP page is not available',
+    })
     expect(screen.getByRole('main')).toHaveFocus()
   })
 
@@ -107,7 +108,10 @@ describe('routes', () => {
   it('does not show navigation on the public RSVP page', async () => {
     renderApp('/rsvp/abc123')
 
-    await screen.findByRole('heading', { level: 1, name: 'RSVP' })
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'This RSVP page is not available',
+    })
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 

@@ -26,6 +26,9 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Choosing which details the phone guest cards show | On a phone the guest cards always show the same details; the column chooser applies to the desktop table only. | Owner decision 2026-10-13 |
 | Default country per event | Reading and showing phone numbers by the event's country instead of always Israel, so an event held abroad can use local numbers. Needs a phone-number library with each country's rules. | Owner decision 2026-10-13 |
 | Country selector for a phone number | A searchable country list in Add and Edit Guest, in import (per file) and on the public RSVP form, for a guest from a country other than the event's. | Owner decision 2026-10-13 |
+| Switching the RSVP page off, or replacing its link | The page is active until the event starts and its link never changes. | Owner decision 2026-10-13 (D64) |
+| Calendar entry that follows the event | The Google Calendar action keeps its own date and time once set; it does not move when the event's date is changed. | Owner decision 2026-10-13 (D60) |
+| Add to Group on a phone | Selecting several guests exists only in the desktop table. | Owner decision 2026-10-13 (D66) |
 | Configurable RSVP deadline | Closing RSVP earlier than the event start. | PRD §17; `PLAN.md` backlog |
 
 ## Messaging

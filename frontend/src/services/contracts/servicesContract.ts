@@ -1289,6 +1289,54 @@ export function describeServicesContract(
         )
       })
 
+      it('moves several guests to one group, replacing the group they had', async () => {
+        const { services, events } = setup()
+        const [first, second, third] = await services.guests.list(events.owner)
+        await services.guests.setGroup(events.owner, [first!.id], 'Choir')
+
+        await services.guests.setGroup(
+          events.owner,
+          [first!.id, second!.id],
+          ' choir ',
+        )
+        const byId = async (id: string) =>
+          (await services.guests.list(events.owner)).find(
+            (guest) => guest.id === id,
+          )
+        expect((await byId(first!.id))?.group).toBe('Choir')
+        expect((await byId(second!.id))?.group).toBe('Choir')
+        expect((await byId(third!.id))?.group).toBe(third!.group)
+
+        await services.guests.setGroup(events.owner, [first!.id], null)
+        expect((await byId(first!.id))?.group).toBeNull()
+
+        expect(
+          await codeOf(
+            services.guests.setGroup(
+              events.owner,
+              [second!.id, 'no-such'],
+              'Other',
+            ),
+          ),
+        ).toBe('NOT_FOUND')
+        expect((await byId(second!.id))?.group).toBe('Choir')
+        expect(
+          await codeOf(
+            services.guests.setGroup(
+              events.owner,
+              [second!.id],
+              'x'.repeat(41),
+            ),
+          ),
+        ).toBe('VALIDATION')
+        expect(
+          await codeOf(services.guests.setGroup(events.viewer, [], 'A')),
+        ).toBe('FORBIDDEN')
+        expect(
+          await codeOf(services.guests.setGroup(events.past, [], 'A')),
+        ).toBe('EVENT_READ_ONLY')
+      })
+
       it('imports many guests in one step, restoring a deleted phone, or nothing if one is invalid', async () => {
         const { services, events } = setup()
         const before = await services.guests.list(events.owner)
@@ -1384,7 +1432,7 @@ export function describeServicesContract(
           overlayOpacity: 65,
           youtube: {
             enabled: true,
-            url: 'https://video.example.com/watch?v=1',
+            url: 'https://www.youtube.com/watch?v=1',
           },
         })
 
@@ -1396,8 +1444,20 @@ export function describeServicesContract(
           'VALIDATION',
         )
         expect(await codeOf(save({ overlayOpacity: 101 }))).toBe('VALIDATION')
+        for (const url of [
+          'not a link',
+          'https://video.example.com/watch?v=1',
+        ]) {
+          expect(await codeOf(save({ youtube: { enabled: true, url } }))).toBe(
+            'VALIDATION',
+          )
+        }
         expect(
-          await codeOf(save({ youtube: { enabled: true, url: 'not a link' } })),
+          await codeOf(
+            save({
+              calendar: { ...settings.calendar, enabled: true, title: ' ' },
+            }),
+          ),
         ).toBe('VALIDATION')
         expect(
           await codeOf(services.rsvp.updateSettings(events.viewer, settings)),

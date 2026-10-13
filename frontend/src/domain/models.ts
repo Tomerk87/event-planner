@@ -103,7 +103,16 @@ export interface RsvpSettings {
   backgroundImage: string | null
   /** Darkening of the background image, 0–100. */
   overlayOpacity: number
-  calendar: { enabled: boolean; title: string; location: string }
+  /** The calendar entry offered after approval; its own date and time. */
+  calendar: {
+    enabled: boolean
+    title: string
+    /** `YYYY-MM-DD`, in the event's time zone. */
+    date: string
+    /** `HH:mm`, in the event's time zone. */
+    time: string
+    location: string
+  }
   youtube: { enabled: boolean; url: string }
 }
 

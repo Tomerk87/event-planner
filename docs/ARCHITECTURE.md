@@ -128,3 +128,15 @@ Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
 | anything else | Not-found page |
 
 These are client-side routes, so the production web server must serve `index.html` for unknown paths (tracked in `PLAN.md` Phase 18).
+
+## Public RSVP and RSVP Settings (Phase 9)
+
+- **One component, two uses.** `features/public-rsvp/RsvpCard.tsx` draws the guest-facing page. The public page (`PublicRsvpPage.tsx`) passes it a form; RSVP Settings passes none, which makes it an inert preview. The preview therefore cannot drift from the real page.
+- **No session.** The public page reads and writes through `Backend.publicRsvp` (`usePublicRsvp`), not through the session's services. The browser-local provider looks the link up in the demo workspace and then in the accounts workspace.
+- **Language.** The page is rendered inside `LocaleScope`, starting in the event's default RSVP language; the guest's switch changes only that scope.
+- **Rules** for the settings live in `domain/rsvpSettings.ts` (message lengths, overlay, picture, calendar entry, YouTube address, the Google Calendar address). The page validates with the same function the provider uses.
+- **Outside links.** Add to Calendar and Watch on YouTube are ordinary links that open in a new tab on the guest's click. Nothing is opened from the data layer.
+- **Pictures** are reduced in the browser (`features/rsvp-settings/imageTools.ts`) and kept as a data address with the settings. This is a browser-storage measure; the backend will store files.
+- **QR code** is drawn as SVG from `qrcode-generator` (`features/rsvp-settings/qr.ts`) and downloaded as a PNG.
+- **Other tabs.** A persistence adapter may report that another tab changed its stored value (`Persistence.onChange`, the browser's `storage` event). The mock services then re-read their data before the next operation, and `Backend.onExternalChange` lets `SessionProvider` reload what is on screen.
+- **Development server.** The Excel libraries are loaded on demand, so they are listed in `optimizeDeps.include` in `vite.config.ts`; otherwise the server finds them late and reloads the page in the middle of an import or export.

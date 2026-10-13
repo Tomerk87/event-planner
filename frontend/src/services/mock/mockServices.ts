@@ -9,6 +9,7 @@ import {
   addGuest,
   editGuest,
   recordInvitationSent,
+  resolveGroup,
   softDeleteGuest,
 } from '../../domain/guests.ts'
 import { guestFullName } from '../../domain/guestList.ts'
@@ -54,9 +55,12 @@ import type {
   EventAccessInfo,
   Member,
   MessagePreview,
-  RsvpSettingsInput,
   Services,
 } from '../contracts/index.ts'
+import {
+  calendarStartOf,
+  validateRsvpSettings,
+} from '../../domain/rsvpSettings.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { generateDemoState } from './generator.ts'
 import { messageValuesFor, SAMPLE_GUEST } from './messageValues.ts'
@@ -67,7 +71,6 @@ import {
 } from './persistence.ts'
 import { DATASET_VERSION, isUsableStoredDemo, type DemoState } from './state.ts'
 
-const MAX_MESSAGE_LENGTH = 500
 const RECENT_ACTIVITY_LIMIT = 50
 
 export interface MockOptions {
@@ -149,6 +152,11 @@ export function createMockServices(options: MockOptions): Services {
 
   let regenerated = false
   let state = load()
+  // Another tab of this browser saved newer data, such as a guest's RSVP.
+  let outdated = false
+  persistence.onChange?.(() => {
+    outdated = true
+  })
 
   function load(): DemoState {
     const stored = persistence.load()
@@ -159,12 +167,25 @@ export function createMockServices(options: MockOptions): Services {
       })
     ) {
       // Data saved before guests had groups reads as guests in no group.
+      const { state: found } = stored
       return {
-        ...stored.state,
-        guests: stored.state.guests.map((guest) => ({
+        ...found,
+        guests: found.guests.map((guest) => ({
           ...guest,
           group: guest.group ?? null,
         })),
+        // Settings saved before the calendar entry had its own date and time.
+        rsvpSettings: found.rsvpSettings.map((settings) => {
+          const event = found.events.find(
+            (candidate) => candidate.id === settings.eventId,
+          )
+          return settings.calendar.date !== undefined || !event
+            ? settings
+            : {
+                ...settings,
+                calendar: { ...calendarStartOf(event), ...settings.calendar },
+              }
+        }),
       }
     }
     // Nothing stored is a first visit; anything else is stale or damaged data.
@@ -198,6 +219,10 @@ export function createMockServices(options: MockOptions): Services {
     }
     if (failOperations.has(operation)) {
       throw new DomainError('UNAVAILABLE', { operation })
+    }
+    if (outdated) {
+      outdated = false
+      state = load()
     }
     return action()
   }
@@ -354,41 +379,6 @@ export function createMockServices(options: MockOptions): Services {
     }
   }
 
-  function validateRsvpSettings(input: RsvpSettingsInput): RsvpSettingsInput {
-    const messages = {
-      welcomeMessage: input.welcomeMessage,
-      approvedMessage: input.approvedMessage,
-      declinedMessage: input.declinedMessage,
-      notSureMessage: input.notSureMessage,
-    }
-    for (const [field, text] of Object.entries(messages)) {
-      if (text.length > MAX_MESSAGE_LENGTH) {
-        throw new DomainError('VALIDATION', { field, max: MAX_MESSAGE_LENGTH })
-      }
-    }
-    if (
-      !Number.isInteger(input.overlayOpacity) ||
-      input.overlayOpacity < 0 ||
-      input.overlayOpacity > 100
-    ) {
-      throw new DomainError('VALIDATION', {
-        field: 'overlayOpacity',
-        min: 0,
-        max: 100,
-      })
-    }
-    if (input.youtube.enabled && !/^https?:\/\/\S+$/.test(input.youtube.url)) {
-      throw new DomainError('VALIDATION', { field: 'youtubeUrl' })
-    }
-    return {
-      ...messages,
-      backgroundImage: input.backgroundImage,
-      overlayOpacity: input.overlayOpacity,
-      calendar: { ...input.calendar },
-      youtube: { ...input.youtube },
-    }
-  }
-
   return {
     session: {
       getCurrentUser: () => run('session.getCurrentUser', currentUser),
@@ -480,7 +470,8 @@ export function createMockServices(options: MockOptions): Services {
               {
                 ...settings,
                 eventId: id,
-                calendar: { ...settings.calendar },
+                // The copy is a new occasion, so its calendar entry follows it.
+                calendar: { ...settings.calendar, ...calendarStartOf(event) },
                 youtube: { ...settings.youtube },
               },
             ],
@@ -597,6 +588,20 @@ export function createMockServices(options: MockOptions): Services {
           commit({
             ...state,
             guests: state.guests.map((guest) => removed.get(guest.id) ?? guest),
+          })
+        }),
+
+      setGroup: (eventId, guestIds, group) =>
+        run('guests.setGroup', () => {
+          authorize(eventId, 'EDIT')
+          const ids = new Set(guestIds)
+          ids.forEach((guestId) => activeGuest(eventId, guestId))
+          const resolved = resolveGroup(state.guests, eventId, group)
+          commit({
+            ...state,
+            guests: state.guests.map((guest) =>
+              ids.has(guest.id) ? { ...guest, group: resolved } : guest,
+            ),
           })
         }),
 

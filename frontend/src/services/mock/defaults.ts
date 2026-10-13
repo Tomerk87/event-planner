@@ -1,3 +1,4 @@
+import { calendarStartOf } from '../../domain/rsvpSettings.ts'
 import type {
   Event,
   MessageTemplate,
@@ -75,6 +76,7 @@ export function defaultRsvpSettings(event: Event): RsvpSettings {
     calendar: {
       enabled: false,
       title: event.name,
+      ...calendarStartOf(event),
       location: event.location ?? '',
     },
     youtube: { enabled: false, url: '' },
