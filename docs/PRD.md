@@ -177,7 +177,7 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 - Desktop table and intentionally adapted mobile list/card layout.
 - CSV and XLSX import, with field mapping, preview, validation, duplicate detection, and error reporting. Each imported row is checked like a guest added by hand. A row whose phone an active guest already has, or that repeats a phone from earlier in the file, is skipped and reported; an import never changes an existing guest. A phone belonging to a soft-deleted guest restores that guest (section 6.2). Up to 5,000 rows and 5 MB per file.
 - Guest export as CSV and as Excel (XLSX). An export contains every field, whatever columns are visible on screen. Text that a spreadsheet would run as a formula is exported as plain text, because invitation names are typed by guests.
-- Selecting rows offers two bulk actions: delete the selected guests (with confirmation) and export the selected guests. Bulk sending is out of scope (section 17).
+- Selecting rows offers three bulk actions: delete the selected guests (with confirmation), export the selected guests, and add them to a group (a guest who already has a group changes group; an empty choice removes them from their groups). Bulk sending is out of scope (section 17).
 - On desktop, a column chooser lets the organizer show or hide table columns. Name and Phone are always shown. The choice is remembered in the browser. Clicking anywhere on a column's row toggles it, and the chooser stays open until a click outside it or Escape.
 - Every dropdown in the product shares one design (the product's own list, not the browser's); the column chooser, with its checkboxes, is the exception.
 - Every data table in the product follows the same guidelines on desktop: headings centred; number columns centred and text columns start-aligned; English headings in Title Case; the actions column last, pinned, with its heading hidden.
@@ -246,16 +246,17 @@ Since this is a public form, phone matching is identification for the product wo
 
 The organizer can configure:
 
-- Generate/copy public RSVP URL.
-- Welcome text.
-- Approved message.
-- Declined message.
-- Not Sure message.
-- RSVP background image upload.
-- Background overlay/transparency control.
-- Optional Google Calendar action with title, date/time, and location.
-- Optional YouTube link/action after approval.
+- The public RSVP URL, which every event has from creation: copy it, or show it as a QR code that can be downloaded. The page is active until the event starts and closed afterwards; there is no off switch.
+- RSVP title (optional; the event name is used when empty).
+- Welcome text, Approved, Declined and Not Sure messages, up to 500 characters each. An empty message shows a standard text in the guest's language.
+- RSVP background image (JPG or PNG, up to 5 MB) and a darkening overlay from 0 to 100%.
+- Optional Google Calendar action with its own title, date, time and location, starting from the event's values. The entry lasts three hours.
+- Optional YouTube link after approval. Only `https` addresses on `youtube.com` or `youtu.be` are accepted.
+- The default RSVP language.
+- A live preview of the public page, including unsaved changes, for each of its four states.
 - Mobile Settings and Preview tabs as mapped in `mockups/README.md`.
+
+On the public page the three response buttons send the answer directly. The guest then sees the matching message and can change the answer until the event starts. After an approval the calendar and YouTube actions open the real pages in a new tab. A link that matches no event shows a plain "not available" page.
 
 The public RSVP opens in the event's default RSVP language, English or Hebrew, set on RSVP Settings. A guest can switch the page to the other language. Texts the organizer wrote (the welcome and response messages) are shown as written in either language; translating them is deferred (section 17).
 

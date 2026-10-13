@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { Services } from './contracts/index.ts'
+import type { PublicRsvpService, Services } from './contracts/index.ts'
 
 export const ServicesContext = createContext<Services | null>(null)
 
@@ -12,4 +12,17 @@ export function useServices(): Services {
     )
   }
   return services
+}
+
+export const PublicRsvpContext = createContext<PublicRsvpService | null>(null)
+
+/** The operations of the public RSVP page, which needs no session. */
+export function usePublicRsvp(): PublicRsvpService {
+  const service = useContext(PublicRsvpContext)
+  if (!service) {
+    throw new Error(
+      'usePublicRsvp must be used inside a PublicRsvpContext provider',
+    )
+  }
+  return service
 }

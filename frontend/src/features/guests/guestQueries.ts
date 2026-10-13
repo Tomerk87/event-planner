@@ -119,6 +119,18 @@ export function useRemoveGuests(eventId: string) {
   )
 }
 
+export function useSetGuestsGroup(eventId: string) {
+  return useGuestChange(
+    (
+      services,
+      {
+        guestIds,
+        group,
+      }: { guestIds: readonly string[]; group: string | null },
+    ) => services.guests.setGroup(eventId, guestIds, group),
+  )
+}
+
 export function useSetGuestRsvp(eventId: string) {
   return useGuestChange(
     (

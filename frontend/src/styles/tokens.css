@@ -106,6 +106,14 @@
   --color-whatsapp-link: #075e9a;
   --color-whatsapp-meta: #54656f;
   --color-phone-frame: #111827;
+  /* Public RSVP page: light text on a darkened picture */
+  --color-rsvp-text: #ffffff;
+  --color-rsvp-muted: #e3e6f3;
+  --color-rsvp-panel: rgb(12 16 40 / 62%);
+  --color-rsvp-border: rgb(255 255 255 / 22%);
+  --color-rsvp-tile: rgb(255 255 255 / 12%);
+  --color-rsvp-error: #ffc9c9;
+  --color-rsvp-shade: #000000;
 
   --sidebar-width: 15.5rem;
   --sidebar-width-collapsed: 4.5rem;

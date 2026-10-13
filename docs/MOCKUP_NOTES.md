@@ -124,7 +124,9 @@ Found while building (Phase 6):
 - An **RSVP Language selector** appears on both RSVP Settings and Event Settings. **Decided (2026-10-13):** RSVP Settings owns the event's default language, and each guest can switch the public page between English and Hebrew. Event Settings has no language selector; its "RSVP Settings" card keeps only the "RSVP remains open" notice. Organizer-written texts are not translated.
 - **QR code** button and "RSVP page is active" status are not in the PRD. Built as shown.
 - The mockup states limits the PRD does not: 500 characters per message, and background image "1920 × 1080, JPG or PNG, up to 5MB". Adopted as requirements.
-- The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state.
+- The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state. **Built (2026-10-13):** the four tabs are offered on desktop too.
+- **Built differently (2026-10-13):** on desktop, Save Changes and Preview Public Page are in the page header, as on Event Settings and WhatsApp Messages, not in the Additional Settings card at the bottom. The calendar and YouTube fields appear only while their switch is on. The preview is drawn in a simple phone frame without a status bar. With no picture, the page has a plain dark background. The public form's date line shows the time as well as the date.
+- **Preview Public Page** opens a full-size preview with unsaved changes on desktop and switches to the Preview tab on a phone; **Open Public Page** opens the saved page in a new tab (D63).
 
 ### Event Layout
 

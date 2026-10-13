@@ -7,6 +7,7 @@ import {
   RefreshCw,
   Search,
   SearchX,
+  Tags,
   Trash2,
   UserPlus,
   Users,
@@ -53,6 +54,7 @@ import { SendMessageDialog } from '../messages/SendMessageDialog.tsx'
 import { ColumnChooser } from './ColumnChooser.tsx'
 import { useTableOptions } from './TableOptions.tsx'
 import { DeleteGuestsDialog } from './DeleteGuestsDialog.tsx'
+import { GroupDialog } from './GroupDialog.tsx'
 import { resolveGuestColumns, type GuestColumnId } from './guestColumns.ts'
 import { GuestDetailsDrawer } from './GuestDetailsDrawer.tsx'
 import type { FileFormat } from './guestFiles.ts'
@@ -75,6 +77,7 @@ const NO_GROUP = '~none'
 type OpenPanel =
   | { kind: 'edit' | 'rsvp' | 'details' | 'send'; guestId: string }
   | { kind: 'delete'; guestIds: string[] }
+  | { kind: 'group' }
 
 function isRsvpStatus(value: string | null): value is RsvpStatus {
   return (RSVP_STATUSES as readonly string[]).includes(value ?? '')
@@ -177,7 +180,7 @@ export function GuestsTab({
   // Guests deleted elsewhere drop out of the selection.
   const selectedGuests = [...selected].flatMap((id) => guestById.get(id) ?? [])
   const panelGuest =
-    panel && panel.kind !== 'delete'
+    panel && panel.kind !== 'delete' && panel.kind !== 'group'
       ? (guestById.get(panel.guestId) ?? null)
       : null
   const closePanel = () => setPanel(null)
@@ -600,6 +603,16 @@ export function GuestsTab({
           </Menu>
           {canEdit && (
             <Button
+              variant="secondary"
+              size="sm"
+              icon={<Tags />}
+              onClick={() => setPanel({ kind: 'group' })}
+            >
+              {t('guests.bulk.group.action')}
+            </Button>
+          )}
+          {canEdit && (
+            <Button
               variant="danger"
               size="sm"
               icon={<Trash2 />}
@@ -766,6 +779,14 @@ export function GuestsTab({
             : null
         }
         onClose={closePanel}
+      />
+      <GroupDialog
+        open={panel?.kind === 'group'}
+        onClose={closePanel}
+        onSaved={() => setSelected(new Set())}
+        eventId={eventId}
+        guests={selectedGuests}
+        groups={groups}
       />
       <DeleteGuestsDialog
         open={panel?.kind === 'delete'}

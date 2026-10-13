@@ -4,6 +4,11 @@ import { defineConfig } from 'vitest/config'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Loaded only when a file is imported or exported, so the development
+  // server would otherwise discover them late and reload the page mid-action.
+  optimizeDeps: {
+    include: ['read-excel-file/browser', 'write-excel-file/browser'],
+  },
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',

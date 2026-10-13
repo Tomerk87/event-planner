@@ -11,6 +11,8 @@ interface ButtonLinkProps {
   iconPosition?: 'start' | 'end'
   /** A fuller accessible name, when several links share the same text. */
   label?: string
+  /** Open the address in a new tab, keeping this page as it is. */
+  newTab?: boolean
   children: ReactNode
 }
 
@@ -22,6 +24,7 @@ export function ButtonLink({
   icon,
   iconPosition = 'start',
   label,
+  newTab = false,
   children,
 }: ButtonLinkProps) {
   const iconElement = icon && (
@@ -34,6 +37,8 @@ export function ButtonLink({
     <Link
       to={to}
       aria-label={label}
+      target={newTab ? '_blank' : undefined}
+      rel={newTab ? 'noopener noreferrer' : undefined}
       className={cx(
         styles.button,
         styles.link,

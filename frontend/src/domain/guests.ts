@@ -19,6 +19,14 @@ interface GuestFields extends GuestInput {
   group: string | null
 }
 
+function validateGroup(value: string | null | undefined): string | null {
+  const group = value?.trim() ?? ''
+  if (group.length > GROUP_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'group' })
+  }
+  return group === '' ? null : group
+}
+
 function validateGuestInput(input: GuestInput): GuestFields {
   const firstName = assertNonEmpty(input.firstName, 'firstName')
   assertIntegerInRange(
@@ -28,10 +36,6 @@ function validateGuestInput(input: GuestInput): GuestFields {
     'allowedAttendees',
   )
   const normalizedPhone = normalizePhone(input.phone)
-  const group = input.group?.trim() ?? ''
-  if (group.length > GROUP_MAX_LENGTH) {
-    throw new DomainError('VALIDATION', { field: 'group' })
-  }
   return {
     firstName,
     lastName: input.lastName.trim(),
@@ -39,7 +43,7 @@ function validateGuestInput(input: GuestInput): GuestFields {
     phone: formatPhone(normalizedPhone),
     normalizedPhone,
     allowedAttendees: input.allowedAttendees,
-    group: group === '' ? null : group,
+    group: validateGroup(input.group),
   }
 }
 
@@ -174,6 +178,18 @@ export function editGuest(
     })
   }
   return { ...guest, ...fields }
+}
+
+/**
+ * The group several guests of one event are moved to at once; `null` takes
+ * them out of their groups. A guest who already has a group changes group.
+ */
+export function resolveGroup(
+  guests: readonly Guest[],
+  eventId: Id,
+  group: string | null,
+): string | null {
+  return existingSpelling(guests, eventId, validateGroup(group))
 }
 
 /** Soft-deletes a guest and frees their seats. */

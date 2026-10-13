@@ -89,6 +89,12 @@ export interface GuestsService {
   assignTable(eventId: Id, guestId: Id, tableId: Id | null): Promise<Guest>
   /** Soft-deletes several guests at once; all of them or none. */
   removeMany(eventId: Id, guestIds: readonly Id[]): Promise<void>
+  /** Moves the guests to one group, replacing any group they had; `null` clears it. */
+  setGroup(
+    eventId: Id,
+    guestIds: readonly Id[],
+    group: string | null,
+  ): Promise<void>
   /**
    * Adds many guests at once, with the same rules as `create`. If any entry
    * is invalid nothing is saved.
@@ -282,10 +288,19 @@ export interface AuthService {
 }
 
 /** Everything the application needs from its data provider. */
+/** The public RSVP page: reachable with the link alone, by anyone. */
+export type PublicRsvpService = Pick<RsvpService, 'getPublicEvent' | 'submit'>
+
 export interface Backend {
   auth: AuthService
   /** The data operations available to a session. */
   servicesFor(session: Session): Services
+  publicRsvp: PublicRsvpService
+  /**
+   * Tells when data changed outside this page, so what is shown can be
+   * reloaded. Returns the function that stops listening.
+   */
+  onExternalChange(listener: () => void): () => void
 }
 
 export interface Services {

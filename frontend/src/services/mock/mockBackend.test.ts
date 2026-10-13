@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DomainError, type DomainErrorCode } from '../../domain/errors.ts'
 import type { Session } from '../contracts/index.ts'
 import { createMockBackend } from './mockBackend.ts'
@@ -286,5 +286,109 @@ describe('mock backend: workspaces', () => {
       'riley@example.com',
     )
     expect(localStorage.getItem(SESSION_STORAGE_KEY)).toContain('account')
+  })
+})
+
+describe('mock backend: public RSVP and other tabs', () => {
+  const answer = {
+    name: 'Walk In',
+    phone: '050-000-7777',
+    status: 'DECLINED' as const,
+    attendees: 1,
+  }
+
+  it('serves an RSVP link of the demo to a visitor with no session', async () => {
+    const backend = create()
+    const event = (await backend.servicesFor(DEMO).events.list()).find(
+      (candidate) => candidate.event.id === 'evt-1',
+    )
+    const slug = event!.event.rsvpSlug
+
+    expect((await backend.publicRsvp.getPublicEvent(slug)).title).toBeTruthy()
+    await backend.publicRsvp.submit(slug, answer)
+
+    expect(
+      await backend.servicesFor(DEMO).unknownGuests.list(event!.event.id),
+    ).toContainEqual(expect.objectContaining({ name: 'Walk In' }))
+  })
+
+  it('serves an RSVP link of a signed-up account’s event, also after a reload', async () => {
+    const stores = createStores()
+    const backend = create(stores)
+    const session = await backend.auth.signUp(riley)
+    const created = await backend.servicesFor(session).events.create(newEvent)
+
+    await backend.publicRsvp.submit(created.rsvpSlug, answer)
+    expect(
+      await backend.servicesFor(session).unknownGuests.list(created.id),
+    ).toHaveLength(1)
+
+    // A guest's own tab: a fresh page with nobody signed in.
+    const guestTab = create(stores)
+    expect(
+      (await guestTab.publicRsvp.getPublicEvent(created.rsvpSlug)).title,
+    ).toBe('Housewarming')
+  })
+
+  it('reports a link that belongs to no event', async () => {
+    expect(await codeOf(create().publicRsvp.getPublicEvent('nothing'))).toBe(
+      'NOT_FOUND',
+    )
+    expect(await codeOf(create().publicRsvp.submit('nothing', answer))).toBe(
+      'NOT_FOUND',
+    )
+  })
+
+  it('passes on other failures of the public page as they are', async () => {
+    const backend = create(createStores(), new Set(['rsvp.getPublicEvent']))
+
+    expect(await codeOf(backend.publicRsvp.getPublicEvent('nothing'))).toBe(
+      'UNAVAILABLE',
+    )
+  })
+
+  it('picks up what another tab saved, and tells the page to reload', async () => {
+    const changed: (() => void)[] = []
+    const demoPersistence = {
+      ...createMemoryPersistence(),
+      onChange: (listener: () => void) => void changed.push(listener),
+    }
+    const organizer = create({ ...createStores(), demoPersistence })
+    const event = (await organizer.servicesFor(DEMO).events.list()).find(
+      (candidate) => candidate.event.id === 'evt-1',
+    )
+    const notified = vi.fn()
+    const stop = organizer.onExternalChange(notified)
+
+    // The guest's tab works on the same stored data.
+    const guestTab = create({ ...createStores(), demoPersistence })
+    await guestTab.publicRsvp.submit(event!.event.rsvpSlug, answer)
+    changed.forEach((listener) => listener())
+
+    expect(notified).toHaveBeenCalled()
+    expect(
+      await organizer.servicesFor(DEMO).unknownGuests.list(event!.event.id),
+    ).toContainEqual(expect.objectContaining({ name: 'Walk In' }))
+
+    stop()
+    notified.mockClear()
+    changed.forEach((listener) => listener())
+    expect(notified).not.toHaveBeenCalled()
+  })
+
+  it('hears about a change to its own stored value only, from another tab', () => {
+    const listener = vi.fn()
+    createBrowserPersistence(window.localStorage, DEMO_STORAGE_KEY).onChange?.(
+      listener,
+    )
+    const announce = (key: string) =>
+      window.dispatchEvent(
+        new StorageEvent('storage', { key, storageArea: window.localStorage }),
+      )
+
+    announce(ACCOUNTS_STORAGE_KEY)
+    expect(listener).not.toHaveBeenCalled()
+    announce(DEMO_STORAGE_KEY)
+    expect(listener).toHaveBeenCalledTimes(1)
   })
 })

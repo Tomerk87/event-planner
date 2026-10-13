@@ -290,27 +290,28 @@
 - The public RSVP experience may require additional visual guidance; follow the approved PRD and established design language.
 
 ### Checklist
-- [ ] Build desktop RSVP settings and mobile Settings/Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
-- [ ] Configure Welcome, Approved, Declined, and Not Sure messages; background image and transparency/overlay.
-- [ ] Create one shared RSVP URL/identifier per event, not per guest; simulate deep links in mock mode.
-- [ ] Build public RSVP with guest name, phone, number of attendees and status selection. Number of attendees is always required; discard it for Declined and Not Sure.
-- [ ] Match known guests via normalized phone; store submitted Invitation Name without overwriting organizer First/Last Name.
-- [ ] Store unmatched responses as Unknown Guests.
-- [ ] Approved: positive integer from 1 through allowed attendees; Declined: 0; Not Sure: no confirmed count.
-- [ ] Allow guest changes until event starts; prevent changes once event is past.
-- [ ] Remove existing table assignment on Approved → Declined/Not Sure.
-- [ ] Accept Approved count increases even when resulting assignment becomes over capacity; display a conflict to organizer.
-- [ ] Provide optional Google Calendar and YouTube post-approval actions as specified, simulated safely when necessary.
-- [ ] RSVP Settings owns the event's default RSVP language (D19): add the selector there, and reword the create-event dialog's field as the default.
-- [ ] Give the public RSVP page a guest language switch, English / Hebrew, independent of the organizer's UI language. Organizer-written messages are shown as written.
-- [ ] Add the optional RSVP title to RSVP Settings (D39).
-- [ ] Preview should update when settings change.
-- [ ] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
-- [ ] The public RSVP form reads a phone by the same rule as the rest of the product (decision D37): local Israeli forms accepted, a number from abroad needs `+` and its country code; say so beside the field.
+- [x] Build desktop RSVP settings and mobile Settings/Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
+- [x] Configure Welcome, Approved, Declined, and Not Sure messages; background image and transparency/overlay.
+- [x] Create one shared RSVP URL/identifier per event, not per guest; simulate deep links in mock mode.
+- [x] Build public RSVP with guest name, phone, number of attendees and status selection. Number of attendees is always required; discard it for Declined and Not Sure.
+- [x] Match known guests via normalized phone; store submitted Invitation Name without overwriting organizer First/Last Name.
+- [x] Store unmatched responses as Unknown Guests.
+- [x] Approved: positive integer from 1 through allowed attendees; Declined: 0; Not Sure: no confirmed count.
+- [x] Allow guest changes until event starts; prevent changes once event is past.
+- [x] Remove existing table assignment on Approved → Declined/Not Sure.
+- [x] Accept Approved count increases even when resulting assignment becomes over capacity; display a conflict to organizer.
+- [x] Provide optional Google Calendar and YouTube post-approval actions as specified, simulated safely when necessary.
+- [x] RSVP Settings owns the event's default RSVP language (D19): add the selector there, and reword the create-event dialog's field as the default.
+- [x] Give the public RSVP page a guest language switch, English / Hebrew, independent of the organizer's UI language. Organizer-written messages are shown as written.
+- [x] Add the optional RSVP title to RSVP Settings (D39).
+- [x] Preview should update when settings change.
+- [x] Show a guest's answer given in another tab of the same browser without reloading the organizer's page.
+- [x] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
+- [x] The public RSVP form reads a phone by the same rule as the rest of the product (decision D37): local Israeli forms accepted, a number from abroad needs `+` and its country code; say so beside the field.
 
 ### Validation and exit criteria
-- [ ] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
-- [ ] UI follows desktop/mobile mockups, including mobile tab separation, LTR and RTL.
+- [x] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
+- [x] UI follows desktop/mobile mockups, including mobile tab separation, LTR and RTL.
 
 ---
 
@@ -397,6 +398,7 @@
 
 ### Checklist
 - [ ] Scaffold NestJS TypeScript backend independently of React UI.
+- [ ] When the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images out of browser storage.
 - [ ] Set up PostgreSQL development database (local install or temporary DB-only container is acceptable; full Compose deployment remains later).
 - [ ] Set up Prisma schema and deterministic migrations.
 - [ ] Implement User, Event, EventPermission, Guest, Unknown RSVP, RSVP Config, Message Config and Table/Assignment entities.
@@ -962,6 +964,29 @@ Follow-ups/risks:
 - Only Preview for is searchable; the time zone list (about 400 entries) could use the same and does not yet.
 - Nothing committed; branch phase_8_followups.
 Next: Phase 9 — RSVP Settings and public RSVP.
+```
+
+```text
+2026-10-13 — Guests: Add to Group for selected guests (owner request).
+- The bar of selected guests has Add to Group (Owners and Admins, upcoming events; desktop, where selection exists).
+- A dialog with the group picker: pick, search or create; a new group asks first; empty removes the guests from their groups. It says how many of the selected guests already have a group and will be moved.
+- New: domain resolveGroup, guests.setGroup in the contract and the mock, GroupDialog. D66.
+- Checks: typecheck, lint, format, unit and browser tests pass.
+```
+
+```text
+2026-10-13 — Phase 9 — RSVP Settings and public RSVP. Two passes: build, then review and fix.
+- RSVP Settings: link (copy, QR code with download, active/closed), RSVP title and four messages, background picture with overlay, calendar and YouTube actions, default RSVP language, live preview with Welcome / Approved / Declined / Not Sure. Phone: Settings and Preview tabs with the pinned bottom bar.
+- Public RSVP page: outside any session; opens in the event's language with an English / Hebrew switch; name, phone, attendees and three response buttons; result screen with Change My Response and, after approval, real Add to Calendar and Watch on YouTube links. Closed after the event starts. One shared component is both the page and the preview.
+- Data: calendar entry has its own date and time (D60); settings rules moved to domain/rsvpSettings.ts; YouTube addresses only (D61); the backend offers publicRsvp for a link of either workspace; data saved in another tab is picked up without a reload (D67).
+- Decisions D60–D67 recorded. Dependency added: qrcode-generator (D62).
+- Review pass fixed: public page not filling the screen; language button over the title on phones; preview tabs cut off on desktop; duplicate Close buttons in two dialogs; date and location lines; Hebrew phone hint.
+- Also fixed: the development server reloaded mid-action when the Excel libraries were first used after an install (pre-bundled in vite.config.ts).
+- Differences from the mockups, recorded in MOCKUP_NOTES: Save Changes and Preview Public Page are in the page header on desktop; calendar and YouTube fields appear only when switched on; a plain background stands in when there is no picture.
+- Checks: typecheck, lint, format clean; 914 unit tests (96% statements, 91% branches); browser tests 260 passed, 24 skipped by design; build succeeds. Screenshots reviewed: settings desktop and phone (English, Hebrew), public page phone (English, Hebrew form, errors and result).
+- Known limits: the public link opens only in the browser that holds the event (D65); a picture too large for browser storage after shrinking is refused; the calendar entry does not follow a later change of the event's date; Add to Group is desktop only.
+- Nothing committed; branch phase_9_implementation.
+Next: Phase 10 — Event Layout. Open before it: D22 (table status thresholds), P4.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

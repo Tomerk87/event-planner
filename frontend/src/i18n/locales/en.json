@@ -291,8 +291,8 @@
       "maxAttendeesHint": "Between {{min}} and {{max}}.",
       "defaultAllowedAttendees": "Expected Attendees per Guest",
       "defaultAllowedAttendeesHint": "Default for new guests, {{min}} to {{max}}.",
-      "rsvpLanguage": "RSVP Language",
-      "rsvpLanguageHint": "The language of the public RSVP page.",
+      "rsvpLanguage": "Default RSVP Language",
+      "rsvpLanguageHint": "The language the public RSVP page opens in. You can change it later in RSVP Settings.",
       "location": "Location",
       "errors": {
         "name": "Enter the event name.",
@@ -530,7 +530,19 @@
       "selected": "{{count}} selected",
       "export": "Export selected",
       "delete": "Delete selected",
-      "clear": "Clear selection"
+      "clear": "Clear selection",
+      "group": {
+        "action": "Add to Group",
+        "title": "Add to Group",
+        "body": "Choose the group for the {{count}} selected guests.",
+        "hint": "Type to search or create a group. Leave empty to remove the guests from their groups.",
+        "moving": "{{count}} of the selected guests already have a group and will be moved.",
+        "save": "Add to Group",
+        "remove": "Remove From Groups",
+        "newBody": "The group \"{{name}}\" does not exist yet. Create it and put the {{count}} selected guests in it?",
+        "done": "{{count}} guests added to \"{{name}}\"",
+        "cleared": "{{count}} guests removed from their groups"
+      }
     },
     "form": {
       "addTitle": "Add Guest",
@@ -1029,6 +1041,144 @@
       "sample": "Number of attendees",
       "english": "Event with English RSVP",
       "hebrew": "Event with Hebrew RSVP"
+    }
+  },
+  "rsvpSettings": {
+    "subtitle": "Configure your guest RSVP experience and public event page.",
+    "save": "Save Changes",
+    "saved": "RSVP settings saved.",
+    "previewPublic": "Preview Public Page",
+    "openPublic": "Open Public Page",
+    "backToSettings": "Back to Settings",
+    "tabs": {
+      "label": "RSVP settings views",
+      "settings": "Settings",
+      "preview": "Preview"
+    },
+    "link": {
+      "title": "RSVP Link",
+      "subtitle": "This is the public URL for your event RSVP page. The same link is shared with all guests.",
+      "label": "RSVP link",
+      "copy": "Copy Link",
+      "copied": "Link copied.",
+      "copyFailed": "The link could not be copied. Select it and copy it yourself.",
+      "qr": "Show QR Code",
+      "active": "RSVP page is active",
+      "closed": "RSVP page is closed",
+      "localTitle": "For now, this link opens only in this browser",
+      "localBody": "Until the product is connected to its server, a guest who opens the link on another device will not find the event."
+    },
+    "qr": {
+      "title": "RSVP QR Code",
+      "body": "Guests can scan this code to open the RSVP page.",
+      "download": "Download",
+      "alt": "QR code of the RSVP link"
+    },
+    "content": {
+      "title": "RSVP Content",
+      "subtitle": "Customize the text that your guests will see on the RSVP page.",
+      "rsvpTitle": "RSVP Title",
+      "rsvpTitleHint": "Shown at the top of the RSVP page. The event name is used when empty.",
+      "welcome": "Welcome Message",
+      "approved": "Approved Message",
+      "declined": "Declined Message",
+      "notSure": "Not Sure Message",
+      "emptyHint": "An empty message shows a standard text in the guest's language."
+    },
+    "background": {
+      "title": "Background Design",
+      "subtitle": "Upload a background image for your RSVP page.",
+      "upload": "Upload Image",
+      "change": "Change Image",
+      "remove": "Remove image",
+      "requirements": "JPG or PNG, up to 5 MB. Recommended size: 1920 × 1080.",
+      "none": "No image. A plain background is used.",
+      "overlay": "Image Overlay",
+      "overlayHint": "Adds a dark overlay to improve text readability.",
+      "alt": "Background image",
+      "errors": {
+        "type": "Choose a JPG or PNG image.",
+        "size": "The image is larger than 5 MB.",
+        "failed": "The image could not be used. Try another one."
+      }
+    },
+    "actions": {
+      "title": "Post-Approval Actions",
+      "subtitle": "Show additional options to guests after they confirm their attendance.",
+      "calendar": "Add to Google Calendar",
+      "calendarHint": "Allow guests to add the event to their calendar.",
+      "calendarTitle": "Calendar Title",
+      "date": "Date",
+      "time": "Time",
+      "location": "Location",
+      "youtube": "YouTube Link",
+      "youtubeHint": "Show a YouTube video or live stream link after approval.",
+      "youtubeUrl": "YouTube URL",
+      "errors": {
+        "calendarTitle": "Enter a calendar title.",
+        "calendarDate": "Enter a valid date.",
+        "calendarTime": "Enter a valid time.",
+        "youtubeUrl": "Enter a YouTube address that starts with https://."
+      }
+    },
+    "additional": {
+      "title": "Additional Settings",
+      "language": "RSVP Language",
+      "languageHint": "The RSVP page opens in this language. Guests can switch between English and Hebrew."
+    },
+    "preview": {
+      "title": "RSVP Preview",
+      "subtitle": "This is how your RSVP page will look for your guests.",
+      "states": "Page to preview",
+      "welcome": "Welcome",
+      "approved": "Approved",
+      "declined": "Declined",
+      "notSure": "Not Sure",
+      "unsavedTitle": "Preview reflects unsaved changes",
+      "unsavedBody": "This preview shows your current settings. Make sure to save changes if you're happy with them.",
+      "sameLinkTitle": "Same RSVP link for all guests",
+      "sameLinkBody": "The same public URL is shared with all guests, regardless of their response.",
+      "fullTitle": "Public Page Preview",
+      "frame": "Preview of the public RSVP page"
+    }
+  },
+  "publicRsvp": {
+    "switchLanguage": "Page language",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "phoneHint": "From outside Israel, start with + and your country code.",
+    "attendees": "Number of Attendees",
+    "approve": "I'll be there!",
+    "decline": "I won't be able to attend",
+    "notSure": "Not sure yet",
+    "afterConfirming": "After confirming, you'll be able to:",
+    "addToCalendar": "Add to Calendar",
+    "watchYoutube": "Watch on YouTube",
+    "errors": {
+      "name": "Enter your name.",
+      "phone": "Enter a valid phone number.",
+      "attendees": "Choose the number of attendees.",
+      "overAllowance": "Your invitation is for up to {{max}} attendees. To bring more, please contact the organizer.",
+      "failed": "Your response could not be sent. Please try again."
+    },
+    "result": {
+      "attendees": "Attendees confirmed: {{count}}",
+      "change": "Change My Response"
+    },
+    "defaults": {
+      "welcome": "We would be delighted to have you with us. Please let us know if you will be joining.",
+      "approved": "Thank you for confirming! We look forward to seeing you.",
+      "declined": "Thank you for letting us know. We will miss you!",
+      "notSure": "No worries! Please let us know if anything changes."
+    },
+    "closed": {
+      "title": "RSVP is closed",
+      "body": "The event has started, so responses can no longer be sent or changed."
+    },
+    "unavailable": {
+      "title": "This RSVP page is not available",
+      "body": "The link may be incomplete, or the event may have been removed.",
+      "note": "This is a preview version of the product: an RSVP link opens only in the browser where the event was created."
     }
   }
 }

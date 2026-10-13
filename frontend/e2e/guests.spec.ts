@@ -191,6 +191,34 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
   ).toHaveCount(0)
 })
 
+test('selected guests can be added to a group together', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'selection belongs to the desktop table')
+  await page.goto(GUESTS)
+  const table = page.getByRole('table', { name: 'Guests' })
+  const boxes = table.locator('tbody').getByRole('checkbox')
+  await boxes.nth(0).check()
+  await boxes.nth(1).check()
+  const bar = page.getByRole('region', { name: 'Selected guests' })
+  await bar.getByRole('button', { name: 'Add to Group' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Add to Group' })
+  await dialog.getByRole('combobox', { name: 'Group' }).fill('Book Club')
+  await dialog.getByRole('option', { name: 'Create "Book Club"' }).click()
+  await expectNoViolations(page)
+  await dialog.getByRole('button', { name: 'Add to Group' }).click()
+  await page
+    .getByRole('dialog', { name: 'Create a New Group?' })
+    .getByRole('button', { name: 'Create Group' })
+    .click()
+
+  await expect(page.getByText('2 guests added to "Book Club"')).toBeVisible()
+  await expect(bar).toHaveCount(0)
+  await expect(table.getByRole('cell', { name: 'Book Club' })).toHaveCount(2)
+})
+
 test('selected guests can be exported and deleted together', async ({
   page,
   isMobile,

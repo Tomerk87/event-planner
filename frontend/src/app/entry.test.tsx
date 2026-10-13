@@ -154,7 +154,10 @@ describe('access without a session', () => {
     renderSignedOut('/rsvp/abc123')
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'RSVP' }),
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'This RSVP page is not available',
+      }),
     ).toBeInTheDocument()
   })
 

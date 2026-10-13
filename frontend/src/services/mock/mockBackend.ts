@@ -3,7 +3,7 @@ import {
   validateSignIn,
   validateSignUp,
 } from '../../domain/accounts.ts'
-import { DomainError } from '../../domain/errors.ts'
+import { DomainError, isDomainError } from '../../domain/errors.ts'
 import type { Id, User } from '../../domain/models.ts'
 import type { Backend, Services, Session } from '../contracts/index.ts'
 import { createMockServices, type MockOptions } from './mockServices.ts'
@@ -72,6 +72,54 @@ export function createMockBackend(options: MockBackendOptions): Backend {
       throw new DomainError('UNAVAILABLE', { operation })
     }
     return action()
+  }
+
+  const listeners = new Set<() => void>()
+  const notify = () => listeners.forEach((listener) => listener())
+  demoPersistence.onChange?.(notify)
+  accountsPersistence.onChange?.(notify)
+
+  function demoWorkspace(): Services {
+    demo ??= createMockServices({
+      ...mockOptions,
+      persistence: demoPersistence,
+    })
+    return demo
+  }
+
+  function accountWorkspace(userId: Id): Services {
+    if (account?.userId !== userId) {
+      account = {
+        userId,
+        services: createMockServices({
+          ...mockOptions,
+          persistence: accountsPersistence,
+          actingUserId: userId,
+          seed: createEmptyState,
+          demoControls: false,
+          dataVersion: ACCOUNTS_VERSION,
+        }),
+      }
+    }
+    return account.services
+  }
+
+  /**
+   * An RSVP link belongs to an event of either workspace, and the page
+   * behind it has no session to say which. The public operations check no
+   * role, so the accounts workspace is read as whoever used it last.
+   */
+  async function inEitherWorkspace<Result>(
+    action: (rsvp: Services['rsvp']) => Promise<Result>,
+  ): Promise<Result> {
+    try {
+      return await action(demoWorkspace().rsvp)
+    } catch (error) {
+      if (!isDomainError(error, 'NOT_FOUND')) {
+        throw error
+      }
+      return action(accountWorkspace(account?.userId ?? '').rsvp)
+    }
   }
 
   function loadAccounts(): DemoState {
@@ -148,27 +196,21 @@ export function createMockBackend(options: MockBackendOptions): Backend {
     },
 
     servicesFor(session) {
-      if (session.workspace === 'demo') {
-        demo ??= createMockServices({
-          ...mockOptions,
-          persistence: demoPersistence,
-        })
-        return demo
-      }
-      if (account?.userId !== session.userId) {
-        account = {
-          userId: session.userId,
-          services: createMockServices({
-            ...mockOptions,
-            persistence: accountsPersistence,
-            actingUserId: session.userId,
-            seed: createEmptyState,
-            demoControls: false,
-            dataVersion: ACCOUNTS_VERSION,
-          }),
-        }
-      }
-      return account.services
+      return session.workspace === 'demo'
+        ? demoWorkspace()
+        : accountWorkspace(session.userId)
+    },
+
+    publicRsvp: {
+      getPublicEvent: (rsvpSlug) =>
+        inEitherWorkspace((rsvp) => rsvp.getPublicEvent(rsvpSlug)),
+      submit: (rsvpSlug, input) =>
+        inEitherWorkspace((rsvp) => rsvp.submit(rsvpSlug, input)),
+    },
+
+    onExternalChange(listener) {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
     },
   }
 }

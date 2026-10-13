@@ -1,7 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Backend, Session } from '../../services/contracts/index.ts'
-import { ServicesContext } from '../../services/servicesContext.ts'
+import {
+  PublicRsvpContext,
+  ServicesContext,
+} from '../../services/servicesContext.ts'
 import styles from '../../shared/StandalonePage.module.css'
 import { LoadingState } from '../../shared/ui/States.tsx'
 import { SessionContext, type SessionContextValue } from './sessionContext.ts'
@@ -38,6 +41,12 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     }
   }, [backend])
 
+  // Another tab changed the data, for example a guest answered the RSVP.
+  useEffect(
+    () => backend.onExternalChange(() => void queryClient.invalidateQueries()),
+    [backend, queryClient],
+  )
+
   const session = state.status === 'ready' ? state.session : null
 
   const value = useMemo<SessionContextValue>(() => {
@@ -73,7 +82,9 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
   return (
     <SessionContext.Provider value={value}>
       <ServicesContext.Provider value={services}>
-        {children}
+        <PublicRsvpContext.Provider value={backend.publicRsvp}>
+          {children}
+        </PublicRsvpContext.Provider>
       </ServicesContext.Provider>
     </SessionContext.Provider>
   )
