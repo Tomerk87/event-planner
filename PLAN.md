@@ -231,18 +231,21 @@
 - Desktop: `event_settings.png`; mobile: `event_settings_mobile.png`.
 
 ### Checklist
-- [ ] Build Event Settings based on mapped mockups.
-- [ ] Support required name, date/time, event timezone, fixed guest-facing RSVP language.
-- [ ] Enforce event max attendee integer minimum 50, default 300, maximum 3000.
-- [ ] Support default allowed attendees per guest: range 1–10, default 5; allow guest-specific overrides.
-- [ ] Warn but permit changes where configured table seats differ from maximum attendees.
-- [ ] Ensure past events and Viewers cannot save changes; other applicable roles may edit.
-- [ ] Persist edits in mock state across refresh.
-- [ ] On a phone, put Save Changes in the pinned bottom action bar (`PageHeader` with `compactActions="bar"`), not beside the title as `event_settings_mobile.png` shows.
+- [x] Build Event Settings based on mapped mockups.
+- [x] Support required name, date/time and event timezone, and an optional location (D39). The RSVP language is not edited here; it belongs to RSVP Settings (D19).
+- [x] Enforce event max attendee integer minimum 50, default 300, maximum 3000.
+- [x] Support default allowed attendees per guest: range 1–10, default 5; allow guest-specific overrides.
+- [x] Warn but permit changes where configured table seats differ from maximum attendees.
+- [x] Refuse moving the event's date and time into the past; keep the typed date and time when the time zone changes (D40).
+- [x] Ensure past events and Viewers cannot save changes; other applicable roles may edit.
+- [x] Persist edits in mock state across refresh.
+- [x] "View Event Rules" opens a read-only rules dialog (D12). No Duplicate or Delete in the Danger Zone (D38).
+- [x] Ask before leaving with unsaved changes, and only then (D41).
+- [x] On a phone, put Save Changes in the pinned bottom action bar (`PageHeader` with `compactActions="bar"`), not beside the title as `event_settings_mobile.png` shows.
 
 ### Validation and exit criteria
-- [ ] All invalid bounds produce clear feedback; valid edits update other demo screens.
-- [ ] Mockups validated desktop/mobile, English/Hebrew RTL.
+- [x] All invalid bounds produce clear feedback; valid edits update other demo screens.
+- [x] Mockups validated desktop/mobile, English/Hebrew RTL, by the agent from screenshots and automated checks. The owner's own visual review is still to come.
 
 ---
 
@@ -295,7 +298,9 @@
 - [ ] Remove existing table assignment on Approved → Declined/Not Sure.
 - [ ] Accept Approved count increases even when resulting assignment becomes over capacity; display a conflict to organizer.
 - [ ] Provide optional Google Calendar and YouTube post-approval actions as specified, simulated safely when necessary.
-- [ ] Respect fixed event RSVP language independent of organizer UI language.
+- [ ] RSVP Settings owns the event's default RSVP language (D19): add the selector there, and reword the create-event dialog's field as the default.
+- [ ] Give the public RSVP page a guest language switch, English / Hebrew, independent of the organizer's UI language. Organizer-written messages are shown as written.
+- [ ] Add the optional RSVP title to RSVP Settings (D39).
 - [ ] Preview should update when settings change.
 - [ ] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
 - [ ] The public RSVP form reads a phone by the same rule as the rest of the product (decision D37): local Israeli forms accepted, a number from abroad needs `+` and its country code; say so beside the field.
@@ -582,7 +587,7 @@
 - [ ] RSVP configurable deadline before event start.
 - [ ] Individual attendee identities and split groups across tables.
 - [ ] Per-seat assignment and venue templates.
-- [ ] Multi-language guest-facing RSVP within one event and guest-specific invitation URLs.
+- [ ] Translation of organizer-written RSVP texts, guest-facing languages beyond English and Hebrew, and guest-specific invitation URLs.
 - [ ] Advanced analytics, audit history, reusable event templates.
 - [ ] Server-backed expiring demos only if browser-local Demo Mode proves insufficient.
 
@@ -853,6 +858,20 @@ Follow-ups/risks:
 - Foreign numbers are shown with the country code set apart but not otherwise grouped.
 - Work is on branch phase_6_followups, created from phase_6_completion; nothing committed.
 Next: Phase 7 — Event Settings. Needs owner decisions D19 and the "View Event Rules" button.
+```
+
+```text
+2026-10-13 — Phase 7 — Event Settings.
+Decisions (owner): the guest RSVP language belongs to RSVP Settings and each guest can switch the public page between English and Hebrew; organizer-written texts are not translated (D19, replaces "fixed per event"). Event Settings has no language selector. View Event Rules opens a rules dialog (D12). No Duplicate/Delete in the Danger Zone (D38). Location is edited here (D39). A date in the past is refused, a time-zone change keeps the typed time, defaults do not alter existing guests (D40). Leaving asks only when there are unsaved changes (D41). P14–P18 confirmed.
+Done: Event Settings page (General Information, Guest Defaults, RSVP notice, Capacity Summary with the Dashboard's figures and warnings, Danger Zone, rules dialog, unsaved-changes prompt); Save in the header on desktop and in the bottom bar on a phone; read-only for a Viewer and a past event. events.update refuses a past date. Form validation and messages shared with the create-event dialog. AGENTS.md, PRD, DOMAIN, MOCKUP_NOTES, mockups/README and FUTURE_FEATURES updated; Phase 9 checklist gained the default-language selector, the guest language switch and the RSVP title.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 783 passed, coverage 96.54% statements, 91.19% branches; `npm run test:e2e` 218 passed, 18 skipped by design; `npm run build` succeeds. Desktop and phone, English and Hebrew, checked from screenshots against both mockups.
+Follow-ups/risks:
+- Until Phase 9 the RSVP language can only be chosen when creating an event.
+- The Capacity Summary shows saved figures, not what is being typed.
+- The Danger Zone notice uses the shared warning style rather than the mockup's white box.
+- Owner's own visual review and Hebrew wording review still to come.
+- Work is on branch phase_7_completion; nothing committed.
+Next: Phase 8 — WhatsApp Message editor. Needs owner decisions D16 (Send Test Message) and D17 (formatting controls).
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

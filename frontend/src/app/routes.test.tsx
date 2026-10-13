@@ -16,7 +16,6 @@ describe('routes', () => {
     ['/events/evt-1/rsvp', 'RSVP Settings'],
     ['/events/evt-1/messages', 'WhatsApp Messages'],
     ['/events/evt-1/layout', 'Event Layout'],
-    ['/events/evt-1/settings', 'Event Settings'],
     ['/events/evt-1/permissions', 'Permissions'],
     ['/rsvp/abc123', 'RSVP'],
   ])('renders a placeholder at %s', async (path, title) => {

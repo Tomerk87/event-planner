@@ -129,6 +129,9 @@ Mobile:
 
 Notes:
 - The mobile mockup shows Save Changes beside the page title. On a phone it goes in the pinned bottom action bar instead, as on the other form pages.
+- The RSVP Language selector is not built here; the language belongs to RSVP Settings. The "RSVP Settings" card keeps only the notice.
+- An optional Location field is added under Event Name.
+- "View Event Rules" opens a read-only dialog listing the event's rules.
 
 ## Permissions
 

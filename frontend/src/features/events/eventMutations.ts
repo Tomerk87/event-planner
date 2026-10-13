@@ -37,3 +37,13 @@ export function useDeleteEvent(eventId: string) {
     onSuccess: refresh,
   })
 }
+
+/** Waits for the reload, so the page shows the saved event when it settles. */
+export function useUpdateEvent(eventId: string) {
+  const { events } = useServices()
+  const refresh = useRefreshEvents()
+  return useMutation({
+    mutationFn: (input: EventInput) => events.update(eventId, input),
+    onSuccess: refresh,
+  })
+}

@@ -475,7 +475,10 @@ export function createMockServices(options: MockOptions): Services {
       update: (eventId, input) =>
         run('events.update', () => {
           const { event } = authorize(eventId, 'EDIT')
-          const updated: Event = { ...event, ...validateEventInput(input) }
+          const fields = validateEventInput(input)
+          // A date in the past would lock the event the moment it is saved.
+          assertStartsInFuture(fields.startsAt, now())
+          const updated: Event = { ...event, ...fields }
           commit({
             ...state,
             events: state.events.map((candidate) =>

@@ -21,7 +21,8 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 |---|---|---|
 | Individual attendee records | Names or details for each person in a party. In the MVP attendees are only counted. | PRD §17 |
 | Guest-specific RSVP URLs | One link per guest. The MVP has one shared link per event. | PRD §17 |
-| Guest-selectable RSVP language | More than one guest-facing language within an event. | PRD §17 |
+| Translating organizer-written RSVP texts | A guest can switch the public RSVP page between English and Hebrew, but the welcome and response messages are shown as the organizer wrote them. Translating them, or letting the organizer write each in both languages, is not built. | Owner decision 2026-10-13 |
+| More guest-facing languages | Languages beyond English and Hebrew on the public RSVP page. | PRD §17 |
 | Choosing which details the phone guest cards show | On a phone the guest cards always show the same details; the column chooser applies to the desktop table only. | Owner decision 2026-10-13 |
 | Default country per event | Reading and showing phone numbers by the event's country instead of always Israel, so an event held abroad can use local numbers. Needs a phone-number library with each country's rules. | Owner decision 2026-10-13 |
 | Country selector for a phone number | A searchable country list in Add and Edit Guest, in import (per file) and on the public RSVP form, for a guest from a country other than the event's. | Owner decision 2026-10-13 |
