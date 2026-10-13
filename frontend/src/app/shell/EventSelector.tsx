@@ -1,7 +1,8 @@
-import { CalendarDays, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { EventCover } from '../../shared/ui/EventCover.tsx'
 import type { ShellEvent } from './AppShell.tsx'
 import styles from './AppShell.module.css'
 
@@ -61,9 +62,7 @@ export function EventSelector({
         disabled={others.length === 0}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className={styles.selectorThumb} aria-hidden="true">
-          <CalendarDays />
-        </span>
+        <EventCover eventId={current.id} size="thumb" />
         <span className={styles.selectorName}>{current.name}</span>
         {others.length > 0 && (
           <ChevronDown className={styles.selectorChevron} aria-hidden="true" />

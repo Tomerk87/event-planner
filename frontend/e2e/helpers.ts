@@ -12,3 +12,19 @@ export async function openNavigation(page: Page): Promise<Locator> {
   }
   return page.getByRole('complementary')
 }
+
+/**
+ * Starts the visit already inside the demo, as if Try Demo had been chosen,
+ * so a test can open a page of the application directly. Applies to every
+ * page load of the test, and leaves a session chosen during the test alone.
+ */
+export async function startInDemo(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    if (window.localStorage.getItem('event-planner.session') === null) {
+      window.localStorage.setItem(
+        'event-planner.session',
+        JSON.stringify({ workspace: 'demo' }),
+      )
+    }
+  })
+}

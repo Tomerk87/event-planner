@@ -1,0 +1,80 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import type { Backend, Session } from '../../services/contracts/index.ts'
+import { ServicesContext } from '../../services/servicesContext.ts'
+import styles from '../../shared/StandalonePage.module.css'
+import { LoadingState } from '../../shared/ui/States.tsx'
+import { SessionContext, type SessionContextValue } from './sessionContext.ts'
+
+type SessionState =
+  { status: 'loading' } | { status: 'ready'; session: Session | null }
+
+interface SessionProviderProps {
+  backend: Backend
+  children: ReactNode
+}
+
+/**
+ * Knows who is using the application and gives the pages beneath it the data
+ * operations of that session. Cached data never outlives the session it was
+ * loaded for.
+ */
+export function SessionProvider({ backend, children }: SessionProviderProps) {
+  const queryClient = useQueryClient()
+  const [state, setState] = useState<SessionState>({ status: 'loading' })
+
+  useEffect(() => {
+    let cancelled = false
+    void backend.auth
+      .getSession()
+      .catch(() => null)
+      .then((session) => {
+        if (!cancelled) {
+          setState({ status: 'ready', session })
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [backend])
+
+  const session = state.status === 'ready' ? state.session : null
+
+  const value = useMemo<SessionContextValue>(() => {
+    function change(next: Session | null) {
+      queryClient.clear()
+      setState({ status: 'ready', session: next })
+    }
+    return {
+      session,
+      signUp: async (input) => change(await backend.auth.signUp(input)),
+      signIn: async (input) => change(await backend.auth.signIn(input)),
+      enterDemo: async () => change(await backend.auth.enterDemo()),
+      signOut: async () => {
+        await backend.auth.signOut()
+        change(null)
+      },
+    }
+  }, [backend, queryClient, session])
+
+  const services = useMemo(
+    () => (session ? backend.servicesFor(session) : null),
+    [backend, session],
+  )
+
+  if (state.status === 'loading') {
+    return (
+      <main className={styles.page}>
+        <LoadingState />
+      </main>
+    )
+  }
+
+  return (
+    <SessionContext.Provider value={value}>
+      <ServicesContext.Provider value={services}>
+        {children}
+      </ServicesContext.Provider>
+    </SessionContext.Provider>
+  )
+}

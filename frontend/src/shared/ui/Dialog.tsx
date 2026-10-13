@@ -39,7 +39,7 @@ function DialogFrame({
     >
       {open && (
         <div className={styles.surface}>
-          <header className={styles.header}>
+          <div className={styles.header}>
             <h2 id={titleId} className={styles.title}>
               {title}
             </h2>
@@ -50,9 +50,9 @@ function DialogFrame({
             >
               <X />
             </IconButton>
-          </header>
+          </div>
           <div className={styles.body}>{children}</div>
-          {footer && <footer className={styles.footer}>{footer}</footer>}
+          {footer && <div className={styles.footer}>{footer}</div>}
         </div>
       )}
     </dialog>

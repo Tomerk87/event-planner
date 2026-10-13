@@ -4,11 +4,6 @@ import type { Tone } from '../../shared/ui/Badge.tsx'
  * Fictional sample values for the design-system showcase only. Product pages
  * get their data from the service layer, never from this file.
  */
-export const sampleEvents = [
-  { id: 'showcase', name: 'Garden Celebration' },
-  { id: 'showcase-2', name: 'Autumn Gala' },
-]
-
 export const sampleUserName = 'Alex Morgan'
 
 export const sampleContact = {

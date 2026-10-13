@@ -4,7 +4,9 @@ import {
   CircleHelp,
   CircleX,
   Clock,
+  Copy,
   Download,
+  Ellipsis,
   Eye,
   Globe,
   Mail,
@@ -29,14 +31,17 @@ import {
   ReadOnlyBadge,
   ReadOnlyNotice,
 } from '../../shared/access/EventAccess.tsx'
+import { useEvents } from '../../services/queries.ts'
 import { EventAccessContext } from '../../shared/access/eventAccessContext.ts'
 import { Badge } from '../../shared/ui/Badge.tsx'
 import { Button, IconButton } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard, KpiGrid } from '../../shared/ui/Card.tsx'
 import { DataTable, type Column } from '../../shared/ui/DataTable.tsx'
 import { Dialog, Drawer } from '../../shared/ui/Dialog.tsx'
+import { EventCover } from '../../shared/ui/EventCover.tsx'
 import { SelectField, TextArea, TextField } from '../../shared/ui/Field.tsx'
 import { LtrText } from '../../shared/ui/LtrText.tsx'
+import { Menu } from '../../shared/ui/Menu.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { RoleIcon } from '../../shared/ui/RoleIcon.tsx'
@@ -49,7 +54,6 @@ import { Tabs } from '../../shared/ui/Tabs.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import {
   sampleContact,
-  sampleEvents,
   sampleEventStart,
   sampleGuests,
   sampleKpis,
@@ -86,7 +90,12 @@ export function ShowcasePage() {
     () => ({ role, isPastEvent }),
     [role, isPastEvent],
   )
-  const [currentEvent] = sampleEvents
+  // The frame is shown with the demo's own events, so its links lead somewhere.
+  const events = (useEvents().data ?? []).map(({ event }) => ({
+    id: event.id,
+    name: event.name,
+  }))
+  const [currentEvent] = events
 
   const statusLabel = (status: SampleStatus) => t(`showcase.badges.${status}`)
 
@@ -133,7 +142,7 @@ export function ShowcasePage() {
           exact: true,
         }}
         event={currentEvent}
-        events={sampleEvents}
+        events={events}
         user={{ name: sampleUserName, role }}
       >
         <PageHeader
@@ -471,6 +480,55 @@ export function ShowcasePage() {
               >
                 {t('showcase.overlays.showErrorToast')}
               </Button>
+            </div>
+          </Card>
+
+          <Card
+            title={t('showcase.menus.title')}
+            subtitle={t('showcase.menus.subtitle')}
+          >
+            <div className={styles.row}>
+              <Menu
+                label={t('showcase.menus.label')}
+                align="start"
+                triggerClassName={styles.menuTrigger}
+                items={[
+                  {
+                    id: 'open',
+                    label: t('showcase.menus.open'),
+                    icon: <Eye />,
+                    to: '/showcase',
+                  },
+                  {
+                    id: 'duplicate',
+                    label: t('showcase.menus.duplicate'),
+                    icon: <Copy />,
+                    onSelect: () =>
+                      showToast({
+                        tone: 'success',
+                        message: t('showcase.menus.chosen'),
+                      }),
+                  },
+                  {
+                    id: 'delete',
+                    label: t('showcase.menus.delete'),
+                    icon: <Trash2 />,
+                    tone: 'danger',
+                    onSelect: () =>
+                      showToast({
+                        tone: 'success',
+                        message: t('showcase.menus.chosen'),
+                      }),
+                  },
+                ]}
+              >
+                <Ellipsis aria-hidden="true" />
+              </Menu>
+              <EventCover eventId="sample-wedding" size="thumb" />
+              <EventCover eventId="sample-party" size="thumb" />
+              <span className={styles.coverSample}>
+                <EventCover eventId="sample-gala" />
+              </span>
             </div>
           </Card>
 

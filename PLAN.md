@@ -109,54 +109,56 @@
 **Goal:** build the interactive data engine once so every demo page uses consistent realistic data and behavior.
 
 ### Checklist
-- [ ] Define TypeScript contracts for User, Event, EventPermission, Guest, Unknown RSVP, RSVP Settings, WhatsApp Settings, Table, Assignment, analytics and relevant export models.
-- [ ] Define feature service interfaces for all CRUD and workflows, with Promise-based results and well-defined domain errors.
-- [ ] Build deterministic, seeded fictional dataset generator with coherent event dates, permissions, guests, RSVPs, counters, tables and assignments.
-- [ ] Include varied states: not sent, awaiting, approved, not sure, declined, unknown responses, repeated WhatsApp attempts, unassigned parties, full/over-capacity tables, past events.
-- [ ] Use synthetic non-routable contact details, not actual phone numbers or real user accounts.
-- [ ] Implement mock service provider behind typed contracts; keep it out of presentation components.
-- [ ] Implement browser persistence (localStorage or IndexedDB as appropriate) with schema/version migration or safe reset strategy.
-- [ ] Ensure multiple browser profiles independently mutate their own demo; do not use PostgreSQL for Demo Mode.
-- [ ] Implement Reset Demo with confirmation and repeatable initial state.
-- [ ] Implement mock create/update/soft-delete/restore, RSVP transitions, table assignment rules, derived metrics and permission checks.
-- [ ] Provide simulated WhatsApp send behavior without opening real recipient links or sending communications.
-- [ ] Simulate loading and error states deliberately; provide sample invalid/edge cases.
-- [ ] Add demo role-switching for Viewer/Admin/Owner and optionally Super User simulation, without granting real authorization.
-- [ ] Add provider selection at the app boundary; real API implementation will arrive later. Wire it to `parseDataProvider` in `frontend/src/services/providerConfig.ts`, which is defined and tested but not yet called.
-- [ ] Add basic fixture integrity and mock-service contract tests.
+- [x] Define TypeScript contracts for User, Event, EventPermission, Guest, Unknown RSVP, RSVP Settings, WhatsApp Settings, Table, Assignment, analytics and relevant export models.
+- [x] Define feature service interfaces for all CRUD and workflows, with Promise-based results and well-defined domain errors.
+- [x] Build deterministic, seeded fictional dataset generator with coherent event dates, permissions, guests, RSVPs, counters, tables and assignments.
+- [x] Include varied states: not sent, awaiting, approved, not sure, declined, unknown responses, repeated WhatsApp attempts, unassigned parties, full/over-capacity tables, past events.
+- [x] Use synthetic non-routable contact details, not actual phone numbers or real user accounts.
+- [x] Implement mock service provider behind typed contracts; keep it out of presentation components.
+- [x] Implement browser persistence (localStorage or IndexedDB as appropriate) with schema/version migration or safe reset strategy.
+- [x] Ensure multiple browser profiles independently mutate their own demo; do not use PostgreSQL for Demo Mode.
+- [x] Implement Reset Demo with confirmation and repeatable initial state.
+- [x] Implement mock create/update/soft-delete/restore, RSVP transitions, table assignment rules, derived metrics and permission checks.
+- [x] Provide simulated WhatsApp send behavior without opening real recipient links or sending communications.
+- [x] Simulate loading and error states deliberately; provide sample invalid/edge cases.
+- [x] Add demo role-switching for Viewer/Admin/Owner and optionally Super User simulation, without granting real authorization.
+- [x] Add provider selection at the app boundary; real API implementation will arrive later. Wire it to `parseDataProvider` in `frontend/src/services/providerConfig.ts`, which is defined and tested but not yet called.
+- [x] Add basic fixture integrity and mock-service contract tests.
 - [x] Add Playwright projects for a mobile viewport and for Hebrew/RTL once real UI exists (currently desktop Chromium only). Done in Phase 2: `desktop` and `mobile` projects; RTL covered by tests that switch the language.
-- [ ] Supply the application shell with real data from the services: current event and event list for the selector, and the user's role for the avatar icon and for hiding Permissions (the shell accepts these as props; real pages currently pass none).
+- [x] Supply the application shell with real data from the services: current event and event list for the selector, and the user's role for the avatar icon and for hiding Permissions (the shell accepts these as props; real pages currently pass none).
 
 ### Validation and exit criteria
-- [ ] First Demo launch generates data without manual seeding.
-- [ ] Demo CRUD affects related views; refresh preserves changes; Reset recreates baseline.
-- [ ] Demo calculations and permissions follow approved product rules.
-- [ ] All demo side effects remain simulated and isolated.
+- [x] First Demo launch generates data without manual seeding.
+- [x] Demo CRUD affects related views; refresh preserves changes; Reset recreates baseline. Proven at the service level (for example: adding a guest changes the dashboard figures, and both survive a reload) and on screen for what the frame shows. Create and edit screens arrive in Phases 4–10, where this is confirmed page by page.
+- [x] Demo calculations and permissions follow approved product rules.
+- [x] All demo side effects remain simulated and isolated.
 
 ---
 
-## Phase 4 — Homepage / Events and simulated authentication
+## Phase 4 — Landing page, Homepage / Events and simulated authentication
 
 **Goal:** make the first impression and event-selection flow fully interactive using mock services.
 
 ### Mockup mapping
-- Desktop: `homepage.png`; mobile: `homepage_mobile.png`.
+- Landing page — desktop: `landing_page.png`; mobile: `landing_page_mobile.png` (added 2026-10-13).
+- Homepage / My Events — desktop: `homepage.png`; mobile: `homepage_mobile.png`.
 
 ### Checklist
-- [ ] Build the Homepage/Events UI from the mapped mockups.
-- [ ] Show event cards with event name, date/time, active/past state and accessible role where relevant.
-- [ ] Provide prominent **Try Demo** entry without sign-in and clear Demo Mode indicator.
-- [ ] Implement simulated sign-in/session and account UI for frontend prototyping; **never mistake it for secure production authentication**. Includes the user menu beside the avatar and Log out in the homepage sidebar, which the shell does not have yet.
-- [ ] Show the event cover image as the thumbnail in the sidebar event selector (currently a calendar icon).
-- [ ] Implement create/open/duplicate/delete event interactions in mock services subject to role and lifecycle rules.
-- [ ] New event creator becomes Owner; support membership across multiple events.
-- [ ] Implement past-event read-only interactions and export availability.
-- [ ] Build appropriate empty/loading/error and mobile states.
+- [x] Build the landing page from the mapped mockups, with the three entry flows: Sign Up → account created → My Events; Sign In → My Events; Try Demo → the populated demo.
+- [x] Build the Homepage/Events UI from the mapped mockups.
+- [x] Show event cards with event name, date/time, active/past state and accessible role where relevant.
+- [x] Provide prominent **Try Demo** entry without sign-in and clear Demo Mode indicator.
+- [x] Implement simulated sign-up, sign-in/session and account UI for frontend prototyping; **never mistake it for secure production authentication**. Includes the user menu beside the avatar and Log out in the homepage sidebar. No password is stored or checked, and the forms say so.
+- [x] Show the event cover as the thumbnail in the sidebar event selector. Covers are generated (a gradient with an icon) until image upload is built (`docs/FUTURE_FEATURES.md`).
+- [x] Implement create/open/duplicate/delete event interactions in mock services subject to role and lifecycle rules (decision D3, `docs/DOMAIN.md`).
+- [x] New event creator becomes Owner; support membership across multiple events.
+- [x] Implement past-event read-only interactions and export availability. On this page: a past event is labelled Past, offers View Event, and opens read-only; it can still be duplicated or deleted by an Owner. Exports arrive with the pages that have them (Phases 6 and 10).
+- [x] Build appropriate empty/loading/error and mobile states.
 
 ### Validation and exit criteria
-- [ ] Visitor can launch demo without credentials and open a prepopulated event.
-- [ ] Event create/open and role restrictions function with mock data.
-- [ ] Page visually reviewed against both homepage PNGs, LTR and RTL.
+- [x] Visitor can launch demo without credentials and open a prepopulated event.
+- [x] Event create/open and role restrictions function with mock data.
+- [x] Pages compared against the landing and homepage PNGs, desktop and phone, LTR and RTL, by the agent from screenshots. The owner's own visual review is still to come.
 
 ---
 
@@ -174,6 +176,10 @@
 - [ ] Add event maximum vs confirmed warning, chairs vs event maximum warning (either direction), and over-capacity table warning.
 - [ ] Reflect changes to RSVP, messages and tables immediately via shared mock state.
 - [ ] Add loading/empty/error presentations.
+- [ ] Show Seating Capacity and Unassigned Confirmed Attendees as two more KPI cards after Confirmed Attendees (decision D28).
+- [ ] Name the header button "Event Settings" (drawn as "View Event") and open the Event Settings page; build the Quick Actions shortcuts as drawn (decision D12).
+- [ ] Show the warnings the mockup does not draw in the same style as its over-capacity warning (decision D29).
+- [ ] Build Recent Guest Activity from the message history and each guest's latest response (decisions D11, P5).
 
 ### Validation and exit criteria
 - [ ] Five sends to one guest count as one Invitations Sent guest.
@@ -282,6 +288,7 @@
 - [ ] Provide optional Google Calendar and YouTube post-approval actions as specified, simulated safely when necessary.
 - [ ] Respect fixed event RSVP language independent of organizer UI language.
 - [ ] Preview should update when settings change.
+- [ ] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
 
 ### Validation and exit criteria
 - [ ] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
@@ -443,6 +450,7 @@
 
 ### Checklist
 - [ ] Implement API provider(s) against the existing typed frontend service interfaces.
+- [ ] Run the provider contract suite (`frontend/src/services/contracts/servicesContract.ts`) against the API provider.
 - [ ] Select Demo mock provider or authenticated API provider at application boundary, not individually within components.
 - [ ] Integrate authentication, events, permissions, Guests, Unknown Guests, Messages, RSVP, Dashboard and Tables.
 - [ ] Replace development-only simulated sign-in with real auth on non-demo routes.
@@ -452,6 +460,7 @@
 - [ ] Ensure uploaded images work through storage API rather than assumptions about local browser paths.
 - [ ] Verify Demo Mode remains public, isolated, resettable and functional with no database interaction.
 - [ ] Add provider contract parity and integration tests.
+- [ ] Replace the browser-local accounts workspace (`services/mock/mockBackend.ts`) with the API for Sign Up and Sign In; keep the demo workspace as it is. Remove the "Preview version" notice from the forms.
 
 ### Validation and exit criteria
 - [ ] All MVP flows work against PostgreSQL-backed APIs.
@@ -712,6 +721,61 @@ Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run for
 Mockups reviewed: whatsapp_message_editor_mobile.png, whatsapp_message_preview_mobile.png, rsvp_settings_settings_mobile.png, rsvp_settings_preview_mobile.png, event_settings_mobile.png.
 Follow-ups/risks: the bar is built for widths below 1024px only; it has not been tried on a real phone with an on-screen keyboard open. Work is on branch phase_2_bottom_action_bar, created from main; nothing committed.
 Next: Phase 3 — needs owner decision D23 (phone-number range for generated demo guests).
+```
+
+```text
+2026-10-12 — Phase 3 — completed all checklist items and exit criteria.
+Decisions (owner): D23 demo phones are Israeli-style but undialable (+972 00-…); D5 a restored guest returns as No Response with no table and keeps the invitation counter; D1 an unknown responder may approve up to the event default; D11 Recent Guest Activity is derived from existing records.
+Done:
+- Domain layer (frontend/src/domain): models, shared error codes, and rules for phone normalization, event validation and time zones, the permission matrix, guests (create, edit, soft-delete, restore), RSVP, seating, dashboard metrics and warnings, recent activity, message rendering and export rows.
+- Service contracts for session, events, guests, unknown guests, RSVP, messages, tables, permissions, dashboard and demo control; a reusable contract test suite.
+- Seeded demo generator: six events (four upcoming, two past, one in Hebrew), 424 guests, the demo user as Owner, Admin and Viewer in different events, and every required state present. Stored size about 374 KB.
+- Mock provider enforcing the rules in the data layer, with browser persistence, dataset versioning, reset, simulated role (Owner, Admin, Viewer, Super User), simulated WhatsApp send, and simulated delay and failure through the address (?demoDelay=, ?demoFail=).
+- Provider chosen once at the application boundary; `api` shows a not-available page.
+- Application frame now shows real data: event selector, user, role icon, Permissions only for Owner and Admin. Demo Mode badge, role switcher and Reset Demo with confirmation, in English and Hebrew. Placeholder pages show the read-only notice for Viewers and past events.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 429 passed, coverage 97.41% statements, 92.39% branches, 96.62% functions, 97.37% lines; `npm run test:e2e` 94 passed, 12 skipped by design (tests that apply to only one of the two layouts), zero axe violations; `npm run build` succeeded. Checked by hand with a script: the `api` provider shows the not-available page and writes nothing to browser storage. Screenshots of the frame with demo data and the reset dialog, desktop and phone, English and Hebrew, reviewed by the agent.
+Found and fixed during validation: the top bar overflowed a 320px-wide phone once the demo badge was added; loading and error pages had no main heading and dialogs opened from the top bar nested landmarks (both reported by the accessibility check).
+Mockups reviewed: none newly (no product page built). The demo controls have no mockup and reuse existing components.
+Follow-ups/risks:
+- Eight defaults were applied where the documents are silent; they are listed as P1–P8 in docs/DOMAIN.md for the owner to confirm.
+- Exit criterion "Demo CRUD affects related views" is proven at the service level; on-screen proof follows with the pages in Phases 4–10.
+- Event duplicate and delete (D3) and inviting an unregistered email (D4) are not in the service contracts yet.
+- Events have a cover image field but the demo sets none; Phase 4 decides what is shown.
+- The demo's names and Hebrew sample texts were written by the agent.
+- Work is on branch phase_3_completion, created from main; nothing committed.
+Next: Phase 4 — needs owner decisions D3 (what duplicating and deleting an event do) and D10's follow-up (what cover images the demo events show).
+```
+
+```text
+2026-10-13 — Phase 4 complete.
+Decisions (owner): D3 — duplicate copies details, RSVP settings, message template and tables, without guests; delete is Owner-only and permanent, confirmed by typing the name. Event covers are generated until image upload is built. Landing-page mockups added, with three entry flows (sign up, sign in, try demo). Recorded in docs/DOMAIN.md (D3, D10, D25–D27), docs/PRD.md and docs/MOCKUP_NOTES.md.
+Done:
+- Landing page (/), simulated Sign Up (/signup) and Sign In (/signin), session that survives reloads, route guards, Log out in the user menu and the homepage sidebar.
+- Two browser-local workspaces that never share data: the generated demo, and accounts created by sign-up (start with no events). Reset Demo affects the demo only. No password is stored or checked.
+- My Events (/events, moved from /): event cards with generated cover, status, date, time, maximum attendees, role, confirmed/capacity bar; All/Upcoming/Past tabs with counts, search, grid and list layouts (kept in the address); Create, Duplicate and Delete dialogs; empty, no-match, loading and error states.
+- Service contracts: events.duplicate, events.remove, auth (sign up, sign in, enter demo, sign out). New rule: a new or duplicated event must start in the future.
+- Shared components: Menu, EventCover; Button/ButtonLink gained a large size, a soft variant and a trailing icon.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 530 passed, coverage 97.94% statements, 93.57% branches, 97.3% functions, 97.91% lines; `npm run test:e2e` 133 passed, 13 skipped by design (tests that apply to only one of the two screen sizes), zero accessibility violations on the landing page, both forms, My Events in both layouts, the card menu and each dialog, in English and Hebrew; `npm run build` succeeds.
+Mockups reviewed: landing_page.png, landing_page_mobile.png, homepage.png, homepage_mobile.png, compared with screenshots at desktop and phone widths in English and Hebrew.
+Differences from the mockups, by decision: generated covers instead of photos; the landing hero shows a drawn preview of this product instead of the mockup's screenshot of a different one; "How it works" link left out; three feature texts reworded to what the MVP does; cards also show the user's role.
+Follow-ups/risks:
+- The owner has not yet reviewed the pages visually, nor the Hebrew wording, which the agent wrote.
+- Sign-up and sign-in are a simulation. Anyone using the same browser can open any preview account by its email.
+- The public RSVP page cannot yet find events of the accounts workspace (added to Phase 9).
+- P1–P8 in docs/DOMAIN.md still await the owner's confirmation; P5 is needed in Phase 5.
+- Work is on branch phase_4_completion, created from phase_3_completion (not yet merged to main when this phase started); nothing committed.
+Next: Phase 5 — Dashboard. Needs owner decision D12 (where the Dashboard's "View Event" button leads) and confirmation of default P5 (docs/DOMAIN.md).
+```
+
+```text
+2026-10-13 — Phase 4 follow-ups and Phase 5 decisions.
+Decisions (owner): the Dashboard's "View Event" button is named "Event Settings" and opens Event Settings (D12, Dashboard half); Seating Capacity and Unassigned Confirmed Attendees are two more KPI cards (D28); warnings without a mockup use the over-capacity warning's style (D29); an organizer's manual RSVP change counts as the guest's latest response (P5 confirmed); the landing page keeps its drawn preview (D30). Recorded in docs/DOMAIN.md, docs/PRD.md section 10, docs/MOCKUP_NOTES.md and mockups/README.md; Phase 5 checklist updated.
+Done: the design-system showcase now shows the Menu component and the generated event covers, which Phase 4 had left out.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 531 passed, coverage 97.94% statements, 93.57% branches; `npm run test:e2e` 137 passed, 13 skipped by design, zero accessibility violations including the showcase with the menu open, in English and Hebrew; `npm run build` succeeds.
+Follow-ups/risks:
+- The owner's visual review of the Phase 4 pages and of the Hebrew wording is still to come.
+- phase_3_completion and phase_4_completion are not merged to main; this work is on branch phase_4_followups, created from phase_4_completion; nothing committed.
+Next: Phase 5 — Dashboard. No open decisions remain for it.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

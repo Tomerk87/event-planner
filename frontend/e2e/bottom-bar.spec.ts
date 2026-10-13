@@ -1,8 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
+import { startInDemo } from './helpers.ts'
 
 const TOLERANCE = 1
 
 async function gotoShowcase(page: Page, language: 'en' | 'he') {
+  await startInDemo(page)
   await page.addInitScript((value) => {
     window.localStorage.setItem('event-planner.language', value)
   }, language)

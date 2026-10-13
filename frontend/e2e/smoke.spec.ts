@@ -1,8 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { openNavigation } from './helpers.ts'
+import { openNavigation, startInDemo } from './helpers.ts'
 
-test('home page loads', async ({ page }) => {
-  await page.goto('/')
+test.beforeEach(async ({ page }) => {
+  await startInDemo(page)
+})
+
+test('My Events loads', async ({ page }) => {
+  await page.goto('/events')
 
   await expect(page.getByRole('heading', { name: 'My Events' })).toBeVisible()
 })
@@ -10,14 +14,14 @@ test('home page loads', async ({ page }) => {
 test('event pages are reachable through the event navigation', async ({
   page,
 }) => {
-  await page.goto('/events/e1')
-  await expect(page).toHaveURL(/\/events\/e1\/dashboard$/)
+  await page.goto('/events/evt-1')
+  await expect(page).toHaveURL(/\/events\/evt-1\/dashboard$/)
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 
   const nav = await openNavigation(page)
   await nav.getByRole('link', { name: 'Guests' }).click()
 
-  await expect(page).toHaveURL(/\/events\/e1\/guests$/)
+  await expect(page).toHaveURL(/\/events\/evt-1\/guests$/)
   await expect(page.getByRole('heading', { name: 'Guests' })).toBeVisible()
   await expect(page.getByRole('dialog')).toHaveCount(0)
 })

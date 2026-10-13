@@ -14,8 +14,8 @@ import type { ShellNavItem } from './AppShell.tsx'
 
 /**
  * Event navigation, identical on every event page (PRD section 4.2).
- * Permissions is omitted for a Viewer. With no known role the full list is
- * returned; the Permissions page itself still enforces access.
+ * Permissions is shown only once the user is known to be an Owner or Admin,
+ * so it never appears for a Viewer, even while the role is still loading.
  */
 export function getEventNavItems(
   t: TFunction,
@@ -36,7 +36,7 @@ export function getEventNavItems(
     { to: `${base}/settings`, label: t('nav.eventSettings'), icon: Settings },
   ]
 
-  if (role === undefined || canOpenPermissions(role)) {
+  if (role !== undefined && canOpenPermissions(role)) {
     items.push({
       to: `${base}/permissions`,
       label: t('nav.permissions'),

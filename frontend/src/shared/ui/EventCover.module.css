@@ -1,0 +1,52 @@
+.cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(255 255 255 / 85%);
+}
+
+.card {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.card svg {
+  inline-size: 3rem;
+  block-size: 3rem;
+}
+
+.thumb {
+  flex-shrink: 0;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-md);
+}
+
+.thumb svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.palette0 {
+  background: linear-gradient(135deg, #f472b6, #fb923c);
+}
+
+.palette1 {
+  background: linear-gradient(135deg, #6366f1, #22d3ee);
+}
+
+.palette2 {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+}
+
+.palette3 {
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+}
+
+.palette4 {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.palette5 {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+}

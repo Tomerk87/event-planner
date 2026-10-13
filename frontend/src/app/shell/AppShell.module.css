@@ -107,22 +107,6 @@
   cursor: default;
 }
 
-.selectorThumb {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-sidebar-overlay-strong);
-}
-
-.selectorThumb svg {
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-}
-
 .selectorName {
   flex: 1;
   min-inline-size: 0;
@@ -331,10 +315,25 @@
   color: var(--color-text);
 }
 
+/* On a very narrow phone the top bar keeps the logo mark and hides its text
+   from view (not from screen readers), so nothing is pushed off-screen. */
+@media (max-width: 379px) {
+  .topbarLogo .logoText {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 .topbarEnd {
   display: flex;
   align-items: center;
+  gap: var(--space-4);
   margin-inline-start: auto;
+  min-inline-size: 0;
 }
 
 .user {
@@ -421,4 +420,56 @@
   .content {
     padding: var(--space-6) var(--space-8) var(--space-10);
   }
+}
+
+.navButton {
+  inline-size: 100%;
+  background: transparent;
+  border: 0;
+  text-align: start;
+  cursor: pointer;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.userButton:hover {
+  background: var(--color-neutral-soft);
+}
+
+.userChevron {
+  display: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 1024px) {
+  .userButton {
+    padding-inline-end: var(--space-3);
+  }
+
+  .userChevron {
+    display: block;
+  }
+}
+
+/* The language selector on a light background (landing and sign-in pages). */
+.languageLight .languageSelect {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.languageLight .languageIcon,
+.languageLight .languageChevron {
+  color: var(--color-text-muted);
 }

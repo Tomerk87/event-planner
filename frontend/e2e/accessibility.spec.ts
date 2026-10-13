@@ -1,9 +1,10 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
+import { startInDemo } from './helpers.ts'
 
 const pages = [
-  ['homepage', '/'],
-  ['event page', '/events/e1/dashboard'],
+  ['My Events', '/events'],
+  ['event page', '/events/evt-1/dashboard'],
   ['showcase', '/showcase'],
   ['public RSVP', '/rsvp/abc123'],
   ['not-found page', '/no-such-page'],
@@ -24,6 +25,7 @@ async function expectNoViolations(page: Page) {
 for (const language of ['en', 'he'] as const) {
   test.describe(`accessibility in ${language}`, () => {
     test.beforeEach(async ({ page }) => {
+      await startInDemo(page)
       await page.addInitScript((value) => {
         window.localStorage.setItem('event-planner.language', value)
       }, language)
@@ -46,6 +48,18 @@ for (const language of ['en', 'he'] as const) {
       await page.goto('/showcase')
       await page.getByRole('button', { name: /Open dialog|פתיחת חלון/ }).click()
       await expect(page.getByRole('dialog')).toBeVisible()
+
+      await expectNoViolations(page)
+    })
+
+    test('showcase with a menu open has no detectable accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto('/showcase')
+      await page
+        .getByRole('button', { name: /Sample actions|פעולות לדוגמה/ })
+        .click()
+      await expect(page.getByRole('menu')).toBeVisible()
 
       await expectNoViolations(page)
     })
@@ -81,6 +95,47 @@ for (const language of ['en', 'he'] as const) {
         page
           .getByRole('region', { name: /Notifications|התראות/ })
           .getByRole('alert'),
+      ).toBeVisible()
+
+      await expectNoViolations(page)
+    })
+
+    test('read-only past event has no detectable accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto('/events/evt-5/dashboard')
+      await expect(
+        page.getByText(/This event has ended|האירוע הסתיים/),
+      ).toBeVisible()
+
+      await expectNoViolations(page)
+    })
+
+    test('failed load has no detectable accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto('/events/evt-1/guests?demoFail=events.get')
+      await expect(page.getByRole('main').getByRole('alert')).toBeVisible()
+
+      await expectNoViolations(page)
+    })
+
+    test('reset confirmation has no detectable accessibility violations', async ({
+      page,
+      isMobile,
+    }) => {
+      await page.goto('/events/evt-1/guests')
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      if (isMobile) {
+        await page
+          .getByRole('button', { name: /Open menu|פתיחת תפריט/ })
+          .click()
+      }
+      await page
+        .getByRole('button', { name: /Reset Demo|איפוס ההדגמה/ })
+        .click()
+      await expect(
+        page.getByRole('dialog', { name: /Reset the demo|לאפס את ההדגמה/ }),
       ).toBeVisible()
 
       await expectNoViolations(page)

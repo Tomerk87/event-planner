@@ -1,34 +1,28 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { changeLanguage } from '../i18n/i18n.ts'
 import { RouteError } from '../shared/RouteError.tsx'
-import { ToastProvider } from '../shared/ui/ToastProvider.tsx'
-import { routes } from './routes.tsx'
-
-function renderAt(path: string) {
-  const router = createMemoryRouter(routes, { initialEntries: [path] })
-  render(
-    <ToastProvider>
-      <RouterProvider router={router} />
-    </ToastProvider>,
-  )
-  return router
-}
+import { renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
   it.each([
-    ['/', 'My Events'],
-    ['/events/e1/dashboard', 'Dashboard'],
-    ['/events/e1/guests', 'Guests'],
-    ['/events/e1/rsvp', 'RSVP Settings'],
-    ['/events/e1/messages', 'WhatsApp Messages'],
-    ['/events/e1/layout', 'Event Layout'],
-    ['/events/e1/settings', 'Event Settings'],
-    ['/events/e1/permissions', 'Permissions'],
+    ['/events/evt-1/dashboard', 'Dashboard'],
+    ['/events/evt-1/guests', 'Guests'],
+    ['/events/evt-1/rsvp', 'RSVP Settings'],
+    ['/events/evt-1/messages', 'WhatsApp Messages'],
+    ['/events/evt-1/layout', 'Event Layout'],
+    ['/events/evt-1/settings', 'Event Settings'],
+    ['/events/evt-1/permissions', 'Permissions'],
     ['/rsvp/abc123', 'RSVP'],
   ])('renders a placeholder at %s', async (path, title) => {
-    renderAt(path)
+    renderApp(path)
 
     expect(
       await screen.findByRole('heading', { level: 1, name: title }),
@@ -39,20 +33,19 @@ describe('routes', () => {
   })
 
   it.each([
-    ['/', 'My Events · Event Planner'],
-    ['/events/e1/messages', 'WhatsApp Messages · Event Planner'],
+    ['/events', 'My Events · Event Planner'],
+    ['/events/evt-1/messages', 'WhatsApp Messages · Event Planner'],
     ['/rsvp/abc123', 'RSVP · Event Planner'],
     ['/showcase', 'Design System · Event Planner'],
     ['/nope', 'Page not found · Event Planner'],
   ])('sets the browser tab title at %s', async (path, title) => {
-    renderAt(path)
+    renderApp(path)
 
-    await screen.findByRole('heading', { level: 1 })
-    expect(document.title).toBe(title)
+    await waitFor(() => expect(document.title).toBe(title))
   })
 
   it('translates the browser tab title', async () => {
-    renderAt('/events/e1/guests')
+    renderApp('/events/evt-1/guests')
     await screen.findByRole('heading', { level: 1 })
 
     await changeLanguage('he')
@@ -62,7 +55,7 @@ describe('routes', () => {
   })
 
   it('moves focus to the main content after navigating, but not on first load', async () => {
-    renderAt('/events/e1/guests')
+    renderApp('/events/evt-1/guests')
     await screen.findByRole('heading', { level: 1, name: 'Guests' })
     expect(screen.getByRole('main')).not.toHaveFocus()
 
@@ -74,7 +67,7 @@ describe('routes', () => {
   })
 
   it('moves focus to the main content when navigating to a page outside the shell', async () => {
-    const router = renderAt('/events/e1/guests')
+    const { router } = renderApp('/events/evt-1/guests')
     await screen.findByRole('heading', { level: 1, name: 'Guests' })
 
     await router.navigate('/rsvp/abc123')
@@ -84,28 +77,27 @@ describe('routes', () => {
   })
 
   it('redirects an event root to its dashboard', async () => {
-    const router = renderAt('/events/e1')
+    const { router } = renderApp('/events/evt-1')
 
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Dashboard' }),
     ).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe('/events/e1/dashboard')
+    expect(router.state.location.pathname).toBe('/events/evt-1/dashboard')
   })
 
   it('shows the event navigation inside an event', async () => {
-    renderAt('/events/e1/guests')
+    renderApp('/events/evt-1/guests')
+    await screen.findByRole('heading', { level: 1, name: 'Guests' })
 
-    const nav = await screen.findByRole('navigation', {
-      name: 'Event navigation',
-    })
+    const nav = screen.getByRole('navigation', { name: 'Event navigation' })
     expect(within(nav).getAllByRole('link')).toHaveLength(7)
     expect(
       screen.getByRole('link', { name: 'Back to My Events' }),
-    ).toHaveAttribute('href', '/')
+    ).toHaveAttribute('href', '/events')
   })
 
   it('shows the main navigation on the homepage', async () => {
-    renderAt('/')
+    renderApp('/events')
 
     const nav = await screen.findByRole('navigation', {
       name: 'Main navigation',
@@ -116,36 +108,60 @@ describe('routes', () => {
   })
 
   it('does not show navigation on the public RSVP page', async () => {
-    renderAt('/rsvp/abc123')
+    renderApp('/rsvp/abc123')
 
     await screen.findByRole('heading', { level: 1, name: 'RSVP' })
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 
-  it('renders the design-system showcase', async () => {
-    renderAt('/showcase')
+  it('renders the design-system showcase inside the frame, with the demo events', async () => {
+    renderApp('/showcase')
 
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Design System' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /Garden Celebration/ }),
+      await screen.findByRole('button', { name: /Current event: / }),
     ).toBeInTheDocument()
   })
 
-  it.each(['/nope', '/events/e1/nope'])(
-    'renders the not-found page at %s',
-    async (path) => {
-      renderAt(path)
+  it('shows a working menu and event covers in the showcase', async () => {
+    renderApp('/showcase')
+    await screen.findByRole('heading', { level: 1, name: 'Design System' })
 
-      expect(
-        await screen.findByRole('heading', {
-          level: 1,
-          name: 'Page not found',
-        }),
-      ).toBeInTheDocument()
-    },
-  )
+    fireEvent.click(screen.getByRole('button', { name: 'Sample actions' }))
+    const menu = screen.getByRole('menu', { name: 'Sample actions' })
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Open', 'Duplicate', 'Delete'])
+
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Duplicate' }))
+
+    expect(await screen.findByText('Action chosen.')).toBeInTheDocument()
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sample actions' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('renders the not-found page at an unknown address', async () => {
+    renderApp('/nope')
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Page not found' }),
+    ).toBeInTheDocument()
+  })
+
+  it('renders the not-found page at an unknown page of a real event', async () => {
+    renderApp('/events/evt-1/nope')
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Page not found' }),
+    ).toBeInTheDocument()
+  })
 
   it('renders the error page when a route throws', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})

@@ -58,6 +58,13 @@ describe('event navigation', () => {
     ])
   })
 
+  it('leaves out Permissions while the role is not yet known', () => {
+    renderEventShell()
+
+    expect(navLabels()).not.toContain('Permissions')
+    expect(navLabels()).toHaveLength(6)
+  })
+
   it('shows Permissions to an Admin', () => {
     renderEventShell('ADMIN')
 
@@ -297,6 +304,48 @@ describe('shell chrome', () => {
       .getByRole('link', { name: 'Back to My Events' })
       .querySelector('svg')
     expect(icon?.getAttribute('class')).toMatch(/directional/)
+  })
+
+  it('shows the banner at every width and the tools in the top bar or the drawer', () => {
+    function Shell() {
+      return (
+        <MemoryRouter>
+          <AppShell
+            navLabel="Main navigation"
+            navItems={[]}
+            banner={<span>Demo Mode</span>}
+            tools={<button type="button">Reset Demo</button>}
+          >
+            <p>Page</p>
+          </AppShell>
+        </MemoryRouter>
+      )
+    }
+    const { unmount } = render(<Shell />)
+    expect(screen.getByText('Demo Mode')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Reset Demo' })).toHaveLength(
+      1,
+    )
+    expect(
+      within(screen.getByRole('banner')).getByRole('button', {
+        name: 'Reset Demo',
+      }),
+    ).toBeInTheDocument()
+    unmount()
+
+    setViewportWidth(400)
+    render(<Shell />)
+    expect(screen.getByText('Demo Mode')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Reset Demo' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Reset Demo',
+      }),
+    ).toBeInTheDocument()
   })
 
   it('provides a skip link to the main content', () => {
