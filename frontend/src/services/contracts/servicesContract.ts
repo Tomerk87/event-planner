@@ -582,7 +582,6 @@ export function describeServicesContract(
     describe('tables and seating', () => {
       const newTable = {
         number: 90,
-        name: 'Contract Table',
         capacity: 6,
         shape: 'SQUARE' as const,
       }

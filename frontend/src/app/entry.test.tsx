@@ -191,7 +191,7 @@ describe('sign up, log out and sign in', () => {
       screen.getByRole('button', { name: 'Create your first event' }),
     )
     const dialog = screen.getByRole('dialog', { name: 'Create event' })
-    fireEvent.change(within(dialog).getByLabelText(/Event name/), {
+    fireEvent.change(within(dialog).getByLabelText(/Event Name/), {
       target: { value: 'Housewarming' },
     })
     fireEvent.change(within(dialog).getByLabelText(/^Date/), {

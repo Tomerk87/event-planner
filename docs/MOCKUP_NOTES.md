@@ -88,6 +88,8 @@ Decided 2026-10-13 unless noted.
 - Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. Such guests are labelled **Not Sent**.
 - The **sliders button** beside the filters has no label or drawn behaviour. It is a column chooser: a dropdown listing every column with a checkbox, with Select all and Clear; Name and Phone are always shown. It appears only with the desktop table, so the phone mockup's sliders button is not reproduced.
 - A **Clear filters** button, not in the mockup, is added beside it.
+- A **Group** column and an "All Groups" filter are added; the mockup has neither. Add Guest and Edit Guest gain Group and Table fields.
+- Column headings are centred (the mockup starts them at the edge); number columns are centred as drawn.
 - The column and field the mockup calls "Allowed" is named **Expected attendees**.
 - The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
 - The **"⋯" menu** holds Change RSVP and Delete. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel.
@@ -125,6 +127,8 @@ Found while building (Phase 6):
 - The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state.
 
 ### Event Layout
+
+- The mockup gives each table a **name** ("Family", "Friends"). **Decided (2026-10-13):** a table has only a number, a capacity and a shape; names are not built.
 
 - Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decision needed.**
 - "Assigned Guests" in the KPI row counts attendees (214), not guest parties. Labels must make that distinction clear (`PLAN.md` Phase 5 exit criteria).

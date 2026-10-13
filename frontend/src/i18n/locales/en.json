@@ -279,19 +279,19 @@
       "done": "The event was deleted.",
       "warningTitle": "Delete “{{name}}” permanently?",
       "warningBody": "The event and all its guests, responses, messages, tables and permissions will be removed for everyone. This cannot be undone.",
-      "confirmLabel": "Event name",
+      "confirmLabel": "Event Name",
       "confirmHint": "Type {{name}} to confirm."
     },
     "form": {
-      "name": "Event name",
+      "name": "Event Name",
       "date": "Date",
       "time": "Time",
-      "timeZone": "Time zone",
-      "maxAttendees": "Maximum attendees",
+      "timeZone": "Time Zone",
+      "maxAttendees": "Maximum Attendees",
       "maxAttendeesHint": "Between {{min}} and {{max}}.",
-      "defaultAllowedAttendees": "Allowed attendees per guest",
+      "defaultAllowedAttendees": "Expected Attendees per Guest",
       "defaultAllowedAttendeesHint": "Default for new guests, {{min}} to {{max}}.",
-      "rsvpLanguage": "RSVP language",
+      "rsvpLanguage": "RSVP Language",
       "rsvpLanguageHint": "The language of the public RSVP page.",
       "location": "Location",
       "errors": {
@@ -464,16 +464,19 @@
       "placeholder": "Search by name, phone number or invitation name…"
     },
     "filters": {
-      "rsvp": "RSVP status",
+      "rsvp": "RSVP Status",
       "rsvpAll": "All RSVP Status",
-      "invitation": "Invitation status",
+      "invitation": "Invitation Status",
       "invitationAll": "All Invitation Status",
       "sent": "Invitation sent",
       "notSent": "Invitation not sent",
       "table": "Table",
       "tableAll": "All Tables",
       "tableOption": "Table {{number}}",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "group": "Group",
+      "groupAll": "All Groups",
+      "groupNone": "No Group"
     },
     "columns": {
       "button": "Choose columns",
@@ -483,12 +486,13 @@
       "name": "Name",
       "invitationName": "Invitation Name",
       "phone": "Phone",
-      "allowed": "Expected attendees",
+      "allowed": "Expected Attendees",
       "confirmed": "Confirmed",
       "status": "RSVP Status",
       "sent": "Invitations Sent",
       "table": "Table",
-      "actions": "Actions"
+      "actions": "Actions",
+      "group": "Group"
     },
     "table": {
       "caption": "Guests",
@@ -497,7 +501,8 @@
       "selectRow": "Select {{name}}",
       "tableFor": "Table for {{name}}",
       "noTable": "No table",
-      "tableChoice": "{{number}} · {{name}} ({{available}} free)"
+      "tableChosen": "{{number}}",
+      "tableChoice": "{{number}} ({{available}} free)"
     },
     "row": {
       "whatsapp": "Send a WhatsApp message to {{name}}",
@@ -528,13 +533,13 @@
       "clear": "Clear selection"
     },
     "form": {
-      "addTitle": "Add guest",
-      "editTitle": "Edit guest",
-      "firstName": "First name",
-      "lastName": "Last name",
-      "phone": "Phone number",
+      "addTitle": "Add Guest",
+      "editTitle": "Edit Guest",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phone": "Phone Number",
       "phoneHint": "A local number such as 050-123-4567. For a number from another country, start with + and the country code. It must be unique within the event.",
-      "allowed": "Expected attendees",
+      "allowed": "Expected Attendees",
       "allowedHint": "Between {{min}} and {{max}}.",
       "add": "Add Guest",
       "save": "Save Changes",
@@ -546,12 +551,16 @@
         "duplicate": "Another guest in this event already has this phone number.",
         "allowed": "Enter a whole number between {{min}} and {{max}}.",
         "belowConfirmed": "This guest already confirmed {{count}} attendees, so the expected attendees cannot be lower."
-      }
+      },
+      "group": "Group",
+      "groupHint": "Optional. Choose a group or type a new one.",
+      "table": "Table",
+      "tableHint": "Available once the guest approves."
     },
     "rsvpDialog": {
       "title": "Change RSVP",
       "for": "Response of {{name}}",
-      "attendees": "Confirmed attendees",
+      "attendees": "Confirmed Attendees",
       "attendeesHint": "Between 1 and {{max}}.",
       "attendeesError": "Enter a whole number between 1 and {{max}}.",
       "tableNotice": "This guest will be removed from table {{number}}, because only approved guests are seated.",
@@ -559,8 +568,8 @@
       "saved": "The RSVP was updated."
     },
     "delete": {
-      "titleOne": "Delete guest",
-      "titleMany": "Delete guests",
+      "titleOne": "Delete Guest",
+      "titleMany": "Delete Guests",
       "bodyOne": "Delete {{name}} from this event?",
       "bodyMany": "Delete the {{count}} selected guests from this event?",
       "note": "Their table seats are freed. Adding the same phone number again later brings the guest back.",
@@ -569,9 +578,9 @@
       "doneMany": "{{count}} guests were deleted."
     },
     "details": {
-      "title": "Guest details",
-      "lastSent": "Last invitation sent",
-      "lastResponse": "Last RSVP response",
+      "title": "Guest Details",
+      "lastSent": "Last Invitation Sent",
+      "lastResponse": "Last RSVP Response",
       "never": "Never",
       "edit": "Edit"
     },
@@ -587,21 +596,22 @@
       "sheet": "Guests",
       "done": "The file was downloaded.",
       "headings": {
-        "firstName": "First name",
-        "lastName": "Last name",
-        "invitationName": "Invitation name",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "invitationName": "Invitation Name",
         "phone": "Phone",
-        "allowedAttendees": "Expected attendees",
-        "confirmedAttendees": "Confirmed attendees",
-        "status": "RSVP status",
-        "invitationSentCount": "Invitations sent",
-        "tableNumber": "Table"
+        "allowedAttendees": "Expected Attendees",
+        "confirmedAttendees": "Confirmed Attendees",
+        "status": "RSVP Status",
+        "invitationSentCount": "Invitations Sent",
+        "tableNumber": "Table",
+        "group": "Group"
       }
     },
     "import": {
       "title": "Import guests",
       "intro": "Add many guests at once from a CSV or Excel (.xlsx) file. The file is read in your browser.",
-      "ruleRequired": "Each guest needs a first name and a phone number. Last name and expected attendees are optional.",
+      "ruleRequired": "Each guest needs a first name and a phone number. Last name, expected attendees and group are optional.",
       "rulePhones": "Phone numbers can be written in any local format. A number from another country must start with + and its country code.",
       "ruleDuplicates": "A phone number that a guest in this event already has is skipped; existing guests are never changed.",
       "ruleLimit": "Up to {{max}} rows and 5 MB.",
@@ -612,7 +622,7 @@
       "mapIntro": "{{file}}: {{rows}} rows. Check which column holds each detail.",
       "columnNumber": "Column {{number}}",
       "notInFile": "Not in the file",
-      "mapRequired": "Choose the columns for First name and Phone number to continue.",
+      "mapRequired": "Choose the columns for First Name and Phone Number to continue.",
       "back": "Back",
       "preview": "Preview",
       "previewCaption": "Rows of the file and what will happen to each",
@@ -628,10 +638,11 @@
       "downloadSkipped": "Download skipped rows",
       "skippedName": "skipped guest rows",
       "fields": {
-        "firstName": "First name",
-        "lastName": "Last name",
-        "phone": "Phone number",
-        "allowedAttendees": "Expected attendees"
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "phone": "Phone Number",
+        "allowedAttendees": "Expected Attendees",
+        "group": "Group"
       },
       "outcome": {
         "new": "New guest",
@@ -644,7 +655,8 @@
         "INVALID_PHONE": "Phone number is not valid",
         "INVALID_ALLOWED": "Expected attendees must be a whole number from 1 to 10",
         "DUPLICATE_IN_FILE": "Same phone as an earlier row",
-        "DUPLICATE_IN_EVENT": "A guest already has this phone"
+        "DUPLICATE_IN_EVENT": "A guest already has this phone",
+        "INVALID_GROUP": "Group name is longer than 40 characters"
       },
       "errors": {
         "fileSize": "The file is larger than 5 MB.",
@@ -682,7 +694,7 @@
       "mergeOverAllowance": "The response is for {{count}} attendees but this guest is expected to bring up to {{max}}. Raise the guest's expected attendees first.",
       "cardAttendees": "Attendees {{count}}",
       "columns": {
-        "name": "Name given",
+        "name": "Name Given",
         "response": "Response",
         "attendees": "Attendees",
         "submitted": "Submitted",
@@ -933,7 +945,7 @@
       "caption": "Sample guests",
       "name": "Name",
       "phone": "Phone",
-      "allowed": "Expected attendees",
+      "allowed": "Expected Attendees",
       "status": "RSVP Status",
       "tableNumber": "Table",
       "noTable": "No table",

@@ -25,6 +25,7 @@ import {
   type GuestSort,
   type GuestSortKey,
 } from '../../domain/guestList.ts'
+import { listGroups } from '../../domain/guests.ts'
 import { guestDisplayStatus } from '../../domain/guestStatus.ts'
 import {
   RSVP_STATUSES,
@@ -50,6 +51,7 @@ import { PHONE_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
 import { useQueryParams } from '../../shared/useQueryParams.ts'
 import { SendMessageDialog } from '../messages/SendMessageDialog.tsx'
 import { ColumnChooser } from './ColumnChooser.tsx'
+import { TableOptions } from './TableOptions.tsx'
 import { DeleteGuestsDialog } from './DeleteGuestsDialog.tsx'
 import { resolveGuestColumns, type GuestColumnId } from './guestColumns.ts'
 import { GuestDetailsDrawer } from './GuestDetailsDrawer.tsx'
@@ -67,6 +69,8 @@ import { RsvpDialog } from './RsvpDialog.tsx'
 
 const NONE = '—'
 const NO_TABLE = 'NONE'
+// The address value for "guests in no group"; not a name a group would have.
+const NO_GROUP = '~none'
 
 type OpenPanel =
   | { kind: 'edit' | 'rsvp' | 'details' | 'send'; guestId: string }
@@ -120,6 +124,8 @@ export function GuestsTab({
   const tableParam = params.get('table')
   const rsvpParam = params.get('rsvp')
   const invitationParam = params.get('inv')
+  const groupParam = params.get('group')
+  const groups = listGroups(guests)
   const filters: GuestFilters = {
     query: params.get('q') ?? '',
     rsvp: isRsvpStatus(rsvpParam) ? rsvpParam : 'ALL',
@@ -133,6 +139,12 @@ export function GuestsTab({
         : tableParam !== null && tableById.has(tableParam)
           ? tableParam
           : 'ALL',
+    group:
+      groupParam === NO_GROUP
+        ? ''
+        : groupParam !== null && groups.includes(groupParam)
+          ? groupParam
+          : null,
   }
   // The choice applies at once; storing it follows in the background.
   const [chosenColumns, setChosenColumns] = useState<GuestColumnId[] | null>(
@@ -206,18 +218,8 @@ export function GuestsTab({
           disabled={assignTable.isPending}
           onChange={(change) => changeTable(guest, change.target.value)}
         >
-          <option value={NO_TABLE}>{t('guests.table.noTable')}</option>
-          {[...tables]
-            .sort((a, b) => a.table.number - b.table.number)
-            .map(({ table, available }) => (
-              <option key={table.id} value={table.id}>
-                {t('guests.table.tableChoice', {
-                  number: format.number(table.number),
-                  name: table.name,
-                  available: format.number(Math.max(0, available)),
-                })}
-              </option>
-            ))}
+          <option value={NO_TABLE}>{NONE}</option>
+          <TableOptions tables={tables} ownTableId={guest.tableId} />
         </SelectField>
       </div>
     )
@@ -284,6 +286,7 @@ export function GuestsTab({
       id: 'name',
       header: t('guests.columns.name'),
       sortable: true,
+      wrap: true,
       cell: (guest) => (
         <span className={styles.nameCell}>
           <Avatar name={guestFullName(guest)} />
@@ -302,6 +305,7 @@ export function GuestsTab({
       id: 'invitationName',
       header: t('guests.columns.invitationName'),
       sortable: true,
+      wrap: true,
       cell: (guest) => guest.invitationName ?? NONE,
     },
     phone: {
@@ -310,18 +314,25 @@ export function GuestsTab({
       sortable: true,
       cell: (guest) => <LtrText>{guest.phone}</LtrText>,
     },
+    group: {
+      id: 'group',
+      header: t('guests.columns.group'),
+      sortable: true,
+      wrap: true,
+      cell: (guest) => guest.group ?? NONE,
+    },
     allowed: {
       id: 'allowed',
       header: t('guests.columns.allowed'),
       sortable: true,
-      align: 'end',
+      align: 'center',
       cell: (guest) => format.number(guest.allowedAttendees),
     },
     confirmed: {
       id: 'confirmed',
       header: t('guests.columns.confirmed'),
       sortable: true,
-      align: 'end',
+      align: 'center',
       cell: (guest) =>
         guest.confirmedAttendees === null
           ? NONE
@@ -337,13 +348,14 @@ export function GuestsTab({
       id: 'sent',
       header: t('guests.columns.sent'),
       sortable: true,
-      align: 'end',
+      align: 'center',
       cell: (guest) => format.number(guest.invitationSentCount),
     },
     table: {
       id: 'table',
       header: t('guests.columns.table'),
       sortable: true,
+      align: 'center',
       cell: tableControl,
     },
   }
@@ -513,6 +525,28 @@ export function GuestsTab({
                 </option>
               ))}
           </SelectField>
+          {groups.length > 0 && (
+            <SelectField
+              label={t('guests.filters.group')}
+              hideLabel
+              value={filters.group === '' ? NO_GROUP : (filters.group ?? 'ALL')}
+              onChange={(change) =>
+                setParam({
+                  group:
+                    change.target.value === 'ALL' ? null : change.target.value,
+                  page: null,
+                })
+              }
+            >
+              <option value="ALL">{t('guests.filters.groupAll')}</option>
+              <option value={NO_GROUP}>{t('guests.filters.groupNone')}</option>
+              {groups.map((group) => (
+                <option key={group} value={group}>
+                  {group}
+                </option>
+              ))}
+            </SelectField>
+          )}
           {!isPhone && (
             <ColumnChooser
               visible={columns}
@@ -532,6 +566,7 @@ export function GuestsTab({
                   rsvp: null,
                   inv: null,
                   table: null,
+                  group: null,
                   page: null,
                 })
               }
@@ -698,6 +733,8 @@ export function GuestsTab({
         onClose={closePanel}
         eventId={eventId}
         defaultAllowedAttendees={event.defaultAllowedAttendees}
+        groups={groups}
+        tables={tables}
         guest={panel?.kind === 'edit' ? panelGuest : null}
       />
       <RsvpDialog

@@ -9,11 +9,14 @@ export interface Column<Row> {
   id: string
   header: string
   cell: (row: Row) => ReactNode
-  align?: 'start' | 'end'
+  /** How the values line up; headings are always centred. */
+  align?: 'start' | 'center' | 'end'
   /** Makes the heading a button that sorts by this column. */
   sortable?: boolean
   /** Show the heading to assistive technology only (an actions column). */
   hideHeader?: boolean
+  /** Let long text break onto more lines when the table is short of room. */
+  wrap?: boolean
   /** Keep the column in view at the end while the table scrolls sideways. */
   pinned?: boolean
 }
@@ -111,6 +114,7 @@ export function DataTable<Row>({
                   scope="col"
                   className={cx(
                     column.align === 'end' && styles.end,
+                    column.align === 'center' && styles.center,
                     column.pinned && styles.pinned,
                   )}
                   aria-sort={
@@ -169,6 +173,8 @@ export function DataTable<Row>({
                     key={column.id}
                     className={cx(
                       column.align === 'end' && styles.end,
+                      column.align === 'center' && styles.center,
+                      column.wrap && styles.wrap,
                       column.pinned && styles.pinned,
                     )}
                   >

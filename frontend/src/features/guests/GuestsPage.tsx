@@ -1,3 +1,4 @@
+import { listGroups } from '../../domain/guests.ts'
 import {
   CheckCheck,
   CircleHelp,
@@ -228,6 +229,8 @@ export function GuestsPage() {
             onClose={() => setDialog(null)}
             eventId={eventId}
             defaultAllowedAttendees={event.defaultAllowedAttendees}
+            groups={listGroups(list)}
+            tables={tables.data ?? []}
           />
           <ImportDialog
             open={dialog === 'import'}

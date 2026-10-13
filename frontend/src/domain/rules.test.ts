@@ -502,6 +502,7 @@ describe('guests', () => {
       lastInvitationSentAt: null,
       lastRsvpResponseAt: null,
       tableId: null,
+      group: null,
       deleted: false,
     })
   })
@@ -868,15 +869,13 @@ describe('seating', () => {
     ]
     const input = {
       number: 3,
-      name: ' Friends ',
       capacity: 12,
       shape: 'SQUARE' as const,
     }
 
-    it('accepts a new table and trims its name', () => {
+    it('accepts a new table', () => {
       expect(validateTableInput(input, existing, null)).toEqual({
         number: 3,
-        name: 'Friends',
         capacity: 12,
         shape: 'SQUARE',
       })
@@ -903,7 +902,6 @@ describe('seating', () => {
       [{ number: 1.5 }, 'number'],
       [{ capacity: 0 }, 'capacity'],
       [{ capacity: -4 }, 'capacity'],
-      [{ name: ' ' }, 'name'],
       [{ shape: 'OVAL' as 'CIRCLE' }, 'shape'],
     ])('rejects %j', (patch, field) => {
       const run = () =>
@@ -1161,9 +1159,9 @@ describe('renderMessage', () => {
 
 describe('exports', () => {
   const tables = [
-    makeTable({ id: 't-2', number: 2, name: 'Friends', capacity: 8 }),
-    makeTable({ id: 't-1', number: 1, name: 'Family', capacity: 10 }),
-    makeTable({ id: 't-3', number: 3, name: 'Empty', capacity: 6 }),
+    makeTable({ id: 't-2', number: 2, capacity: 8 }),
+    makeTable({ id: 't-1', number: 1, capacity: 10 }),
+    makeTable({ id: 't-3', number: 3, capacity: 6 }),
   ]
   const guests = [
     makeApprovedGuest(9, {
@@ -1216,6 +1214,7 @@ describe('exports', () => {
       rsvpStatus: 'APPROVED',
       invitationSentCount: 1,
       tableNumber: 2,
+      group: '',
     })
     expect(rows[3]).toMatchObject({ invitationName: '', tableNumber: null })
   })
@@ -1224,7 +1223,6 @@ describe('exports', () => {
     expect(buildSeatingDetailRows(guests, tables)).toEqual([
       {
         tableNumber: 1,
-        tableName: 'Family',
         firstName: 'Alex',
         lastName: 'Carter',
         invitationName: '',
@@ -1233,7 +1231,6 @@ describe('exports', () => {
       },
       {
         tableNumber: 1,
-        tableName: 'Family',
         firstName: 'Sam',
         lastName: 'Carter',
         invitationName: '',
@@ -1242,7 +1239,6 @@ describe('exports', () => {
       },
       {
         tableNumber: 2,
-        tableName: 'Friends',
         firstName: 'Riley',
         lastName: 'Brooks',
         invitationName: 'Riley & co',
@@ -1256,21 +1252,18 @@ describe('exports', () => {
     expect(buildSeatingSummaryRows(guests, tables)).toEqual([
       {
         tableNumber: 1,
-        tableName: 'Family',
         capacity: 10,
         assigned: 6,
         remaining: 4,
       },
       {
         tableNumber: 2,
-        tableName: 'Friends',
         capacity: 8,
         assigned: 9,
         remaining: -1,
       },
       {
         tableNumber: 3,
-        tableName: 'Empty',
         capacity: 6,
         assigned: 0,
         remaining: 6,

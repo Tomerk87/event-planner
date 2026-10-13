@@ -264,7 +264,6 @@ describe('Dashboard', () => {
     const event = await newEmptyEvent(services)
     await services.tables.create(event.id, {
       number: 1,
-      name: 'All',
       capacity: 100,
       shape: 'CIRCLE',
     })
@@ -474,7 +473,6 @@ describe('Dashboard', () => {
     })
     await services.tables.create(MAIN, {
       number: 99,
-      name: 'Extra',
       capacity: 12,
       shape: 'CIRCLE',
     })

@@ -1,6 +1,6 @@
 import { DomainError, isDomainError } from './errors.ts'
 import { EVENT_LIMITS } from './events.ts'
-import { addGuest, type GuestInput } from './guests.ts'
+import { addGuest, GROUP_MAX_LENGTH, type GuestInput } from './guests.ts'
 import type { Guest, Id } from './models.ts'
 import { normalizePhone } from './phone.ts'
 
@@ -9,6 +9,7 @@ export const IMPORT_FIELDS = [
   'lastName',
   'phone',
   'allowedAttendees',
+  'group',
 ] as const
 
 export type ImportField = (typeof IMPORT_FIELDS)[number]
@@ -70,6 +71,7 @@ const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
     'משתתפיםצפויים',
     'כמות',
   ],
+  group: ['group', 'groupname', 'category', 'side', 'קבוצה', 'שםקבוצה', 'צד'],
 }
 
 function simplify(heading: string): string {
@@ -85,6 +87,7 @@ export function detectMapping(headings: readonly string[]): ColumnMapping {
     lastName: null,
     phone: null,
     allowedAttendees: null,
+    group: null,
   }
   // Exact-alias order matters: "first name" must win over the generic "name".
   for (const field of IMPORT_FIELDS) {
@@ -119,6 +122,7 @@ export type ImportRowError =
   | 'MISSING_PHONE'
   | 'INVALID_PHONE'
   | 'INVALID_ALLOWED'
+  | 'INVALID_GROUP'
   | 'DUPLICATE_IN_FILE'
   | 'DUPLICATE_IN_EVENT'
 
@@ -186,6 +190,7 @@ export function planGuestImport(
       lastName: read(row, 'lastName'),
       phone: restoreLeadingZero(read(row, 'phone')),
       allowedAttendees: read(row, 'allowedAttendees'),
+      group: read(row, 'group'),
     }
     if (Object.values(values).every((value) => value === '')) {
       return
@@ -207,11 +212,15 @@ export function planGuestImport(
     if (allowedAttendees === null) {
       return fail('INVALID_ALLOWED')
     }
+    if (values.group.length > GROUP_MAX_LENGTH) {
+      return fail('INVALID_GROUP')
+    }
     const input: GuestInput = {
       firstName: values.firstName,
       lastName: values.lastName,
       phone: values.phone,
       allowedAttendees,
+      group: values.group,
     }
     try {
       const { guest, restored } = addGuest(

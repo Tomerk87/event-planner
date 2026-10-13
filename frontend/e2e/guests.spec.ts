@@ -58,10 +58,10 @@ async function addGuest(
   phone: string,
 ) {
   await page.getByRole('button', { name: 'Add Guest' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Add guest' })
-  await dialog.getByLabel(/First name/).fill(first)
-  await dialog.getByLabel(/Last name/).fill(last)
-  await dialog.getByLabel(/Phone number/).fill(phone)
+  const dialog = page.getByRole('dialog', { name: 'Add Guest' })
+  await dialog.getByLabel(/First Name/).fill(first)
+  await dialog.getByLabel(/Last Name/).fill(last)
+  await dialog.getByLabel(/Phone Number/).fill(phone)
   await dialog.getByRole('button', { name: 'Add Guest' }).click()
   await expect(page.getByText('The guest was added.')).toBeVisible()
 }
@@ -94,8 +94,8 @@ test('a guest can be added, found, edited and deleted, and the Dashboard follows
   await expect(list.getByText('Not Sent')).toBeVisible()
 
   await list.getByRole('button', { name: 'Edit Zohar Newcomer' }).click()
-  const edit = page.getByRole('dialog', { name: 'Edit guest' })
-  await edit.getByLabel(/Last name/).fill('Renamed')
+  const edit = page.getByRole('dialog', { name: 'Edit Guest' })
+  await edit.getByLabel(/Last Name/).fill('Renamed')
   await edit.getByRole('button', { name: 'Save Changes' }).click()
   await expect(list.getByText('Zohar Renamed', { exact: true })).toBeVisible()
 
@@ -119,7 +119,7 @@ test('a guest can be added, found, edited and deleted, and the Dashboard follows
     .click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page
-    .getByRole('dialog', { name: 'Delete guest' })
+    .getByRole('dialog', { name: 'Delete Guest' })
     .getByRole('button', { name: 'Delete' })
     .click()
   await expect(page.getByText('No guests match')).toBeVisible()
@@ -131,7 +131,7 @@ test('filters, sorting and paging are kept in the address across a reload', asyn
   isMobile,
 }) => {
   await page.goto(GUESTS)
-  await page.getByLabel('RSVP status').selectOption('APPROVED')
+  await page.getByLabel('RSVP Status').selectOption('APPROVED')
   await page.getByLabel('Rows per page').selectOption('25')
   await page.getByRole('button', { name: 'Next page' }).click()
   await expect(page.getByText(/^26–50 of \d+ guests$/)).toBeVisible()
@@ -139,11 +139,11 @@ test('filters, sorting and paging are kept in the address across a reload', asyn
   await page.reload()
 
   await expect(page.getByText(/^26–50 of \d+ guests$/)).toBeVisible()
-  await expect(page.getByLabel('RSVP status')).toHaveValue('APPROVED')
+  await expect(page.getByLabel('RSVP Status')).toHaveValue('APPROVED')
   await expect(guestList(page, isMobile).getByText('Approved')).toHaveCount(25)
 
   await page.getByRole('button', { name: 'Clear filters' }).click()
-  await expect(page.getByLabel('RSVP status')).toHaveValue('ALL')
+  await expect(page.getByLabel('RSVP Status')).toHaveValue('ALL')
 })
 
 test('the column choice is remembered, and Name and Phone cannot be hidden', async ({
@@ -160,13 +160,13 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
     chooser.getByRole('checkbox', { name: 'Name (always shown)' }),
   ).toBeDisabled()
   await chooser.getByRole('checkbox', { name: 'Invitation Name' }).uncheck()
-  await chooser.getByRole('checkbox', { name: 'Expected attendees' }).uncheck()
+  await chooser.getByRole('checkbox', { name: 'Expected Attendees' }).uncheck()
   await page.keyboard.press('Escape')
   await expect(
     page.getByRole('button', { name: 'Choose columns' }),
   ).toBeFocused()
   await expect(
-    table.getByRole('columnheader', { name: 'Expected attendees' }),
+    table.getByRole('columnheader', { name: 'Expected Attendees' }),
   ).toHaveCount(0)
 
   await page.reload()
@@ -174,7 +174,7 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
     table.getByRole('columnheader', { name: /^Confirmed/ }),
   ).toBeVisible()
   await expect(
-    table.getByRole('columnheader', { name: 'Expected attendees' }),
+    table.getByRole('columnheader', { name: 'Expected Attendees' }),
   ).toHaveCount(0)
   await expect(
     table.getByRole('columnheader', { name: 'Invitation Name' }),
@@ -184,7 +184,7 @@ test('the column choice is remembered, and Name and Phone cannot be hidden', asy
   await expect(
     page
       .getByRole('table', { name: 'Guests' })
-      .getByRole('columnheader', { name: 'Expected attendees' }),
+      .getByRole('columnheader', { name: 'Expected Attendees' }),
   ).toHaveCount(0)
 })
 
@@ -212,7 +212,7 @@ test('selected guests can be exported and deleted together', async ({
 
   await bar.getByRole('button', { name: 'Delete selected' }).click()
   await page
-    .getByRole('dialog', { name: 'Delete guests' })
+    .getByRole('dialog', { name: 'Delete Guests' })
     .getByRole('button', { name: 'Delete' })
     .click()
 
@@ -234,7 +234,7 @@ test('all guests export to CSV and to Excel with every field', async ({
   expect(csv.suggestedFilename()).toBe(`${WEDDING_FILE}.csv`)
   const lines = await csvRows(csv)
   expect(lines[0]).toBe(
-    'First name,Last name,Invitation name,Phone,Expected attendees,Confirmed attendees,RSVP status,Invitations sent,Table',
+    'First Name,Last Name,Invitation Name,Phone,Expected Attendees,Confirmed Attendees,RSVP Status,Invitations Sent,Table,Group',
   )
   expect(lines).toHaveLength(total + 1)
 
@@ -268,10 +268,10 @@ test('guests are imported from a CSV file, with unusable rows reported', async (
     ),
   })
   await expect(dialog.getByText(/^list\.csv: 4 rows\./)).toBeVisible()
-  await expect(dialog.getByLabel(/Phone number/)).toHaveValue('2')
+  await expect(dialog.getByLabel(/Phone Number/)).toHaveValue('2')
   await dialog.getByRole('button', { name: 'Preview' }).click()
   await expect(dialog.getByText('2 will be imported')).toBeVisible()
-  await expect(dialog.getByText('Phone number is not valid')).toBeVisible()
+  await expect(dialog.getByText('Phone Number is not valid')).toBeVisible()
   await dialog.getByRole('button', { name: 'Import 2 guests' }).click()
 
   await expect(
@@ -410,11 +410,11 @@ test('the import preview shows each row’s result without scrolling sideways on
   await dialog.getByLabel('Choose a CSV or Excel file').setInputFiles({
     name: 'list.csv',
     mimeType: 'text/csv',
-    buffer: Buffer.from('First name,Phone\nA,050-555-0401\nB,12\n'),
+    buffer: Buffer.from('First Name,Phone\nA,050-555-0401\nB,12\n'),
   })
   await dialog.getByRole('button', { name: 'Preview' }).click()
 
-  await expect(dialog.getByText('Phone number is not valid')).toBeInViewport()
+  await expect(dialog.getByText('Phone Number is not valid')).toBeInViewport()
 })
 
 test('the table can be used from the keyboard', async ({ page, isMobile }) => {
@@ -506,7 +506,7 @@ for (const language of ['en', 'he'] as const) {
       await dialog.locator('input[type="file"]').setInputFiles({
         name: 'list.csv',
         mimeType: 'text/csv',
-        buffer: Buffer.from('First name,Phone\nA,050-555-0401\nB,12\n'),
+        buffer: Buffer.from('First Name,Phone\nA,050-555-0401\nB,12\n'),
       })
       await expect(dialog.locator('select').first()).toBeVisible()
       await expectNoViolations(page)
@@ -536,3 +536,40 @@ for (const language of ['en', 'he'] as const) {
     })
   })
 }
+
+test('a guest can be put in a group, and the list filtered by it', async ({
+  page,
+}) => {
+  await page.goto(GUESTS)
+  await page.getByRole('button', { name: 'Add Guest' }).first().click()
+  const dialog = page.getByRole('dialog', { name: 'Add Guest' })
+  await dialog.getByLabel(/First Name/).fill('Grouped')
+  await dialog.getByLabel(/Phone Number/).fill('050-555-0166')
+  await dialog.getByLabel('Group').fill('Choir')
+  await expect(dialog.getByLabel('Table')).toBeDisabled()
+  await dialog.getByRole('button', { name: 'Add Guest' }).click()
+  await expect(page.getByText('The guest was added.')).toBeVisible()
+
+  await page.getByRole('combobox', { name: 'Group' }).selectOption('Choir')
+
+  await expect(page).toHaveURL(/group=Choir/)
+  await expect(page.getByText('1–1 of 1 guests')).toBeVisible()
+  await expect(page.getByText('Grouped').first()).toBeVisible()
+})
+
+test('the guests table fits a 1440px screen with the side menu open', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'the table is the desktop presentation')
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto(GUESTS)
+  const table = page.getByRole('table', { name: 'Guests' })
+  await expect(table).toBeVisible()
+
+  const overflow = await table.evaluate((element) => {
+    const frame = element.parentElement
+    return frame ? frame.scrollWidth - frame.clientWidth : 0
+  })
+  expect(overflow).toBe(0)
+})

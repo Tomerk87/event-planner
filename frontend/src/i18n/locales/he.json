@@ -289,7 +289,7 @@
       "timeZone": "אזור זמן",
       "maxAttendees": "מספר משתתפים מרבי",
       "maxAttendeesHint": "בין {{min}} ל־{{max}}.",
-      "defaultAllowedAttendees": "משתתפים מותרים לאורח",
+      "defaultAllowedAttendees": "משתתפים צפויים לאורח",
       "defaultAllowedAttendeesHint": "ברירת מחדל לאורחים חדשים, {{min}} עד {{max}}.",
       "rsvpLanguage": "שפת אישור ההגעה",
       "rsvpLanguageHint": "השפה של דף אישור ההגעה הציבורי.",
@@ -473,7 +473,10 @@
       "table": "שולחן",
       "tableAll": "כל השולחנות",
       "tableOption": "שולחן {{number}}",
-      "clear": "ניקוי הסינון"
+      "clear": "ניקוי הסינון",
+      "group": "קבוצה",
+      "groupAll": "כל הקבוצות",
+      "groupNone": "ללא קבוצה"
     },
     "columns": {
       "button": "בחירת עמודות",
@@ -488,7 +491,8 @@
       "status": "סטטוס הגעה",
       "sent": "הזמנות שנשלחו",
       "table": "שולחן",
-      "actions": "פעולות"
+      "actions": "פעולות",
+      "group": "קבוצה"
     },
     "table": {
       "caption": "אורחים",
@@ -497,7 +501,8 @@
       "selectRow": "בחירת {{name}}",
       "tableFor": "שולחן עבור {{name}}",
       "noTable": "ללא שולחן",
-      "tableChoice": "{{number}} · {{name}} ({{available}} פנויים)"
+      "tableChosen": "{{number}}",
+      "tableChoice": "{{number}} ({{available}} פנויים)"
     },
     "row": {
       "whatsapp": "שליחת הודעת WhatsApp אל {{name}}",
@@ -546,7 +551,11 @@
         "duplicate": "לאורח אחר באירוע הזה כבר יש את מספר הטלפון הזה.",
         "allowed": "יש להזין מספר שלם בין {{min}} ל־{{max}}.",
         "belowConfirmed": "האורח כבר אישר {{count}} משתתפים, ולכן אי אפשר להקטין את מספר המשתתפים הצפויים מתחת לכך."
-      }
+      },
+      "group": "קבוצה",
+      "groupHint": "לא חובה. אפשר לבחור קבוצה או להקליד חדשה.",
+      "table": "שולחן",
+      "tableHint": "זמין אחרי שהאורח מאשר הגעה."
     },
     "rsvpDialog": {
       "title": "שינוי אישור ההגעה",
@@ -595,13 +604,14 @@
         "confirmedAttendees": "משתתפים מאושרים",
         "status": "סטטוס הגעה",
         "invitationSentCount": "הזמנות שנשלחו",
-        "tableNumber": "שולחן"
+        "tableNumber": "שולחן",
+        "group": "קבוצה"
       }
     },
     "import": {
       "title": "ייבוא אורחים",
       "intro": "הוספת אורחים רבים בבת אחת מקובץ CSV או Excel. הקובץ נקרא בדפדפן שלכם.",
-      "ruleRequired": "לכל אורח נדרשים שם פרטי ומספר טלפון. שם משפחה ומספר משתתפים צפויים הם אופציונליים.",
+      "ruleRequired": "לכל אורח נדרשים שם פרטי ומספר טלפון. שם משפחה, מספר משתתפים צפויים וקבוצה הם אופציונליים.",
       "rulePhones": "אפשר לכתוב מספרי טלפון בכל תבנית מקומית. מספר ממדינה אחרת חייב להתחיל ב־+ ובקידומת המדינה.",
       "ruleDuplicates": "מספר טלפון שכבר שייך לאורח באירוע מדולג; אורחים קיימים אינם משתנים.",
       "ruleLimit": "עד {{max}} שורות ו־5MB.",
@@ -631,7 +641,8 @@
         "firstName": "שם פרטי",
         "lastName": "שם משפחה",
         "phone": "מספר טלפון",
-        "allowedAttendees": "משתתפים צפויים"
+        "allowedAttendees": "משתתפים צפויים",
+        "group": "קבוצה"
       },
       "outcome": {
         "new": "אורח חדש",
@@ -644,7 +655,8 @@
         "INVALID_PHONE": "מספר הטלפון אינו תקין",
         "INVALID_ALLOWED": "מספר המשתתפים הצפויים חייב להיות מספר שלם בין 1 ל־10",
         "DUPLICATE_IN_FILE": "אותו טלפון כמו בשורה קודמת",
-        "DUPLICATE_IN_EVENT": "לאורח קיים כבר יש את הטלפון הזה"
+        "DUPLICATE_IN_EVENT": "לאורח קיים כבר יש את הטלפון הזה",
+        "INVALID_GROUP": "שם הקבוצה ארוך מ־40 תווים"
       },
       "errors": {
         "fileSize": "הקובץ גדול מ־5MB.",

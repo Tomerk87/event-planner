@@ -325,7 +325,7 @@
 
 ### Checklist
 - [ ] Build Event Layout navigation/tabs consistent with mockups.
-- [ ] Implement Table CRUD, unique number per event, name, positive chair capacity and Circle/Rectangle/Square shape.
+- [ ] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one.
 - [ ] Display table occupancy, remaining seats, assigned guest parties and conflicts.
 - [ ] Assign **Approved guests only**; keep each party together in MVP.
 - [ ] Block manual assignment exceeding capacity; allow overcapacity after RSVP count increases.
@@ -902,6 +902,29 @@ Follow-ups/risks:
 - WhatsApp was never actually opened in tests (window.open is replaced); the owner should try one real send.
 - Nothing committed; branch phase_8_implementation.
 Next: Phase 9 — RSVP Settings and public RSVP. Includes the default-language selector, the guest language switch and the RSVP title (D19, D39).
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — Guests table review fixes (owner).
+Done: number columns aligned to the start like their headings (D50); field and column labels in Title Case, including the create-event dialog, export headings and import field names (D49); Table selector widened from 6.5rem to 11.5rem and a guest's own table shown as "number · name" (D50).
+Validation: from frontend/ — typecheck, lint, format clean; `npm run test:coverage` 825 passed; `npm run build` succeeds; `npm run test:e2e` run in full after the label change (235 passed, 2 failing dashboard tests then fixed), and the dashboard, guests and shell specs re-run and passing after the final change. Guests table checked from desktop screenshots in English and Hebrew.
+Follow-ups/risks:
+- At 1440px wide with the side menu expanded the Guests table is slightly wider than the page and scrolls sideways; with the menu collapsed it fits.
+- Exported files now have Title Case headings; imports accept either.
+- Nothing committed; branch phase_8_implementation.
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — centred table, tables without names, Groups, Group and Table in the guest form (owner).
+Decisions (owner): headings centred and number columns centred (D51, replacing D50); a table has no name (D52); guests can belong to an optional group, typed with suggestions, with filter, search, sort, details, import and export (D53); Group and Table in Add/Edit Guest, Table only for an Approved guest (D54).
+Done: shared table centres headings and supports centred values; table names removed from the data rules, demo generator, exports and texts; Guest.group with capital-insensitive joining of existing groups; Group column, filter, search, sort, details, import column and export column; guest form gained Group (with suggestions) and Table (saved through the existing seating rule); demo dataset version 5 with fictional groups; older saved guests load as having no group. Table selector shows the number only.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 843 passed, coverage 96.59% statements, 91.44% branches; `npm run test:e2e` 240 passed, 22 skipped by design; `npm run build` succeeds. Guests table (English, 1440px) and the Edit Guest form checked from screenshots.
+Follow-ups/risks:
+- To fit the extra Group column at 1440px with the side menu open, cell padding was tightened and the Name, Invitation Name and Group columns may wrap onto two lines; with the menu collapsed or on a wider screen they stay on one line.
+- A browser that already saved a column choice does not show the new Group column until it is ticked in the column chooser.
+- The form saves the guest's details first and the table second; if the table is full the details are saved and the table is not, with an error shown.
+- Phone guest cards do not show the group (it is in Guest Details).
+- Nothing committed; branch phase_8_implementation.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

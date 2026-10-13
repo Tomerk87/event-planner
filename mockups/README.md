@@ -65,7 +65,8 @@ Notes:
 - The sliders button beside the filters is a column chooser on the desktop table and is not shown on a phone. A "Clear filters" button is added beside it.
 - The "⋯" menu holds Change RSVP and Delete; the ">" arrow on a phone and the guest's name on desktop open a details panel.
 - Row checkboxes offer Delete selected and Export selected.
-- "Allowed" is named "Expected attendees". The Approved card counts confirmed attendees (people).
+- "Allowed" is named "Expected Attendees". The Approved card counts confirmed attendees (people).
+- A Group column and filter are added, and Group and Table fields in the guest form. Column headings are centred.
 - The WhatsApp button on each row is disabled with a "Soon" hint until the message page is built.
 - See `docs/MOCKUP_NOTES.md` for the full list.
 
@@ -83,6 +84,7 @@ Arrangements tab:
 - `event_layout_arrangement_mobile.png`
 
 Notes:
+- The Name column of the tables list is not built: a table has a number, a capacity and a shape only.
 - The desktop mockup contains the full Event Layout page.
 - The mobile UI separates the Tables and Arrangements views into dedicated tab mockups.
 - In the MVP the Table Arrangement tab is shown with a "Soon" badge and is disabled, and the Arrangement Preview panel is not built. The Arrangement mockups are guidance for the future editor (`docs/FUTURE_FEATURES.md`).

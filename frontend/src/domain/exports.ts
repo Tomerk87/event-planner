@@ -12,11 +12,11 @@ export interface GuestExportRow {
   rsvpStatus: Guest['rsvpStatus']
   invitationSentCount: number
   tableNumber: number | null
+  group: string
 }
 
 export interface SeatingDetailRow {
   tableNumber: number
-  tableName: string
   firstName: string
   lastName: string
   invitationName: string
@@ -26,7 +26,6 @@ export interface SeatingDetailRow {
 
 export interface SeatingSummaryRow {
   tableNumber: number
-  tableName: string
   capacity: number
   assigned: number
   remaining: number
@@ -60,6 +59,7 @@ export function buildGuestExportRows(
       invitationSentCount: guest.invitationSentCount,
       tableNumber:
         guest.tableId === null ? null : (numbers.get(guest.tableId) ?? null),
+      group: guest.group ?? '',
     }))
 }
 
@@ -81,7 +81,6 @@ export function buildSeatingDetailRows(
         .sort(byName)
         .map((guest) => ({
           tableNumber: table.number,
-          tableName: table.name,
           firstName: guest.firstName,
           lastName: guest.lastName,
           invitationName: guest.invitationName ?? '',
@@ -102,7 +101,6 @@ export function buildSeatingSummaryRows(
       const assigned = tableOccupancy(table.id, guests)
       return {
         tableNumber: table.number,
-        tableName: table.name,
         capacity: table.capacity,
         assigned,
         remaining: table.capacity - assigned,
@@ -120,6 +118,7 @@ export const GUEST_EXPORT_COLUMNS = [
   'status',
   'invitationSentCount',
   'tableNumber',
+  'group',
 ] as const
 
 export type GuestExportColumn = (typeof GUEST_EXPORT_COLUMNS)[number]
@@ -149,6 +148,7 @@ export function buildGuestExportTable(
       labels.statuses[guestDisplayStatus(row)],
       row.invitationSentCount,
       row.tableNumber,
+      row.group,
     ]),
   ]
 }

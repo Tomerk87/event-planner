@@ -97,10 +97,10 @@ function fillGuestForm(
       fireEvent.change(fields.getByLabelText(label), { target: { value } })
     }
   }
-  set(/First name/, values.firstName)
-  set(/Last name/, values.lastName)
-  set(/Phone number/, values.phone)
-  set(/Expected attendees/, values.allowed)
+  set(/First Name/, values.firstName)
+  set(/Last Name/, values.lastName)
+  set(/Phone Number/, values.phone)
+  set(/Expected Attendees/, values.allowed)
 }
 
 async function find(
@@ -192,7 +192,7 @@ describe('Guests list', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
   })
 
-  it('filters by RSVP status, invitation and table, and clears the filters in one click', async () => {
+  it('filters by RSVP Status, invitation and table, and clears the filters in one click', async () => {
     const { services, router } = await openGuests()
     const guests = await services.guests.list(MAIN)
     const count = (test: (guest: Guest) => boolean) =>
@@ -207,21 +207,21 @@ describe('Guests list', () => {
       screen.queryByRole('button', { name: 'Clear filters' }),
     ).not.toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('RSVP status'), {
+    fireEvent.change(screen.getByLabelText('RSVP Status'), {
       target: { value: 'DECLINED' },
     })
     total(count((guest) => guest.rsvpStatus === 'DECLINED'))
     expect(router.state.location.search).toBe('?rsvp=DECLINED')
 
-    fireEvent.change(screen.getByLabelText('RSVP status'), {
+    fireEvent.change(screen.getByLabelText('RSVP Status'), {
       target: { value: 'ALL' },
     })
-    fireEvent.change(screen.getByLabelText('Invitation status'), {
+    fireEvent.change(screen.getByLabelText('Invitation Status'), {
       target: { value: 'NOT_SENT' },
     })
     total(count((guest) => guest.invitationSentCount === 0))
 
-    fireEvent.change(screen.getByLabelText('Invitation status'), {
+    fireEvent.change(screen.getByLabelText('Invitation Status'), {
       target: { value: 'ALL' },
     })
     fireEvent.change(screen.getByLabelText('Table'), {
@@ -246,20 +246,20 @@ describe('Guests list', () => {
     const guests = await services.guests.list(MAIN)
     const header = () =>
       within(guestTable()).getByRole('columnheader', {
-        name: /Expected attendees/,
+        name: /Expected Attendees/,
       })
 
     fireEvent.click(within(header()).getByRole('button'))
     expect(header()).toHaveAttribute('aria-sort', 'ascending')
     const lowest = Math.min(...guests.map((guest) => guest.allowedAttendees))
-    expect(within(rows()[0]!).getAllByRole('cell')[4]).toHaveTextContent(
+    expect(within(rows()[0]!).getAllByRole('cell')[5]).toHaveTextContent(
       String(lowest),
     )
 
     fireEvent.click(within(header()).getByRole('button'))
     expect(header()).toHaveAttribute('aria-sort', 'descending')
     const highest = Math.max(...guests.map((guest) => guest.allowedAttendees))
-    expect(within(rows()[0]!).getAllByRole('cell')[4]).toHaveTextContent(
+    expect(within(rows()[0]!).getAllByRole('cell')[5]).toHaveTextContent(
       String(highest),
     )
     expect(
@@ -297,10 +297,10 @@ describe('Guests list', () => {
     const { router } = await openGuests()
 
     // No waiting between the changes: each must build on the one before.
-    fireEvent.change(screen.getByLabelText('RSVP status'), {
+    fireEvent.change(screen.getByLabelText('RSVP Status'), {
       target: { value: 'APPROVED' },
     })
-    fireEvent.change(screen.getByLabelText('Invitation status'), {
+    fireEvent.change(screen.getByLabelText('Invitation Status'), {
       target: { value: 'SENT' },
     })
     fireEvent.change(screen.getByLabelText('Rows per page'), {
@@ -340,7 +340,7 @@ describe('Guests list', () => {
   it('starts from the filters, sorting and page given in the address', async () => {
     await openGuests('?rsvp=APPROVED&sort=-confirmed&size=25&page=2')
 
-    expect(screen.getByLabelText('RSVP status')).toHaveValue('APPROVED')
+    expect(screen.getByLabelText('RSVP Status')).toHaveValue('APPROVED')
     expect(screen.getByLabelText('Rows per page')).toHaveValue('25')
     expect(
       within(guestTable()).getByRole('columnheader', { name: /Confirmed/ }),
@@ -361,16 +361,16 @@ describe('Guests list', () => {
     await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
 
     fireEvent.click(within(guestTable()).getByRole('button', { name }))
-    const panel = screen.getByRole('dialog', { name: 'Guest details' })
+    const panel = screen.getByRole('dialog', { name: 'Guest Details' })
 
     expect(within(panel).getByText(guest.phone)).toBeInTheDocument()
-    expect(within(panel).getByText('Last invitation sent')).toBeInTheDocument()
+    expect(within(panel).getByText('Last Invitation Sent')).toBeInTheDocument()
     expect(within(panel).getByText(/^Table \d+$/)).toBeInTheDocument()
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Edit' }))
     expect(
-      within(screen.getByRole('dialog', { name: 'Edit guest' })).getByLabelText(
-        /First name/,
+      within(screen.getByRole('dialog', { name: 'Edit Guest' })).getByLabelText(
+        /First Name/,
       ),
     ).toHaveValue(guest.firstName)
   })
@@ -453,8 +453,8 @@ describe('Changing guests', () => {
     const before = (await services.guests.list(MAIN)).length
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
-    const dialog = screen.getByRole('dialog', { name: 'Add guest' })
-    expect(within(dialog).getByLabelText(/Expected attendees/)).toHaveValue(5)
+    const dialog = screen.getByRole('dialog', { name: 'Add Guest' })
+    expect(within(dialog).getByLabelText(/Expected Attendees/)).toHaveValue(5)
     fillGuestForm(dialog, {
       firstName: 'Zohar',
       lastName: 'Newcomer',
@@ -476,7 +476,7 @@ describe('Changing guests', () => {
     await openGuests()
     const add = (firstName: string, phone: string) => {
       fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
-      const dialog = screen.getByRole('dialog', { name: 'Add guest' })
+      const dialog = screen.getByRole('dialog', { name: 'Add Guest' })
       fillGuestForm(dialog, { firstName, lastName: 'Phoneform', phone })
       fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
     }
@@ -505,12 +505,12 @@ describe('Changing guests', () => {
       }),
     )
     expect(
-      within(screen.getByRole('dialog', { name: 'Edit guest' })).getByLabelText(
-        /Phone number/,
+      within(screen.getByRole('dialog', { name: 'Edit Guest' })).getByLabelText(
+        /Phone Number/,
       ),
     ).toHaveValue('050-730-8828')
     fireEvent.click(
-      within(screen.getByRole('dialog', { name: 'Edit guest' })).getByRole(
+      within(screen.getByRole('dialog', { name: 'Edit Guest' })).getByRole(
         'button',
         { name: 'Cancel' },
       ),
@@ -526,7 +526,7 @@ describe('Changing guests', () => {
   it('refuses a number that is local to another country', async () => {
     await openGuests()
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
-    const dialog = screen.getByRole('dialog', { name: 'Add guest' })
+    const dialog = screen.getByRole('dialog', { name: 'Add Guest' })
 
     expect(
       within(dialog).getByText(
@@ -546,7 +546,7 @@ describe('Changing guests', () => {
     const existing = await find(services, () => true)
     await openGuests('', services)
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
-    const dialog = screen.getByRole('dialog', { name: 'Add guest' })
+    const dialog = screen.getByRole('dialog', { name: 'Add Guest' })
     const submit = () =>
       fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
 
@@ -578,7 +578,7 @@ describe('Changing guests', () => {
         'Another guest in this event already has this phone number.',
       ),
     ).toBeInTheDocument()
-    expect(within(dialog).getByLabelText(/Phone number/)).toHaveAttribute(
+    expect(within(dialog).getByLabelText(/Phone Number/)).toHaveAttribute(
       'aria-invalid',
       'true',
     )
@@ -596,7 +596,7 @@ describe('Changing guests', () => {
     fireEvent.click(
       within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
     )
-    const dialog = screen.getByRole('dialog', { name: 'Edit guest' })
+    const dialog = screen.getByRole('dialog', { name: 'Edit Guest' })
     fillGuestForm(dialog, { allowed: '1' })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Save Changes' }),
@@ -636,7 +636,7 @@ describe('Changing guests', () => {
     const before = Number(kpi('Total Guests'))
 
     openRowMenu(name, 'Delete')
-    const dialog = screen.getByRole('dialog', { name: 'Delete guest' })
+    const dialog = screen.getByRole('dialog', { name: 'Delete Guest' })
     expect(
       within(dialog).getByText(`Delete ${name} from this event?`),
     ).toBeInTheDocument()
@@ -649,7 +649,7 @@ describe('Changing guests', () => {
     expect(screen.getByText('No guests match')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
-    const add = screen.getByRole('dialog', { name: 'Add guest' })
+    const add = screen.getByRole('dialog', { name: 'Add Guest' })
     fillGuestForm(add, {
       firstName: 'Back',
       lastName: 'Again',
@@ -683,11 +683,11 @@ describe('Changing guests', () => {
       within(dialog).getByRole('radio', { name: 'No response' }),
     ).toBeChecked()
     expect(
-      within(dialog).queryByLabelText(/Confirmed attendees/),
+      within(dialog).queryByLabelText(/Confirmed Attendees/),
     ).not.toBeInTheDocument()
 
     fireEvent.click(within(dialog).getByRole('radio', { name: 'Approved' }))
-    fireEvent.change(within(dialog).getByLabelText(/Confirmed attendees/), {
+    fireEvent.change(within(dialog).getByLabelText(/Confirmed Attendees/), {
       target: { value: String(guest.allowedAttendees + 1) },
     })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
@@ -697,7 +697,7 @@ describe('Changing guests', () => {
       ),
     ).toBeInTheDocument()
 
-    fireEvent.change(within(dialog).getByLabelText(/Confirmed attendees/), {
+    fireEvent.change(within(dialog).getByLabelText(/Confirmed Attendees/), {
       target: { value: '1' },
     })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
@@ -791,7 +791,7 @@ describe('Selecting guests', () => {
     fireEvent.click(
       within(bar).getByRole('button', { name: 'Delete selected' }),
     )
-    const dialog = screen.getByRole('dialog', { name: 'Delete guests' })
+    const dialog = screen.getByRole('dialog', { name: 'Delete Guests' })
     expect(
       within(dialog).getByText('Delete the 2 selected guests from this event?'),
     ).toBeInTheDocument()
@@ -866,15 +866,16 @@ describe('Exporting guests', () => {
     const file = await lastDownload()
     expect(file.name).toBe('Maya & Daniel’s Wedding - guests.csv')
     expect(file.rows[0]).toEqual([
-      'First name',
-      'Last name',
-      'Invitation name',
+      'First Name',
+      'Last Name',
+      'Invitation Name',
       'Phone',
-      'Expected attendees',
-      'Confirmed attendees',
-      'RSVP status',
-      'Invitations sent',
+      'Expected Attendees',
+      'Confirmed Attendees',
+      'RSVP Status',
+      'Invitations Sent',
       'Table',
+      'Group',
     ])
     expect(file.rows).toHaveLength(guests.length + 1)
     const statuses = new Set(file.rows.slice(1).map((row) => row[6]))
@@ -907,7 +908,8 @@ describe('Choosing columns', () => {
       'Name',
       'Invitation Name',
       'Phone',
-      'Expected attendees',
+      'Group',
+      'Expected Attendees',
       'Confirmed',
       'RSVP Status',
       'Invitations Sent',
@@ -927,9 +929,9 @@ describe('Choosing columns', () => {
     ).toBeDisabled()
 
     fireEvent.click(
-      within(panel).getByRole('checkbox', { name: 'Expected attendees' }),
+      within(panel).getByRole('checkbox', { name: 'Expected Attendees' }),
     )
-    await waitFor(() => expect(headers()).not.toContain('Expected attendees'))
+    await waitFor(() => expect(headers()).not.toContain('Expected Attendees'))
     await waitFor(async () =>
       expect(await services.preferences.getGuestColumns()).not.toContain(
         'allowed',
@@ -948,9 +950,9 @@ describe('Choosing columns', () => {
     expect(within(panel).getByRole('button', { name: 'Clear' })).toBeDisabled()
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Select all' }))
-    await waitFor(() => expect(headers()).toHaveLength(10))
+    await waitFor(() => expect(headers()).toHaveLength(11))
     await waitFor(async () =>
-      expect(await services.preferences.getGuestColumns()).toHaveLength(8),
+      expect(await services.preferences.getGuestColumns()).toHaveLength(9),
     )
   })
 
@@ -1018,8 +1020,8 @@ describe('Importing guests', () => {
     expect(
       await within(dialog).findByText(/^guests\.csv: 7 rows\./),
     ).toBeInTheDocument()
-    expect(within(dialog).getByLabelText(/First name/)).toHaveValue('0')
-    expect(within(dialog).getByLabelText(/Phone number/)).toHaveValue('2')
+    expect(within(dialog).getByLabelText(/First Name/)).toHaveValue('0')
+    expect(within(dialog).getByLabelText(/Phone Number/)).toHaveValue('2')
     fireEvent.click(within(dialog).getByRole('button', { name: 'Preview' }))
 
     expect(within(dialog).getByText('2 will be imported')).toBeInTheDocument()
@@ -1054,6 +1056,7 @@ describe('Importing guests', () => {
       'NoName',
       '050-555-0103',
       '2',
+      '',
       'No first name',
     ])
 
@@ -1078,14 +1081,14 @@ describe('Importing guests', () => {
     ).toBeDisabled()
     expect(
       within(dialog).getByText(
-        'Choose the columns for First name and Phone number to continue.',
+        'Choose the columns for First Name and Phone Number to continue.',
       ),
     ).toBeInTheDocument()
 
-    fireEvent.change(within(dialog).getByLabelText(/First name/), {
+    fireEvent.change(within(dialog).getByLabelText(/First Name/), {
       target: { value: '0' },
     })
-    fireEvent.change(within(dialog).getByLabelText(/Phone number/), {
+    fireEvent.change(within(dialog).getByLabelText(/Phone Number/), {
       target: { value: '1' },
     })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Preview' }))
@@ -1125,7 +1128,13 @@ describe('Importing guests', () => {
     const file = await lastDownload()
     expect(file.name).toBe('guest import template.csv')
     expect(file.rows).toEqual([
-      ['First name', 'Last name', 'Phone number', 'Expected attendees'],
+      [
+        'First Name',
+        'Last Name',
+        'Phone Number',
+        'Expected Attendees',
+        'Group',
+      ],
     ])
   })
 })
@@ -1176,20 +1185,20 @@ describe('Unknown Guests', () => {
     )
     const dialog = screen.getByRole('dialog', { name: 'Add as guest' })
     const [firstName, ...rest] = unknown.name.split(' ')
-    expect(within(dialog).getByLabelText(/First name/)).toHaveValue(firstName)
-    expect(within(dialog).getByLabelText(/Last name/)).toHaveValue(
+    expect(within(dialog).getByLabelText(/First Name/)).toHaveValue(firstName)
+    expect(within(dialog).getByLabelText(/Last Name/)).toHaveValue(
       rest.join(' '),
     )
     expect(within(dialog).getByText(unknown.phone)).toBeInTheDocument()
 
-    fireEvent.change(within(dialog).getByLabelText(/First name/), {
+    fireEvent.change(within(dialog).getByLabelText(/First Name/), {
       target: { value: ' ' },
     })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Add as guest' }),
     )
     expect(within(dialog).getByText('Enter a first name.')).toBeInTheDocument()
-    fireEvent.change(within(dialog).getByLabelText(/First name/), {
+    fireEvent.change(within(dialog).getByLabelText(/First Name/), {
       target: { value: 'Known' },
     })
     fireEvent.click(
@@ -1384,7 +1393,7 @@ describe('Guests page for a read-only event', () => {
           name: shownNames()[0],
         })[0]!,
       )
-      const panel = screen.getByRole('dialog', { name: 'Guest details' })
+      const panel = screen.getByRole('dialog', { name: 'Guest Details' })
       expect(within(panel).queryByRole('button', { name: 'Edit' })).toBeNull()
     },
   )
@@ -1439,8 +1448,8 @@ describe('Guests page states', () => {
     expect(kpi('Total Guests')).toBe('0')
     fireEvent.click(screen.getAllByRole('button', { name: 'Add Guest' })[1]!)
     expect(
-      within(screen.getByRole('dialog', { name: 'Add guest' })).getByLabelText(
-        /Expected attendees/,
+      within(screen.getByRole('dialog', { name: 'Add Guest' })).getByLabelText(
+        /Expected Attendees/,
       ),
     ).toHaveValue(2)
   })
@@ -1450,7 +1459,7 @@ describe('Guests page states', () => {
     const before = (await services.dashboard.get(MAIN)).metrics.totalGuests
 
     fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
-    const dialog = screen.getByRole('dialog', { name: 'Add guest' })
+    const dialog = screen.getByRole('dialog', { name: 'Add Guest' })
     fillGuestForm(dialog, { firstName: 'Zohar', phone: '050-555-0199' })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
     await screen.findByText('The guest was added.')
@@ -1496,7 +1505,214 @@ describe('Guests page states', () => {
       within(card!).getByRole('button', { name: /^View details of / }),
     )
     expect(
-      screen.getByRole('dialog', { name: 'Guest details' }),
+      screen.getByRole('dialog', { name: 'Guest Details' }),
     ).toBeInTheDocument()
+  })
+})
+
+describe('Groups, and the Table field of the guest form', () => {
+  it('shows each guest’s group and filters by it', async () => {
+    const { services, router } = await openGuests()
+    const guests = await services.guests.list(MAIN)
+    const inFamily = guests.filter((guest) => guest.group === 'Family')
+    const inNone = guests.filter((guest) => guest.group === null)
+    expect(inFamily.length).toBeGreaterThan(0)
+    expect(inNone.length).toBeGreaterThan(0)
+    const filter = screen.getByRole('combobox', { name: 'Group' })
+    expect(
+      within(filter)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual([
+      'All Groups',
+      'No Group',
+      'Family',
+      'Friends',
+      'Neighbours',
+      'Work',
+    ])
+
+    fireEvent.change(filter, { target: { value: 'Family' } })
+
+    expect(
+      await screen.findByText(new RegExp(`of ${inFamily.length} guests`)),
+    ).toBeInTheDocument()
+    expect(router.state.location.search).toContain('group=Family')
+    expect(
+      rows().every((row) => within(row).queryByText('Family') !== null),
+    ).toBe(true)
+
+    fireEvent.change(filter, { target: { value: '~none' } })
+    expect(
+      await screen.findByText(new RegExp(`of ${inNone.length} guests`)),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
+    await waitFor(() => expect(filter).toHaveValue('ALL'))
+  })
+
+  it('finds guests by group in the search box and sorts by the Group column', async () => {
+    const { services } = await openGuests()
+    const guests = await services.guests.list(MAIN)
+
+    search('neighbours')
+    expect(
+      await screen.findByText(
+        new RegExp(
+          `of ${guests.filter((guest) => guest.group === 'Neighbours').length} guests`,
+        ),
+      ),
+    ).toBeInTheDocument()
+
+    search('')
+    fireEvent.click(
+      within(
+        within(guestTable()).getByRole('columnheader', { name: /^Group/ }),
+      ).getByRole('button'),
+    )
+    await waitFor(() =>
+      expect(within(rows()[0]!).getByText('Family')).toBeInTheDocument(),
+    )
+  })
+
+  it('adds a guest to a group, joining an existing one whatever the capitals, with no table to choose yet', async () => {
+    const { services } = await openGuests()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Add Guest' })
+    const group = within(dialog).getByLabelText(/^Group/)
+    expect(
+      Array.from(
+        dialog.querySelectorAll(
+          `#${CSS.escape(group.getAttribute('list')!)} option`,
+        ),
+      ).map((option) => option.getAttribute('value')),
+    ).toEqual(['Family', 'Friends', 'Neighbours', 'Work'])
+    expect(within(dialog).getByLabelText('Table')).toBeDisabled()
+    expect(
+      within(dialog).getByText('Available once the guest approves.'),
+    ).toBeInTheDocument()
+
+    fillGuestForm(dialog, {
+      firstName: 'Grouped',
+      lastName: 'Guest',
+      phone: '050-555-0177',
+    })
+    fireEvent.change(group, { target: { value: ' friends ' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
+
+    await screen.findByText('The guest was added.')
+    const added = await find(services, (guest) => guest.firstName === 'Grouped')
+    expect(added).toMatchObject({ group: 'Friends', tableId: null })
+  })
+
+  it('changes an approved guest’s group and table from the form, and shows the group in the details', async () => {
+    const services = createTestServices()
+    const guest = await find(
+      services,
+      (candidate) =>
+        candidate.rsvpStatus === 'APPROVED' &&
+        candidate.tableId !== null &&
+        candidate.confirmedAttendees === 1,
+    )
+    const tables = await services.tables.list(MAIN)
+    const target = tables.find(
+      (item) => item.table.id !== guest.tableId && item.available >= 1,
+    )!
+    const name = guestFullName(guest)
+    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
+
+    fireEvent.click(
+      within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
+    )
+    const dialog = await screen.findByRole('dialog', { name: 'Edit Guest' })
+    const table = within(dialog).getByLabelText('Table')
+    expect(table).toBeEnabled()
+    expect(table).toHaveValue(guest.tableId)
+    expect(
+      within(table)
+        .getAllByRole('option')
+        .every((option) =>
+          /^(No table|\d+|\d+ \(\d+ free\))$/.test(option.textContent ?? ''),
+        ),
+    ).toBe(true)
+
+    fireEvent.change(table, { target: { value: target.table.id } })
+    fireEvent.change(within(dialog).getByLabelText(/^Group/), {
+      target: { value: 'Choir' },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Save Changes' }),
+    )
+
+    await screen.findByText('The guest was updated.')
+    expect(
+      await find(services, (candidate) => candidate.id === guest.id),
+    ).toMatchObject({ group: 'Choir', tableId: target.table.id })
+
+    fireEvent.click(within(guestTable()).getByRole('button', { name }))
+    const panel = await screen.findByRole('dialog', { name: 'Guest Details' })
+    expect(within(panel).getByText('Choir')).toBeInTheDocument()
+  })
+
+  it('keeps the form open and explains when the chosen table is full', async () => {
+    const services = createTestServices()
+    const tables = await services.tables.list(MAIN)
+    const guest = await find(
+      services,
+      (candidate) =>
+        candidate.rsvpStatus === 'APPROVED' &&
+        tables.some(
+          (item) =>
+            item.table.id !== candidate.tableId &&
+            item.available < (candidate.confirmedAttendees ?? 0),
+        ),
+    )
+    const full = tables.find(
+      (item) =>
+        item.table.id !== guest.tableId &&
+        item.available < (guest.confirmedAttendees ?? 0),
+    )!
+    const name = guestFullName(guest)
+    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
+
+    fireEvent.click(
+      within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
+    )
+    const dialog = await screen.findByRole('dialog', { name: 'Edit Guest' })
+    fireEvent.change(within(dialog).getByLabelText('Table'), {
+      target: { value: full.table.id },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Save Changes' }),
+    )
+
+    expect(await within(dialog).findByRole('alert')).toBeInTheDocument()
+    expect(
+      (await find(services, (candidate) => candidate.id === guest.id)).tableId,
+    ).toBe(guest.tableId)
+  })
+
+  it('centres the number columns and shows tables by number alone', async () => {
+    const services = createTestServices()
+    const guest = await find(
+      services,
+      (candidate) => candidate.tableId !== null,
+    )
+    const table = (await services.tables.list(MAIN)).find(
+      (item) => item.table.id === guest.tableId,
+    )!
+    const name = guestFullName(guest)
+    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
+
+    const cells = within(rowOf(name)).getAllByRole('cell')
+    const centred = cells.filter((cell) => /center/.test(cell.className))
+    expect(centred).toHaveLength(4)
+    const selector = within(rowOf(name)).getByRole('combobox', {
+      name: `Table for ${name}`,
+    })
+    expect(
+      within(selector).getByRole('option', { selected: true }),
+    ).toHaveTextContent(new RegExp(`^${table.table.number}$`))
   })
 })

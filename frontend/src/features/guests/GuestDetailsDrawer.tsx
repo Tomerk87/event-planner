@@ -53,6 +53,7 @@ export function GuestDetailsDrawer({
           t('guests.columns.status'),
           <GuestStatusBadge key="status" status={guestDisplayStatus(guest)} />,
         ],
+        [t('guests.columns.group'), guest.group ?? NONE],
         [t('guests.columns.allowed'), format.number(guest.allowedAttendees)],
         [
           t('guests.columns.confirmed'),

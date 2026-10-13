@@ -132,7 +132,7 @@ Only Owners and Super Users may duplicate or delete events. Both are allowed on 
 | Event details (time zone, maximum attendees, default allowed attendees, RSVP language, location, RSVP title) | Guests and their RSVP responses |
 | RSVP settings | Unknown RSVP responses |
 | Message template | Sent-message history and invitation counters |
-| Tables (number, name, capacity, shape), with nobody seated | Other members and their roles |
+| Tables (number, capacity, shape), with nobody seated | Other members and their roles |
 
 The person duplicating becomes the Owner of the new event, which gets its own public RSVP link.
 
@@ -156,6 +156,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Invitation sent count | Nonnegative, starts at `0`, increases on each system-initiated WhatsApp action |
 | Last invitation sent at / Last RSVP response at | Operational timestamps |
 | Table | Nullable assignment; only Approved guests are assignable |
+| Group | Optional. The organizer's own grouping of guests (for example "Family"), up to 40 characters; unrelated to seating. A group exists while a guest uses it; a name differing only in capitals joins the existing group |
 | Deleted | Soft-delete marker, default `0` |
 
 A normalized phone number is unique **within each event**. In the MVP a number written without `+` is read as an Israeli number, in any local or `+972` form; a number from another country is entered with `+` and its country code. A number that is local to another country is refused, not read as Israeli. Israeli numbers are shown in local form (`050-730-8828`) everywhere, including exports, however they were entered; foreign numbers are shown with their country code. The same rule applies to imported files and to the public RSVP form.
@@ -167,8 +168,10 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 ### 6.3 Guests screen
 
 - Known Guests list with create, view, update, soft-delete, search, and sortable columns.
-- Search by first name, last name, full name, Invitation Name, and phone number.
-- Show attendee allowance, confirmed count, RSVP status, invitation counter, and Table Number (if assigned).
+- Search by first name, last name, full name, Invitation Name, group, and phone number. Filter by RSVP status, invitation status, table and group.
+- Show group, attendee allowance, confirmed count, RSVP status, invitation counter, and Table Number (if assigned). Column headings are centred, and so are the number columns.
+- Add Guest and Edit Guest include Group (typed, with the event's existing groups suggested) and Table. Table can be chosen only for an Approved guest, so it is greyed when adding a guest.
+- Import accepts an optional Group column; exports include it.
 - Allow authorized users to manually update RSVP status, confirmed attendees, and table assignments subject to the same rules as public RSVP and Event Layout.
 - Provide a WhatsApp action for each guest.
 - Desktop table and intentionally adapted mobile list/card layout.
@@ -308,7 +311,7 @@ Table-total mismatch is **nonblocking**, including when chairs exceed the event 
 
 ### 11.1 Tables
 
-The organizer can create, view, update, and delete tables. Each table has a unique number within its event, a name, a capacity (number of chairs), and a shape: **circle, rectangle, or square**.
+The organizer can create, view, update, and delete tables. Each table has a unique number within its event, a capacity (number of chairs), and a shape: **circle, rectangle, or square**.
 
 Tables display assigned/available chairs and guests. Authorized users can assign or unassign guests both from the Tables view and from the Table field in Guests.
 
@@ -327,7 +330,7 @@ Tables display assigned/available chairs and guests. Authorized users can assign
 Support **CSV and XLSX** exports for venue operations:
 
 - Detailed rows: Table Number, Table Name, Guest First Name, Last Name, Invitation Name, Phone, Confirmed Attendees.
-- Summary: Table Number, Name, Capacity, Assigned, Remaining.
+- Summary: Table Number, Capacity, Assigned, Remaining.
 
 Exports remain available after an event becomes Past.
 

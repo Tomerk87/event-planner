@@ -37,6 +37,7 @@ export function makeGuest(overrides: Partial<Guest> = {}): Guest {
     lastInvitationSentAt: null,
     lastRsvpResponseAt: null,
     tableId: null,
+    group: null,
     deleted: false,
     ...overrides,
   }
@@ -61,7 +62,6 @@ export function makeTable(overrides: Partial<EventTable> = {}): EventTable {
     id: 't-1',
     eventId: 'evt-1',
     number: 1,
-    name: 'Family',
     capacity: 10,
     shape: 'CIRCLE',
     ...overrides,

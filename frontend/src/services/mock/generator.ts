@@ -179,28 +179,10 @@ const NAMES: Record<RsvpLanguage, { first: string[]; last: string[] }> = {
   },
 }
 
-const TABLE_NAMES: Record<RsvpLanguage, string[]> = {
-  en: [
-    'Family',
-    'Friends',
-    'College Friends',
-    'Work Colleagues',
-    'Neighbours',
-    'Cousins',
-    'School Friends',
-    'Team',
-    'Old Friends',
-    'Extended Family',
-    'Travel Friends',
-    'Book Club',
-    'Sports Club',
-    'Mentors',
-    'Classmates',
-    'Close Friends',
-    'Relatives',
-    'Guests of Honour',
-  ],
-  he: ['משפחה', 'חברים', 'חברים מהצבא', 'עבודה', 'שכנים', 'בני דודים'],
+// Guest groups, dealt out in turn; every fifth guest is in none.
+const GUEST_GROUPS: Record<RsvpLanguage, (string | null)[]> = {
+  en: ['Family', 'Friends', 'Work', 'Neighbours', null],
+  he: ['משפחה', 'חברים', 'עבודה', 'שכנים', null],
 }
 
 const TABLE_CAPACITIES = [10, 12, 8, 10, 12, 14, 10, 8, 12, 10]
@@ -526,6 +508,7 @@ function createEventData(
         ? new Date(momentIn(firstSend + HOUR_MS, windowEnd)).toISOString()
         : null,
       tableId: null,
+      group: GUEST_GROUPS[spec.language][index % 5] ?? null,
       deleted: false,
     }
     guests.push(guest)
@@ -551,9 +534,6 @@ function createEventData(
       id: `tbl-${eventIndex + 1}-${pad(index + 1, 2)}`,
       eventId: event.id,
       number: index + 1,
-      name:
-        TABLE_NAMES[spec.language][index % TABLE_NAMES[spec.language].length] ??
-        '',
       capacity: TABLE_CAPACITIES[index % TABLE_CAPACITIES.length] ?? 10,
       shape: TABLE_SHAPES[index % TABLE_SHAPES.length] ?? 'CIRCLE',
     }),

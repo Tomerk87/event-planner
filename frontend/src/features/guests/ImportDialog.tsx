@@ -350,6 +350,7 @@ function ImportSteps({
                       ? format.number(row.input.allowedAttendees)
                       : row.values.allowedAttendees}
                   </td>
+                  <td>{row.values.group}</td>
                   <td>
                     {row.error ? (
                       <span className={styles.rowError}>

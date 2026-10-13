@@ -158,7 +158,14 @@ export function createMockServices(options: MockOptions): Services {
         version: dataVersion,
       })
     ) {
-      return stored.state
+      // Data saved before guests had groups reads as guests in no group.
+      return {
+        ...stored.state,
+        guests: stored.state.guests.map((guest) => ({
+          ...guest,
+          group: guest.group ?? null,
+        })),
+      }
     }
     // Nothing stored is a first visit; anything else is stale or damaged data.
     regenerated = stored !== null
