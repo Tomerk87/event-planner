@@ -69,12 +69,26 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
 - The "View Event" button and the Quick Actions panel are not in the PRD. **Decided (2026-10-13):** the button is named **Event Settings** and opens the Event Settings page. Quick Actions are navigation shortcuts, built as drawn.
 - The sample numbers are not internally consistent (for example "exceeds by 14 attendees (300 / 286)" beside 214 confirmed of 300). All dashboard values are derived from data per PRD §10, never copied from the image.
 
+- **RSVP Status chart.** The mockup's four groups (100 + 43 + 4 + 21) do not add up to its 164 guests, because guests who were never invited are missing. A fifth group, "Not Sent", is added (decided 2026-10-13).
+- **Chevrons on the warnings** imply they lead somewhere, without showing where. Each warning is built as a link to the page where it is fixed (confirmed 2026-10-13).
+- **"View All"** on Recent Guest Activity opens the longer list in a dialog (confirmed 2026-10-13).
+- With ten cards the KPI grid is five per row on a wide screen, where the mockup shows four; two per row on a phone as drawn.
+- On a phone the mockup shows no header button; the Event Settings button is shown full-width under the title.
+- No charting library is used; the ring and bars are drawn with SVG and CSS.
+
 ### Guests
 
-- Rows have **selection checkboxes**, implying bulk actions. The PRD defines none, and bulk sending is out of scope (§17). **Decision needed.**
-- Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. A separate label is needed for not-yet-invited guests. **Decision needed** on the wording.
+Decided 2026-10-13 unless noted.
+
+- Rows have **selection checkboxes**. Selecting rows offers Delete selected (with confirmation) and Export selected. Bulk sending is out of scope (PRD §17).
+- Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. Such guests are labelled **Not Sent**.
+- The **sliders button** beside the filters has no label or drawn behaviour. It is a column chooser: a dropdown listing every column with a checkbox, with Select all and Clear; Name and Phone are always shown. It appears only with the desktop table, so the phone mockup's sliders button is not reproduced.
+- A **Clear filters** button, not in the mockup, is added beside it.
+- The **"⋯" menu** holds Change RSVP and Delete. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel.
+- The **WhatsApp button** on each row is shown disabled with a "Soon" hint until Phase 8.
+- The **Export** dropdown offers CSV and Excel.
 - The KPI strip and the RSVP Status / Invitation Status / Table filters are not in the PRD; treated as presentation of existing data.
-- The Unknown Guests tab is visible only as a tab header; its content has no mockup.
+- The Unknown Guests tab is visible only as a tab header; its content has no mockup. Rejected responses are kept in a Rejected list, also without a mockup.
 
 ### WhatsApp Messages
 

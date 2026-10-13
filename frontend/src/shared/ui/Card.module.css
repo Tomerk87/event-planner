@@ -45,6 +45,11 @@
   line-height: var(--line-height-tight);
 }
 
+.kpiHint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-subtle);
+}
+
 .kpiIcon {
   display: inline-flex;
   flex-shrink: 0;

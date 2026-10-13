@@ -54,8 +54,6 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 | # | Decision | Needed by |
 |---|---|---|
 | D12 | Target of the Event Settings "View Event Rules" button (the Dashboard half was resolved 2026-10-13) | Phase 7 |
-| D13 | Bulk selection on the Guests table: which bulk actions, if any | Phase 6 |
-| D14 | Display label for a guest with no invitation sent and no response | Phase 6 |
 | D16 | "Send Test Message": include or omit, and what it does | Phase 8 |
 | D17 | Message editor formatting controls | Phase 8 |
 | D19 | RSVP language: which page owns it and at what point it becomes fixed | Phase 7 |
@@ -68,10 +66,7 @@ The approved documents do not settle these. Each was given the most conservative
 | # | Default applied | Where it matters |
 |---|---|---|
 | P1 | Permissions can still be managed on a past event. PRD section 5.2 lists the operational data that becomes read-only and does not include permissions | Phase 11 |
-| P2 | A guest needs a first name; the last name is optional | Phase 6 |
-| P3 | A guest's allowed attendees cannot be lowered below a count they have already confirmed | Phase 6 |
 | P4 | A table's capacity can be lowered below its current occupancy; the table is then shown as over capacity | Phase 10 |
-| P6 | Converting or merging an unknown response is refused if its attendee count exceeds the guest's allowance; the organizer raises the allowance first | Phase 6 |
 | P7 | The RSVP language can be changed when editing an event, until D19 is decided | Phase 7 |
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
@@ -111,3 +106,18 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D28 | **Dashboard KPI cards** include Seating Capacity and Unassigned Confirmed Attendees as two more cards, in the mockup's card style, after Confirmed Attendees. | 2026-10-13 |
 | D29 | **Dashboard warnings** the mockup does not draw (table chairs above or below the event maximum, confirmed attendees awaiting a table) use the same style as the mockup's over-capacity warning. | 2026-10-13 |
 | D30 | **Landing page preview** stays a drawing; it is not replaced by a screenshot of the Dashboard. | 2026-10-13 |
+| D13 | **Bulk selection on the Guests table:** selecting rows offers Delete selected (with confirmation) and Export selected. Bulk WhatsApp sending stays out of scope. | 2026-10-13 |
+| D14 / P9 | A guest with no invitation sent and no response is labelled **Not Sent**, on the Guests page and in the Dashboard's RSVP Status chart. "Awaiting Response" is used only for guests who were sent an invitation. | 2026-10-13 |
+| P2 | Confirmed: a guest needs a first name; the last name is optional. | 2026-10-13 |
+| P3 | Confirmed: a guest's allowed attendees cannot be lowered below a count they have already confirmed. | 2026-10-13 |
+| P6 | Confirmed: converting or merging an unknown response is refused if its attendee count exceeds the guest's allowance; the organizer raises the allowance first. | 2026-10-13 |
+| P10 | Confirmed: **View All** on Recent Guest Activity opens a dialog with the 50 most recent entries; the card shows the newest five. | 2026-10-13 |
+| P11 | Confirmed: each Dashboard warning is a link — "Event over capacity" opens Event Settings; the seating, table and awaiting-table warnings open Event Layout. | 2026-10-13 |
+| P12 | Changed by the owner: activity times are shown in the **viewer's own time zone**, as "Today" or "Yesterday" by the viewer's calendar, otherwise with the date. The event's own date and time are still shown in the event's time zone. | 2026-10-13 |
+| P13 | Confirmed: each Dashboard KPI card says what its figure counts — invitations, people or chairs. | 2026-10-13 |
+| D31 | **Rejected unknown responses are kept.** Rejecting moves the response to a Rejected list, from which it can be restored to the review list. | 2026-10-13 |
+| D32 | **Guest export** offers CSV and Excel (XLSX). An export always contains every field, whatever columns are visible. | 2026-10-13 |
+| D33 | **Guest row actions:** the ">" arrow on a phone and the guest's name on desktop open a details panel; the "⋯" menu holds Change RSVP and Delete; the pencil opens the edit form. | 2026-10-13 |
+| D34 | **Column chooser:** the sliders button beside the Guests filters is a dropdown listing every column with a checkbox, with Select all and Clear. Name and Phone are always shown, as are the selection and Actions columns. All columns are shown by default. The choice is remembered in the browser and applies to every event. Hiding the sorted column returns sorting to Name. Desktop table only; hidden on a phone. | 2026-10-13 |
+| D35 | **Clear filters:** a button beside the column chooser resets the search and the three filter dropdowns. It leaves the column choice and sorting alone and is shown only when something is filtered. | 2026-10-13 |
+| D36 | **The per-row WhatsApp button** on the Guests page is shown disabled with a "Soon" hint until the message page is built in Phase 8. | 2026-10-13 |

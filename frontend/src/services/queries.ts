@@ -20,6 +20,7 @@ export const queryKeys = {
   currentUser: ['session', 'currentUser'],
   events: ['events'],
   eventAccess: (eventId: string) => ['events', eventId, 'access'],
+  dashboard: (eventId: string) => ['events', eventId, 'dashboard'],
   demoRole: ['demo', 'role'],
 } as const
 

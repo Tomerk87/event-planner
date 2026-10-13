@@ -22,6 +22,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Individual attendee records | Names or details for each person in a party. In the MVP attendees are only counted. | PRD §17 |
 | Guest-specific RSVP URLs | One link per guest. The MVP has one shared link per event. | PRD §17 |
 | Guest-selectable RSVP language | More than one guest-facing language within an event. | PRD §17 |
+| Choosing which details the phone guest cards show | On a phone the guest cards always show the same details; the column chooser applies to the desktop table only. | Owner decision 2026-10-13 |
 | Configurable RSVP deadline | Closing RSVP earlier than the event start. | PRD §17; `PLAN.md` backlog |
 
 ## Messaging

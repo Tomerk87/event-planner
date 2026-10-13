@@ -64,7 +64,7 @@ test('pages fit a very narrow phone without sideways scrolling', async ({
   for (const [path, content] of [
     ['/events', 'Annual Company Gala'],
     ['/events/evt-1/guests', 'This page is not implemented yet.'],
-    ['/events/evt-5/dashboard', 'This page is not implemented yet.'],
+    ['/events/evt-5/dashboard', 'Quick Actions'],
   ] as const) {
     await page.goto(path)
     await expect(page.getByText(content)).toBeVisible()

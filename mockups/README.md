@@ -60,6 +60,14 @@ Desktop:
 Mobile:
 - `guests_mobile.png`
 
+Notes:
+- A guest with no invitation sent and no response is labelled "Not Sent", not "Awaiting Response" as drawn.
+- The sliders button beside the filters is a column chooser on the desktop table and is not shown on a phone. A "Clear filters" button is added beside it.
+- The "⋯" menu holds Change RSVP and Delete; the ">" arrow on a phone and the guest's name on desktop open a details panel.
+- Row checkboxes offer Delete selected and Export selected.
+- The WhatsApp button on each row is disabled with a "Soon" hint until the message page is built.
+- See `docs/MOCKUP_NOTES.md` for the full list.
+
 ## Event Layout
 
 Desktop:

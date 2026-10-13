@@ -17,7 +17,14 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 1
+export const DATASET_VERSION = 2
+
+/**
+ * Version of the accounts workspace, which holds what people created
+ * themselves. It changes only when its shape does, never because the
+ * generated demo content changed.
+ */
+export const ACCOUNTS_VERSION = 1
 
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {
@@ -78,14 +85,17 @@ export function createEmptyState(): DemoState {
  */
 export function isUsableStoredDemo(
   value: unknown,
-  { requireCurrentUser = true }: { requireCurrentUser?: boolean } = {},
+  {
+    requireCurrentUser = true,
+    version: expectedVersion = DATASET_VERSION,
+  }: { requireCurrentUser?: boolean; version?: number } = {},
 ): value is StoredDemo {
   if (typeof value !== 'object' || value === null) {
     return false
   }
   const { version, state } = value as Partial<StoredDemo>
   if (
-    version !== DATASET_VERSION ||
+    version !== expectedVersion ||
     typeof state !== 'object' ||
     state === null
   ) {

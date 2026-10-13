@@ -10,7 +10,7 @@ import { createMockServices, type MockOptions } from './mockServices.ts'
 import type { DemoPersistence, Persistence } from './persistence.ts'
 import {
   createEmptyState,
-  DATASET_VERSION,
+  ACCOUNTS_VERSION,
   isUsableStoredDemo,
   type DemoState,
 } from './state.ts'
@@ -76,7 +76,10 @@ export function createMockBackend(options: MockBackendOptions): Backend {
 
   function loadAccounts(): DemoState {
     const stored = accountsPersistence.load()
-    return isUsableStoredDemo(stored, { requireCurrentUser: false })
+    return isUsableStoredDemo(stored, {
+      requireCurrentUser: false,
+      version: ACCOUNTS_VERSION,
+    })
       ? stored.state
       : createEmptyState()
   }
@@ -113,7 +116,7 @@ export function createMockBackend(options: MockBackendOptions): Backend {
             isSuperUser: false,
           }
           accountsPersistence.save({
-            version: DATASET_VERSION,
+            version: ACCOUNTS_VERSION,
             state: {
               ...state,
               nextId: state.nextId + 1,
@@ -161,6 +164,7 @@ export function createMockBackend(options: MockBackendOptions): Backend {
             actingUserId: session.userId,
             seed: createEmptyState,
             demoControls: false,
+            dataVersion: ACCOUNTS_VERSION,
           }),
         }
       }

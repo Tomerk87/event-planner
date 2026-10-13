@@ -13,7 +13,6 @@ import { renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
   it.each([
-    ['/events/evt-1/dashboard', 'Dashboard'],
     ['/events/evt-1/guests', 'Guests'],
     ['/events/evt-1/rsvp', 'RSVP Settings'],
     ['/events/evt-1/messages', 'WhatsApp Messages'],

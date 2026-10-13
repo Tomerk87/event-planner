@@ -15,12 +15,18 @@ async function expectNoViolations(page: Page) {
 }
 
 async function expectNoSidewaysScroll(page: Page, where: string) {
-  const overflow = await page.evaluate(
-    () =>
-      document.documentElement.scrollWidth -
-      document.documentElement.clientWidth,
-  )
-  expect(overflow, `horizontal overflow at ${where}`).toBe(0)
+  // Polled, because after a resize the layout settles a moment later.
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () =>
+            document.documentElement.scrollWidth -
+            document.documentElement.clientWidth,
+        ),
+      { message: `horizontal overflow at ${where}` },
+    )
+    .toBe(0)
 }
 
 async function setLanguage(page: Page, language: 'en' | 'he') {

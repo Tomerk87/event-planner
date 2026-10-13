@@ -52,6 +52,14 @@
   --color-neutral-soft: #eceff5;
   --color-neutral-border: #d9deea;
 
+  /* Chart segments (decorative; every chart also states its figures as text) */
+  --color-chart-approved: #22c55e;
+  --color-chart-declined: #ef4444;
+  --color-chart-not-sure: #f59e0b;
+  --color-chart-awaiting: #94a3b8;
+  --color-chart-not-invited: #cbd5e1;
+  --color-chart-seating: #a5b4fc;
+
   --color-overlay: rgb(15 20 51 / 55%);
 
   --font-sans:

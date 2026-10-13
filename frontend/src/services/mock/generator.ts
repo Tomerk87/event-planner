@@ -395,6 +395,38 @@ function invitationNameFor(
   return language === 'he' ? `משפחת ${lastName}` : `The ${lastName} Family`
 }
 
+/**
+ * Two guests of one event never share a full name, so lists stay readable.
+ * A clash moves on to the next last name (then first name) in order, without
+ * drawing more random numbers, so the rest of the dataset is unaffected.
+ */
+function uniqueName(
+  firstName: string,
+  lastName: string,
+  names: { first: string[]; last: string[] },
+  used: Set<string>,
+): { firstName: string; lastName: string } {
+  const firstStart = names.first.indexOf(firstName)
+  const lastStart = names.last.indexOf(lastName)
+  for (let firstStep = 0; firstStep < names.first.length; firstStep += 1) {
+    for (let lastStep = 0; lastStep < names.last.length; lastStep += 1) {
+      const candidate = {
+        firstName:
+          names.first[(firstStart + firstStep) % names.first.length] ??
+          firstName,
+        lastName:
+          names.last[(lastStart + lastStep) % names.last.length] ?? lastName,
+      }
+      const key = `${candidate.firstName} ${candidate.lastName}`
+      if (!used.has(key)) {
+        used.add(key)
+        return candidate
+      }
+    }
+  }
+  return { firstName, lastName }
+}
+
 function pickStatus(random: Random): RsvpStatus {
   const roll = random()
   if (roll < 0.62) {
@@ -434,10 +466,15 @@ function createEventData(
 
   const guests: Guest[] = []
   const sends: MessageSend[] = []
+  const usedNames = new Set<string>()
 
   for (let index = 0; index < spec.guests; index += 1) {
-    const firstName = pick(random, names.first)
-    const lastName = pick(random, names.last)
+    const { firstName, lastName } = uniqueName(
+      pick(random, names.first),
+      pick(random, names.last),
+      names,
+      usedNames,
+    )
     const phone = `+972 00-${pad(eventIndex + 1, 3)}-${pad(index + 1, 4)}`
     const allowedAttendees = random() < 0.75 ? 5 : intBetween(random, 1, 10)
 
