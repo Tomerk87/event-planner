@@ -135,7 +135,7 @@ describe('My Events', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Dashboard' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('This event has ended')).toBeInTheDocument()
+    expect(await screen.findByText('This event has ended')).toBeInTheDocument()
   })
 
   it('filters by upcoming and past, and keeps the filter in the address', async () => {

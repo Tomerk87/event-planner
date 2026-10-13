@@ -140,3 +140,66 @@ export function deriveRecentActivity(
     )
     .slice(0, limit)
 }
+
+export const RSVP_SEGMENTS = [
+  'approved',
+  'declined',
+  'notSure',
+  'awaiting',
+  'notInvited',
+] as const
+
+export type RsvpSegment = (typeof RSVP_SEGMENTS)[number]
+
+export interface RsvpShare {
+  segment: RsvpSegment
+  /** Guests (invitations), not attendees. */
+  count: number
+  /** Whole percent of all guests; the shares of an event add up to 100. */
+  percent: number
+}
+
+/**
+ * Every active guest in exactly one group, for the RSVP status chart:
+ * the three responses, guests who were invited and have not answered, and
+ * guests who have neither been invited nor answered.
+ */
+export function computeRsvpBreakdown(metrics: DashboardMetrics): RsvpShare[] {
+  const counts: Record<RsvpSegment, number> = {
+    approved: metrics.rsvpApproved,
+    declined: metrics.rsvpDeclined,
+    notSure: metrics.rsvpNotSure,
+    awaiting: metrics.awaitingResponse,
+    notInvited: Math.max(
+      0,
+      metrics.totalGuests -
+        metrics.rsvpApproved -
+        metrics.rsvpDeclined -
+        metrics.rsvpNotSure -
+        metrics.awaitingResponse,
+    ),
+  }
+  const total = RSVP_SEGMENTS.reduce((sum, segment) => sum + counts[segment], 0)
+  const exact = RSVP_SEGMENTS.map((segment) =>
+    total === 0 ? 0 : (counts[segment] / total) * 100,
+  )
+  const percents = exact.map(Math.floor)
+  // Hand the percent points lost to rounding down to the largest remainders.
+  let missing = total === 0 ? 0 : 100 - percents.reduce((sum, p) => sum + p, 0)
+  const byRemainder = exact
+    .map((value, index) => ({ index, remainder: value - Math.floor(value) }))
+    .sort((a, b) => b.remainder - a.remainder || a.index - b.index)
+  for (const { index } of byRemainder) {
+    if (missing <= 0) {
+      break
+    }
+    percents[index] = (percents[index] ?? 0) + 1
+    missing -= 1
+  }
+
+  return RSVP_SEGMENTS.map((segment, index) => ({
+    segment,
+    count: counts[segment],
+    percent: percents[index] ?? 0,
+  }))
+}

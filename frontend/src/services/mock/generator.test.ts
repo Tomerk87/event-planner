@@ -92,6 +92,16 @@ describe('demo dataset generator', () => {
     }
   })
 
+  it('gives every guest a full name that is unique within their event', () => {
+    for (const event of state.events) {
+      const names = guestsOf(event.id).map(
+        (guest) => `${guest.firstName} ${guest.lastName}`,
+      )
+
+      expect(new Set(names).size).toBe(names.length)
+    }
+  })
+
   it('keeps RSVP data consistent with each status', () => {
     for (const guest of state.guests) {
       expect(guest.allowedAttendees).toBeGreaterThanOrEqual(1)

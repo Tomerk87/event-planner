@@ -47,14 +47,23 @@ interface KpiCardProps {
   value: ReactNode
   icon: ReactNode
   tone?: Tone
+  /** What the figure counts, when the label alone could be misread. */
+  hint?: string
 }
 
-export function KpiCard({ label, value, icon, tone = 'info' }: KpiCardProps) {
+export function KpiCard({
+  label,
+  value,
+  icon,
+  tone = 'info',
+  hint,
+}: KpiCardProps) {
   return (
     <div className={cx(styles.card, styles.kpi)}>
       <div>
         <p className={styles.kpiLabel}>{label}</p>
         <p className={styles.kpiValue}>{value}</p>
+        {hint && <p className={styles.kpiHint}>{hint}</p>}
       </div>
       <span className={cx(styles.kpiIcon, styles[tone])} aria-hidden="true">
         {icon}

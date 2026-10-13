@@ -306,6 +306,114 @@
       "action": "Clear search and filter"
     }
   },
+  "dashboard": {
+    "subtitle": "Overview of your event guests and RSVPs.",
+    "unit": {
+      "invitations": "invitations",
+      "people": "people",
+      "chairs": "chairs"
+    },
+    "kpis": {
+      "label": "Key figures",
+      "totalGuests": "Total Guests",
+      "invitationsSent": "Invitations Sent",
+      "invitationsNotSent": "Invitations Not Sent",
+      "awaitingResponse": "Awaiting Response",
+      "rsvpApproved": "RSVP Approved",
+      "rsvpNotSure": "RSVP Not Sure",
+      "rsvpDeclined": "RSVP Declined",
+      "confirmedAttendees": "Confirmed Attendees",
+      "seatingCapacity": "Seating Capacity",
+      "unassignedConfirmedAttendees": "Unassigned Confirmed Attendees"
+    },
+    "warnings": {
+      "label": "Warnings",
+      "overMaximum": {
+        "title": "Event over capacity",
+        "body": "Confirmed attendance exceeds the event maximum by {{over}} ({{confirmed}} / {{max}})."
+      },
+      "seatingBelow": {
+        "title": "Seating capacity below event capacity",
+        "body": "{{seats}} seats are configured for an event maximum of {{max}}. {{difference}} more are needed."
+      },
+      "seatingAbove": {
+        "title": "Seating capacity above event capacity",
+        "body": "{{seats}} seats are configured for an event maximum of {{max}}: {{difference}} more than the event allows."
+      },
+      "tables": {
+        "title": "Tables over capacity: {{count}}",
+        "line": "Table {{table}} is over its capacity by {{over}}.",
+        "more": "And {{count}} more."
+      },
+      "awaitingTable": {
+        "title": "Confirmed attendees without a table",
+        "body": "{{count}} confirmed attendees are not assigned to a table yet."
+      }
+    },
+    "rsvp": {
+      "title": "RSVP Status",
+      "subtitle": "Breakdown of guest responses.",
+      "guests": "Guests",
+      "chartLabel": "Chart of the RSVP status of {{count}} guests; the figures are in the table that follows.",
+      "percent": "{{percent}}%",
+      "columns": {
+        "status": "Status",
+        "guests": "Guests",
+        "share": "Share of guests"
+      },
+      "segments": {
+        "approved": "Approved",
+        "declined": "Declined",
+        "notSure": "Not Sure",
+        "awaiting": "Awaiting Response",
+        "notInvited": "Not Invited Yet"
+      },
+      "emptyTitle": "No guests yet",
+      "emptyBody": "Add guests to see how they respond."
+    },
+    "capacity": {
+      "title": "Attendance vs Capacity",
+      "subtitle": "Confirmed attendees and table seats compared to your event maximum.",
+      "confirmed": "Confirmed Attendees",
+      "seating": "Seating Capacity (Tables)",
+      "ofMaximum": "{{value}} / {{max}}",
+      "note": "The dashed line marks the event maximum of {{max}} attendees."
+    },
+    "activity": {
+      "title": "Recent Guest Activity",
+      "subtitle": "Latest RSVP responses and invitation activity.",
+      "viewAll": "View All",
+      "approved": "RSVP approved, {{attendees}} attending",
+      "declined": "RSVP declined",
+      "notSure": "RSVP submitted: not sure",
+      "sent": "Invitation sent via WhatsApp",
+      "today": "Today, {{time}}",
+      "yesterday": "Yesterday, {{time}}",
+      "onDate": "{{date}}, {{time}}",
+      "emptyTitle": "No activity yet",
+      "emptyBody": "Sent invitations and RSVP responses will appear here."
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "subtitle": "Common tasks for your event.",
+      "guests": {
+        "title": "Manage Guests",
+        "body": "Add, edit or import guests"
+      },
+      "messages": {
+        "title": "Send WhatsApp Messages",
+        "body": "Open WhatsApp with your template"
+      },
+      "rsvp": {
+        "title": "RSVP Settings",
+        "body": "Copy link and customize messages"
+      },
+      "tables": {
+        "title": "Manage Tables",
+        "body": "Create tables and assign guests"
+      }
+    }
+  },
   "showcase": {
     "title": "Design System",
     "subtitle": "Shared components and layout used across Event Planner.",

@@ -76,6 +76,18 @@ The approved documents do not settle these. Each was given the most conservative
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
 
+### Defaults applied in Phase 5, to confirm
+
+Where the Dashboard mockup shows an element without showing what it does, or the figures needed something the mockup lacks.
+
+| # | Default applied | Where it matters |
+|---|---|---|
+| P9 | The RSVP Status chart has a fifth group, **Not Invited Yet**: guests with no invitation sent and no response. Without it the groups do not add up to Total Guests. The wording is the same question as D14 | Phase 6 |
+| P10 | **View All** on Recent Guest Activity opens a dialog with the 50 most recent entries. The card shows the newest five | Phase 5 |
+| P11 | Each warning is a link: "Event over capacity" opens Event Settings; the seating, table and awaiting-table warnings open Event Layout | Phase 5 |
+| P12 | Activity times are shown in the event's time zone, as "Today" or "Yesterday" by that zone's calendar, otherwise with the date | Phase 5 |
+| P13 | Each KPI card says what its figure counts — invitations, people or chairs — so approved invitations and confirmed attendees cannot be confused | Phase 5 |
+
 ## Resolved decisions
 
 Move a row here, with the date and the outcome, when a decision is made. Update the PRD at the same time when the outcome changes product behavior (PRD §19).

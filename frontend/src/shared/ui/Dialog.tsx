@@ -12,6 +12,11 @@ interface DialogProps {
   title: string
   children: ReactNode
   footer?: ReactNode
+  /**
+   * For long content with nothing to tab to (a read-only list): lets the
+   * content itself take focus so it can be scrolled from the keyboard.
+   */
+  scrollableContent?: boolean
 }
 
 interface DialogFrameProps extends DialogProps {
@@ -24,6 +29,7 @@ function DialogFrame({
   title,
   children,
   footer,
+  scrollableContent = false,
   placement,
 }: DialogFrameProps) {
   const { t } = useTranslation()
@@ -51,7 +57,12 @@ function DialogFrame({
               <X />
             </IconButton>
           </div>
-          <div className={styles.body}>{children}</div>
+          <div
+            className={styles.body}
+            tabIndex={scrollableContent ? 0 : undefined}
+          >
+            {children}
+          </div>
           {footer && <div className={styles.footer}>{footer}</div>}
         </div>
       )}

@@ -58,7 +58,7 @@ import type { DemoPersistence } from './persistence.ts'
 import { DATASET_VERSION, isUsableStoredDemo, type DemoState } from './state.ts'
 
 const MAX_MESSAGE_LENGTH = 500
-const RECENT_ACTIVITY_LIMIT = 10
+const RECENT_ACTIVITY_LIMIT = 50
 
 export interface MockOptions {
   persistence: DemoPersistence
@@ -78,6 +78,8 @@ export interface MockOptions {
   seed?: (now: Date) => DemoState
   /** Whether the demo-only controls (simulated role, reset) are offered. */
   demoControls?: boolean
+  /** Version stamp of the stored data; the demo dataset's by default. */
+  dataVersion?: number
 }
 
 interface EventContext {
@@ -102,6 +104,7 @@ export function createMockServices(options: MockOptions): Services {
     actingUserId,
     seed = generateDemoState,
     demoControls = true,
+    dataVersion = DATASET_VERSION,
   } = options
 
   let regenerated = false
@@ -112,6 +115,7 @@ export function createMockServices(options: MockOptions): Services {
     if (
       isUsableStoredDemo(stored, {
         requireCurrentUser: actingUserId === undefined,
+        version: dataVersion,
       })
     ) {
       return stored.state
@@ -122,7 +126,7 @@ export function createMockServices(options: MockOptions): Services {
   }
 
   function save(next: DemoState): DemoState {
-    persistence.save({ version: DATASET_VERSION, state: next })
+    persistence.save({ version: dataVersion, state: next })
     return next
   }
 

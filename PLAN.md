@@ -170,21 +170,21 @@
 - Desktop: `dashboard.png`; mobile: `dashboard_mobile.png`.
 
 ### Checklist
-- [ ] Build responsive KPI-card layout consistent with mockups.
-- [ ] Compute Total Guests (active only), Invitations Sent (distinct sent guests), Invitations Not Sent, Awaiting Response, RSVP Approved/Not Sure/Declined, Confirmed Attendees, Seating Capacity and Unassigned Confirmed Attendees.
-- [ ] Exclude Not Sure from confirmed/expected attendees and all soft-deleted guests from guest counts.
-- [ ] Add event maximum vs confirmed warning, chairs vs event maximum warning (either direction), and over-capacity table warning.
-- [ ] Reflect changes to RSVP, messages and tables immediately via shared mock state.
-- [ ] Add loading/empty/error presentations.
-- [ ] Show Seating Capacity and Unassigned Confirmed Attendees as two more KPI cards after Confirmed Attendees (decision D28).
-- [ ] Name the header button "Event Settings" (drawn as "View Event") and open the Event Settings page; build the Quick Actions shortcuts as drawn (decision D12).
-- [ ] Show the warnings the mockup does not draw in the same style as its over-capacity warning (decision D29).
-- [ ] Build Recent Guest Activity from the message history and each guest's latest response (decisions D11, P5).
+- [x] Build responsive KPI-card layout consistent with mockups.
+- [x] Compute Total Guests (active only), Invitations Sent (distinct sent guests), Invitations Not Sent, Awaiting Response, RSVP Approved/Not Sure/Declined, Confirmed Attendees, Seating Capacity and Unassigned Confirmed Attendees.
+- [x] Exclude Not Sure from confirmed/expected attendees and all soft-deleted guests from guest counts.
+- [x] Add event maximum vs confirmed warning, chairs vs event maximum warning (either direction), and over-capacity table warning.
+- [x] Reflect changes to RSVP, messages and tables immediately via shared mock state. Proven by tests that change data and reopen the Dashboard; the pages that make those changes on screen arrive in Phases 6, 8 and 10 and must refresh the event's data when they save.
+- [x] Add loading/empty/error presentations.
+- [x] Show Seating Capacity and Unassigned Confirmed Attendees as two more KPI cards after Confirmed Attendees (decision D28).
+- [x] Name the header button "Event Settings" (drawn as "View Event") and open the Event Settings page; build the Quick Actions shortcuts as drawn (decision D12).
+- [x] Show the warnings the mockup does not draw in the same style as its over-capacity warning (decision D29).
+- [x] Build Recent Guest Activity from the message history and each guest's latest response (decisions D11, P5).
 
 ### Validation and exit criteria
-- [ ] Five sends to one guest count as one Invitations Sent guest.
-- [ ] Approved party counts vs approved attendee totals are clearly distinct.
-- [ ] Mobile/desktop mockups and Hebrew/RTL validated.
+- [x] Five sends to one guest count as one Invitations Sent guest.
+- [x] Approved party counts vs approved attendee totals are clearly distinct.
+- [x] Mobile/desktop mockups and Hebrew/RTL validated, by the agent from screenshots. The owner's own visual review is still to come.
 
 ---
 
@@ -776,6 +776,24 @@ Follow-ups/risks:
 - The owner's visual review of the Phase 4 pages and of the Hebrew wording is still to come.
 - phase_3_completion and phase_4_completion are not merged to main; this work is on branch phase_4_followups, created from phase_4_completion; nothing committed.
 Next: Phase 5 — Dashboard. No open decisions remain for it.
+```
+
+```text
+2026-10-13 — Phase 5 complete (two passes: build, then review and fix).
+Done:
+- Dashboard page: ten KPI cards, each saying what it counts (invitations, people or chairs); warnings as links to the page where each is fixed; RSVP Status ring with a table of counts and shares; Attendance vs Capacity bars against the event maximum; Recent Guest Activity (five newest, View All for the rest); Quick Actions; Event Settings button. Loading, error-with-retry and no-guests states. English and Hebrew, desktop and phone.
+- Rule added: computeRsvpBreakdown puts every active guest in exactly one of five groups, with whole percentages that add up to 100.
+- Second pass fixed: an icon style clash that stretched some activity and quick-action icons; the tables warning shown in the wrong colour; "208 / 300" mirrored in Hebrew; the full activity dialog could not be scrolled from the keyboard (found by the accessibility check; Dialog gained a scrollableContent option); 16 guests in the main demo event shared a full name with another guest.
+- Demo dataset is now version 2 (guest names unique within an event). Browsers holding version 1 regenerate the demo once and show the "demo was updated" notice. Preview accounts now have their own version number and are not affected.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 570 passed, coverage 97.96% statements, 93.57% branches, 97.3% functions, 97.92% lines; `npm run test:e2e` 168 passed, 14 skipped by design, zero accessibility violations on the Dashboard of three events and its dialog, in English and Hebrew; `npm run build` succeeds. One end-to-end check was flaky (it measured page width before the layout settled after a resize) and was corrected to wait.
+Mockups reviewed: dashboard.png, dashboard_mobile.png, compared with screenshots at desktop and phone widths in English and Hebrew.
+Differences from the mockups: by decision — Event Settings button, two more KPI cards, extra warnings. Applied by the agent and listed for confirmation as P9–P13 in docs/DOMAIN.md — a fifth RSVP group "Not Invited Yet"; what View All does; where each warning leads; activity times in the event's time zone; a unit under each KPI figure.
+Follow-ups/risks:
+- P9–P13 await the owner's confirmation. P9 (the "Not Invited Yet" label) is the same question as D14 for the Guests page.
+- A new event with no tables shows the "seating below capacity" warning, as the PRD defines it.
+- Charts are drawn with plain SVG and CSS; no chart library was added.
+- Work is on branch phase_5_completion; nothing committed.
+Next: Phase 6 — Guests and Unknown Guests. Needs owner decisions D13 (bulk selection) and D14 (label for a guest not yet invited), and confirmation of defaults P2, P3 and P6.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

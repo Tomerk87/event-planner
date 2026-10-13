@@ -269,7 +269,9 @@ All guest-based metrics include active guests only (`deleted = 0`). Dashboard va
 
 There is no separate ambiguous Expected Attendees KPI in MVP: the authoritative expected count is **Confirmed Attendees**, and Not Sure is excluded.
 
-All ten figures are shown as KPI cards.
+All ten figures are shown as KPI cards, each stating what it counts: invitations (guest records), people (attendees) or chairs.
+
+The RSVP Status chart places every active guest in exactly one group — Approved, Declined, Not Sure, Awaiting Response, or not yet invited (no invitation sent and no response) — so the groups add up to Total Guests.
 
 The Recent Guest Activity list is derived from existing records: every recorded send, and each guest's latest RSVP response. No separate activity record is kept, so a guest who changed their answer appears once, with the latest answer. A response changed by an organizer counts as the guest's latest response.
 
