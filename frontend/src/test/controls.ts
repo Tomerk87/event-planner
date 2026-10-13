@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/react'
 
 function isDropdown(element: Element): boolean {
-  return element.matches('button[role="combobox"]')
+  return element.matches('[role="combobox"][aria-haspopup="listbox"]')
 }
 
 /** The choices of a dropdown, as shown when it is open. */

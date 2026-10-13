@@ -170,6 +170,10 @@ interface SelectFieldProps extends FieldCommonProps {
   required?: boolean
   disabled?: boolean
   icon?: ReactNode
+  /** Lets the choices be narrowed by typing; for long lists. */
+  searchable?: boolean
+  /** Shown when nothing matches what was typed. */
+  emptyLabel?: string
   /** Styles the button that shows the current choice. */
   className?: string
   /** The choices, written as `<option>` elements. */
@@ -218,6 +222,8 @@ export function SelectField({
   onChange,
   required,
   disabled,
+  searchable,
+  emptyLabel,
 }: SelectFieldProps) {
   const [ownValue, setOwnValue] = useState(defaultValue)
   return (
@@ -236,6 +242,8 @@ export function SelectField({
             options={toOptions(children)}
             disabled={disabled}
             icon={icon}
+            searchable={searchable}
+            emptyLabel={emptyLabel}
             className={className}
             onChange={(chosen) => {
               setOwnValue(chosen)

@@ -254,3 +254,18 @@ for (const language of ['en', 'he'] as const) {
     await expectNoSidewaysScroll(page, `${MESSAGES} at 320px (${language})`)
   })
 }
+
+test('the guest to preview is found by typing', async ({ page, isMobile }) => {
+  await openMessages(page)
+  const preview = await showPreview(page, isMobile)
+  const field = page.getByRole('combobox', { name: 'Preview for' })
+
+  await field.click()
+  await page.keyboard.type('alex we')
+  await expect(page.getByRole('option')).toHaveText(['Alex Wells'])
+  await expectNoViolations(page)
+  await page.keyboard.press('Enter')
+
+  await expect(field).toHaveValue('Alex Wells')
+  await expect(preview.getByText('Alex Wells')).toBeVisible()
+})

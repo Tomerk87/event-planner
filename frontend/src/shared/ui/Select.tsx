@@ -31,6 +31,13 @@ interface SelectProps {
   className?: string
   /** Shown before the current choice. */
   icon?: ReactNode
+  /**
+   * Makes the field a text box: typing narrows the list, as in the group
+   * picker. For long lists, such as an event's guests.
+   */
+  searchable?: boolean
+  /** Shown in the list when nothing matches what was typed. */
+  emptyLabel?: string
   'aria-label'?: string
   'aria-describedby'?: string
   'aria-invalid'?: true
@@ -48,22 +55,34 @@ const TYPEAHEAD_MS = 600
 export function Select({
   id,
   value,
-  options,
+  options: allOptions,
   onChange,
   disabled = false,
   className,
   icon,
+  searchable = false,
+  emptyLabel,
   ...aria
 }: SelectProps) {
   const listId = useId()
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const buttonRef = useRef<HTMLButtonElement & HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
   const typed = useRef({ text: '', at: 0 })
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   const [position, setPosition] = useState<CSSProperties | null>(null)
+  // What was typed into a searchable field since it opened; null shows all.
+  const [query, setQuery] = useState<string | null>(null)
+  const selected = allOptions.find((option) => option.value === value)
+  const needle = (query ?? '').trim().toLocaleLowerCase()
+  // The options listed: all of them, or those that match what was typed.
+  const options =
+    needle === ''
+      ? allOptions
+      : allOptions.filter((option) =>
+          option.label.toLocaleLowerCase().includes(needle),
+        )
   const selectedIndex = options.findIndex((option) => option.value === value)
-  const selected = options[selectedIndex]
 
   // Placed against the screen rather than the page, so a table or a dialog
   // that scrolls cannot cut the list off. It opens upwards near the bottom.
@@ -107,7 +126,7 @@ export function Select({
         list.scrollTop = bottom - list.clientHeight
       }
     }
-  }, [open, activeIndex])
+  }, [open, activeIndex, query])
 
   useEffect(() => {
     if (!open) {
@@ -121,6 +140,7 @@ export function Select({
         !listRef.current?.contains(target)
       ) {
         setOpen(false)
+        setQuery(null)
       }
     }
     // The list follows its button when the page scrolls or is resized.
@@ -144,14 +164,20 @@ export function Select({
   function show() {
     typed.current = { text: '', at: 0 }
     setPosition(null)
-    setActiveIndex(selectedIndex)
+    setQuery(null)
+    setActiveIndex(allOptions.findIndex((option) => option.value === value))
     setOpen(true)
+  }
+
+  function close() {
+    setOpen(false)
+    setQuery(null)
   }
 
   function choose(index: number) {
     const option = options[index]
     if (option && !option.disabled) {
-      setOpen(false)
+      close()
       if (option.value !== value) {
         onChange(option.value)
       }
@@ -193,7 +219,7 @@ export function Select({
     }
   }
 
-  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
     const { key } = event
     if (key === 'ArrowDown' || key === 'ArrowUp') {
       event.preventDefault()
@@ -203,7 +229,7 @@ export function Select({
         const step = key === 'ArrowDown' ? 1 : -1
         setActiveIndex(enabledFrom(activeIndex + step, step))
       }
-    } else if (key === 'Home' || key === 'End') {
+    } else if ((key === 'Home' || key === 'End') && !searchable) {
       if (open) {
         event.preventDefault()
         setActiveIndex(
@@ -212,11 +238,12 @@ export function Select({
             : enabledFrom(options.length - 1, -1),
         )
       }
-    } else if (key === 'Enter' || key === ' ') {
-      event.preventDefault()
+    } else if (key === 'Enter' || (key === ' ' && !searchable)) {
       if (open) {
+        event.preventDefault()
         choose(activeIndex)
-      } else {
+      } else if (!searchable) {
+        event.preventDefault()
         show()
       }
     } else if (key === 'Escape') {
@@ -224,45 +251,91 @@ export function Select({
         // Closes the list only, not the dialog the field may be in.
         event.preventDefault()
         event.stopPropagation()
-        setOpen(false)
+        close()
       }
     } else if (key === 'Tab') {
-      setOpen(false)
-    } else if (key.length === 1 && !event.ctrlKey && !event.metaKey) {
+      close()
+    } else if (
+      !searchable &&
+      key.length === 1 &&
+      !event.ctrlKey &&
+      !event.metaKey
+    ) {
       jumpTo(key)
     }
   }
 
+  const shared = {
+    ref: buttonRef,
+    id,
+    role: 'combobox',
+    'aria-haspopup': 'listbox',
+    'aria-expanded': open,
+    'aria-controls': open ? listId : undefined,
+    'aria-activedescendant':
+      open && activeIndex >= 0 && options[activeIndex]
+        ? `${listId}-${activeIndex}`
+        : undefined,
+    disabled,
+    'data-value': value,
+    onKeyDown: handleKeyDown,
+    ...aria,
+  } as const
+
   return (
     <>
-      <button
-        ref={buttonRef}
-        type="button"
-        id={id}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? listId : undefined}
-        aria-activedescendant={
-          open && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined
-        }
-        className={cx(styles.trigger, className)}
-        disabled={disabled}
-        value={value}
-        onClick={() => (open ? setOpen(false) : show())}
-        onKeyDown={handleKeyDown}
-        {...aria}
-      >
-        {icon && (
-          <span className={styles.icon} aria-hidden="true">
-            {icon}
-          </span>
-        )}
-        <span className={styles.value} lang={selected?.lang}>
-          {selected?.label ?? ''}
+      {searchable ? (
+        <span className={styles.search}>
+          <input
+            {...shared}
+            aria-autocomplete="list"
+            autoComplete="off"
+            className={cx(styles.trigger, styles.searchInput, className)}
+            lang={selected?.lang}
+            // The current choice until something is typed.
+            value={query ?? selected?.label ?? ''}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setActiveIndex(0)
+              if (!open) {
+                setPosition(null)
+                setOpen(true)
+              }
+            }}
+            onClick={(event) => {
+              if (!open) {
+                show()
+                // Ready to be typed over.
+                event.currentTarget.select()
+              }
+            }}
+            onBlur={(event) => {
+              if (!listRef.current?.contains(event.relatedTarget)) {
+                close()
+              }
+            }}
+          />
+          <ChevronDown className={styles.searchChevron} aria-hidden="true" />
         </span>
-        <ChevronDown className={styles.chevron} aria-hidden="true" />
-      </button>
+      ) : (
+        <button
+          {...shared}
+          type="button"
+          className={cx(styles.trigger, className)}
+          value={value}
+          onClick={() => (open ? close() : show())}
+        >
+          {icon && (
+            <span className={styles.icon} aria-hidden="true">
+              {icon}
+            </span>
+          )}
+          <span className={styles.value} lang={selected?.lang}>
+            {selected?.label ?? ''}
+          </span>
+          <ChevronDown className={styles.chevron} aria-hidden="true" />
+        </button>
+      )}
       {open && (
         <ul
           ref={listRef}
@@ -294,6 +367,11 @@ export function Select({
               {index === selectedIndex && <Check aria-hidden="true" />}
             </li>
           ))}
+          {options.length === 0 && emptyLabel && (
+            <li role="presentation" className={styles.empty}>
+              {emptyLabel}
+            </li>
+          )}
         </ul>
       )}
     </>

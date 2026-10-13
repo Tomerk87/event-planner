@@ -765,7 +765,8 @@
       "empty": "The message is empty.",
       "detailsTitle": "Preview details",
       "detailGuest": "Variables are replaced using the selected guest.",
-      "detailLink": "The RSVP link is the same for all guests."
+      "detailLink": "The RSVP link is the same for all guests.",
+      "noMatch": "No guest matches"
     },
     "sent": {
       "title": "Recent Sent Messages",

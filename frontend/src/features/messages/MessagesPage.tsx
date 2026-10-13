@@ -583,6 +583,8 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
           <>
             <SelectField
               label={t('messages.preview.for')}
+              searchable
+              emptyLabel={t('messages.preview.noMatch')}
               value={previewGuest?.id ?? ''}
               onChange={(change) => setChosenGuestId(change.target.value)}
             >

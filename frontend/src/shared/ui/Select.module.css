@@ -69,3 +69,32 @@
   flex: 1;
   white-space: nowrap;
 }
+
+/* The searchable kind: a text box with the same frame. */
+.search {
+  position: relative;
+  display: flex;
+  inline-size: 100%;
+}
+
+.searchInput {
+  padding-inline-end: var(--space-10);
+  cursor: text;
+}
+
+.searchChevron {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--space-3);
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.empty {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

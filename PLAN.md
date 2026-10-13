@@ -953,4 +953,15 @@ Follow-ups/risks:
 Next: Phase 9 — RSVP Settings and public RSVP.
 ```
 
+```text
+2026-10-13 — Phase 8 follow-up — searchable "Preview for" (owner).
+Decision (owner): the guest to preview on WhatsApp Messages is found by typing, as in the Group picker (D59).
+Done: the shared Select gained a searchable kind (a text box showing the current choice; typing narrows the list; Enter chooses; Escape or leaving restores the choice; "No guest matches" when nothing fits). Used for Preview for.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 854 passed, coverage 96.4% statements, 90.8% branches; `npm run test:e2e` 245 passed, 23 skipped by design; `npm run build` succeeds. Checked from a desktop screenshot in English.
+Follow-ups/risks:
+- Only Preview for is searchable; the time zone list (about 400 entries) could use the same and does not yet.
+- Nothing committed; branch phase_8_followups.
+Next: Phase 9 — RSVP Settings and public RSVP.
+```
+
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
