@@ -193,6 +193,7 @@ function ImportSteps({
         <p>{t('guests.import.intro')}</p>
         <ul className={styles.bullets}>
           <li>{t('guests.import.ruleRequired')}</li>
+          <li>{t('guests.import.rulePhones')}</li>
           <li>{t('guests.import.ruleDuplicates')}</li>
           <li>
             {t('guests.import.ruleLimit', {

@@ -328,6 +328,65 @@ export function describeServicesContract(
         expect(after.invitationsSent).toBe(before.invitationsSent)
       })
 
+      it('shows a phone in local form however it was typed, and matches it in any form', async () => {
+        const { services, events } = setup()
+        const { event } = await services.events.get(events.owner)
+
+        const local = await services.guests.create(events.owner, {
+          ...newGuest,
+          phone: '+972 50 730 8828',
+        })
+        const foreign = await services.guests.create(events.owner, {
+          ...newGuest,
+          phone: '+1 (212) 555-0123',
+        })
+
+        expect(local.phone).toBe('050-730-8828')
+        expect(foreign.phone).toBe('+1 2125550123')
+        expect(
+          await codeOf(
+            services.guests.create(events.owner, {
+              ...newGuest,
+              phone: '06 12 34 56 78',
+            }),
+          ),
+        ).toBe('INVALID_PHONE')
+        expect(
+          await codeOf(
+            services.guests.create(events.owner, {
+              ...newGuest,
+              phone: '0507308828',
+            }),
+          ),
+        ).toBe('DUPLICATE_PHONE')
+
+        await services.rsvp.submit(event.rsvpSlug, {
+          name: 'Typed Differently',
+          phone: '972507308828',
+          status: 'DECLINED',
+          attendees: 1,
+        })
+        const updated = (await services.guests.list(events.owner)).find(
+          (guest) => guest.id === local.id,
+        )
+        expect(updated).toMatchObject({
+          rsvpStatus: 'DECLINED',
+          phone: '050-730-8828',
+        })
+
+        await services.rsvp.submit(event.rsvpSlug, {
+          name: 'Not Invited',
+          phone: '+972 52 111 2233',
+          status: 'DECLINED',
+          attendees: 1,
+        })
+        expect(
+          (await services.unknownGuests.list(events.owner)).find(
+            (unknown) => unknown.name === 'Not Invited',
+          )?.phone,
+        ).toBe('052-111-2233')
+      })
+
       it('rejects a duplicate phone but allows it in another event', async () => {
         const { services, events } = setup()
         await services.guests.create(events.owner, newGuest)

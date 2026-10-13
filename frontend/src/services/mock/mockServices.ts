@@ -33,7 +33,7 @@ import {
   type Actor,
   type EventAction,
 } from '../../domain/permissions.ts'
-import { normalizePhone } from '../../domain/phone.ts'
+import { formatPhone, normalizePhone } from '../../domain/phone.ts'
 import type { EventRole } from '../../domain/roles.ts'
 import {
   applyRsvp,
@@ -782,7 +782,7 @@ export function createMockServices(options: MockOptions): Services {
             id: existing?.id ?? newId('unk'),
             eventId: event.id,
             name,
-            phone: input.phone.trim(),
+            phone: formatPhone(normalizedPhone),
             normalizedPhone,
             rsvpStatus: input.status,
             confirmedAttendees: outcome.confirmedAttendees,

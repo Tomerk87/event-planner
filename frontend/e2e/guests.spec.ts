@@ -248,7 +248,7 @@ test('all guests export to CSV and to Excel with every field', async ({
   expect(sheet[0]?.[3]).toBe('Phone')
   // Phones stay text, and counts are real numbers.
   expect(typeof sheet[1]?.[3]).toBe('string')
-  expect(String(sheet[1]?.[3])).toMatch(/^\+972 00-/)
+  expect(String(sheet[1]?.[3])).toMatch(/^000-\d{3}-\d{4}$/)
   expect(typeof sheet[1]?.[4]).toBe('number')
 })
 

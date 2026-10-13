@@ -154,7 +154,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Table | Nullable assignment; only Approved guests are assignable |
 | Deleted | Soft-delete marker, default `0` |
 
-A normalized phone number is unique **within each event**. Initial normalization should handle Israeli phone formats, including local and `+972` forms, while leaving room for other countries.
+A normalized phone number is unique **within each event**. In the MVP a number written without `+` is read as an Israeli number, in any local or `+972` form; a number from another country is entered with `+` and its country code. A number that is local to another country is refused, not read as Israeli. Israeli numbers are shown in local form (`050-730-8828`) everywhere, including exports, however they were entered; foreign numbers are shown with their country code. The same rule applies to imported files and to the public RSVP form.
 
 ### 6.2 Soft deletion and restoration
 

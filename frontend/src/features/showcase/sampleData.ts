@@ -7,7 +7,7 @@ import type { Tone } from '../../shared/ui/Badge.tsx'
 export const sampleUserName = 'Alex Morgan'
 
 export const sampleContact = {
-  phone: '+972 00-000-0001',
+  phone: '000-000-0001',
   email: 'guest@example.com',
   url: 'https://rsvp.example.com/abc123',
 }
@@ -34,7 +34,7 @@ export const sampleGuests: SampleGuest[] = [
   {
     id: 'g1',
     name: 'Jordan Reed',
-    phone: '+972 00-000-0001',
+    phone: '000-000-0001',
     allowed: 5,
     status: 'approved',
     table: 12,
@@ -42,7 +42,7 @@ export const sampleGuests: SampleGuest[] = [
   {
     id: 'g2',
     name: 'Sam Carter',
-    phone: '+972 00-000-0002',
+    phone: '000-000-0002',
     allowed: 4,
     status: 'awaiting',
     table: null,
@@ -50,7 +50,7 @@ export const sampleGuests: SampleGuest[] = [
   {
     id: 'g3',
     name: 'Riley Brooks',
-    phone: '+972 00-000-0003',
+    phone: '000-000-0003',
     allowed: 3,
     status: 'notSure',
     table: null,
@@ -58,7 +58,7 @@ export const sampleGuests: SampleGuest[] = [
   {
     id: 'g4',
     name: 'Casey Lane',
-    phone: '+972 00-000-0004',
+    phone: '000-000-0004',
     allowed: 5,
     status: 'declined',
     table: null,

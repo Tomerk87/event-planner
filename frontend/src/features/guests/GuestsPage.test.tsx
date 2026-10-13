@@ -405,6 +405,75 @@ describe('Changing guests', () => {
     expect(await services.guests.list(MAIN)).toHaveLength(before + 1)
   })
 
+  it('lists and exports a phone in local form however it was typed, and a foreign one with its code', async () => {
+    await openGuests()
+    const add = (firstName: string, phone: string) => {
+      fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
+      const dialog = screen.getByRole('dialog', { name: 'Add guest' })
+      fillGuestForm(dialog, { firstName, lastName: 'Phoneform', phone })
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
+    }
+
+    add('Local', '+972 50 730 8828')
+    await screen.findByText('The guest was added.')
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    add('Abroad', '+1 (212) 555-0123')
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+
+    search('Phoneform')
+    await waitFor(() => expect(rows()).toHaveLength(2))
+    expect(
+      within(rowOf('Local Phoneform')).getByText('050-730-8828'),
+    ).toBeInTheDocument()
+    expect(
+      within(rowOf('Abroad Phoneform')).getByText('+1 2125550123'),
+    ).toBeInTheDocument()
+
+    search('0507308828')
+    expect(shownNames()).toEqual(['Local Phoneform'])
+
+    fireEvent.click(
+      within(rowOf('Local Phoneform')).getByRole('button', {
+        name: 'Edit Local Phoneform',
+      }),
+    )
+    expect(
+      within(screen.getByRole('dialog', { name: 'Edit guest' })).getByLabelText(
+        /Phone number/,
+      ),
+    ).toHaveValue('050-730-8828')
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: 'Edit guest' })).getByRole(
+        'button',
+        { name: 'Cancel' },
+      ),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Export' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'CSV file (.csv)' }))
+    const phones = (await lastDownload()).rows.map((row) => row[3])
+    expect(phones).toContain('050-730-8828')
+    expect(phones).toContain('+1 2125550123')
+  })
+
+  it('refuses a number that is local to another country', async () => {
+    await openGuests()
+    fireEvent.click(screen.getByRole('button', { name: 'Add Guest' }))
+    const dialog = screen.getByRole('dialog', { name: 'Add guest' })
+
+    expect(
+      within(dialog).getByText(
+        /For a number from another country, start with \+ and the country code/,
+      ),
+    ).toBeInTheDocument()
+    fillGuestForm(dialog, { firstName: 'Abroad', phone: '06 12 34 56 78' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Add Guest' }))
+
+    expect(
+      await within(dialog).findByText('Enter a valid phone number.'),
+    ).toBeInTheDocument()
+  })
+
   it('explains what is wrong with a new guest’s details', async () => {
     const services = createTestServices()
     const existing = await find(services, () => true)
@@ -868,7 +937,7 @@ describe('Importing guests', () => {
       'guests.csv',
       [
         'First Name,Last Name,Phone,Allowed',
-        'Imported,One,050-555-0101,3',
+        'Imported,One,+972 50 555 0101,3',
         'Imported,Two,050-555-0102,',
         ',NoName,050-555-0103,2',
         'Bad,Phone,12,2',

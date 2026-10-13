@@ -73,7 +73,7 @@ describe('demo dataset generator', () => {
     }
     for (const record of [...state.guests, ...state.unknownRsvps]) {
       // No Israeli operator code begins with 0, so these cannot be dialled.
-      expect(record.phone).toMatch(/^\+972 00-\d{3}-\d{4}$/)
+      expect(record.phone).toMatch(/^000-\d{3}-\d{4}$/)
       expect(record.normalizedPhone).toMatch(/^\+9720\d{8}$/)
     }
     for (const send of state.messageSends) {

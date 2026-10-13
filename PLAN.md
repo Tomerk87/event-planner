@@ -298,6 +298,7 @@
 - [ ] Respect fixed event RSVP language independent of organizer UI language.
 - [ ] Preview should update when settings change.
 - [ ] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
+- [ ] The public RSVP form reads a phone by the same rule as the rest of the product (decision D37): local Israeli forms accepted, a number from abroad needs `+` and its country code; say so beside the field.
 
 ### Validation and exit criteria
 - [ ] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
@@ -839,6 +840,19 @@ Follow-ups/risks:
 - The main JavaScript file is about 650 kB before compression; splitting it by page is worth doing before deployment (Phase 18).
 - Work is on branch phase_6_completion; nothing committed.
 Next: Phase 7 — Event Settings. Needs owner decisions D19 (which page owns the RSVP language and when it becomes fixed) and D12's second half (the "View Event Rules" button).
+```
+
+```text
+2026-10-13 — Phase 6 follow-up — phone numbers.
+Decision (owner): Israel first for the MVP. A number without + is read as Israeli; foreign numbers need + and the country code. Israeli numbers are always shown in local form, 050-730-8828. No country selector and no country per event for now (D37; both added to docs/FUTURE_FEATURES.md).
+Done: formatPhone added; guests and unknown responses store the shown form, so the table, cards, details, import preview and both export formats agree; Edit Guest opens with the local form. A number local to another country (a French 06…, for example) is now refused instead of being silently stored as Israeli. Demo numbers regenerated in local form (000-001-0005, still undialable); demo dataset version 4, so browsers regenerate the demo once. Hint under the phone field and a line in the import instructions.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 762 passed, coverage 96.68% statements, 91.13% branches; `npm run test:e2e` 202 passed, 18 skipped by design; `npm run build` succeeds.
+Follow-ups/risks:
+- An event held outside Israel is awkward by decision: every guest, and every guest answering the RSVP form, must use +.
+- Preview accounts created before this change show their numbers as typed until each guest is next saved.
+- Foreign numbers are shown with the country code set apart but not otherwise grouped.
+- Work is on branch phase_6_followups, created from phase_6_completion; nothing committed.
+Next: Phase 7 — Event Settings. Needs owner decisions D19 and the "View Event Rules" button.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
