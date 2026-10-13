@@ -8,7 +8,7 @@ Rule applied throughout (`AGENTS.md`, owner decision 2026-10-12): the mockups we
 
 | | MVP | Post-MVP (Phase 20) |
 |---|---|---|
-| Tables: create, edit, delete, number, name, capacity, shape | Yes | |
+| Tables: create, edit, delete, number, capacity, shape | Yes | |
 | Assigning Approved guest parties to tables, capacity rules, conflicts | Yes | |
 | Seating exports (CSV, XLSX) | Yes | |
 | Arrangement canvas: placing tables, drag/drop, chairs, venue objects, View/Edit modes, persisted coordinates | | Yes |
@@ -103,7 +103,7 @@ Found while building (Phase 6):
 - The desktop mockup shows no bar for selected rows; a bar with the count, Export selected, Delete selected and Clear selection appears above the table while rows are selected.
 - The phone mockup shows the sliders button and no checkboxes; neither the column chooser nor selection exists on a phone.
 - The Actions column stays pinned at the end of the table while the other columns scroll, so it is reachable in a narrow window.
-- The table selector lists each table as "number · name (seats free)".
+- The table selector lists each table as "number (seats free)".
 - Import has no mockup; it is a four-step dialog.
 
 ### WhatsApp Messages
@@ -132,8 +132,17 @@ Found while building (Phase 6):
 
 - The mockup gives each table a **name** ("Family", "Friends"). **Decided (2026-10-13):** a table has only a number, a capacity and a shape; names are not built.
 
-- Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decision needed.**
-- "Assigned Guests" in the KPI row counts attendees (214), not guest parties. Labels must make that distinction clear (`PLAN.md` Phase 5 exit criteria).
+- Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decided (2026-10-13, D22):** Over Capacity above the chairs; Full with no seat free, a label the mockup does not draw; Almost Full with 1 or 2 seats free; Ready otherwise.
+- "Assigned Guests" in the KPI row counts attendees (214), not guest parties. It is labelled **Assigned Attendees**.
+- **Selected Table** is drawn under the Arrangement Preview on desktop and only in the Arrangement tab on a phone. It is built beside the list on a wide screen (1360px and up); on narrower screens and phones, choosing a table opens its guests dialog (D69). The panel's subtitle (the table's name) is not shown.
+- **Manage Guests / View Guests** has nothing drawn behind it; it opens the dialog described in D68.
+- The row **"…"** menu has no drawn contents; it holds Delete Table.
+- **Export Tables** opens a menu of CSV and Excel and writes the seating list (D70).
+- **Capacity Warnings** also shows the two PRD warnings the mockup does not draw: chairs above or below the event maximum, and attendees awaiting a table. On a phone the mockup draws one red banner; each warning is a row of its own in a Capacity Warnings card.
+- The search placeholder says "by number or name"; it searches by number.
+- The phone tab is drawn as "Arrangement" with no badge; it is "Table Arrangement" with the Soon badge, as on desktop.
+- The list shows 10 tables a page with the product's pager, not the 8 and 5 drawn. The phone's ↑↓ button opens a sort menu; on desktop the column headings sort.
+- Add Table and Edit Table have no mockup; they are a dialog with Table Number, Capacity and Shape.
 
 ### Event Settings
 

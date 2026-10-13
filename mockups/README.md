@@ -86,6 +86,8 @@ Arrangements tab:
 Notes:
 - The Name column of the tables list is not built: a table has a number, a capacity and a shape only.
 - The desktop mockup contains the full Event Layout page.
+- Status labels are Ready, Almost Full, Full (added) and Over Capacity. The KPI "Assigned Guests" is labelled "Assigned Attendees".
+- The Selected Table panel is shown beside the list on a wide screen only; elsewhere a table's guests open in a dialog. Details in `docs/MOCKUP_NOTES.md`.
 - The mobile UI separates the Tables and Arrangements views into dedicated tab mockups.
 - In the MVP the Table Arrangement tab is shown with a "Soon" badge and is disabled, and the Arrangement Preview panel is not built. The Arrangement mockups are guidance for the future editor (`docs/FUTURE_FEATURES.md`).
 - The desktop mockup's sidebar is not the approved navigation; use the order in `docs/PRD.md` section 4.2.

@@ -13,19 +13,19 @@ import { setViewportWidth } from '../test/matchMedia.ts'
 import { createTestServices, renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
-  it.each([
-    ['/events/evt-1/layout', 'Event Layout'],
-    ['/events/evt-1/permissions', 'Permissions'],
-  ])('renders a placeholder at %s', async (path, title) => {
-    renderApp(path)
+  it.each([['/events/evt-1/permissions', 'Permissions']])(
+    'renders a placeholder at %s',
+    async (path, title) => {
+      renderApp(path)
 
-    expect(
-      await screen.findByRole('heading', { level: 1, name: title }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText('This page is not implemented yet.'),
-    ).toBeInTheDocument()
-  })
+      expect(
+        await screen.findByRole('heading', { level: 1, name: title }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('This page is not implemented yet.'),
+      ).toBeInTheDocument()
+    },
+  )
 
   it.each([
     ['/events', 'My Events · Event Planner'],

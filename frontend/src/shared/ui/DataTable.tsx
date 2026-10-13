@@ -48,6 +48,8 @@ interface DataTableProps<Row> {
   sortLabel?: (header: string) => string
   /** Adds a checkbox to each row and to the heading. Desktop table only. */
   selection?: TableSelection<Row>
+  /** The row whose details are shown beside the table; it is highlighted. */
+  activeKey?: string | null
 }
 
 export function DataTable<Row>({
@@ -60,6 +62,7 @@ export function DataTable<Row>({
   onSort,
   sortLabel,
   selection,
+  activeKey,
 }: DataTableProps<Row>) {
   const isPhone = useMediaQuery(PHONE_QUERY)
 
@@ -155,7 +158,12 @@ export function DataTable<Row>({
             const key = getRowKey(row)
             const isSelected = selection?.selected.has(key) ?? false
             return (
-              <tr key={key} className={cx(isSelected && styles.selectedRow)}>
+              <tr
+                key={key}
+                className={cx(
+                  (isSelected || key === activeKey) && styles.selectedRow,
+                )}
+              >
                 {selection && (
                   <td className={styles.selectCell}>
                     <Checkbox

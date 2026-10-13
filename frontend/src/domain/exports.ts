@@ -1,6 +1,5 @@
 import { guestDisplayStatus, type GuestDisplayStatus } from './guestStatus.ts'
 import type { EventTable, Guest } from './models.ts'
-import { tableOccupancy } from './seating.ts'
 
 export interface GuestExportRow {
   firstName: string
@@ -16,19 +15,12 @@ export interface GuestExportRow {
 }
 
 export interface SeatingDetailRow {
-  tableNumber: number
   firstName: string
   lastName: string
   invitationName: string
   phone: string
   confirmedAttendees: number
-}
-
-export interface SeatingSummaryRow {
   tableNumber: number
-  capacity: number
-  assigned: number
-  remaining: number
 }
 
 function byName(a: Guest, b: Guest): number {
@@ -90,24 +82,6 @@ export function buildSeatingDetailRows(
     )
 }
 
-/** One row per table. `remaining` is negative for a table over capacity. */
-export function buildSeatingSummaryRows(
-  guests: readonly Guest[],
-  tables: readonly EventTable[],
-): SeatingSummaryRow[] {
-  return [...tables]
-    .sort((a, b) => a.number - b.number)
-    .map((table) => {
-      const assigned = tableOccupancy(table.id, guests)
-      return {
-        tableNumber: table.number,
-        capacity: table.capacity,
-        assigned,
-        remaining: table.capacity - assigned,
-      }
-    })
-}
-
 export const GUEST_EXPORT_COLUMNS = [
   'firstName',
   'lastName',
@@ -150,5 +124,30 @@ export function buildGuestExportTable(
       row.tableNumber,
       row.group,
     ]),
+  ]
+}
+
+export const SEATING_EXPORT_COLUMNS = [
+  'firstName',
+  'lastName',
+  'invitationName',
+  'phone',
+  'confirmedAttendees',
+  'tableNumber',
+] as const
+
+export type SeatingExportColumn = (typeof SEATING_EXPORT_COLUMNS)[number]
+
+/**
+ * The seating list as a table: one heading row, then one row per seated
+ * party in table order. Headings come translated from the caller.
+ */
+export function buildSeatingExportTable(
+  rows: readonly SeatingDetailRow[],
+  headings: Record<SeatingExportColumn, string>,
+): (string | number)[][] {
+  return [
+    SEATING_EXPORT_COLUMNS.map((column) => headings[column]),
+    ...rows.map((row) => SEATING_EXPORT_COLUMNS.map((column) => row[column])),
   ]
 }

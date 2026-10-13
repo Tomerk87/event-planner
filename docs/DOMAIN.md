@@ -48,14 +48,6 @@ The open items below are ones the precedence rule (see Resolved decisions, R1) d
 | D2 | Public RSVP abuse prevention: rate limits or extra verification | Phase 15 |
 | D4 | Permission invite flow for an email with no account | Phase 11 |
 
-### Raised by the mockup review
-
-Details for each are in `docs/MOCKUP_NOTES.md`.
-
-| # | Decision | Needed by |
-|---|---|---|
-| D22 | Thresholds for table status labels (Ready / Almost Full / Over Capacity) | Phase 10 |
-
 ### Defaults applied in Phase 3, to confirm
 
 The approved documents do not settle these. Each was given the most conservative reading so that the rules could be built; say if any should change.
@@ -63,7 +55,6 @@ The approved documents do not settle these. Each was given the most conservative
 | # | Default applied | Where it matters |
 |---|---|---|
 | P1 | Permissions can still be managed on a past event. PRD section 5.2 lists the operational data that becomes read-only and does not include permissions | Phase 11 |
-| P4 | A table's capacity can be lowered below its current occupancy; the table is then shown as over capacity | Phase 10 |
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
 
@@ -157,3 +148,9 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D65 | **Public link before the backend:** data lives in the organizer's browser, so the link works only there. Opened elsewhere, the page says plainly that it is not available yet. | 2026-10-13 |
 | D66 | **Add to Group for selected guests.** The selected guests are moved to one group, picked, searched or created in the same picker as the guest form; a guest who already has a group changes group, and the dialog says how many will. A new group asks first. An empty choice removes the guests from their groups. Owners and Admins, upcoming events. | 2026-10-13 |
 | D67 | **Other tabs.** Data saved in another tab of the same browser (for example a guest answering the public RSVP page) is picked up by an open organizer page without a reload. | 2026-10-13 |
+| D22 | **Table status.** Over Capacity: more attendees seated than chairs. Full: no seat free. Almost Full: 1 or 2 seats free. Ready: everything else. "Full" is a label the mockups do not draw. | 2026-10-13 |
+| P4 | Confirmed: a table's capacity can be lowered below the attendees seated at it; the table then shows Over Capacity, as after an RSVP increase. The edit dialog says so before saving. | 2026-10-13 |
+| D68 | **Guests of a table.** "Manage Guests" (desktop) and "View Guests" (phone) open one dialog: the table's parties with Remove, and a searchable list of Approved guests to add — those without a table first, then those seated at other tables, each shown with its current table, so a party moves in one step. A party that does not fit in the free seats cannot be added. Read-only for a Viewer and a past event. | 2026-10-13 |
+| D69 | **Selected Table panel.** Built beside the tables list on a wide screen (1360px and up), where the list still shows every column: shape, capacity, assigned, available, the parties, Edit Table and Manage Guests. The first table over capacity is shown to begin with. On narrower screens and on a phone, choosing a table opens its guests dialog instead. | 2026-10-13 |
+| D70 | **Seating export.** Export Tables writes the seating list only, as CSV or Excel: one row per seated party, in table order, with First Name, Last Name, Invitation Name, Phone (as dialled locally), Number of Attendees (confirmed) and Table Number. The table summary export is not built (`docs/FUTURE_FEATURES.md`). | 2026-10-13 |
+| D71 | **Event Layout details.** Tables are added one at a time; the dialog pre-fills the next free number and the last table's chairs and shape. The row "…" menu holds Delete Table, which always asks and says how many parties lose their table. The KPI drawn as "Assigned Guests" is labelled "Assigned Attendees"; Available Seats is seating capacity minus assigned attendees. Capacity Warnings also lists chairs above or below the event maximum and attendees awaiting a table, with the Dashboard's texts. Search is by table number. | 2026-10-13 |

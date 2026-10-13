@@ -18,6 +18,7 @@ test-results/
 
 # OS and editor files
 .DS_Store
+*.swp
 .idea/
 .vscode/*
 !.vscode/extensions.json

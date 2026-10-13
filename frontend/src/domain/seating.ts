@@ -7,8 +7,34 @@ import {
   type TableShape,
 } from './models.ts'
 
-const MAX_TABLE_NUMBER = 9999
-const MAX_TABLE_CAPACITY = 1000
+export const TABLE_LIMITS = {
+  number: { min: 1, max: 9999 },
+  capacity: { min: 1, max: 1000 },
+} as const
+
+export const TABLE_STATUSES = [
+  'OVER_CAPACITY',
+  'FULL',
+  'ALMOST_FULL',
+  'READY',
+] as const
+
+export type TableStatus = (typeof TABLE_STATUSES)[number]
+
+/** A table with this many free seats or fewer, but not none, is almost full. */
+const ALMOST_FULL_SEATS = 2
+
+/** The label a table carries, from its chairs and the attendees seated at it. */
+export function tableStatus(capacity: number, assigned: number): TableStatus {
+  const free = capacity - assigned
+  if (free < 0) {
+    return 'OVER_CAPACITY'
+  }
+  if (free === 0) {
+    return 'FULL'
+  }
+  return free <= ALMOST_FULL_SEATS ? 'ALMOST_FULL' : 'READY'
+}
 
 function isSeated(guest: Guest): boolean {
   return !guest.deleted && guest.rsvpStatus === 'APPROVED'
@@ -49,6 +75,38 @@ export function assertCanAssign(
   }
 }
 
+function byName(a: Guest, b: Guest): number {
+  return (
+    a.lastName.localeCompare(b.lastName) ||
+    a.firstName.localeCompare(b.firstName) ||
+    a.id.localeCompare(b.id)
+  )
+}
+
+/** The parties seated at a table, by name. */
+export function partiesAt(tableId: Id, guests: readonly Guest[]): Guest[] {
+  return guests
+    .filter((guest) => guest.tableId === tableId && isSeated(guest))
+    .sort(byName)
+}
+
+/**
+ * The parties that could be brought to a table: every active Approved guest
+ * not already at it. Those without a table come first, then those who would
+ * move from another table; each part by name.
+ */
+export function seatingCandidates(
+  tableId: Id,
+  guests: readonly Guest[],
+): Guest[] {
+  return guests
+    .filter((guest) => isSeated(guest) && guest.tableId !== tableId)
+    .sort(
+      (a, b) =>
+        Number(a.tableId !== null) - Number(b.tableId !== null) || byName(a, b),
+    )
+}
+
 export interface TableInput {
   number: number
   capacity: number
@@ -61,8 +119,18 @@ export function validateTableInput(
   eventTables: readonly EventTable[],
   editingTableId: Id | null,
 ): TableInput {
-  assertIntegerInRange(input.number, 1, MAX_TABLE_NUMBER, 'number')
-  assertIntegerInRange(input.capacity, 1, MAX_TABLE_CAPACITY, 'capacity')
+  assertIntegerInRange(
+    input.number,
+    TABLE_LIMITS.number.min,
+    TABLE_LIMITS.number.max,
+    'number',
+  )
+  assertIntegerInRange(
+    input.capacity,
+    TABLE_LIMITS.capacity.min,
+    TABLE_LIMITS.capacity.max,
+    'capacity',
+  )
   if (!TABLE_SHAPES.includes(input.shape)) {
     throw new DomainError('VALIDATION', { field: 'shape' })
   }

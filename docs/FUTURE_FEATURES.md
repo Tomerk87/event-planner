@@ -14,6 +14,9 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Per-seat assignment | Assigning attendees to individual chairs. | PRD §17; `PLAN.md` backlog |
 | Splitting a party across tables | In the MVP a guest's whole party sits at one table. | PRD §11.2, §17 |
 | Venue templates | Reusable venue layouts. | `PLAN.md` backlog |
+| Table summary export | One row per table: Table Number, Capacity, Assigned, Remaining. The MVP exports the seating list only. | PRD §11.3 before 2026-10-13; owner decision 2026-10-13 (D70) |
+| Adding several tables at once | For example ten tables of twelve chairs in one step. In the MVP tables are added one at a time. | Owner decision 2026-10-13 (D71) |
+| Table names | A name beside the table number ("Family"), as drawn in `event_layout.png`. | Mockup; owner decision 2026-10-13 (D52) |
 
 ## Guests and RSVP
 

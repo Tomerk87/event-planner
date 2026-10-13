@@ -325,21 +325,21 @@
 - Mobile Arrangements tab: `event_layout_arrangement_mobile.png` (visual guidance for future editor).
 
 ### Checklist
-- [ ] Build Event Layout navigation/tabs consistent with mockups.
-- [ ] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one. The tables list follows the table guidelines (D55).
-- [ ] Display table occupancy, remaining seats, assigned guest parties and conflicts.
-- [ ] Assign **Approved guests only**; keep each party together in MVP.
-- [ ] Block manual assignment exceeding capacity; allow overcapacity after RSVP count increases.
-- [ ] Edit guest assignment from Tables and Guests with consistent mock service logic.
-- [ ] Confirm deletion of populated tables and clear assignments without deleting guests.
-- [ ] Warn rather than block when total chairs differ from event maximum capacity.
-- [ ] Implement venue-ready detailed CSV/XLSX export and table summary export.
-- [ ] Show the Table Arrangement tab with a "Soon" badge, disabled and not selectable, on desktop and mobile. Do not build the Arrangement Preview panel. **Do not claim the full drag/drop editor is implemented**.
+- [x] Build Event Layout navigation/tabs consistent with mockups.
+- [x] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one. The tables list follows the table guidelines (D55).
+- [x] Display table occupancy, remaining seats, assigned guest parties and conflicts. Status labels per D22.
+- [x] Assign **Approved guests only**; keep each party together in MVP.
+- [x] Block manual assignment exceeding capacity; allow overcapacity after RSVP count increases, and after a table's chairs are lowered (P4).
+- [x] Edit guest assignment from Tables and Guests with consistent mock service logic.
+- [x] Confirm deletion of populated tables and clear assignments without deleting guests.
+- [x] Warn rather than block when total chairs differ from event maximum capacity.
+- [x] Implement the venue-ready seating list export in CSV and XLSX. The table summary export was dropped by the owner (D70) and is listed in `docs/FUTURE_FEATURES.md`.
+- [x] Show the Table Arrangement tab with a "Soon" badge, disabled and not selectable, on desktop and mobile. Do not build the Arrangement Preview panel. **Do not claim the full drag/drop editor is implemented**.
 
 ### Validation and exit criteria
-- [ ] Table rules, deletion, conflicts, assignments and exports work with demo state.
-- [ ] Responsive Tables UI and relevant desktop/mobile visuals validated.
-- [ ] Visual Arrangement full editor is explicitly tracked as a future phase.
+- [x] Table rules, deletion, conflicts, assignments and exports work with demo state.
+- [x] Responsive Tables UI and relevant desktop/mobile visuals validated.
+- [x] Visual Arrangement full editor is explicitly tracked as a future phase (Phase 20, `docs/FUTURE_FEATURES.md`).
 
 ---
 
@@ -987,6 +987,25 @@ Next: Phase 9 — RSVP Settings and public RSVP.
 - Known limits: the public link opens only in the browser that holds the event (D65); a picture too large for browser storage after shrinking is refused; the calendar entry does not follow a later change of the event's date; Add to Group is desktop only.
 - Nothing committed; branch phase_9_implementation.
 Next: Phase 10 — Event Layout. Open before it: D22 (table status thresholds), P4.
+```
+
+```text
+2026-10-13 — Phase 10 — Event Layout: tables and seat assignment.
+Decisions (owner): table status thresholds, with a Full label (D22); capacity may go below occupancy (P4 confirmed); guests-of-a-table dialog that also moves parties from other tables (D68); Selected Table panel (D69); seating list export only, summary dropped (D70); tables added one at a time (D71).
+- Page: Tables tab with Table Arrangement disabled and marked Soon; four figures; Capacity Warnings; tables list (table on desktop, cards on a phone) with search by number, shape filter, sorting and paging kept in the address; Selected Table panel on a wide screen; Add/Edit Table, Delete Table and Guests dialogs; Export Tables as CSV or Excel. Read-only for a Viewer and a past event, with viewing and export.
+- Domain: tableStatus, partiesAt, seatingCandidates, TABLE_LIMITS (seating.ts); filterTables, sortTables (tableList.ts); buildSeatingExportTable (exports.ts); buildSeatingSummaryRows removed. The service contract did not change.
+- Shared: DataTable can highlight the row whose details are shown (activeKey).
+- Demo data: generated tables now leave some chairs free, so every status label appears; dataset version 6, so stored demo data is regenerated once.
+- Docs: PRD §11.1 and §11.3, DOMAIN, MOCKUP_NOTES, mockups/README, FUTURE_FEATURES. `*.swp` added to .gitignore.
+Validation: typecheck, lint, format clean; 955 unit tests (96% statements, 91% branches; event-layout 93%); browser tests 281 passed, 25 skipped by design; build succeeds.
+Mockups reviewed: event_layout.png, event_layout_tables_mobile.png, event_layout_arrangement_mobile.png. Screenshots reviewed: desktop 1440px (English, Hebrew), 1100px, phone (English, Hebrew), guests dialog desktop and phone.
+Differences from the mockups: recorded in MOCKUP_NOTES under Event Layout.
+Follow-ups/risks:
+- Between 1024px and 1359px the Selected Table panel is not shown, because the list needs the full width for its columns; a table's guests open in the dialog there.
+- The guests dialog lists at most 50 candidates at a time and asks to search for the rest.
+- One Messages unit test ("asks before leaving with an unsaved message") failed once in a full run and passed on every re-run; not touched by this phase.
+- Nothing committed; branch phase_10_implementation.
+Next: Phase 11 — Permissions. Open before it: D4 (invite flow for an email with no account), P1, P8.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
