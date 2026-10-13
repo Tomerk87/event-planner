@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { startInDemo } from './helpers.ts'
+import { chooseOption, startInDemo } from './helpers.ts'
 
 const TOLERANCE = 1
 
@@ -139,9 +139,10 @@ test.describe('bottom action bar on a phone', () => {
     page,
   }) => {
     await gotoShowcase(page, 'en')
-    await page
-      .getByRole('combobox', { name: 'Role in this event' })
-      .selectOption('VIEWER')
+    await chooseOption(
+      page.getByRole('combobox', { name: 'Role in this event' }),
+      'VIEWER',
+    )
     const bar = page.getByRole('region', { name: 'Page actions' })
     await expect(bar.getByRole('button')).toHaveCount(1)
     const card = await box(page.locator('main section').first())

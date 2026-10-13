@@ -11,6 +11,7 @@ import {
   renderApp,
   TEST_NOW,
 } from '../../test/renderApp.tsx'
+import { change } from '../../test/controls.ts'
 
 const MAIN = DEMO_EVENTS.owner
 let open: ReturnType<typeof vi.spyOn>
@@ -38,7 +39,7 @@ function editor(): HTMLTextAreaElement {
 }
 
 function type(text: string) {
-  fireEvent.change(editor(), { target: { value: text } })
+  change(editor(), { target: { value: text } })
 }
 
 /** The phone preview, once the guest's details have loaded. */
@@ -68,7 +69,9 @@ describe('WhatsApp Messages', () => {
     const sends = await services.messages.listSends(MAIN)
 
     expect(editor()).toHaveValue(template.body)
-    expect(screen.getByLabelText('Preview for')).toHaveValue(guest.id)
+    expect(screen.getByLabelText('Preview for')).toHaveValue(
+      guestFullName(guest),
+    )
     const phone = await preview()
     expect(within(phone).getByText(guestFullName(guest))).toBeInTheDocument()
     expect(phone.querySelector('p[dir="auto"]')).toHaveTextContent(
@@ -98,7 +101,7 @@ describe('WhatsApp Messages', () => {
       ),
     ).toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('Preview for'), {
+    change(screen.getByLabelText('Preview for'), {
       target: { value: other.id },
     })
 
@@ -107,6 +110,43 @@ describe('WhatsApp Messages', () => {
         `Dear ${other.firstName} ${other.lastName}, see {{nothing}}`,
       ),
     ).toBeInTheDocument()
+  })
+
+  it('finds the guest to preview by typing part of their name', async () => {
+    const { services } = await openMessages()
+    const guests = await services.guests.list(MAIN)
+    const first = await firstGuest(services)
+    const wanted = guests.find(
+      (guest) =>
+        guest.id !== first.id &&
+        guests.filter((other) => other.lastName === guest.lastName).length ===
+          1,
+    )!
+    const field = screen.getByLabelText('Preview for')
+
+    fireEvent.click(field)
+    expect(screen.getAllByRole('option')).toHaveLength(guests.length)
+
+    fireEvent.change(field, {
+      target: { value: wanted.lastName.toUpperCase() },
+    })
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent),
+    ).toEqual([guestFullName(wanted)])
+
+    fireEvent.keyDown(field, { key: 'Enter' })
+    expect(field).toHaveValue(guestFullName(wanted))
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    expect(
+      await within(await preview()).findByText(guestFullName(wanted)),
+    ).toBeInTheDocument()
+
+    // Text that matches nobody says so, and leaving restores the choice.
+    fireEvent.change(field, { target: { value: 'zzzz' } })
+    expect(screen.getByText('No guest matches')).toBeInTheDocument()
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
+    fireEvent.keyDown(field, { key: 'Escape' })
+    expect(field).toHaveValue(guestFullName(wanted))
   })
 
   it('formats the selection, and inserts variables and emoji at the cursor', async () => {

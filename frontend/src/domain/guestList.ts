@@ -4,12 +4,12 @@ export const GUEST_SORT_KEYS = [
   'name',
   'invitationName',
   'phone',
-  'group',
   'allowed',
   'confirmed',
   'status',
   'sent',
   'table',
+  'group',
 ] as const
 
 export type GuestSortKey = (typeof GUEST_SORT_KEYS)[number]

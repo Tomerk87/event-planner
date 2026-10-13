@@ -1,6 +1,6 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { startInDemo } from './helpers.ts'
+import { chooseOption, startInDemo } from './helpers.ts'
 
 const pages = [
   ['My Events', '/events'],
@@ -68,12 +68,16 @@ for (const language of ['en', 'he'] as const) {
       page,
     }) => {
       await page.goto('/showcase')
-      await page
-        .getByRole('combobox', { name: /Role in this event|התפקיד באירוע/ })
-        .selectOption('VIEWER')
-      await page
-        .getByRole('combobox', { name: /Event state|מצב האירוע/ })
-        .selectOption('past')
+      await chooseOption(
+        page.getByRole('combobox', {
+          name: /Role in this event|התפקיד באירוע/,
+        }),
+        'VIEWER',
+      )
+      await chooseOption(
+        page.getByRole('combobox', { name: /Event state|מצב האירוע/ }),
+        'past',
+      )
       await expect(
         page.getByText(/This event has ended|האירוע הסתיים/).first(),
       ).toBeVisible()

@@ -21,6 +21,8 @@ import { EmptyState, ErrorState, LoadingState } from './States.tsx'
 import { Tabs } from './Tabs.tsx'
 import { useToast } from './toastContext.ts'
 import { ToastProvider } from './ToastProvider.tsx'
+import { change } from '../../test/controls.ts'
+import { Select } from './Select.tsx'
 
 describe('Button', () => {
   it('is a non-submitting button by default and reports clicks', () => {
@@ -123,7 +125,7 @@ describe('form fields', () => {
       </SelectField>,
     )
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'RSVP Language' }), {
+    change(screen.getByRole('combobox', { name: 'RSVP Language' }), {
       target: { value: 'he' },
     })
 
@@ -818,5 +820,156 @@ describe('PageHeader actions placement', () => {
     render(<PageHeader title="Guests" compactActions="bar" />)
 
     expect(screen.queryByRole('region')).not.toBeInTheDocument()
+  })
+})
+
+describe('Select', () => {
+  const options = [
+    { value: 'a', label: 'Apple' },
+    { value: 'b', label: 'Banana', disabled: true },
+    { value: 'c', label: 'Cherry' },
+    { value: 'd', label: 'Date' },
+  ]
+
+  function renderSelect(value = 'a') {
+    const onChange = vi.fn()
+    render(
+      <>
+        <label htmlFor="fruit">Fruit</label>
+        <Select
+          id="fruit"
+          value={value}
+          options={options}
+          onChange={onChange}
+        />
+        <button type="button">Elsewhere</button>
+      </>,
+    )
+    return { onChange, select: screen.getByRole('combobox', { name: 'Fruit' }) }
+  }
+  const active = (select: HTMLElement) =>
+    document.getElementById(select.getAttribute('aria-activedescendant') ?? '')
+      ?.textContent
+
+  it('shows the current choice and lists the options when opened', () => {
+    const { select } = renderSelect('c')
+
+    expect(select).toHaveTextContent('Cherry')
+    expect(select).toHaveValue('c')
+    expect(select).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+
+    fireEvent.click(select)
+
+    expect(select).toHaveAttribute('aria-expanded', 'true')
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent),
+    ).toEqual(['Apple', 'Banana', 'Cherry', 'Date'])
+    expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+  })
+
+  it('reports a clicked option, but not the current one or a disabled one', () => {
+    const { select, onChange } = renderSelect()
+
+    fireEvent.click(select)
+    fireEvent.click(screen.getByRole('option', { name: 'Banana' }))
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.getByRole('listbox')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('option', { name: 'Apple' }))
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+
+    fireEvent.click(select)
+    fireEvent.click(screen.getByRole('option', { name: 'Date' }))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('d')
+  })
+
+  it('is driven from the keyboard, skipping disabled options', () => {
+    const { select, onChange } = renderSelect()
+
+    fireEvent.keyDown(select, { key: 'ArrowDown' })
+    expect(active(select)).toBe('Apple')
+    fireEvent.keyDown(select, { key: 'ArrowDown' })
+    expect(active(select)).toBe('Cherry')
+    fireEvent.keyDown(select, { key: 'End' })
+    expect(active(select)).toBe('Date')
+    fireEvent.keyDown(select, { key: 'ArrowDown' })
+    expect(active(select)).toBe('Date')
+    fireEvent.keyDown(select, { key: 'Home' })
+    expect(active(select)).toBe('Apple')
+    fireEvent.keyDown(select, { key: 'ArrowUp' })
+    expect(active(select)).toBe('Apple')
+    fireEvent.keyDown(select, { key: 'End' })
+    fireEvent.keyDown(select, { key: 'ArrowUp' })
+    fireEvent.keyDown(select, { key: 'Enter' })
+
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('c')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('jumps to an option by typing, and chooses it at once when closed', () => {
+    const { select, onChange } = renderSelect()
+
+    fireEvent.keyDown(select, { key: 'd' })
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('d')
+
+    fireEvent.keyDown(select, { key: ' ' })
+    expect(screen.getByRole('listbox')).toBeInTheDocument()
+    fireEvent.keyDown(select, { key: 'c' })
+    fireEvent.keyDown(select, { key: 'h' })
+    expect(active(select)).toBe('Cherry')
+    // A disabled option is never jumped to.
+    fireEvent.keyDown(select, { key: 'Escape' })
+    onChange.mockClear()
+    fireEvent.keyDown(select, { key: 'b' })
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('closes on Escape, Tab, a click elsewhere or a second click, choosing nothing', () => {
+    const { select, onChange } = renderSelect()
+    const isOpen = () => screen.queryByRole('listbox') !== null
+
+    fireEvent.click(select)
+    fireEvent.keyDown(select, { key: 'Escape' })
+    expect(isOpen()).toBe(false)
+
+    fireEvent.click(select)
+    fireEvent.keyDown(select, { key: 'Tab' })
+    expect(isOpen()).toBe(false)
+
+    fireEvent.click(select)
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Elsewhere' }))
+    expect(isOpen()).toBe(false)
+
+    fireEvent.click(select)
+    fireEvent.scroll(window)
+    expect(isOpen()).toBe(true)
+    fireEvent.click(select)
+    expect(isOpen()).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('cannot be opened when disabled', () => {
+    render(
+      <Select
+        aria-label="Fruit"
+        value="a"
+        options={options}
+        disabled
+        onChange={() => {}}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Fruit' }))
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 })

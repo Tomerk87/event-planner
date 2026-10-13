@@ -339,13 +339,15 @@ function ImportSteps({
             <tbody>
               {plan.rows.slice(0, PREVIEW_ROWS).map((row) => (
                 <tr key={row.rowNumber}>
-                  <td>{format.number(row.rowNumber)}</td>
+                  <td className={styles.previewNumber}>
+                    {format.number(row.rowNumber)}
+                  </td>
                   <td>{row.values.firstName}</td>
                   <td>{row.values.lastName}</td>
                   <td>
                     <LtrText>{row.values.phone}</LtrText>
                   </td>
-                  <td>
+                  <td className={styles.previewNumber}>
                     {row.input
                       ? format.number(row.input.allowedAttendees)
                       : row.values.allowedAttendees}

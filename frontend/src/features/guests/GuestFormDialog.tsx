@@ -1,12 +1,13 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDomainError } from '../../domain/errors.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
-import { GROUP_MAX_LENGTH } from '../../domain/guests.ts'
+import { GROUP_MAX_LENGTH, type GuestInput } from '../../domain/guests.ts'
 import type { Guest } from '../../domain/models.ts'
 import type { TableWithOccupancy } from '../../services/contracts/index.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Button } from '../../shared/ui/Button.tsx'
+import { Combobox } from '../../shared/ui/Combobox.tsx'
 import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
@@ -18,7 +19,7 @@ import {
   useCreateGuest,
   useUpdateGuest,
 } from './guestQueries.ts'
-import { TableOptions } from './TableOptions.tsx'
+import { useTableOptions } from './TableOptions.tsx'
 
 const NO_TABLE = 'NONE'
 
@@ -52,7 +53,7 @@ function GuestForm({
   const create = useCreateGuest(eventId)
   const update = useUpdateGuest(eventId)
   const assignTable = useAssignTable(eventId)
-  const groupListId = useId()
+  const tableOptions = useTableOptions()
   const [firstName, setFirstName] = useState(guest?.firstName ?? '')
   const [lastName, setLastName] = useState(guest?.lastName ?? '')
   const [phone, setPhone] = useState(guest?.phone ?? '')
@@ -62,6 +63,10 @@ function GuestForm({
   const [group, setGroup] = useState(guest?.group ?? '')
   const [tableId, setTableId] = useState(guest?.tableId ?? null)
   const [isSaving, setIsSaving] = useState(false)
+  // A guest waiting for the organizer to confirm that its group is new.
+  const [awaitingNewGroup, setAwaitingNewGroup] = useState<GuestInput | null>(
+    null,
+  )
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
   const limits = EVENT_LIMITS.allowedAttendees
@@ -93,7 +98,7 @@ function GuestForm({
     setFailure(describeError(t, error))
   }
 
-  async function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setFieldError(null)
     setFailure(null)
@@ -112,6 +117,20 @@ function GuestForm({
       return setFieldError({ field: 'allowed', reason: 'range' })
     }
     const input = { firstName, lastName, phone, allowedAttendees, group }
+    const wanted = group.trim().toLocaleLowerCase()
+    const isNewGroup =
+      wanted !== '' &&
+      !groups.some((existing) => existing.toLocaleLowerCase() === wanted)
+    if (isNewGroup) {
+      // A typo should not quietly become a group.
+      setAwaitingNewGroup(input)
+    } else {
+      void save(input)
+    }
+  }
+
+  async function save(input: GuestInput) {
+    setAwaitingNewGroup(null)
     setIsSaving(true)
     try {
       if (guest) {
@@ -136,11 +155,7 @@ function GuestForm({
   }
 
   return (
-    <form
-      className={styles.form}
-      noValidate
-      onSubmit={(event) => void handleSubmit(event)}
-    >
+    <form className={styles.form} noValidate onSubmit={handleSubmit}>
       {failure && <Notice tone="danger" title={failure} announce />}
       <div className={styles.formRow}>
         <TextField
@@ -205,22 +220,18 @@ function GuestForm({
         onChange={(event) => setAllowed(event.target.value)}
       />
       <div className={styles.formRow}>
-        <div>
-          <TextField
-            label={t('guests.form.group')}
-            maxLength={GROUP_MAX_LENGTH}
-            autoComplete="off"
-            list={groupListId}
-            value={group}
-            hint={t('guests.form.groupHint')}
-            onChange={(event) => setGroup(event.target.value)}
-          />
-          <datalist id={groupListId}>
-            {groups.map((name) => (
-              <option key={name} value={name} />
-            ))}
-          </datalist>
-        </div>
+        <Combobox
+          label={t('guests.form.group')}
+          value={group}
+          onChange={setGroup}
+          options={groups}
+          clearLabel={t('guests.filters.groupNone')}
+          createLabel={(name) => t('guests.form.groupCreate', { name })}
+          toggleLabel={t('guests.form.groupShow')}
+          hint={t('guests.form.groupHint')}
+          maxLength={GROUP_MAX_LENGTH}
+          openUp
+        />
         <SelectField
           label={t('guests.form.table')}
           disabled={!canSeat}
@@ -233,7 +244,7 @@ function GuestForm({
           }
         >
           <option value={NO_TABLE}>{t('guests.table.noTable')}</option>
-          <TableOptions tables={tables} ownTableId={guest?.tableId ?? null} />
+          {tableOptions(tables, guest?.tableId ?? null)}
         </SelectField>
       </div>
       <div className={styles.formActions}>
@@ -244,6 +255,29 @@ function GuestForm({
           {t(guest ? 'guests.form.save' : 'guests.form.add')}
         </Button>
       </div>
+      <Dialog
+        open={awaitingNewGroup !== null}
+        onClose={() => setAwaitingNewGroup(null)}
+        title={t('guests.form.newGroup.title')}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setAwaitingNewGroup(null)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={() => awaitingNewGroup && void save(awaitingNewGroup)}
+            >
+              {t('guests.form.newGroup.confirm')}
+            </Button>
+          </>
+        }
+      >
+        <p>
+          {t('guests.form.newGroup.body', {
+            name: awaitingNewGroup?.group?.trim() ?? '',
+          })}
+        </p>
+      </Dialog>
     </form>
   )
 }

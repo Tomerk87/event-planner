@@ -7,6 +7,7 @@ import type { EventRole } from '../../domain/roles.ts'
 import { setViewportWidth } from '../../test/matchMedia.ts'
 import { AppShell } from './AppShell.tsx'
 import { getEventNavItems } from './eventNav.ts'
+import { change } from '../../test/controls.ts'
 
 const events = [
   { id: 'e1', name: 'Garden Celebration' },
@@ -226,7 +227,7 @@ describe('shell chrome', () => {
   it('switches the interface to Hebrew from the language selector', async () => {
     renderEventShell('OWNER')
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Language' }), {
+    change(screen.getByRole('combobox', { name: 'Language' }), {
       target: { value: 'he' },
     })
 

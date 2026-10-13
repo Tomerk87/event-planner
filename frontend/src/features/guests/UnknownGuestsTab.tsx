@@ -397,6 +397,8 @@ export function UnknownGuestsTab({
             id: 'actions',
             header: t('guests.columns.actions'),
             hideHeader: true,
+            align: 'end' as const,
+            pinned: true,
             cell: actions,
           },
         ]

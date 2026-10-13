@@ -1,14 +1,17 @@
-import { ChevronDown } from 'lucide-react'
 import {
+  Children,
+  isValidElement,
   useId,
+  useState,
   type InputHTMLAttributes,
+  type OptionHTMLAttributes,
   type ReactNode,
-  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cx } from './cx.ts'
 import styles from './Field.module.css'
+import { Select, type SelectOption } from './Select.tsx'
 
 interface FieldCommonProps {
   label: string
@@ -158,8 +161,53 @@ export function TextArea({
   )
 }
 
-type SelectFieldProps = FieldCommonProps &
-  Omit<SelectHTMLAttributes<HTMLSelectElement>, 'id'> & { icon?: ReactNode }
+interface SelectFieldProps extends FieldCommonProps {
+  /** The chosen value; leave out, with `defaultValue`, to let the field keep it. */
+  value?: string
+  defaultValue?: string
+  /** Called with the chosen value, in the shape of a form control's event. */
+  onChange?: (event: { target: { value: string } }) => void
+  required?: boolean
+  disabled?: boolean
+  icon?: ReactNode
+  /** Lets the choices be narrowed by typing; for long lists. */
+  searchable?: boolean
+  /** Shown when nothing matches what was typed. */
+  emptyLabel?: string
+  /** Styles the button that shows the current choice. */
+  className?: string
+  /** The choices, written as `<option>` elements. */
+  children: ReactNode
+}
+
+function textOf(node: ReactNode): string {
+  return Children.toArray(node)
+    .map((part) =>
+      typeof part === 'string' || typeof part === 'number' ? String(part) : '',
+    )
+    .join('')
+}
+
+/** Reads `<option>` elements, however they are nested in lists or fragments. */
+function toOptions(children: ReactNode): SelectOption[] {
+  return Children.toArray(children).flatMap((child): SelectOption[] => {
+    if (!isValidElement<OptionHTMLAttributes<HTMLOptionElement>>(child)) {
+      return []
+    }
+    if (child.type !== 'option') {
+      return toOptions(child.props.children)
+    }
+    const label = textOf(child.props.children)
+    return [
+      {
+        value: String(child.props.value ?? label),
+        label,
+        disabled: child.props.disabled,
+        lang: child.props.lang,
+      },
+    ]
+  })
+}
 
 export function SelectField({
   label,
@@ -169,36 +217,39 @@ export function SelectField({
   icon,
   className,
   children,
-  ...rest
+  value,
+  defaultValue = '',
+  onChange,
+  required,
+  disabled,
+  searchable,
+  emptyLabel,
 }: SelectFieldProps) {
+  const [ownValue, setOwnValue] = useState(defaultValue)
   return (
     <FieldShell
       label={label}
       hint={hint}
       error={error}
       hideLabel={hideLabel}
-      required={rest.required}
+      required={required}
     >
       {(aria) => (
         <div className={styles.control}>
-          {icon && (
-            <span className={styles.leadingIcon} aria-hidden="true">
-              {icon}
-            </span>
-          )}
-          <select
-            className={cx(
-              styles.input,
-              styles.select,
-              icon ? styles.withLeadingIcon : undefined,
-              className,
-            )}
+          <Select
             {...aria}
-            {...rest}
-          >
-            {children}
-          </select>
-          <ChevronDown className={styles.chevron} aria-hidden="true" />
+            value={value ?? ownValue}
+            options={toOptions(children)}
+            disabled={disabled}
+            icon={icon}
+            searchable={searchable}
+            emptyLabel={emptyLabel}
+            className={className}
+            onChange={(chosen) => {
+              setOwnValue(chosen)
+              onChange?.({ target: { value: chosen } })
+            }}
+          />
         </div>
       )}
     </FieldShell>

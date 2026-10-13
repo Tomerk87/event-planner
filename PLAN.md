@@ -325,7 +325,7 @@
 
 ### Checklist
 - [ ] Build Event Layout navigation/tabs consistent with mockups.
-- [ ] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one.
+- [ ] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one. The tables list follows the table guidelines (D55).
 - [ ] Display table occupancy, remaining seats, assigned guest parties and conflicts.
 - [ ] Assign **Approved guests only**; keep each party together in MVP.
 - [ ] Block manual assignment exceeding capacity; allow overcapacity after RSVP count increases.
@@ -351,7 +351,7 @@
 - Follow `docs/PRD.md` for navigation order and scope; the desktop mockup's sidebar shows out-of-scope entries (see `docs/MOCKUP_NOTES.md`).
 
 ### Checklist
-- [ ] Build Permissions table with name, email, role and available actions, using shared visual design.
+- [ ] Build Permissions table with name, email, role and available actions, using shared visual design and the table guidelines (D55).
 - [ ] Implement Viewer: no Permissions page/API equivalents, read/export only, no mutations or WhatsApp actions.
 - [ ] Implement Admin: normal event editing; manage Viewer/Admin permissions but not Owners, self-permissions or event duplication/deletion.
 - [ ] Implement Owner: full event control; manage others including Owners but not own permission.
@@ -925,6 +925,43 @@ Follow-ups/risks:
 - The form saves the guest's details first and the table second; if the table is full the details are saved and the table is not, with an error shown.
 - Phone guest cards do not show the group (it is in Guest Details).
 - Nothing committed; branch phase_8_implementation.
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — column chooser, group picker, column order, table guidelines everywhere (owner).
+Decisions (owner): table guidelines apply to every data table on desktop (D55); Group is a searchable dropdown that can create a group, confirmed when the guest is saved (D56); the column chooser toggles by the whole row and closes only on an outside click or Escape, and Group comes after Table (D57).
+Done: fixed the chooser closing when a column's name was clicked (focus moving to the page area around the panel was read as leaving it); full-width clickable rows. New shared Combobox for the group field, with Create and No Group rows and keyboard support; confirmation dialog for a new group. Fixed a dialog opened inside another closing its parent. Group column moved after Table. Guidelines applied to the showcase table, the import preview and the actions columns of Unknown Guests and Sent Messages, and written into AGENTS.md and docs/ARCHITECTURE.md.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 847 passed, coverage 96.48% statements, 91.24% branches; `npm run test:e2e` 243 passed, 23 skipped by design; `npm run build` succeeds. Column chooser, group dropdown and confirmation checked from desktop screenshots in English.
+Follow-ups/risks:
+- A type error in UnknownGuestsTab was found by the type check after the full browser run; it was fixed and the type check, build, unit tests and the Guests browser tests were re-run, not the whole browser suite.
+- The Dashboard's RSVP legend is left as it is (a chart key, not a data table).
+- Hebrew and phone layouts of the new dropdown passed automated checks only.
+- Nothing committed; branch phase_8_followups.
+Next: Phase 9 — RSVP Settings and public RSVP.
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — one dropdown design everywhere (owner).
+Decision (owner): every dropdown shares the design of the Group picker, without the create row; the column chooser keeps its own design (D58).
+Done: new shared Select (button with combobox role and a listbox; arrow keys, Home/End, typing to jump, Escape; list positioned against the screen, opening upwards near the bottom and following its button on scroll). SelectField now renders it, so every dropdown changed at once: Guests filters, the Table selector in each row, Rows per page, the guest form's Table, Preview for, time zone, RSVP language, import column matching, demo role, showcase. The language selector uses it too. List styles shared with the group picker. Test helpers chooseOption/optionLabels for unit and browser tests. Rule written into AGENTS.md and docs/ARCHITECTURE.md.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 853 passed, coverage 96.43% statements, 90.87% branches; `npm run test:e2e` 243 passed, 23 skipped by design; `npm run build` succeeds. Dropdowns checked from desktop screenshots (table row selector, language selector).
+Follow-ups/risks:
+- Phones no longer get the system's own picker wheel for dropdowns; they get the same list as desktop.
+- The time zone list has about 400 entries and is found by scrolling or typing its first letters; it has no search box.
+- Hebrew and phone looks passed automated checks only.
+- Nothing committed; branch phase_8_followups.
+Next: Phase 9 — RSVP Settings and public RSVP.
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — searchable "Preview for" (owner).
+Decision (owner): the guest to preview on WhatsApp Messages is found by typing, as in the Group picker (D59).
+Done: the shared Select gained a searchable kind (a text box showing the current choice; typing narrows the list; Enter chooses; Escape or leaving restores the choice; "No guest matches" when nothing fits). Used for Preview for.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 854 passed, coverage 96.4% statements, 90.8% branches; `npm run test:e2e` 245 passed, 23 skipped by design; `npm run build` succeeds. Checked from a desktop screenshot in English.
+Follow-ups/risks:
+- Only Preview for is searchable; the time zone list (about 400 entries) could use the same and does not yet.
+- Nothing committed; branch phase_8_followups.
+Next: Phase 9 — RSVP Settings and public RSVP.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

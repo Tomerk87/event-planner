@@ -28,3 +28,15 @@ export async function startInDemo(page: Page): Promise<void> {
     }
   })
 }
+
+/** Opens a dropdown and chooses the option with the given value. */
+export async function chooseOption(
+  dropdown: Locator,
+  value: string,
+): Promise<void> {
+  await dropdown.click()
+  await dropdown
+    .page()
+    .locator(`[role="option"][data-value="${value}"]`)
+    .click()
+}

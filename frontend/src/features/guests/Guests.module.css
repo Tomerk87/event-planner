@@ -139,10 +139,21 @@
 .chooserList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* The whole row toggles the column, not only its box or its name. */
+.chooserRow {
+  display: flex;
+  inline-size: 100%;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.chooserRow:hover {
+  background: var(--color-surface-muted);
 }
 
 /* Bulk bar */
@@ -191,10 +202,9 @@
   text-align: start;
 }
 
-.tableSelect select {
+.tableSelect button {
   min-block-size: var(--control-height-sm);
-  padding-inline-start: var(--space-3);
-  text-overflow: ellipsis;
+  padding-inline: var(--space-3) var(--space-2);
 }
 
 .nameCell > :first-child {
@@ -236,7 +246,7 @@
   font-weight: var(--font-weight-regular);
 }
 
-.pageSize select {
+.pageSize button {
   inline-size: 5.5rem;
 }
 
@@ -456,11 +466,16 @@
 }
 
 .previewTable th {
+  text-align: center;
   position: sticky;
   inset-block-start: 0;
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-medium);
+}
+
+.previewTable .previewNumber {
+  text-align: center;
 }
 
 .previewTable tbody tr {

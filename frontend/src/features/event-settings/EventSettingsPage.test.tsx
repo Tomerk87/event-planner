@@ -8,6 +8,7 @@ import {
   renderApp,
 } from '../../test/renderApp.tsx'
 import { toDateAndTime } from '../events/eventForm.ts'
+import { change } from '../../test/controls.ts'
 
 const MAIN = DEMO_EVENTS.owner
 
@@ -25,7 +26,7 @@ function field(name: string): HTMLInputElement {
 }
 
 function type(name: string, value: string) {
-  fireEvent.change(field(name), { target: { value } })
+  change(field(name), { target: { value } })
 }
 
 function save() {
@@ -159,7 +160,7 @@ describe('Event Settings', () => {
     const before = await savedEvent(services)
     const start = toDateAndTime(new Date(before.startsAt), before.timeZone)
 
-    fireEvent.change(field('Timezone'), {
+    change(field('Timezone'), {
       target: { value: 'America/New_York' },
     })
     save()

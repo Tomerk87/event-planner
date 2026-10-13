@@ -58,6 +58,7 @@ export function ColumnChooser({ visible, onChange }: ColumnChooserProps) {
           {GUEST_COLUMNS.map((column) => (
             <li key={column}>
               <Checkbox
+                className={styles.chooserRow}
                 label={
                   isRequiredColumn(column)
                     ? t('guests.columns.alwaysShown', {
