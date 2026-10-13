@@ -14,6 +14,7 @@ const mapping: ColumnMapping = {
   lastName: 1,
   phone: 2,
   allowedAttendees: 3,
+  group: null,
 }
 
 function plan(
@@ -33,7 +34,13 @@ describe('detectMapping', () => {
         'Allowed Attendees',
         'FIRST NAME',
       ]),
-    ).toEqual({ firstName: 3, lastName: 1, phone: 0, allowedAttendees: 2 })
+    ).toEqual({
+      firstName: 3,
+      lastName: 1,
+      phone: 0,
+      allowedAttendees: 2,
+      group: null,
+    })
   })
 
   it('recognises the attendees column under its current and former names', () => {
@@ -52,7 +59,13 @@ describe('detectMapping', () => {
   it('recognises Hebrew headings', () => {
     expect(
       detectMapping(['שם פרטי', 'שם משפחה', 'טלפון', 'מספר מוזמנים']),
-    ).toEqual({ firstName: 0, lastName: 1, phone: 2, allowedAttendees: 3 })
+    ).toEqual({
+      firstName: 0,
+      lastName: 1,
+      phone: 2,
+      allowedAttendees: 3,
+      group: null,
+    })
   })
 
   it('takes a single "Name" column as the first name', () => {
@@ -61,6 +74,7 @@ describe('detectMapping', () => {
       lastName: null,
       phone: 1,
       allowedAttendees: null,
+      group: null,
     })
   })
 
@@ -76,6 +90,7 @@ describe('detectMapping', () => {
       lastName: null,
       phone: null,
       allowedAttendees: 1,
+      group: null,
     })
     expect(isMappingComplete(detected)).toBe(false)
     expect(isMappingComplete({ ...detected, firstName: 0, phone: 2 })).toBe(
@@ -101,6 +116,7 @@ describe('planGuestImport', () => {
       lastName: 'Cohen',
       phone: '050-123-4567',
       allowedAttendees: 3,
+      group: '',
     })
     // A blank allowance takes the event's default.
     expect(result.rows[1]?.input?.allowedAttendees).toBe(5)
@@ -248,6 +264,7 @@ describe('planGuestImport', () => {
       lastName: null,
       phone: 1,
       allowedAttendees: null,
+      group: null,
     })
 
     expect(result.rows[0]?.input).toMatchObject({

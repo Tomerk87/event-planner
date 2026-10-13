@@ -132,7 +132,7 @@ Only Owners and Super Users may duplicate or delete events. Both are allowed on 
 | Event details (time zone, maximum attendees, default allowed attendees, RSVP language, location, RSVP title) | Guests and their RSVP responses |
 | RSVP settings | Unknown RSVP responses |
 | Message template | Sent-message history and invitation counters |
-| Tables (number, name, capacity, shape), with nobody seated | Other members and their roles |
+| Tables (number, capacity, shape), with nobody seated | Other members and their roles |
 
 The person duplicating becomes the Owner of the new event, which gets its own public RSVP link.
 
@@ -156,6 +156,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Invitation sent count | Nonnegative, starts at `0`, increases on each system-initiated WhatsApp action |
 | Last invitation sent at / Last RSVP response at | Operational timestamps |
 | Table | Nullable assignment; only Approved guests are assignable |
+| Group | Optional. The organizer's own grouping of guests (for example "Family"), up to 40 characters; unrelated to seating. A group exists while a guest uses it; a name differing only in capitals joins the existing group |
 | Deleted | Soft-delete marker, default `0` |
 
 A normalized phone number is unique **within each event**. In the MVP a number written without `+` is read as an Israeli number, in any local or `+972` form; a number from another country is entered with `+` and its country code. A number that is local to another country is refused, not read as Israeli. Israeli numbers are shown in local form (`050-730-8828`) everywhere, including exports, however they were entered; foreign numbers are shown with their country code. The same rule applies to imported files and to the public RSVP form.
@@ -167,8 +168,10 @@ Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lis
 ### 6.3 Guests screen
 
 - Known Guests list with create, view, update, soft-delete, search, and sortable columns.
-- Search by first name, last name, full name, Invitation Name, and phone number.
-- Show attendee allowance, confirmed count, RSVP status, invitation counter, and Table Number (if assigned).
+- Search by first name, last name, full name, Invitation Name, group, and phone number. Filter by RSVP status, invitation status, table and group.
+- Show group, attendee allowance, confirmed count, RSVP status, invitation counter, and Table Number (if assigned). Column headings are centred, and so are the number columns.
+- Add Guest and Edit Guest include Group (typed, with the event's existing groups suggested) and Table. Table can be chosen only for an Approved guest, so it is greyed when adding a guest.
+- Import accepts an optional Group column; exports include it.
 - Allow authorized users to manually update RSVP status, confirmed attendees, and table assignments subject to the same rules as public RSVP and Event Layout.
 - Provide a WhatsApp action for each guest.
 - Desktop table and intentionally adapted mobile list/card layout.
@@ -186,13 +189,22 @@ The organizer configures one reusable event-level WhatsApp message, with useful 
 
 ### 7.1 MVP send behavior
 
-An authorized organizer selects a guest and invokes the WhatsApp button. The system prepares a recipient-specific WhatsApp deep link with a prefilled message and opens WhatsApp/WhatsApp Web.
+An authorized organizer selects a guest and invokes the WhatsApp button, on the Guests page or with **Send again** in Recent Sent Messages. The system shows the message for that guest and, on confirmation, opens `https://wa.me/<number>?text=<message>`: the number is the guest's full international number, digits only, and the message is percent-encoded. WhatsApp or WhatsApp Web opens with the message ready; the organizer presses Send there.
 
 - `invitation_sent_count` begins at `0` and **only increases**.
 - Each system-initiated WhatsApp action increments the guest counter by exactly `1` and records its time.
 - The MVP cannot verify whether WhatsApp's final Send action or delivery occurred; the counter therefore measures **send attempts initiated from Event Planner**, not verified deliveries.
 - Repeated sends to one guest do **not** increase the distinct Invitations Sent Dashboard KPI more than once.
 - Viewer cannot invoke message actions.
+- The send is counted when WhatsApp is opened. A cancelled confirmation counts nothing.
+
+### 7.2 Template editor
+
+- The template is plain text, up to 1,000 characters, and cannot be saved empty. A template without `{{rsvp_url}}` can be saved but shows a warning. A placeholder that is not a supported variable is sent as written and is pointed out.
+- Formatting uses WhatsApp's own marks: `*bold*`, `_italic_`, `~strikethrough~`. The toolbar offers these and a small set of emoji; the preview shows the result. There is no underline or link button: WhatsApp has no underline and turns addresses into links by itself.
+- The preview shows the message for a chosen guest, or for a sample guest when the event has none. Dates and times in a message are written in the event's default RSVP language and time zone.
+- **Send Test Message** opens WhatsApp with the previewed message and no recipient, so the organizer chooses one. It is not counted or recorded.
+- **Recent Sent Messages** lists sends newest first, ten per page, with **View message** and **Send again**.
 
 ## 8. RSVP
 
@@ -299,7 +311,7 @@ Table-total mismatch is **nonblocking**, including when chairs exceed the event 
 
 ### 11.1 Tables
 
-The organizer can create, view, update, and delete tables. Each table has a unique number within its event, a name, a capacity (number of chairs), and a shape: **circle, rectangle, or square**.
+The organizer can create, view, update, and delete tables. Each table has a unique number within its event, a capacity (number of chairs), and a shape: **circle, rectangle, or square**.
 
 Tables display assigned/available chairs and guests. Authorized users can assign or unassign guests both from the Tables view and from the Table field in Guests.
 
@@ -318,7 +330,7 @@ Tables display assigned/available chairs and guests. Authorized users can assign
 Support **CSV and XLSX** exports for venue operations:
 
 - Detailed rows: Table Number, Table Name, Guest First Name, Last Name, Invitation Name, Phone, Confirmed Attendees.
-- Summary: Table Number, Name, Capacity, Assigned, Remaining.
+- Summary: Table Number, Capacity, Assigned, Remaining.
 
 Exports remain available after an event becomes Past.
 
@@ -361,7 +373,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 ### 12.4 External side effects and security
 
-- Demo WhatsApp actions are simulations only; do not attempt to message real phone numbers or open live links to fictional recipients.
+- Demo WhatsApp actions open the same WhatsApp link as the product (owner decision 2026-10-13). The generated demo guests have fictional, undialable numbers, so WhatsApp reports that the number is not on WhatsApp.
 - Do not send real emails, create real calendar events, or invoke other irreversible integrations from Demo Mode.
 - Demo-generated names/phone numbers must be fictional and safe for demonstration.
 - Demo roles are UI/workflow simulations and must not confer real backend access.

@@ -1,4 +1,4 @@
-import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
+import { assertIntegerInRange, DomainError } from './errors.ts'
 import {
   TABLE_SHAPES,
   type EventTable,
@@ -51,7 +51,6 @@ export function assertCanAssign(
 
 export interface TableInput {
   number: number
-  name: string
   capacity: number
   shape: TableShape
 }
@@ -64,7 +63,6 @@ export function validateTableInput(
 ): TableInput {
   assertIntegerInRange(input.number, 1, MAX_TABLE_NUMBER, 'number')
   assertIntegerInRange(input.capacity, 1, MAX_TABLE_CAPACITY, 'capacity')
-  const name = assertNonEmpty(input.name, 'name')
   if (!TABLE_SHAPES.includes(input.shape)) {
     throw new DomainError('VALIDATION', { field: 'shape' })
   }
@@ -76,7 +74,6 @@ export function validateTableInput(
   }
   return {
     number: input.number,
-    name,
     capacity: input.capacity,
     shape: input.shape,
   }

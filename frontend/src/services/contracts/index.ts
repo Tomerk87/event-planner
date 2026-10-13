@@ -1,6 +1,7 @@
 import type { SignInInput, SignUpInput } from '../../domain/accounts.ts'
 import type { EventInput } from '../../domain/events.ts'
 import type { GuestInput } from '../../domain/guests.ts'
+import type { MessageValues } from '../../domain/messages.ts'
 import type {
   ActivityEntry,
   DashboardMetrics,
@@ -164,22 +165,41 @@ export interface RsvpService {
 export interface SendResult {
   guest: Guest
   send: MessageSend
-  /**
-   * The WhatsApp link to open for this send, or null when the send is
-   * simulated. The interface opens a link only when one is returned.
-   */
-  launchUrl: string | null
+  /** The WhatsApp link of this send: the guest's number and the message. */
+  launchUrl: string
+}
+
+/** The saved template filled in for one guest, and the link that sends it. */
+export interface MessagePreview {
+  message: string
+  launchUrl: string
+}
+
+/** A recorded send with the guest it went to, as the guest is now. */
+export interface SentMessage extends MessageSend {
+  guestName: string
+  phone: string
+  /** False once the guest has been deleted; such a guest cannot be sent to. */
+  guestActive: boolean
 }
 
 export interface MessagesService {
   getTemplate(eventId: Id): Promise<MessageTemplate>
+  /** Refuses an empty template and one longer than the limit. */
   updateTemplate(eventId: Id, body: string): Promise<MessageTemplate>
-  /** The template with its variables filled in for one guest. */
-  preview(eventId: Id, guestId: Id): Promise<string>
+  /** The template a new event starts with, in the event's RSVP language. */
+  getDefaultTemplate(eventId: Id): Promise<string>
+  /**
+   * What each variable stands for, for one guest; with no guest, for a
+   * made-up one, so a message can be previewed before any guest exists.
+   */
+  getValues(eventId: Id, guestId: Id | null): Promise<MessageValues>
+  /** The saved template filled in for one guest, ready to send. */
+  preview(eventId: Id, guestId: Id): Promise<MessagePreview>
   /** Records one initiated send and increments the guest's counter. */
   send(eventId: Id, guestId: Id): Promise<SendResult>
   /** Newest first. */
-  listSends(eventId: Id): Promise<MessageSend[]>
+  listSends(eventId: Id): Promise<SentMessage[]>
 }
 
 export interface TableWithOccupancy {

@@ -5,6 +5,7 @@ export const GUEST_COLUMNS = [
   'name',
   'invitationName',
   'phone',
+  'group',
   'allowed',
   'confirmed',
   'status',

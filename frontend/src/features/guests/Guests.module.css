@@ -186,7 +186,9 @@
 }
 
 .tableSelect {
-  inline-size: 6.5rem;
+  display: inline-block;
+  inline-size: 4.75rem;
+  text-align: start;
 }
 
 .tableSelect select {

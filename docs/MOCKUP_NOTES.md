@@ -88,6 +88,8 @@ Decided 2026-10-13 unless noted.
 - Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. Such guests are labelled **Not Sent**.
 - The **sliders button** beside the filters has no label or drawn behaviour. It is a column chooser: a dropdown listing every column with a checkbox, with Select all and Clear; Name and Phone are always shown. It appears only with the desktop table, so the phone mockup's sliders button is not reproduced.
 - A **Clear filters** button, not in the mockup, is added beside it.
+- A **Group** column and an "All Groups" filter are added; the mockup has neither. Add Guest and Edit Guest gain Group and Table fields.
+- Column headings are centred (the mockup starts them at the edge); number columns are centred as drawn.
 - The column and field the mockup calls "Allowed" is named **Expected attendees**.
 - The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
 - The **"⋯" menu** holds Change RSVP and Delete. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel.
@@ -107,8 +109,12 @@ Found while building (Phase 6):
 ### WhatsApp Messages
 
 - **Recent Sent Messages** lists each send with time, status "Opened WhatsApp" and a message preview. The PRD stores a counter and the last send time, not a per-send history. Built as shown; the per-send record is added to the PRD in Phase 8.
-- **Send Test Message** is not in the PRD. **Decision needed.**
-- The editor toolbar offers bold, italic, underline, link and emoji. WhatsApp has its own plain-text formatting markers and no underline. **Decision needed** on which formatting controls are kept.
+- **Send Test Message** is not in the PRD. **Decided (2026-10-13):** it opens WhatsApp with the previewed message and no recipient; nothing is counted.
+- The desktop mockup has **no Save Changes button**; one is added to the header beside Send Test Message.
+- The editor draws variables as highlighted chips inside the text. The editor is a plain text box, so variables appear as `{{first_name}}` text; they are inserted with the Insert Variable buttons.
+- The **"⋯" menu** on each sent message holds View message and Send again.
+- The phone preview is drawn in CSS: the guest's name and the message bubble, without the status bar and call icons of the mockup.
+- The editor toolbar offers bold, italic, underline, link and emoji. WhatsApp has its own plain-text formatting markers and no underline. **Decided (2026-10-13):** Bold, Italic, Strikethrough and Emoji; Underline and Link are not built.
 - The variable set shown is `first_name`, `last_name`, `event_name`, `event_date`, `event_time`, `rsvp_url`. PRD §7 gives these as examples; this set is taken as the approved list.
 
 ### RSVP Settings and public RSVP
@@ -121,6 +127,8 @@ Found while building (Phase 6):
 - The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state.
 
 ### Event Layout
+
+- The mockup gives each table a **name** ("Family", "Friends"). **Decided (2026-10-13):** a table has only a number, a capacity and a shape; names are not built.
 
 - Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decision needed.**
 - "Assigned Guests" in the KPI row counts attendees (214), not guest parties. Labels must make that distinction clear (`PLAN.md` Phase 5 exit criteria).

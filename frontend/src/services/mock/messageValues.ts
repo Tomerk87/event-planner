@@ -1,5 +1,5 @@
 import type { MessageValues } from '../../domain/messages.ts'
-import type { Event, Guest } from '../../domain/models.ts'
+import type { Event, Guest, RsvpLanguage } from '../../domain/models.ts'
 import { formatDate, formatTime } from '../../i18n/format.ts'
 
 export function publicRsvpUrl(baseUrl: string, event: Event): string {
@@ -12,7 +12,7 @@ export function publicRsvpUrl(baseUrl: string, event: Event): string {
  * them, not the organizer.
  */
 export function messageValuesFor(
-  guest: Guest,
+  guest: Pick<Guest, 'firstName' | 'lastName'>,
   event: Event,
   baseUrl: string,
 ): MessageValues {
@@ -25,4 +25,13 @@ export function messageValuesFor(
     event_time: formatTime(start, event.rsvpLanguage, event.timeZone),
     rsvp_url: publicRsvpUrl(baseUrl, event),
   }
+}
+
+/** A made-up guest for previewing a message before the event has any. */
+export const SAMPLE_GUEST: Record<
+  RsvpLanguage,
+  Pick<Guest, 'firstName' | 'lastName'>
+> = {
+  en: { firstName: 'Dana', lastName: 'Levi' },
+  he: { firstName: 'דנה', lastName: 'לוי' },
 }

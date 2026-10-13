@@ -4,6 +4,7 @@ export const GUEST_SORT_KEYS = [
   'name',
   'invitationName',
   'phone',
+  'group',
   'allowed',
   'confirmed',
   'status',
@@ -27,6 +28,8 @@ export interface GuestFilters {
   invitation: 'ALL' | 'SENT' | 'NOT_SENT'
   /** A table id, `NONE` for guests without a table, or `ALL`. */
   table: 'ALL' | 'NONE' | Id
+  /** A group's name, `''` for guests in no group, or null for everyone. */
+  group: string | null
 }
 
 export const NO_GUEST_FILTERS: GuestFilters = {
@@ -34,6 +37,7 @@ export const NO_GUEST_FILTERS: GuestFilters = {
   rsvp: 'ALL',
   invitation: 'ALL',
   table: 'ALL',
+  group: null,
 }
 
 export function hasActiveFilters(filters: GuestFilters): boolean {
@@ -41,7 +45,8 @@ export function hasActiveFilters(filters: GuestFilters): boolean {
     filters.query.trim() !== '' ||
     filters.rsvp !== 'ALL' ||
     filters.invitation !== 'ALL' ||
-    filters.table !== 'ALL'
+    filters.table !== 'ALL' ||
+    filters.group !== null
   )
 }
 
@@ -57,7 +62,7 @@ function digitsOf(value: string): string {
 
 /**
  * Whether a guest matches the search text: by first name, last name, full
- * name in either order, invitation name, or phone. A phone can be typed in
+ * name in either order, invitation name, group, or phone. A phone can be typed in
  * any format, local ("050…") or international ("+972 50…").
  */
 export function matchesGuestQuery(
@@ -75,6 +80,7 @@ export function matchesGuestQuery(
     `${guest.firstName} ${guest.lastName}`,
     `${guest.lastName} ${guest.firstName}`,
     guest.invitationName ?? '',
+    guest.group ?? '',
   ]
   if (texts.some((text) => text.toLocaleLowerCase(locale).includes(needle))) {
     return true
@@ -108,6 +114,7 @@ export function filterGuests(
         (filters.table === 'NONE'
           ? guest.tableId === null
           : guest.tableId === filters.table)) &&
+      (filters.group === null || (guest.group ?? '') === filters.group) &&
       matchesGuestQuery(guest, filters.query, locale),
   )
 }
@@ -159,6 +166,13 @@ export function sortGuests(
       }
       case 'phone':
         return a.normalizedPhone.localeCompare(b.normalizedPhone) * direction
+      case 'group': {
+        // Guests in no group always come last.
+        if (a.group === null || b.group === null) {
+          return a.group === b.group ? 0 : a.group === null ? 1 : -1
+        }
+        return collator.compare(a.group, b.group) * direction
+      }
       case 'allowed':
         return (a.allowedAttendees - b.allowedAttendees) * direction
       case 'confirmed':

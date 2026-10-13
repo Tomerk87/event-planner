@@ -251,7 +251,7 @@
 
 ## Phase 8 — WhatsApp Message editor and preview prototype
 
-**Goal:** implement a complete template editor and safe simulated send workflow.
+**Goal:** implement a complete template editor and the WhatsApp send workflow.
 
 ### Mockup mapping
 - Desktop: `whatsapp_message.png`.
@@ -259,20 +259,23 @@
 - Mobile Preview tab: `whatsapp_message_preview_mobile.png`.
 
 ### Checklist
-- [ ] Build desktop editor/preview layout and explicit mobile Editor and Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
-- [ ] Support configured message template and approved event/guest placeholders.
-- [ ] Provide accurate preview substituting fictional guest/event values.
-- [ ] Integrate WhatsApp action from Guests; in Demo Mode simulate initiation only.
-- [ ] Increment guest `invitation_sent_count` exactly once per simulated action; update last send timestamp.
-- [ ] Never decrement count; Dashboard Invitations Sent remains distinct per guest.
-- [ ] Include appropriate failures, empty template and restricted role states.
-- [ ] Ensure no real WhatsApp recipient is opened in Demo Mode.
-- [ ] Enable the per-row WhatsApp button on the Guests page, which Phase 6 shows disabled (D36).
+- [x] Build desktop editor/preview layout and explicit mobile Editor and Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
+- [x] Support configured message template and approved event/guest placeholders; template limits and warnings (D48).
+- [x] Formatting toolbar: Bold, Italic, Strikethrough, Emoji, as WhatsApp marks (D17); Reset to Default; Insert Variable.
+- [x] Provide accurate preview substituting the chosen guest's values, or a sample guest's when the event has none.
+- [x] Integrate WhatsApp action from Guests, with a confirmation showing the message (D47).
+- [x] Open the real `wa.me` link on a send, in accounts and in the demo (D45, replacing "simulate in Demo Mode").
+- [x] Increment guest `invitation_sent_count` exactly once per send; update last send timestamp.
+- [x] Never decrement count; Dashboard Invitations Sent remains distinct per guest.
+- [x] Send Test Message: WhatsApp with no recipient, nothing counted (D16).
+- [x] Recent Sent Messages with View message and Send again (D46).
+- [x] Include appropriate failures, empty template and restricted role states.
+- [x] Enable the per-row WhatsApp button on the Guests page, which Phase 6 shows disabled (D36).
 
 ### Validation and exit criteria
-- [ ] Editor and preview stay synchronized; mobile tabs work.
-- [ ] Send attempts update counters, Dashboard and Awaiting Response state correctly.
-- [ ] English/Hebrew RTL and desktop/mobile mockups validated.
+- [x] Editor and preview stay synchronized; mobile tabs work.
+- [x] Send attempts update counters, Dashboard and Awaiting Response state correctly.
+- [x] English/Hebrew RTL and desktop/mobile mockups validated, by the agent from screenshots and automated checks. The owner's own visual review is still to come.
 
 ---
 
@@ -322,7 +325,7 @@
 
 ### Checklist
 - [ ] Build Event Layout navigation/tabs consistent with mockups.
-- [ ] Implement Table CRUD, unique number per event, name, positive chair capacity and Circle/Rectangle/Square shape.
+- [ ] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one.
 - [ ] Display table occupancy, remaining seats, assigned guest parties and conflicts.
 - [ ] Assign **Approved guests only**; keep each party together in MVP.
 - [ ] Block manual assignment exceeding capacity; allow overcapacity after RSVP count increases.
@@ -471,7 +474,7 @@
 - [ ] Replace development-only simulated sign-in with real auth on non-demo routes.
 - [ ] Add request loading, validation error display, retries where appropriate and stale state handling.
 - [ ] Verify counter/RSVP/assignment mutations update all related views.
-- [ ] Ensure real WhatsApp deep-link action remains a user-initiated action; demo action remains simulated.
+- [ ] Ensure the WhatsApp deep-link action remains a user-initiated action, in the product and in the demo (D45).
 - [ ] Ensure uploaded images work through storage API rather than assumptions about local browser paths.
 - [ ] Verify Demo Mode remains public, isolated, resettable and functional with no database interaction.
 - [ ] Add provider contract parity and integration tests.
@@ -496,7 +499,7 @@
 - [ ] E2E: public RSVP known/unknown, attendee bounds, Not Sure and Declined.
 - [ ] E2E: RSVP changes, table assignment restrictions, seating conflicts and exports.
 - [ ] E2E: past events read-only with view/export still supported.
-- [ ] E2E: Demo Mode initialized from fictional data, persisted, reset, independent from real DB and without real WhatsApp side effects.
+- [ ] E2E: Demo Mode initialized from fictional data, persisted, reset, independent from real DB; WhatsApp links open only from a user's click.
 - [ ] Run English/Hebrew, LTR/RTL and desktop/mobile smoke tests.
 - [ ] Run unit/integration suites and meet the coverage threshold specified in `AGENTS.md` where measurable.
 - [ ] Review security of public RSVP, file uploads, permissions, CORS, authentication, configuration and sensitive logs.
@@ -546,7 +549,7 @@
 - [ ] Confirm demo data appears automatically and supports interactive guest, RSVP, message, seating and permission exploration.
 - [ ] Confirm demo mutations persist across browser refresh and Reset restores baseline.
 - [ ] Confirm different browsers/profiles do not share demo mutations.
-- [ ] Confirm no demo interaction can alter real backend data or contact real WhatsApp recipients.
+- [ ] Confirm no demo interaction can alter real backend data, and that the generated demo guests' numbers are undialable (D23, D45).
 - [ ] Confirm demo works even if a real backend session is unavailable, subject to static frontend hosting being accessible.
 - [ ] Test mobile/desktop and English/Hebrew/RTL in the deployed app.
 - [ ] Confirm demo deployment feature flag can hide demo entry when configured without changing real app behavior.
@@ -884,6 +887,44 @@ Follow-ups/risks:
 - The Approved card and the "Approved" filter count different things (people and invitations).
 - Nothing committed; branch phase_7_completion.
 Next: Phase 8 — WhatsApp Message editor. Needs owner decisions D16 and D17.
+```
+
+```text
+2026-10-13 — Phase 8 — WhatsApp Messages.
+Decisions (owner): real WhatsApp sending everywhere, including the demo, through https://wa.me/<number>?text=<message> (D45; AGENTS.md rule changed). Send Test Message opens WhatsApp with no recipient (D16). Toolbar: Bold, Italic, Strikethrough, Emoji (D17). Sent-message menu: View message, Send again (D46). Defaults applied and recorded: confirmation before a send, counted when WhatsApp opens (D47); template limits, desktop Save button, unsaved-changes prompt (D48).
+Done: Messages page (template editor with toolbar, Insert Variable, Reset to Default, warnings; live phone preview for a chosen or sample guest; Recent Sent Messages, ten per page); phone Editor/Preview tabs with the bottom action bar; send confirmation dialog used by the Guests row button and by Send again; message rules in domain/messages.ts (link building, validation, formatting, preview parsing); service contract extended (preview with link, variable values, default template, sends with guest details). Unsaved-changes prompt moved to shared code. Documents updated.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 825 passed, coverage 96.52% statements, 91.11% branches; `npm run test:e2e` 237 passed, 21 skipped by design; `npm run build` succeeds. Desktop English, phone English editor and phone Hebrew preview checked from screenshots.
+Follow-ups/risks:
+- Send Test Message sends what the preview shows, including unsaved edits (the stated default was the saved template; this keeps test and preview identical).
+- A demo visitor can add a guest with a real number and open WhatsApp to it; it is their own click and their own WhatsApp.
+- If recording a send fails after WhatsApp opened, the send is not counted and an error is shown.
+- Variables are plain text in the editor, not chips; the phone preview is simpler than the mockup's.
+- WhatsApp was never actually opened in tests (window.open is replaced); the owner should try one real send.
+- Nothing committed; branch phase_8_implementation.
+Next: Phase 9 — RSVP Settings and public RSVP. Includes the default-language selector, the guest language switch and the RSVP title (D19, D39).
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — Guests table review fixes (owner).
+Done: number columns aligned to the start like their headings (D50); field and column labels in Title Case, including the create-event dialog, export headings and import field names (D49); Table selector widened from 6.5rem to 11.5rem and a guest's own table shown as "number · name" (D50).
+Validation: from frontend/ — typecheck, lint, format clean; `npm run test:coverage` 825 passed; `npm run build` succeeds; `npm run test:e2e` run in full after the label change (235 passed, 2 failing dashboard tests then fixed), and the dashboard, guests and shell specs re-run and passing after the final change. Guests table checked from desktop screenshots in English and Hebrew.
+Follow-ups/risks:
+- At 1440px wide with the side menu expanded the Guests table is slightly wider than the page and scrolls sideways; with the menu collapsed it fits.
+- Exported files now have Title Case headings; imports accept either.
+- Nothing committed; branch phase_8_implementation.
+```
+
+```text
+2026-10-13 — Phase 8 follow-up — centred table, tables without names, Groups, Group and Table in the guest form (owner).
+Decisions (owner): headings centred and number columns centred (D51, replacing D50); a table has no name (D52); guests can belong to an optional group, typed with suggestions, with filter, search, sort, details, import and export (D53); Group and Table in Add/Edit Guest, Table only for an Approved guest (D54).
+Done: shared table centres headings and supports centred values; table names removed from the data rules, demo generator, exports and texts; Guest.group with capital-insensitive joining of existing groups; Group column, filter, search, sort, details, import column and export column; guest form gained Group (with suggestions) and Table (saved through the existing seating rule); demo dataset version 5 with fictional groups; older saved guests load as having no group. Table selector shows the number only.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 843 passed, coverage 96.59% statements, 91.44% branches; `npm run test:e2e` 240 passed, 22 skipped by design; `npm run build` succeeds. Guests table (English, 1440px) and the Edit Guest form checked from screenshots.
+Follow-ups/risks:
+- To fit the extra Group column at 1440px with the side menu open, cell padding was tightened and the Name, Invitation Name and Group columns may wrap onto two lines; with the menu collapsed or on a wider screen they stay on one line.
+- A browser that already saved a column choice does not show the new Group column until it is ticked in the column chooser.
+- The form saves the guest's details first and the table second; if the table is full the details are saved and the table is not, with an error shown.
+- Phone guest cards do not show the group (it is in Guest Details).
+- Nothing committed; branch phase_8_implementation.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

@@ -25,7 +25,8 @@ A glossary of the terms used across the PRD, plan and code, followed by the deci
 | Public RSVP URL | One URL per event, shared by all guests. No per-guest tokens. |
 | Known guest | A guest record in the event's list, matched on RSVP by normalized phone. |
 | Unknown Guest | An RSVP submission whose normalized phone matched no active guest. Kept for organizer review; excluded from guest-based dashboard metrics until resolved. |
-| Table | Belongs to one event. Has a number unique within the event, a name, a capacity in chairs, and a shape (circle, rectangle or square). |
+| Table | Belongs to one event. Has a number unique within the event, a capacity in chairs, and a shape (circle, rectangle or square). A table has no name. |
+| Group | An optional label on a guest, chosen by the organizer to organize the list (for example "Family"). Unrelated to seating. |
 | Assignment | The link between an Approved guest and one table. The whole party sits at one table. Cleared automatically when the guest moves to Declined or Not Sure. |
 | Seating conflict | A table whose assigned confirmed attendees exceed its capacity. It can arise only from an RSVP change, because manual assignments beyond capacity are rejected. |
 | Seating capacity | The sum of all table capacities in an event. It may differ from the event's maximum attendees in either direction; that produces a warning, never a blocked save. |
@@ -53,8 +54,6 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 
 | # | Decision | Needed by |
 |---|---|---|
-| D16 | "Send Test Message": include or omit, and what it does | Phase 8 |
-| D17 | Message editor formatting controls | Phase 8 |
 | D22 | Thresholds for table status labels (Ready / Almost Full / Over Capacity) | Phase 10 |
 
 ### Defaults applied in Phase 3, to confirm
@@ -133,3 +132,15 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D42 | **"Expected attendees"** is the name shown for a guest's allowed attendees: Guests table and cards, Add/Edit Guest, details panel, import and export. The rule is unchanged (it is the most the guest can confirm). Imports accept the old "Allowed attendees" heading too. Event Settings keeps "Default Maximum Attendees per Guest". | 2026-10-13 |
 | D43 | **The Guests page's Approved card** shows confirmed attendees (people), labelled "attendees"; the other cards in the strip count invitations. | 2026-10-13 |
 | D44 | **Collapsible side menu:** on desktop a button in the top bar reduces the side menu to a strip of icons and restores it. Collapsed, the event selector and language selector are hidden until it is expanded. The choice is remembered in the browser. The phone drawer is unchanged. | 2026-10-13 |
+| D45 | **Real WhatsApp sending, everywhere.** The WhatsApp button opens `https://wa.me/<number>?text=<message>` (full international number, digits only; message percent-encoded), in signed-up accounts and in the demo. The demo's generated guests keep undialable numbers. This replaces the earlier rule that Demo Mode only simulates a send; `AGENTS.md` was changed accordingly. | 2026-10-13 |
+| D16 | **Send Test Message** opens WhatsApp with the previewed message and no recipient; the organizer picks one. Not counted, not recorded. | 2026-10-13 |
+| D17 | **Formatting controls:** Bold, Italic, Strikethrough and Emoji, written as WhatsApp's own marks. No Underline and no Link button. | 2026-10-13 |
+| D46 | **Recent Sent Messages "⋯" menu:** View message, and Send again (hidden for Viewers, past events and deleted guests). | 2026-10-13 |
+| D47 | **Sending a message:** a confirmation shows the message first. The send is counted when WhatsApp is opened; a cancelled confirmation counts nothing. Owners and Admins only, on upcoming events. | 2026-10-13 |
+| D48 | **Message template rules:** up to 1,000 characters; cannot be saved empty; a template without `{{rsvp_url}}` saves with a warning. Save Changes is added to the desktop header, which the desktop mockup lacks. Leaving with unsaved changes asks first. | 2026-10-13 |
+| D49 | **Field and column labels use Title Case** in English ("Expected Attendees", "First Name", "Time Zone"), in tables, forms, dialogs titles and export headings. Sentences, hints and error messages stay in sentence case. The create-event dialog's field is "Expected Attendees per Guest". | 2026-10-13 |
+| D50 | *Replaced by D51 and D52 the same day.* **Guests table layout:** every column, including the number columns, is aligned to the start, so a heading sits directly above its values in English and in Hebrew. The Table selector is wide enough to read a table's name; a guest's own table shows as "number · name", and the other choices also show their free seats. | 2026-10-13 |
+| D51 | **Table alignment:** every column heading is centred, in every table. Number columns (Expected Attendees, Confirmed, Invitations Sent, Table) have their values centred, as in `guests.png`; text columns keep their values at the start. | 2026-10-13 |
+| D52 | **A table has no name.** It has a number, a capacity and a shape. The name is removed from the data, the demo, the exports and the future Event Layout page, although `event_layout.png` draws one. The Guests "Table" column and selectors show the number. | 2026-10-13 |
+| D53 | **Groups.** A guest can optionally belong to one group, typed in the guest form with the event's existing groups suggested; no screen manages groups, and a group exists while a guest uses it. Up to 40 characters; a name differing only in capitals joins the existing group. Guests page: a Group column, an "All Groups" filter (with "No Group"), search and sorting by group, the group in Guest Details, an optional Group column on import and a Group column in exports. Unrelated to seating. | 2026-10-13 |
+| D54 | **Group and Table in the guest form.** Add Guest and Edit Guest have both fields. The seating rule is unchanged: Table can be chosen only for an Approved guest and is greyed otherwise, so always when adding. | 2026-10-13 |

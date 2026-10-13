@@ -145,6 +145,7 @@ describe('guest export table', () => {
       status: 'Status',
       invitationSentCount: 'Invitations sent',
       tableNumber: 'Table',
+      group: 'Group',
     },
     statuses: {
       NOT_SENT: 'Not Sent',
@@ -163,6 +164,7 @@ describe('guest export table', () => {
     confirmedAttendees: null,
     invitationSentCount: 0,
     tableNumber: null,
+    group: '',
   }
 
   it('has a heading row and one row per guest with every field', () => {
@@ -177,6 +179,7 @@ describe('guest export table', () => {
           confirmedAttendees: 3,
           invitationSentCount: 2,
           tableNumber: 7,
+          group: 'Family',
         },
         { ...base, rsvpStatus: 'NO_RESPONSE', invitationSentCount: 1 },
       ],
@@ -194,9 +197,21 @@ describe('guest export table', () => {
         'Status',
         'Invitations sent',
         'Table',
+        'Group',
       ],
-      ['Dana', 'Cohen', '', '050-123-4567', 5, null, 'Not Sent', 0, null],
-      ['Noa', 'Cohen', 'Noa & Guy', '050-123-4567', 5, 3, 'Approved', 2, 7],
+      ['Dana', 'Cohen', '', '050-123-4567', 5, null, 'Not Sent', 0, null, ''],
+      [
+        'Noa',
+        'Cohen',
+        'Noa & Guy',
+        '050-123-4567',
+        5,
+        3,
+        'Approved',
+        2,
+        7,
+        'Family',
+      ],
       [
         'Dana',
         'Cohen',
@@ -207,6 +222,7 @@ describe('guest export table', () => {
         'Awaiting Response',
         1,
         null,
+        '',
       ],
     ])
   })

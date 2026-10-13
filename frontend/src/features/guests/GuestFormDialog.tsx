@@ -1,17 +1,26 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDomainError } from '../../domain/errors.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
+import { GROUP_MAX_LENGTH } from '../../domain/guests.ts'
 import type { Guest } from '../../domain/models.ts'
+import type { TableWithOccupancy } from '../../services/contracts/index.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Button } from '../../shared/ui/Button.tsx'
 import { Dialog } from '../../shared/ui/Dialog.tsx'
-import { TextField } from '../../shared/ui/Field.tsx'
+import { SelectField, TextField } from '../../shared/ui/Field.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import { toInteger } from '../events/eventForm.ts'
 import styles from './Guests.module.css'
-import { useCreateGuest, useUpdateGuest } from './guestQueries.ts'
+import {
+  useAssignTable,
+  useCreateGuest,
+  useUpdateGuest,
+} from './guestQueries.ts'
+import { TableOptions } from './TableOptions.tsx'
+
+const NO_TABLE = 'NONE'
 
 type FieldError =
   | { field: 'firstName' }
@@ -23,6 +32,9 @@ interface GuestFormDialogProps {
   onClose: () => void
   eventId: string
   defaultAllowedAttendees: number
+  /** The groups already used in the event, offered as suggestions. */
+  groups: readonly string[]
+  tables: readonly TableWithOccupancy[]
   /** The guest being edited; leave out to add a new one. */
   guest?: Guest | null
 }
@@ -30,6 +42,8 @@ interface GuestFormDialogProps {
 function GuestForm({
   eventId,
   defaultAllowedAttendees,
+  groups,
+  tables,
   guest,
   onClose,
 }: Omit<GuestFormDialogProps, 'open'>) {
@@ -37,15 +51,22 @@ function GuestForm({
   const { showToast } = useToast()
   const create = useCreateGuest(eventId)
   const update = useUpdateGuest(eventId)
+  const assignTable = useAssignTable(eventId)
+  const groupListId = useId()
   const [firstName, setFirstName] = useState(guest?.firstName ?? '')
   const [lastName, setLastName] = useState(guest?.lastName ?? '')
   const [phone, setPhone] = useState(guest?.phone ?? '')
   const [allowed, setAllowed] = useState(
     String(guest?.allowedAttendees ?? defaultAllowedAttendees),
   )
+  const [group, setGroup] = useState(guest?.group ?? '')
+  const [tableId, setTableId] = useState(guest?.tableId ?? null)
+  const [isSaving, setIsSaving] = useState(false)
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
   const limits = EVENT_LIMITS.allowedAttendees
+  // Only a guest who approved can be seated, so a new guest never can.
+  const canSeat = guest?.rsvpStatus === 'APPROVED'
 
   function fail(error: unknown) {
     if (isDomainError(error, 'VALIDATION')) {
@@ -72,7 +93,7 @@ function GuestForm({
     setFailure(describeError(t, error))
   }
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setFieldError(null)
     setFailure(null)
@@ -90,26 +111,36 @@ function GuestForm({
     ) {
       return setFieldError({ field: 'allowed', reason: 'range' })
     }
-    const input = { firstName, lastName, phone, allowedAttendees }
-    const handlers = {
-      onSuccess: () => {
-        showToast({
-          tone: 'success',
-          message: t(guest ? 'guests.form.saved' : 'guests.form.added'),
-        })
-        onClose()
-      },
-      onError: fail,
-    }
-    if (guest) {
-      update.mutate({ guestId: guest.id, input }, handlers)
-    } else {
-      create.mutate(input, handlers)
+    const input = { firstName, lastName, phone, allowedAttendees, group }
+    setIsSaving(true)
+    try {
+      if (guest) {
+        await update.mutateAsync({ guestId: guest.id, input })
+        // Seating goes through its own rules: capacity, and Approved only.
+        if (canSeat && tableId !== guest.tableId) {
+          await assignTable.mutateAsync({ guestId: guest.id, tableId })
+        }
+      } else {
+        await create.mutateAsync(input)
+      }
+      showToast({
+        tone: 'success',
+        message: t(guest ? 'guests.form.saved' : 'guests.form.added'),
+      })
+      onClose()
+    } catch (error) {
+      fail(error)
+    } finally {
+      setIsSaving(false)
     }
   }
 
   return (
-    <form className={styles.form} noValidate onSubmit={handleSubmit}>
+    <form
+      className={styles.form}
+      noValidate
+      onSubmit={(event) => void handleSubmit(event)}
+    >
       {failure && <Notice tone="danger" title={failure} announce />}
       <div className={styles.formRow}>
         <TextField
@@ -173,11 +204,43 @@ function GuestForm({
         }
         onChange={(event) => setAllowed(event.target.value)}
       />
+      <div className={styles.formRow}>
+        <div>
+          <TextField
+            label={t('guests.form.group')}
+            maxLength={GROUP_MAX_LENGTH}
+            autoComplete="off"
+            list={groupListId}
+            value={group}
+            hint={t('guests.form.groupHint')}
+            onChange={(event) => setGroup(event.target.value)}
+          />
+          <datalist id={groupListId}>
+            {groups.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+        </div>
+        <SelectField
+          label={t('guests.form.table')}
+          disabled={!canSeat}
+          value={canSeat ? (tableId ?? NO_TABLE) : NO_TABLE}
+          hint={canSeat ? undefined : t('guests.form.tableHint')}
+          onChange={(event) =>
+            setTableId(
+              event.target.value === NO_TABLE ? null : event.target.value,
+            )
+          }
+        >
+          <option value={NO_TABLE}>{t('guests.table.noTable')}</option>
+          <TableOptions tables={tables} ownTableId={guest?.tableId ?? null} />
+        </SelectField>
+      </div>
       <div className={styles.formActions}>
         <Button variant="ghost" onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" loading={create.isPending || update.isPending}>
+        <Button type="submit" loading={isSaving}>
           {t(guest ? 'guests.form.save' : 'guests.form.add')}
         </Button>
       </div>

@@ -13,12 +13,13 @@
 
 .table th,
 .table td {
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-3) 0.375rem;
   text-align: start;
   white-space: nowrap;
 }
 
 .table th {
+  text-align: center;
   white-space: normal;
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
@@ -47,8 +48,16 @@
   background: var(--color-surface-muted);
 }
 
-.table .end {
+.table td.end {
   text-align: end;
+}
+
+.table td.center {
+  text-align: center;
+}
+
+.table td.wrap {
+  white-space: normal;
 }
 
 .cardView {

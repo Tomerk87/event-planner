@@ -8,10 +8,15 @@ export interface GuestInput {
   lastName: string
   phone: string
   allowedAttendees: number
+  /** Optional; empty or missing means the guest is in no group. */
+  group?: string | null
 }
+
+export const GROUP_MAX_LENGTH = 40
 
 interface GuestFields extends GuestInput {
   normalizedPhone: string
+  group: string | null
 }
 
 function validateGuestInput(input: GuestInput): GuestFields {
@@ -23,6 +28,10 @@ function validateGuestInput(input: GuestInput): GuestFields {
     'allowedAttendees',
   )
   const normalizedPhone = normalizePhone(input.phone)
+  const group = input.group?.trim() ?? ''
+  if (group.length > GROUP_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'group' })
+  }
   return {
     firstName,
     lastName: input.lastName.trim(),
@@ -30,7 +39,39 @@ function validateGuestInput(input: GuestInput): GuestFields {
     phone: formatPhone(normalizedPhone),
     normalizedPhone,
     allowedAttendees: input.allowedAttendees,
+    group: group === '' ? null : group,
   }
+}
+
+/** The groups in use among an event's active guests, in alphabetical order. */
+export function listGroups(guests: readonly Guest[]): string[] {
+  const groups = new Set<string>()
+  for (const guest of guests) {
+    if (!guest.deleted && guest.group !== null) {
+      groups.add(guest.group)
+    }
+  }
+  return [...groups].sort((a, b) => a.localeCompare(b))
+}
+
+/**
+ * A group typed with different capitals is the group that already exists, so
+ * "family" joins "Family" instead of starting a second one.
+ */
+function existingSpelling(
+  guests: readonly Guest[],
+  eventId: Id,
+  group: string | null,
+): string | null {
+  if (group === null) {
+    return null
+  }
+  const wanted = group.toLocaleLowerCase()
+  return (
+    listGroups(guests.filter((guest) => guest.eventId === eventId)).find(
+      (existing) => existing.toLocaleLowerCase() === wanted,
+    ) ?? group
+  )
 }
 
 function findByPhone(
@@ -65,6 +106,7 @@ export function addGuest(
   newId: Id,
 ): AddGuestResult {
   const fields = validateGuestInput(input)
+  fields.group = existingSpelling(guests, eventId, fields.group)
   const existing = findByPhone(guests, eventId, fields.normalizedPhone)
 
   if (existing && !existing.deleted) {
@@ -116,11 +158,9 @@ export function editGuest(
   input: GuestInput,
 ): Guest {
   const fields = validateGuestInput(input)
-  const other = findByPhone(
-    guests.filter((candidate) => candidate.id !== guest.id),
-    guest.eventId,
-    fields.normalizedPhone,
-  )
+  const others = guests.filter((candidate) => candidate.id !== guest.id)
+  fields.group = existingSpelling(others, guest.eventId, fields.group)
+  const other = findByPhone(others, guest.eventId, fields.normalizedPhone)
   if (other && !other.deleted) {
     throw new DomainError('DUPLICATE_PHONE')
   }

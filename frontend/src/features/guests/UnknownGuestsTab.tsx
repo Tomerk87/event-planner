@@ -373,7 +373,7 @@ export function UnknownGuestsTab({
     {
       id: 'attendees',
       header: t('guests.unknown.columns.attendees'),
-      align: 'end',
+      align: 'center',
       cell: attendees,
     },
     {

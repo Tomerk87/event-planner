@@ -11,7 +11,12 @@ import {
   recordInvitationSent,
   softDeleteGuest,
 } from '../../domain/guests.ts'
-import { renderMessage } from '../../domain/messages.ts'
+import { guestFullName } from '../../domain/guestList.ts'
+import {
+  buildWhatsAppUrl,
+  renderMessage,
+  validateTemplate,
+} from '../../domain/messages.ts'
 import {
   computeDashboardMetrics,
   computeDashboardWarnings,
@@ -48,12 +53,13 @@ import {
 import type {
   EventAccessInfo,
   Member,
+  MessagePreview,
   RsvpSettingsInput,
   Services,
 } from '../contracts/index.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { generateDemoState } from './generator.ts'
-import { messageValuesFor } from './messageValues.ts'
+import { messageValuesFor, SAMPLE_GUEST } from './messageValues.ts'
 import {
   createMemoryPersistence,
   type DemoPersistence,
@@ -152,7 +158,14 @@ export function createMockServices(options: MockOptions): Services {
         version: dataVersion,
       })
     ) {
-      return stored.state
+      // Data saved before guests had groups reads as guests in no group.
+      return {
+        ...stored.state,
+        guests: stored.state.guests.map((guest) => ({
+          ...guest,
+          group: guest.group ?? null,
+        })),
+      }
     }
     // Nothing stored is a first visit; anything else is stale or damaged data.
     regenerated = stored !== null
@@ -257,6 +270,21 @@ export function createMockServices(options: MockOptions): Services {
           guest.id === guestId && guest.eventId === eventId && !guest.deleted,
       ) ?? notFound('guest')
     )
+  }
+
+  /** The saved template filled in for a guest, and the link that sends it. */
+  function prepareMessage(event: Event, guest: Guest): MessagePreview {
+    const template = state.messageTemplates.find(
+      (candidate) => candidate.eventId === event.id,
+    )
+    const message = renderMessage(
+      template?.body ?? '',
+      messageValuesFor(guest, event, baseUrl),
+    )
+    return {
+      message,
+      launchUrl: buildWhatsAppUrl(guest.normalizedPhone, message),
+    }
   }
 
   function eventTables(eventId: Id): EventTable[] {
@@ -833,7 +861,7 @@ export function createMockServices(options: MockOptions): Services {
       updateTemplate: (eventId, body) =>
         run('messages.updateTemplate', () => {
           authorize(eventId, 'EDIT')
-          const updated = { eventId, body }
+          const updated = { eventId, body: validateTemplate(body) }
           commit({
             ...state,
             messageTemplates: state.messageTemplates.map((template) =>
@@ -843,54 +871,68 @@ export function createMockServices(options: MockOptions): Services {
           return updated
         }),
 
+      getDefaultTemplate: (eventId) =>
+        run('messages.getDefaultTemplate', () => {
+          const { event } = authorize(eventId, 'VIEW')
+          return defaultMessageTemplate(event).body
+        }),
+
+      getValues: (eventId, guestId) =>
+        run('messages.getValues', () => {
+          const { event } = authorize(eventId, 'VIEW')
+          return messageValuesFor(
+            guestId === null
+              ? SAMPLE_GUEST[event.rsvpLanguage]
+              : activeGuest(eventId, guestId),
+            event,
+            baseUrl,
+          )
+        }),
+
       preview: (eventId, guestId) =>
         run('messages.preview', () => {
           const { event } = authorize(eventId, 'VIEW')
-          const template = state.messageTemplates.find(
-            (candidate) => candidate.eventId === eventId,
-          )
-          return renderMessage(
-            template?.body ?? '',
-            messageValuesFor(activeGuest(eventId, guestId), event, baseUrl),
-          )
+          return prepareMessage(event, activeGuest(eventId, guestId))
         }),
 
       send: (eventId, guestId) =>
         run('messages.send', () => {
           const { event } = authorize(eventId, 'SEND_MESSAGE')
           const guest = activeGuest(eventId, guestId)
-          const template = state.messageTemplates.find(
-            (candidate) => candidate.eventId === eventId,
-          )
-          if (!template || template.body.trim() === '') {
+          const { message, launchUrl } = prepareMessage(event, guest)
+          if (message.trim() === '') {
             throw new DomainError('VALIDATION', { field: 'template' })
           }
           const sentAt = now().toISOString()
           const updated = recordInvitationSent(guest, sentAt)
-          const send = {
-            id: newId('snd'),
-            eventId,
-            guestId,
-            sentAt,
-            message: renderMessage(
-              template.body,
-              messageValuesFor(guest, event, baseUrl),
-            ),
-          }
+          const send = { id: newId('snd'), eventId, guestId, sentAt, message }
           commit({
             ...replaceGuest(updated),
             messageSends: [...state.messageSends, send],
           })
-          // Simulated: no WhatsApp link is produced, so nothing is opened.
-          return { guest: updated, send, launchUrl: null }
+          // Counted when the link is handed over: whether WhatsApp's own
+          // Send was then pressed cannot be known.
+          return { guest: updated, send, launchUrl }
         }),
 
       listSends: (eventId) =>
         run('messages.listSends', () => {
           authorize(eventId, 'VIEW')
+          const guestsById = new Map(
+            eventGuests(eventId).map((guest) => [guest.id, guest]),
+          )
           return state.messageSends
             .filter((send) => send.eventId === eventId)
             .sort((a, b) => b.sentAt.localeCompare(a.sentAt))
+            .map((send) => {
+              const guest = guestsById.get(send.guestId)
+              return {
+                ...send,
+                guestName: guest ? guestFullName(guest) : '',
+                phone: guest?.phone ?? '',
+                guestActive: guest !== undefined && !guest.deleted,
+              }
+            })
         }),
     },
 

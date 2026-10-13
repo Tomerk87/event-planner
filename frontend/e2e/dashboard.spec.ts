@@ -198,7 +198,7 @@ test('an event with no guests shows empty states', async ({ page }) => {
   await page.goto('/events')
   await page.getByRole('button', { name: 'Create Event' }).click()
   const dialog = page.getByRole('dialog', { name: 'Create event' })
-  await dialog.getByLabel(/Event name/).fill('Fresh Start')
+  await dialog.getByLabel(/Event Name/).fill('Fresh Start')
   await dialog.getByLabel(/^Date/).fill('2031-02-02')
   await dialog.getByLabel(/^Time \*/).fill('18:00')
   await dialog.getByRole('button', { name: 'Create Event' }).click()

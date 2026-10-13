@@ -71,6 +71,8 @@ export interface Guest {
   lastInvitationSentAt: IsoDateTime | null
   lastRsvpResponseAt: IsoDateTime | null
   tableId: Id | null
+  /** The organizer's own grouping, such as "Family"; unrelated to seating. */
+  group: string | null
   /** Soft-delete marker; persisted as `deleted = 1` in the database. */
   deleted: boolean
 }
@@ -123,7 +125,6 @@ export interface EventTable {
   id: Id
   eventId: Id
   number: number
-  name: string
   capacity: number
   shape: TableShape
 }

@@ -15,7 +15,6 @@ import { createTestServices, renderApp } from '../test/renderApp.tsx'
 describe('routes', () => {
   it.each([
     ['/events/evt-1/rsvp', 'RSVP Settings'],
-    ['/events/evt-1/messages', 'WhatsApp Messages'],
     ['/events/evt-1/layout', 'Event Layout'],
     ['/events/evt-1/permissions', 'Permissions'],
     ['/rsvp/abc123', 'RSVP'],

@@ -1,7 +1,7 @@
 import { Armchair, FileText, Save, UserCheck, UserX, Users } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useBlocker, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import type { Event } from '../../domain/models.ts'
@@ -11,9 +11,9 @@ import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
+import { UnsavedChangesGuard } from '../../shared/UnsavedChangesGuard.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard } from '../../shared/ui/Card.tsx'
-import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
@@ -51,41 +51,6 @@ function toFormValues(event: Event): EventFormValues {
 function differs(a: EventFormValues, b: EventFormValues): boolean {
   return (Object.keys(a) as (keyof EventFormValues)[]).some(
     (field) => a[field] !== b[field],
-  )
-}
-
-/** Asks before leaving while there are unsaved changes. */
-function UnsavedChangesGuard({ active }: { active: boolean }) {
-  const { t } = useTranslation()
-  const blocker = useBlocker(active)
-
-  useEffect(() => {
-    if (!active) {
-      return
-    }
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [active])
-
-  return (
-    <Dialog
-      open={blocker.state === 'blocked'}
-      onClose={() => blocker.reset?.()}
-      title={t('settings.unsaved.title')}
-      footer={
-        <>
-          <Button variant="ghost" onClick={() => blocker.reset?.()}>
-            {t('settings.unsaved.stay')}
-          </Button>
-          <Button variant="danger" onClick={() => blocker.proceed?.()}>
-            {t('settings.unsaved.leave')}
-          </Button>
-        </>
-      }
-    >
-      <p>{t('settings.unsaved.body')}</p>
-    </Dialog>
   )
 }
 

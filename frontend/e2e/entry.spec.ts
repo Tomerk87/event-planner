@@ -54,7 +54,7 @@ async function signUp(page: Page, name: string, email: string) {
 
 async function createEvent(page: Page, name: string) {
   const dialog = page.getByRole('dialog', { name: 'Create event' })
-  await dialog.getByLabel(/Event name/).fill(name)
+  await dialog.getByLabel(/Event Name/).fill(name)
   await dialog.getByLabel(/^Date/).fill('2031-02-02')
   await dialog.getByLabel(/^Time \*/).fill('18:00')
   await dialog.getByRole('button', { name: 'Create Event' }).click()
@@ -186,7 +186,7 @@ test('in the demo an event can be created, duplicated and deleted, and the chang
   await created.getByRole('button', { name: /Actions for/ }).click()
   await page.getByRole('menuitem', { name: 'Duplicate' }).click()
   const duplicate = page.getByRole('dialog', { name: 'Duplicate event' })
-  await duplicate.getByLabel(/Event name/).fill('Second Dinner')
+  await duplicate.getByLabel(/Event Name/).fill('Second Dinner')
   await duplicate.getByLabel(/^Date/).fill('2031-03-03')
   await duplicate.getByLabel(/^Time \*/).fill('19:00')
   await duplicate.getByRole('button', { name: 'Duplicate Event' }).click()
@@ -201,7 +201,7 @@ test('in the demo an event can be created, duplicated and deleted, and the chang
   await expect(
     remove.getByRole('button', { name: 'Delete Event' }),
   ).toBeDisabled()
-  await remove.getByLabel('Event name').fill('New Year Dinner')
+  await remove.getByLabel('Event Name').fill('New Year Dinner')
   await remove.getByRole('button', { name: 'Delete Event' }).click()
 
   await expect(page.getByRole('article')).toHaveCount(7)
