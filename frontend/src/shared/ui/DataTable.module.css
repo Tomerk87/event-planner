@@ -13,19 +13,38 @@
 
 .table th,
 .table td {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-2);
   text-align: start;
   white-space: nowrap;
 }
 
 .table th {
+  white-space: normal;
   background: var(--color-surface-muted);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-medium);
 }
 
 .table tbody tr {
+  background: var(--color-surface);
   border-block-start: var(--border-width) solid var(--color-border);
+}
+
+/* Stays at the end edge while the rest of the table scrolls beneath it. */
+.table .pinned {
+  position: sticky;
+  inset-inline-end: 0;
+  z-index: 1;
+  background: inherit;
+}
+
+/* A menu opened from a pinned cell must sit above the rows beneath it. */
+.table .pinned:has([aria-expanded='true']) {
+  z-index: 3;
+}
+
+.table th.pinned {
+  background: var(--color-surface-muted);
 }
 
 .table .end {
@@ -47,4 +66,54 @@
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+}
+
+.selectCell {
+  inline-size: 1%;
+}
+
+.table tbody tr.selectedRow {
+  background: var(--color-primary-soft);
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.sortButton:hover {
+  color: var(--color-text);
+}
+
+.sortButton svg {
+  flex-shrink: 0;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.sortButtonActive {
+  color: var(--color-primary);
+}
+
+.sortButtonActive svg {
+  opacity: 1;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-inline-start: var(--space-4);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-inline-end: var(--space-4);
 }

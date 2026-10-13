@@ -33,7 +33,7 @@ import {
   type Actor,
   type EventAction,
 } from '../../domain/permissions.ts'
-import { normalizePhone } from '../../domain/phone.ts'
+import { formatPhone, normalizePhone } from '../../domain/phone.ts'
 import type { EventRole } from '../../domain/roles.ts'
 import {
   applyRsvp,
@@ -54,7 +54,11 @@ import type {
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { generateDemoState } from './generator.ts'
 import { messageValuesFor } from './messageValues.ts'
-import type { DemoPersistence } from './persistence.ts'
+import {
+  createMemoryPersistence,
+  type DemoPersistence,
+  type Persistence,
+} from './persistence.ts'
 import { DATASET_VERSION, isUsableStoredDemo, type DemoState } from './state.ts'
 
 const MAX_MESSAGE_LENGTH = 500
@@ -80,6 +84,24 @@ export interface MockOptions {
   demoControls?: boolean
   /** Version stamp of the stored data; the demo dataset's by default. */
   dataVersion?: number
+  /** Where display choices are kept; in memory only when left out. */
+  preferencesPersistence?: Persistence<StoredPreferences>
+}
+
+/** Display choices as stored in the browser. */
+export interface StoredPreferences {
+  guestColumns?: string[]
+}
+
+function readPreferences(stored: unknown): StoredPreferences {
+  if (typeof stored !== 'object' || stored === null) {
+    return {}
+  }
+  const { guestColumns } = stored as { guestColumns?: unknown }
+  return Array.isArray(guestColumns) &&
+    guestColumns.every((column) => typeof column === 'string')
+    ? { guestColumns }
+    : {}
 }
 
 interface EventContext {
@@ -105,6 +127,7 @@ export function createMockServices(options: MockOptions): Services {
     seed = generateDemoState,
     demoControls = true,
     dataVersion = DATASET_VERSION,
+    preferencesPersistence = createMemoryPersistence<StoredPreferences>(),
   } = options
 
   let regenerated = false
@@ -243,6 +266,21 @@ export function createMockServices(options: MockOptions): Services {
         (unknown) => unknown.id === unknownId && unknown.eventId === eventId,
       ) ?? notFound('unknownRsvp')
     )
+  }
+
+  /** A response still awaiting review; a rejected one must be restored first. */
+  function pendingUnknown(eventId: Id, unknownId: Id): UnknownRsvp {
+    const unknown = unknownOf(eventId, unknownId)
+    return unknown.rejectedAt ? notFound('unknownRsvp') : unknown
+  }
+
+  function replaceUnknown(unknown: UnknownRsvp): DemoState {
+    return {
+      ...state,
+      unknownRsvps: state.unknownRsvps.map((candidate) =>
+        candidate.id === unknown.id ? unknown : candidate,
+      ),
+    }
   }
 
   function replaceGuest(guest: Guest): DemoState {
@@ -504,6 +542,43 @@ export function createMockServices(options: MockOptions): Services {
           commit(replaceGuest(updated))
           return updated
         }),
+
+      removeMany: (eventId, guestIds) =>
+        run('guests.removeMany', () => {
+          authorize(eventId, 'EDIT')
+          const removed = new Map(
+            [...new Set(guestIds)].map((guestId) => [
+              guestId,
+              softDeleteGuest(activeGuest(eventId, guestId)),
+            ]),
+          )
+          commit({
+            ...state,
+            guests: state.guests.map((guest) => removed.get(guest.id) ?? guest),
+          })
+        }),
+
+      importMany: (eventId, inputs) =>
+        run('guests.importMany', () => {
+          authorize(eventId, 'EDIT')
+          let guests = state.guests
+          let created = 0
+          let restored = 0
+          for (const input of inputs) {
+            const result = addGuest(guests, eventId, input, newId('gst'))
+            if (result.restored) {
+              restored += 1
+              guests = guests.map((guest) =>
+                guest.id === result.guest.id ? result.guest : guest,
+              )
+            } else {
+              created += 1
+              guests = [...guests, result.guest]
+            }
+          }
+          commit({ ...state, guests })
+          return { created, restored }
+        }),
     },
 
     unknownGuests: {
@@ -511,14 +586,28 @@ export function createMockServices(options: MockOptions): Services {
         run('unknownGuests.list', () => {
           authorize(eventId, 'VIEW')
           return state.unknownRsvps
-            .filter((unknown) => unknown.eventId === eventId)
+            .filter(
+              (unknown) => unknown.eventId === eventId && !unknown.rejectedAt,
+            )
             .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
+        }),
+
+      listRejected: (eventId) =>
+        run('unknownGuests.listRejected', () => {
+          authorize(eventId, 'VIEW')
+          return state.unknownRsvps
+            .filter(
+              (unknown) => unknown.eventId === eventId && unknown.rejectedAt,
+            )
+            .sort((a, b) =>
+              (b.rejectedAt ?? '').localeCompare(a.rejectedAt ?? ''),
+            )
         }),
 
       convertToGuest: (eventId, unknownId, input) =>
         run('unknownGuests.convertToGuest', () => {
           authorize(eventId, 'EDIT')
-          const unknown = unknownOf(eventId, unknownId)
+          const unknown = pendingUnknown(eventId, unknownId)
           const { guest } = addGuest(
             state.guests,
             eventId,
@@ -549,7 +638,7 @@ export function createMockServices(options: MockOptions): Services {
       mergeIntoGuest: (eventId, unknownId, guestId) =>
         run('unknownGuests.mergeIntoGuest', () => {
           authorize(eventId, 'EDIT')
-          const unknown = unknownOf(eventId, unknownId)
+          const unknown = pendingUnknown(eventId, unknownId)
           const guest = activeGuest(eventId, guestId)
           const updated: Guest = {
             ...applyRsvp(
@@ -575,13 +664,22 @@ export function createMockServices(options: MockOptions): Services {
       reject: (eventId, unknownId) =>
         run('unknownGuests.reject', () => {
           authorize(eventId, 'EDIT')
-          unknownOf(eventId, unknownId)
-          commit({
-            ...state,
-            unknownRsvps: state.unknownRsvps.filter(
-              (candidate) => candidate.id !== unknownId,
-            ),
-          })
+          const unknown = pendingUnknown(eventId, unknownId)
+          commit(
+            replaceUnknown({ ...unknown, rejectedAt: now().toISOString() }),
+          )
+        }),
+
+      restore: (eventId, unknownId) =>
+        run('unknownGuests.restore', () => {
+          authorize(eventId, 'EDIT')
+          const unknown = unknownOf(eventId, unknownId)
+          if (!unknown.rejectedAt) {
+            return notFound('unknownRsvp')
+          }
+          const restored: UnknownRsvp = { ...unknown, rejectedAt: null }
+          commit(replaceUnknown(restored))
+          return restored
         }),
     },
 
@@ -684,11 +782,13 @@ export function createMockServices(options: MockOptions): Services {
             id: existing?.id ?? newId('unk'),
             eventId: event.id,
             name,
-            phone: input.phone.trim(),
+            phone: formatPhone(normalizedPhone),
             normalizedPhone,
             rsvpStatus: input.status,
             confirmedAttendees: outcome.confirmedAttendees,
             submittedAt: respondedAt,
+            // A new answer from a rejected phone is new information to review.
+            rejectedAt: null,
           }
           commit({
             ...state,
@@ -956,6 +1056,20 @@ export function createMockServices(options: MockOptions): Services {
             })),
           }
         }),
+    },
+
+    // Display choices are this browser's own, so they are read and saved at
+    // once, with none of the simulated response time of event data.
+    preferences: {
+      getGuestColumns: async () =>
+        readPreferences(preferencesPersistence.load()).guestColumns ?? null,
+
+      setGuestColumns: async (columns) => {
+        preferencesPersistence.save({
+          ...readPreferences(preferencesPersistence.load()),
+          guestColumns: [...columns],
+        })
+      },
     },
 
     demo: !demoControls

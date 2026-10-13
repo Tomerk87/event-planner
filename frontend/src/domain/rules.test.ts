@@ -39,7 +39,7 @@ import {
   type Actor,
   type EventAction,
 } from './permissions.ts'
-import { normalizePhone } from './phone.ts'
+import { formatPhone, normalizePhone } from './phone.ts'
 import type { EventRole } from './roles.ts'
 import { applyRsvp, resolveRsvp, validatePublicRsvpInput } from './rsvp.ts'
 import {
@@ -125,6 +125,62 @@ describe('normalizePhone', () => {
     '++972501234567',
   ])('rejects %j', (input) => {
     expect(codeOf(() => normalizePhone(input))).toBe('INVALID_PHONE')
+  })
+
+  it.each([
+    ['a French local number', '06 12 34 56 78'],
+    ['a number starting 01', '012-345-6789'],
+    ['a US local number', '212-555-0123'],
+    ['a UK local number', '07911 123456'],
+    ['a Brazilian local number', '(11) 91234-5678'],
+    ['an Israeli code followed by an unused range', '+972 6 123 4567'],
+  ])('does not take %s for an Israeli number', (_, input) => {
+    expect(codeOf(() => normalizePhone(input))).toBe('INVALID_PHONE')
+  })
+
+  it('accepts the same foreign numbers once they carry their country code', () => {
+    expect(normalizePhone('+33 6 12 34 56 78')).toBe('+33612345678')
+    expect(normalizePhone('+1 212-555-0123')).toBe('+12125550123')
+    expect(normalizePhone('+55 11 91234-5678')).toBe('+5511912345678')
+  })
+})
+
+describe('formatPhone', () => {
+  it.each([
+    ['0507308828', '050-730-8828'],
+    ['050-730-8828', '050-730-8828'],
+    ['+972 50 730 8828', '050-730-8828'],
+    ['972507308828', '050-730-8828'],
+    ['+972-050-7308828', '050-730-8828'],
+    ['03-1234567', '03-123-4567'],
+    ['+972 3 123 4567', '03-123-4567'],
+    ['077-123-4567', '077-123-4567'],
+    ['+972 00-001-0005', '000-001-0005'],
+  ])('shows the Israeli number %j as %s', (typed, shown) => {
+    expect(formatPhone(normalizePhone(typed))).toBe(shown)
+  })
+
+  it.each([
+    ['+1 212 555 0123', '+1 2125550123'],
+    ['0012125550123', '+1 2125550123'],
+    ['+44 7911 123456', '+44 7911123456'],
+    ['+55 11 91234-5678', '+55 11912345678'],
+    ['+33 6 12 34 56 78', '+33 612345678'],
+    ['+351 912 345 678', '+351 912345678'],
+    ['+7 912 345 67 89', '+7 9123456789'],
+  ])('shows the foreign number %j as %s', (typed, shown) => {
+    expect(formatPhone(normalizePhone(typed))).toBe(shown)
+  })
+
+  it('reads back to the same number', () => {
+    for (const typed of ['0507308828', '03-1234567', '+1 212 555 0123']) {
+      const normalized = normalizePhone(typed)
+      expect(normalizePhone(formatPhone(normalized))).toBe(normalized)
+    }
+  })
+
+  it('leaves a number with an unknown country code as digits', () => {
+    expect(formatPhone('+99912345678')).toBe('+99912345678')
   })
 })
 

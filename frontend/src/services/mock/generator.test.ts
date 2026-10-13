@@ -73,7 +73,7 @@ describe('demo dataset generator', () => {
     }
     for (const record of [...state.guests, ...state.unknownRsvps]) {
       // No Israeli operator code begins with 0, so these cannot be dialled.
-      expect(record.phone).toMatch(/^\+972 00-\d{3}-\d{4}$/)
+      expect(record.phone).toMatch(/^000-\d{3}-\d{4}$/)
       expect(record.normalizedPhone).toMatch(/^\+9720\d{8}$/)
     }
     for (const send of state.messageSends) {
@@ -255,9 +255,11 @@ describe('demo dataset generator', () => {
     expect(
       count((guest) => guest.allowedAttendees !== main.defaultAllowedAttendees),
     ).toBeGreaterThan(0)
-    expect(
-      state.unknownRsvps.filter((unknown) => unknown.eventId === main.id),
-    ).toHaveLength(8)
+    const unknown = state.unknownRsvps.filter(
+      (candidate) => candidate.eventId === main.id,
+    )
+    expect(unknown.filter((candidate) => !candidate.rejectedAt)).toHaveLength(8)
+    expect(unknown.filter((candidate) => candidate.rejectedAt)).toHaveLength(1)
     expect(
       tables.some(
         (table) => tableOccupancy(table.id, guests) === table.capacity,

@@ -14,7 +14,7 @@ import {
   TEST_NOW,
 } from '../test/renderApp.tsx'
 
-async function openEvent(eventId: string, page = 'guests') {
+async function openEvent(eventId: string, page = 'messages') {
   const view = renderApp(`/events/${eventId}/${page}`)
   await screen.findByText('This page is not implemented yet.')
   return view
@@ -256,7 +256,7 @@ describe('demo controls', () => {
     const services = createTestServices({
       failOperations: new Set(['demo.reset']),
     })
-    renderApp(`/events/${DEMO_EVENTS.owner}/guests`, services)
+    renderApp(`/events/${DEMO_EVENTS.owner}/messages`, services)
     await screen.findByText('This page is not implemented yet.')
 
     fireEvent.click(screen.getByRole('button', { name: 'Reset Demo' }))

@@ -13,7 +13,7 @@ import type {
   UnknownRsvp,
   User,
 } from '../../domain/models.ts'
-import { normalizePhone } from '../../domain/phone.ts'
+import { formatPhone, normalizePhone } from '../../domain/phone.ts'
 import type { EventRole } from '../../domain/roles.ts'
 import { tableOccupancy } from '../../domain/seating.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
@@ -427,6 +427,14 @@ function uniqueName(
   return { firstName, lastName }
 }
 
+/**
+ * A demo phone as the application shows it. The numbers are in a range no
+ * Israeli number uses ("00…"), so they can never reach a real person.
+ */
+function demoPhone(international: string): string {
+  return formatPhone(normalizePhone(international))
+}
+
 function pickStatus(random: Random): RsvpStatus {
   const roll = random()
   if (roll < 0.62) {
@@ -475,7 +483,9 @@ function createEventData(
       names,
       usedNames,
     )
-    const phone = `+972 00-${pad(eventIndex + 1, 3)}-${pad(index + 1, 4)}`
+    const phone = demoPhone(
+      `+972 00-${pad(eventIndex + 1, 3)}-${pad(index + 1, 4)}`,
+    )
     const allowedAttendees = random() < 0.75 ? 5 : intBetween(random, 1, 10)
 
     const sendRoll = random()
@@ -601,7 +611,9 @@ function createEventData(
     { length: spec.unknownRsvps },
     (_, index) => {
       const status = responses[index % responses.length] ?? 'APPROVED'
-      const phone = `+972 00-9${pad(eventIndex + 1, 2)}-${pad(index + 1, 4)}`
+      const phone = demoPhone(
+        `+972 00-9${pad(eventIndex + 1, 2)}-${pad(index + 1, 4)}`,
+      )
       return {
         id: `unk-${eventIndex + 1}-${pad(index + 1, 3)}`,
         eventId: event.id,
@@ -616,9 +628,27 @@ function createEventData(
               ? 0
               : null,
         submittedAt: new Date(momentIn(windowStart, windowEnd)).toISOString(),
+        rejectedAt: null,
       }
     },
   )
+  // One response the organizer has already rejected, so the Rejected list is
+  // not empty in the main event. Built from fixed values, without drawing
+  // random numbers, so the rest of the dataset is unaffected.
+  if (eventIndex === 0) {
+    const phone = demoPhone(`+972 00-9${pad(eventIndex + 1, 2)}-9001`)
+    unknownRsvps.push({
+      id: `unk-${eventIndex + 1}-rejected`,
+      eventId: event.id,
+      name: `${names.first[3] ?? ''} ${names.last[5] ?? ''}`.trim(),
+      phone,
+      normalizedPhone: normalizePhone(phone),
+      rsvpStatus: 'APPROVED',
+      confirmedAttendees: 2,
+      submittedAt: new Date(windowStart + 3 * DAY_MS).toISOString(),
+      rejectedAt: new Date(windowStart + 4 * DAY_MS).toISOString(),
+    })
+  }
 
   return { guests, tables, unknownRsvps, sends }
 }

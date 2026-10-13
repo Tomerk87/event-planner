@@ -1,3 +1,4 @@
+import { guestDisplayStatus, type GuestDisplayStatus } from './guestStatus.ts'
 import type { EventTable, Guest } from './models.ts'
 import { tableOccupancy } from './seating.ts'
 
@@ -107,4 +108,47 @@ export function buildSeatingSummaryRows(
         remaining: table.capacity - assigned,
       }
     })
+}
+
+export const GUEST_EXPORT_COLUMNS = [
+  'firstName',
+  'lastName',
+  'invitationName',
+  'phone',
+  'allowedAttendees',
+  'confirmedAttendees',
+  'status',
+  'invitationSentCount',
+  'tableNumber',
+] as const
+
+export type GuestExportColumn = (typeof GUEST_EXPORT_COLUMNS)[number]
+
+export interface GuestExportLabels {
+  headings: Record<GuestExportColumn, string>
+  statuses: Record<GuestDisplayStatus, string>
+}
+
+/**
+ * The guest export as a table: one heading row, then one row per guest, with
+ * every field. Headings and status names come translated from the caller.
+ */
+export function buildGuestExportTable(
+  rows: readonly GuestExportRow[],
+  labels: GuestExportLabels,
+): (string | number | null)[][] {
+  return [
+    GUEST_EXPORT_COLUMNS.map((column) => labels.headings[column]),
+    ...rows.map((row) => [
+      row.firstName,
+      row.lastName,
+      row.invitationName,
+      row.phone,
+      row.allowedAttendees,
+      row.confirmedAttendees,
+      labels.statuses[guestDisplayStatus(row)],
+      row.invitationSentCount,
+      row.tableNumber,
+    ]),
+  ]
 }

@@ -414,6 +414,273 @@
       }
     }
   },
+  "guests": {
+    "subtitle": "Manage your guest list, send invitations and track RSVPs.",
+    "actions": {
+      "import": "Import Guests",
+      "export": "Export",
+      "exportCsv": "CSV file (.csv)",
+      "exportXlsx": "Excel file (.xlsx)",
+      "add": "Add Guest"
+    },
+    "kpis": {
+      "label": "Guest figures",
+      "total": "Total Guests",
+      "sent": "Invitations Sent",
+      "notSent": "Not Sent",
+      "approved": "Approved",
+      "notSure": "Not Sure",
+      "declined": "Declined"
+    },
+    "tabs": {
+      "label": "Guest lists",
+      "guests": "Guests",
+      "unknown": "Unknown Guests"
+    },
+    "status": {
+      "NOT_SENT": "Not Sent",
+      "AWAITING": "Awaiting Response",
+      "APPROVED": "Approved",
+      "NOT_SURE": "Not Sure",
+      "DECLINED": "Declined"
+    },
+    "rsvp": {
+      "NO_RESPONSE": "No response",
+      "APPROVED": "Approved",
+      "NOT_SURE": "Not Sure",
+      "DECLINED": "Declined"
+    },
+    "search": {
+      "label": "Search guests",
+      "placeholder": "Search by name, phone number or invitation name…"
+    },
+    "filters": {
+      "rsvp": "RSVP status",
+      "rsvpAll": "All RSVP Status",
+      "invitation": "Invitation status",
+      "invitationAll": "All Invitation Status",
+      "sent": "Invitation sent",
+      "notSent": "Invitation not sent",
+      "table": "Table",
+      "tableAll": "All Tables",
+      "tableOption": "Table {{number}}",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "button": "Choose columns",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "alwaysShown": "{{column}} (always shown)",
+      "name": "Name",
+      "invitationName": "Invitation Name",
+      "phone": "Phone",
+      "allowed": "Allowed",
+      "confirmed": "Confirmed",
+      "status": "RSVP Status",
+      "sent": "Invitations Sent",
+      "table": "Table",
+      "actions": "Actions"
+    },
+    "table": {
+      "caption": "Guests",
+      "sortBy": "Sort by {{column}}",
+      "selectAll": "Select all guests on this page",
+      "selectRow": "Select {{name}}",
+      "tableFor": "Table for {{name}}",
+      "noTable": "No table",
+      "tableChoice": "{{number}} · {{name}} ({{available}} free)"
+    },
+    "row": {
+      "whatsapp": "Send a WhatsApp message to {{name}} (available soon)",
+      "edit": "Edit {{name}}",
+      "more": "More actions for {{name}}",
+      "details": "View details of {{name}}",
+      "changeRsvp": "Change RSVP",
+      "delete": "Delete"
+    },
+    "card": {
+      "allowed": "Allowed {{count}}",
+      "confirmed": "Confirmed {{count}}",
+      "sent": "Sent {{count}}"
+    },
+    "pagination": {
+      "label": "Guest pages",
+      "rowsPerPage": "Rows per page",
+      "range": "{{from}}–{{to}} of {{total}} guests",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {{page}}"
+    },
+    "bulk": {
+      "label": "Selected guests",
+      "selected": "{{count}} selected",
+      "export": "Export selected",
+      "delete": "Delete selected",
+      "clear": "Clear selection"
+    },
+    "form": {
+      "addTitle": "Add guest",
+      "editTitle": "Edit guest",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone number",
+      "phoneHint": "A local number such as 050-123-4567. For a number from another country, start with + and the country code. It must be unique within the event.",
+      "allowed": "Allowed attendees",
+      "allowedHint": "Between {{min}} and {{max}}.",
+      "add": "Add Guest",
+      "save": "Save Changes",
+      "added": "The guest was added.",
+      "saved": "The guest was updated.",
+      "errors": {
+        "firstName": "Enter a first name.",
+        "phone": "Enter a valid phone number.",
+        "duplicate": "Another guest in this event already has this phone number.",
+        "allowed": "Enter a whole number between {{min}} and {{max}}.",
+        "belowConfirmed": "This guest already confirmed {{count}} attendees, so the allowance cannot be lower."
+      }
+    },
+    "rsvpDialog": {
+      "title": "Change RSVP",
+      "for": "Response of {{name}}",
+      "attendees": "Confirmed attendees",
+      "attendeesHint": "Between 1 and {{max}}.",
+      "attendeesError": "Enter a whole number between 1 and {{max}}.",
+      "tableNotice": "This guest will be removed from table {{number}}, because only approved guests are seated.",
+      "save": "Save RSVP",
+      "saved": "The RSVP was updated."
+    },
+    "delete": {
+      "titleOne": "Delete guest",
+      "titleMany": "Delete guests",
+      "bodyOne": "Delete {{name}} from this event?",
+      "bodyMany": "Delete the {{count}} selected guests from this event?",
+      "note": "Their table seats are freed. Adding the same phone number again later brings the guest back.",
+      "confirm": "Delete",
+      "doneOne": "The guest was deleted.",
+      "doneMany": "{{count}} guests were deleted."
+    },
+    "details": {
+      "title": "Guest details",
+      "lastSent": "Last invitation sent",
+      "lastResponse": "Last RSVP response",
+      "never": "Never",
+      "edit": "Edit"
+    },
+    "empty": {
+      "title": "No guests yet",
+      "body": "Add your first guest or import a list to get started.",
+      "bodyReadOnly": "This event has no guests.",
+      "noMatchTitle": "No guests match",
+      "noMatchBody": "Try a different search or filter."
+    },
+    "export": {
+      "fileName": "{{event}} - guests",
+      "sheet": "Guests",
+      "done": "The file was downloaded.",
+      "headings": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "invitationName": "Invitation name",
+        "phone": "Phone",
+        "allowedAttendees": "Allowed attendees",
+        "confirmedAttendees": "Confirmed attendees",
+        "status": "RSVP status",
+        "invitationSentCount": "Invitations sent",
+        "tableNumber": "Table"
+      }
+    },
+    "import": {
+      "title": "Import guests",
+      "intro": "Add many guests at once from a CSV or Excel (.xlsx) file. The file is read in your browser.",
+      "ruleRequired": "Each guest needs a first name and a phone number. Last name and allowed attendees are optional.",
+      "rulePhones": "Phone numbers can be written in any local format. A number from another country must start with + and its country code.",
+      "ruleDuplicates": "A phone number that a guest in this event already has is skipped; existing guests are never changed.",
+      "ruleLimit": "Up to {{max}} rows and 5 MB.",
+      "choose": "Choose a CSV or Excel file",
+      "template": "Download a template",
+      "templateName": "guest import template",
+      "hasHeadings": "The first row contains column headings",
+      "mapIntro": "{{file}}: {{rows}} rows. Check which column holds each detail.",
+      "columnNumber": "Column {{number}}",
+      "notInFile": "Not in the file",
+      "mapRequired": "Choose the columns for First name and Phone number to continue.",
+      "back": "Back",
+      "preview": "Preview",
+      "previewCaption": "Rows of the file and what will happen to each",
+      "row": "Row",
+      "result": "Result",
+      "problem": "Problem",
+      "willImport": "{{count}} will be imported",
+      "willSkip": "{{count}} will be skipped",
+      "previewLimit": "Showing the first {{shown}} of {{total}} rows.",
+      "confirm": "Import {{count}} guests",
+      "doneTitle": "Import finished",
+      "doneBody": "{{created}} guests added, {{restored}} restored, {{skipped}} rows skipped.",
+      "downloadSkipped": "Download skipped rows",
+      "skippedName": "skipped guest rows",
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phone": "Phone number",
+        "allowedAttendees": "Allowed attendees"
+      },
+      "outcome": {
+        "new": "New guest",
+        "restore": "Restores a deleted guest",
+        "error": "Skipped"
+      },
+      "rowErrors": {
+        "MISSING_FIRST_NAME": "No first name",
+        "MISSING_PHONE": "No phone number",
+        "INVALID_PHONE": "Phone number is not valid",
+        "INVALID_ALLOWED": "Allowed attendees must be a whole number from 1 to 10",
+        "DUPLICATE_IN_FILE": "Same phone as an earlier row",
+        "DUPLICATE_IN_EVENT": "A guest already has this phone"
+      },
+      "errors": {
+        "fileSize": "The file is larger than 5 MB.",
+        "fileType": "Choose a .csv or .xlsx file.",
+        "fileContent": "The file could not be read. Check that it is a valid Excel file.",
+        "empty": "The file has no rows.",
+        "tooManyRows": "The file has more than {{max}} rows."
+      },
+      "finish": "Done"
+    },
+    "unknown": {
+      "noticeTitle": "Responses from phone numbers that are not on your guest list",
+      "noticeBody": "They are not counted in your guest figures until you add them as a guest or match them to one.",
+      "views": "Unknown responses",
+      "pending": "Awaiting review",
+      "rejectedView": "Rejected",
+      "emptyPending": "No unknown responses to review.",
+      "emptyRejected": "No rejected responses.",
+      "convert": "Add as guest",
+      "merge": "Match to a guest",
+      "reject": "Reject",
+      "restore": "Restore",
+      "converted": "The response was added as a guest.",
+      "merged": "The response was matched to the guest.",
+      "rejected": "The response was rejected. You can restore it from the Rejected list.",
+      "restored": "The response was returned to review.",
+      "convertTitle": "Add as guest",
+      "convertIntro": "A new guest is created with this response and phone number:",
+      "mergeTitle": "Match to a guest",
+      "mergeIntro": "The response of {{name}} replaces the chosen guest's RSVP, and the name they typed becomes the guest's invitation name.",
+      "findGuest": "Find a guest",
+      "chooseGuest": "Choose the guest",
+      "noGuestFound": "No guest matches this search.",
+      "refineSearch": "More guests match. Refine the search to see them.",
+      "mergeOverAllowance": "The response is for {{count}} attendees but this guest is allowed {{max}}. Raise the guest's allowance first.",
+      "cardAttendees": "Attendees {{count}}",
+      "columns": {
+        "name": "Name given",
+        "response": "Response",
+        "attendees": "Attendees",
+        "submitted": "Submitted",
+        "rejectedAt": "Rejected"
+      }
+    }
+  },
   "showcase": {
     "title": "Design System",
     "subtitle": "Shared components and layout used across Event Planner.",
@@ -535,6 +802,19 @@
       "duplicate": "Duplicate",
       "delete": "Delete",
       "chosen": "Action chosen."
+    },
+    "controls": {
+      "title": "Checkboxes, pagination and popovers",
+      "subtitle": "Selection boxes, page numbers for long lists, and a small panel opened from a button.",
+      "option": "Show seated guests",
+      "mixed": "Some guests selected",
+      "disabled": "Always shown",
+      "pages": "Sample pages",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {{page}}",
+      "popover": "Sample options",
+      "popoverBody": "A popover holds a few controls and closes with Escape."
     },
     "states": {
       "title": "Empty, loading and error states",

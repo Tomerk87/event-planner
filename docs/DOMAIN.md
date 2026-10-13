@@ -71,6 +71,16 @@ The approved documents do not settle these. Each was given the most conservative
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
 
+### Defaults applied in Phase 6, to confirm
+
+| # | Default applied | Where it matters |
+|---|---|---|
+| P14 | When a phone whose unknown response was rejected submits the RSVP form again, the response is updated and returns to the review list | Phase 9 |
+| P15 | Row selection and its bulk actions exist on the desktop table only; the phone cards have no checkboxes, as in the mobile mockup | Phase 6 |
+| P16 | Import rules: a single "Name" column is taken as the first name; a phone that an active guest already has, or that appears earlier in the file, is skipped and reported, never overwritten; a blank allowed-attendees value takes the event's default; limits of 5,000 rows and 5 MB; a nine-digit number starting with 5 gets back the leading zero a spreadsheet dropped | Phase 6 |
+| P17 | An organizer can set a guest's RSVP back to "No response" by hand. Rows per page offers 10, 25, 50 and 100 | Phase 6 |
+| P18 | A cell in an exported file that a spreadsheet would run as a formula is written as plain text (prefixed with an apostrophe in CSV, typed as text in Excel) | Phase 6 |
+
 ## Resolved decisions
 
 Move a row here, with the date and the outcome, when a decision is made. Update the PRD at the same time when the outcome changes product behavior (PRD §19).
@@ -94,7 +104,7 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D1 | **Unknown RSVP limit:** an unknown responder may approve up to the event's default allowed attendees. | 2026-10-12 |
 | D5 | **Restored guest:** No Response, no table, name and allowance from the new entry, invitation counter kept. | 2026-10-12 |
 | D11 | **Recent Guest Activity** is derived from the per-send message history and each guest's latest response; no separate activity record. | 2026-10-12 |
-| D23 | **Demo phone numbers** are Israeli-style but undialable (`+972 00-…`). Phone validation checks length and digits, not the operator prefix. | 2026-10-12 |
+| D23 | **Demo phone numbers** are in a range no Israeli number uses: they start `00` after the leading zero and are shown as `000-001-0005`, so they cannot be dialled. Phone validation checks the shape of a number, not whether an operator has assigned it; the `00` range is accepted for this reason only. | 2026-10-12, reworded 2026-10-13 |
 | D24 | **Tablet layouts** are not designed or verified for the MVP. A tablet gets whichever of the desktop or phone layouts fits its width (listed in `docs/FUTURE_FEATURES.md`). | 2026-10-12 |
 | D3 | **Duplicate event:** Owner or Super User only. Copies the event's details, RSVP settings, message template and tables (with nobody seated). Does not copy guests, responses, unknown responses, sent messages or other members. The person duplicating becomes the copy's Owner and gives it a new name and date. Allowed on a past event. **Delete event:** Owner or Super User only; permanent; removes the event and everything in it; confirmed by typing the event's name. Allowed on a past event. | 2026-10-12 |
 | D10 | **Event cover:** until image upload exists, each event shows a cover generated in the browser (a gradient with an icon, chosen from the event's id). | 2026-10-12 |
@@ -121,3 +131,4 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D34 | **Column chooser:** the sliders button beside the Guests filters is a dropdown listing every column with a checkbox, with Select all and Clear. Name and Phone are always shown, as are the selection and Actions columns. All columns are shown by default. The choice is remembered in the browser and applies to every event. Hiding the sorted column returns sorting to Name. Desktop table only; hidden on a phone. | 2026-10-13 |
 | D35 | **Clear filters:** a button beside the column chooser resets the search and the three filter dropdowns. It leaves the column choice and sorting alone and is shown only when something is filtered. | 2026-10-13 |
 | D36 | **The per-row WhatsApp button** on the Guests page is shown disabled with a "Soon" hint until the message page is built in Phase 8. | 2026-10-13 |
+| D37 | **Phone numbers, Israel first.** A number without `+` is read as Israeli; a number from another country is entered with `+` and its country code. Israeli numbers are always shown in local form, `050-730-8828` (landlines `03-123-4567`), however they were typed or imported; foreign numbers are shown with their code, `+1 2125550123`. A number that is local to another country is refused rather than read as Israeli. A default country per event and a country selector are deferred (`docs/FUTURE_FEATURES.md`). | 2026-10-13 |

@@ -1,7 +1,7 @@
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
 import { EVENT_LIMITS } from './events.ts'
 import type { Guest, Id, IsoDateTime } from './models.ts'
-import { normalizePhone } from './phone.ts'
+import { formatPhone, normalizePhone } from './phone.ts'
 
 export interface GuestInput {
   firstName: string
@@ -22,11 +22,13 @@ function validateGuestInput(input: GuestInput): GuestFields {
     EVENT_LIMITS.allowedAttendees.max,
     'allowedAttendees',
   )
+  const normalizedPhone = normalizePhone(input.phone)
   return {
     firstName,
     lastName: input.lastName.trim(),
-    phone: input.phone.trim(),
-    normalizedPhone: normalizePhone(input.phone),
+    // Kept in the form it is shown in, however it was typed.
+    phone: formatPhone(normalizedPhone),
+    normalizedPhone,
     allowedAttendees: input.allowedAttendees,
   }
 }

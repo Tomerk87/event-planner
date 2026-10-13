@@ -30,13 +30,19 @@ export function Card({ title, subtitle, actions, children }: CardProps) {
 /** Lays out KPI cards: two per row on a phone, one row on wide screens. */
 export function KpiGrid({
   label,
+  dense = false,
   children,
 }: {
   label: string
+  /** Narrower cards, for a strip of six or more that should stay on one row. */
+  dense?: boolean
   children: ReactNode
 }) {
   return (
-    <section aria-label={label} className={styles.kpiGrid}>
+    <section
+      aria-label={label}
+      className={cx(styles.kpiGrid, dense && styles.kpiGridDense)}
+    >
       {children}
     </section>
   )

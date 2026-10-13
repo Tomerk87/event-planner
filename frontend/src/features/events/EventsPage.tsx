@@ -8,7 +8,6 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
 import type { EventSummary } from '../../services/contracts/index.ts'
 import { useEvents } from '../../services/queries.ts'
 import { describeError } from '../../shared/errorMessage.ts'
@@ -24,6 +23,7 @@ import {
 } from '../../shared/ui/States.tsx'
 import { Tabs } from '../../shared/ui/Tabs.tsx'
 import { PHONE_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
+import { useQueryParams } from '../../shared/useQueryParams.ts'
 import { DeleteEventDialog } from './DeleteEventDialog.tsx'
 import { EventCard, type EventsView } from './EventCard.tsx'
 import { EventDialog } from './EventDialog.tsx'
@@ -47,7 +47,7 @@ export function EventsPage() {
   const events = useEvents()
   const isPhone = useMediaQuery(PHONE_QUERY)
   // The filter, search and layout live in the address, so a reload keeps them.
-  const [params, setParams] = useSearchParams()
+  const { params, update, replaceAll } = useQueryParams()
   const [dialog, setDialog] = useState<OpenDialog | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
 
@@ -62,20 +62,8 @@ export function EventsPage() {
         ? 'list'
         : 'grid'
 
-  function setParam(name: string, value: string | null) {
-    setParams(
-      (current) => {
-        const next = new URLSearchParams(current)
-        if (value === null || value === '') {
-          next.delete(name)
-        } else {
-          next.set(name, value)
-        }
-        return next
-      },
-      { replace: true },
-    )
-  }
+  const setParam = (name: string, value: string | null) =>
+    update({ [name]: value })
 
   const all = events.data ?? []
   const needle = query.trim().toLocaleLowerCase(i18n.language)
@@ -237,10 +225,7 @@ export function EventsPage() {
             title={t('events.noMatch.title')}
             description={t('events.noMatch.body')}
             action={
-              <Button
-                variant="secondary"
-                onClick={() => setParams({}, { replace: true })}
-              >
+              <Button variant="secondary" onClick={() => replaceAll({})}>
                 {t('events.noMatch.action')}
               </Button>
             }

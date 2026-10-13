@@ -198,28 +198,28 @@
 - Decisions for the controls the mockups do not explain: D13, D14, D31–D36 in `docs/DOMAIN.md`.
 
 ### Checklist
-- [ ] Build desktop guest table and dedicated mobile card/list layout, with the KPI strip and the Guests / Unknown Guests tabs.
-- [ ] Implement guest create/edit/soft-delete, find/search, sort, the three filters (RSVP status, invitation status, table) and pagination with rows per page.
-- [ ] Enforce event-scoped normalized phone uniqueness; re-add soft-deleted phone restores its record.
-- [ ] Support First Name, Last Name, guest-entered Invitation Name, Allowed/Confirmed Attendees, RSVP status, Invitation Sent Count and Table.
-- [ ] Label a guest with no invitation sent and no response "Not Sent"; use "Awaiting Response" only after a send (D14).
-- [ ] Implement authorized manual RSVP edits and appropriate assignment clearing/state changes.
-- [ ] Provide editable Table selector for Approved guests; enforce mock table capacity rules.
-- [ ] Guest details panel, opened from the ">" arrow on a phone and the guest's name on desktop; "⋯" menu with Change RSVP and Delete (D33).
-- [ ] Bulk selection with Delete selected (confirmed) and Export selected (D13).
-- [ ] Column chooser on the desktop table: every column with a checkbox, Select all and Clear, Name and Phone always shown, choice remembered in the browser through the persistence adapter (D34).
-- [ ] Clear filters button (D35).
-- [ ] Show the per-row WhatsApp button disabled with a "Soon" hint (D36).
-- [ ] Implement Unknown Guests list and actions: review, add as guest, match/merge, reject. Rejected responses move to a Rejected list and can be restored (D31).
-- [ ] Prototype CSV/XLSX guest import with validation, mapping, preview, and error reporting.
-- [ ] Implement guest export as CSV and Excel, always with every field (D32).
-- [ ] Ensure Viewer may view/export but cannot modify.
-- [ ] Refresh the event's data after every change, so the Dashboard and the event list show it.
+- [x] Build desktop guest table and dedicated mobile card/list layout, with the KPI strip and the Guests / Unknown Guests tabs.
+- [x] Implement guest create/edit/soft-delete, find/search, sort, the three filters (RSVP status, invitation status, table) and pagination with rows per page.
+- [x] Enforce event-scoped normalized phone uniqueness; re-add soft-deleted phone restores its record.
+- [x] Support First Name, Last Name, guest-entered Invitation Name, Allowed/Confirmed Attendees, RSVP status, Invitation Sent Count and Table.
+- [x] Label a guest with no invitation sent and no response "Not Sent"; use "Awaiting Response" only after a send (D14).
+- [x] Implement authorized manual RSVP edits and appropriate assignment clearing/state changes.
+- [x] Provide editable Table selector for Approved guests; enforce mock table capacity rules.
+- [x] Guest details panel, opened from the ">" arrow on a phone and the guest's name on desktop; "⋯" menu with Change RSVP and Delete (D33).
+- [x] Bulk selection with Delete selected (confirmed) and Export selected (D13). On the desktop table; the phone cards have no checkboxes, as in the mobile mockup.
+- [x] Column chooser on the desktop table: every column with a checkbox, Select all and Clear, Name and Phone always shown, choice remembered in the browser through the persistence adapter (D34).
+- [x] Clear filters button (D35).
+- [x] Show the per-row WhatsApp button disabled with a "Soon" hint (D36).
+- [x] Implement Unknown Guests list and actions: review, add as guest, match/merge, reject. Rejected responses move to a Rejected list and can be restored (D31).
+- [x] Prototype CSV/XLSX guest import with validation, mapping, preview, and error reporting.
+- [x] Implement guest export as CSV and Excel, always with every field (D32).
+- [x] Ensure Viewer may view/export but cannot modify.
+- [x] Refresh the event's data after every change, so the Dashboard and the event list show it.
 
 ### Validation and exit criteria
-- [ ] Realistic guest CRUD, search, phone matching, restoration and Unknown Guest reconciliation work with mock data.
-- [ ] Import handles invalid/duplicate rows safely; export opens correctly.
-- [ ] Tab behavior, desktop/mobile and Hebrew/RTL validated.
+- [x] Realistic guest CRUD, search, phone matching, restoration and Unknown Guest reconciliation work with mock data.
+- [x] Import handles invalid/duplicate rows safely; export opens correctly.
+- [x] Tab behavior, desktop/mobile and Hebrew/RTL validated, by the agent from screenshots and automated checks. The owner's own visual review is still to come.
 
 ---
 
@@ -298,6 +298,7 @@
 - [ ] Respect fixed event RSVP language independent of organizer UI language.
 - [ ] Preview should update when settings change.
 - [ ] Make the public RSVP link work for events of both browser-local workspaces (the demo and the preview accounts); the public page is outside any session.
+- [ ] The public RSVP form reads a phone by the same rule as the rest of the product (decision D37): local Israeli forms accepted, a number from abroad needs `+` and its country code; say so beside the field.
 
 ### Validation and exit criteria
 - [ ] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
@@ -522,6 +523,7 @@
 - [ ] Deploy to chosen single EC2/VM host; measure idle memory, peak usage, disk and practical POC concurrency.
 - [ ] Verify redeploy/restart does not lose real PostgreSQL or uploaded asset data.
 - [ ] Document deployment, rollback, logs, and low-cost/free-tier billing cautions.
+- [ ] Split the frontend bundle by page (the main file is about 650 kB before compression).
 
 ### Validation and exit criteria
 - [ ] Entire stack works on chosen small VM within observed resource limits.
@@ -815,6 +817,42 @@ Follow-ups/risks:
 - Phase 6 needs additions to the service contracts (rejected unknown responses, bulk delete, a stored column preference) and a library for reading and writing CSV and Excel files, to be chosen and recorded when it starts.
 - Work is on branch phase_5_followups, created from phase_5_completion; nothing committed.
 Next: Phase 6 — Guests and Unknown Guests. No open decisions remain for it.
+```
+
+```text
+2026-10-13 — Phase 6 complete (two passes: build, then review and fix).
+Done:
+- Guests page: KPI strip, Guests and Unknown Guests tabs, search (names, invitation name, phone in any format), three filters, sortable columns, paging with rows per page, all kept in the page address; desktop table and phone cards; add, edit and delete guests; manual RSVP change; table selector for Approved guests with capacity enforced; details panel; row menu; bulk delete and export of selected rows; column chooser remembered per browser; Clear filters; WhatsApp button shown disabled.
+- Import from CSV and Excel in four steps (choose, match columns, preview, result) with a downloadable template and a downloadable list of skipped rows. Export to CSV and Excel with every field.
+- Unknown Guests: add as guest, match to a guest, reject into a Rejected list, restore.
+- Rules added in domain/: guest display status, list search/filter/sort, paging, CSV reading and writing with formula safety, import planning. Service contracts gained guests.removeMany, guests.importMany, unknownGuests.listRejected and restore, and a preferences service.
+- Shared components: Checkbox, Pagination, Popover; DataTable gained sorting, selection and a pinned column; Dialog gained a wide option; KpiGrid a dense option. All in the showcase.
+- Libraries: read-excel-file and write-excel-file (MIT), loaded only when a file is imported or exported.
+- Demo dataset is version 3 (unknown responses gained a rejected state; one rejected response in the main event). Browsers regenerate the demo once.
+Second pass found and fixed: changing two filters in quick succession could drop the first from the address (new shared useQueryParams hook, also applied to My Events); a row's menu opened underneath the next row's buttons and could not be clicked with a mouse; the column checkboxes did not respond until the choice was stored; the table was wider than the page and hid its Table column; six KPI cards wrapped to two rows; the rows-per-page control was unreadable; the import preview was too narrow to show each row's result; page numbers overflowed a 320px-wide phone.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 734 passed, coverage 96.64% statements, 91.19% branches, 95.98% functions, 96.64% lines; `npm run test:e2e` 202 passed, 18 skipped by design, including real CSV and Excel uploads, downloads whose content is read back, and zero accessibility violations on both tabs, the dialogs and each import step, in English and Hebrew; `npm run build` succeeds.
+Mockups reviewed: guests.png, guests_mobile.png, compared with screenshots at desktop and phone widths in English and Hebrew.
+Differences from the mockups, by decision: D13, D14, D31–D36. Applied by the agent and listed for confirmation as P14–P18 in docs/DOMAIN.md.
+Follow-ups/risks:
+- P14–P18 await the owner's confirmation.
+- The import preview cannot tell that a row will restore a deleted guest, because deleted guests are not sent to the page; such rows are shown as new and counted as restored in the result.
+- The demo phone numbers are longer than real ones, so the desktop table is tight at 1448px; the Actions column stays pinned while the rest scrolls on narrower windows.
+- The main JavaScript file is about 650 kB before compression; splitting it by page is worth doing before deployment (Phase 18).
+- Work is on branch phase_6_completion; nothing committed.
+Next: Phase 7 — Event Settings. Needs owner decisions D19 (which page owns the RSVP language and when it becomes fixed) and D12's second half (the "View Event Rules" button).
+```
+
+```text
+2026-10-13 — Phase 6 follow-up — phone numbers.
+Decision (owner): Israel first for the MVP. A number without + is read as Israeli; foreign numbers need + and the country code. Israeli numbers are always shown in local form, 050-730-8828. No country selector and no country per event for now (D37; both added to docs/FUTURE_FEATURES.md).
+Done: formatPhone added; guests and unknown responses store the shown form, so the table, cards, details, import preview and both export formats agree; Edit Guest opens with the local form. A number local to another country (a French 06…, for example) is now refused instead of being silently stored as Israeli. Demo numbers regenerated in local form (000-001-0005, still undialable); demo dataset version 4, so browsers regenerate the demo once. Hint under the phone field and a line in the import instructions.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 762 passed, coverage 96.68% statements, 91.13% branches; `npm run test:e2e` 202 passed, 18 skipped by design; `npm run build` succeeds.
+Follow-ups/risks:
+- An event held outside Israel is awkward by decision: every guest, and every guest answering the RSVP form, must use +.
+- Preview accounts created before this change show their numbers as typed until each guest is next saved.
+- Foreign numbers are shown with the country code set apart but not otherwise grouped.
+- Work is on branch phase_6_followups, created from phase_6_completion; nothing committed.
+Next: Phase 7 — Event Settings. Needs owner decisions D19 and the "View Event Rules" button.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
