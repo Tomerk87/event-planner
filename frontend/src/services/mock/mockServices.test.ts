@@ -355,8 +355,8 @@ describe('simulated delay and failure', () => {
   })
 })
 
-describe('simulated side effects', () => {
-  it('never opens a window or leaves the page when sending a message', async () => {
+describe('side effects', () => {
+  it('hands back the WhatsApp link without opening it: opening is the page’s job', async () => {
     const open = vi.spyOn(window, 'open').mockImplementation(() => null)
     const href = window.location.href
     const services = create()
@@ -364,7 +364,7 @@ describe('simulated side effects', () => {
 
     const result = await services.messages.send(EVENTS.owner, guest!.id)
 
-    expect(result.launchUrl).toBeNull()
+    expect(result.launchUrl).toMatch(/^https:\/\/wa\.me\/\d+\?text=/)
     expect(open).not.toHaveBeenCalled()
     expect(window.location.href).toBe(href)
   })
@@ -376,8 +376,8 @@ describe('simulated side effects', () => {
     const [guest] = await services.guests.list(EVENTS.owner)
     const { event } = await services.events.get(EVENTS.owner)
 
-    expect(await services.messages.preview(EVENTS.owner, guest!.id)).toContain(
-      `https://demo.example.com/rsvp/${event.rsvpSlug}`,
-    )
+    expect(
+      (await services.messages.preview(EVENTS.owner, guest!.id)).message,
+    ).toContain(`https://demo.example.com/rsvp/${event.rsvpSlug}`)
   })
 })

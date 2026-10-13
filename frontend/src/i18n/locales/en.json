@@ -70,7 +70,13 @@
     "cancel": "Cancel",
     "soon": "Soon",
     "pageActions": "Page actions",
-    "characterCount": "{{count}}/{{max}}"
+    "characterCount": "{{count}}/{{max}}",
+    "unsaved": {
+      "title": "Leave without saving?",
+      "body": "You have unsaved changes. If you leave this page, they will be lost.",
+      "stay": "Keep Editing",
+      "leave": "Leave"
+    }
   },
   "states": {
     "errorTitle": "Something went wrong",
@@ -494,7 +500,7 @@
       "tableChoice": "{{number}} · {{name}} ({{available}} free)"
     },
     "row": {
-      "whatsapp": "Send a WhatsApp message to {{name}} (available soon)",
+      "whatsapp": "Send a WhatsApp message to {{name}}",
       "edit": "Edit {{name}}",
       "more": "More actions for {{name}}",
       "details": "View details of {{name}}",
@@ -684,6 +690,98 @@
       }
     }
   },
+  "messages": {
+    "subtitle": "Create and customize your WhatsApp invitation message.",
+    "previewSubtitle": "Preview how your WhatsApp invitation will look to guests.",
+    "tabs": {
+      "label": "Message views",
+      "editor": "Message Editor",
+      "preview": "Preview"
+    },
+    "save": "Save Changes",
+    "saved": "Message saved.",
+    "test": "Send Test Message",
+    "backToEditor": "Back to Editor",
+    "testOpened": "WhatsApp opened. Choose who gets the test message.",
+    "template": {
+      "title": "Message Template",
+      "subtitle": "This message will be used when sending invitations to your guests via WhatsApp.",
+      "label": "Message",
+      "toolbar": "Formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "strike": "Strikethrough",
+      "emoji": "Insert emoji",
+      "emojiChoice": "Insert {{emoji}}",
+      "reset": "Reset to Default",
+      "insertVariable": "Insert Variable",
+      "insert": "Insert {{variable}}",
+      "available": "Available Variables",
+      "errors": {
+        "empty": "Write a message before saving.",
+        "tooLong": "The message can be up to {{max}} characters."
+      },
+      "noLinkTitle": "The message has no RSVP link",
+      "noLinkBody": "Without {{variable}} your guests will not get the link to respond.",
+      "unknownTitle": "Not a variable",
+      "unknownBody": "These will be sent exactly as written: {{names}}"
+    },
+    "variables": {
+      "first_name": "Guest's first name",
+      "last_name": "Guest's last name",
+      "event_name": "Event name",
+      "event_date": "Event date",
+      "event_time": "Event time",
+      "rsvp_url": "RSVP link (same for all guests)"
+    },
+    "preview": {
+      "title": "Message Preview",
+      "subtitle": "This is how your message will appear in WhatsApp.",
+      "for": "Preview for",
+      "sampleGuest": "Sample guest",
+      "resolved": "Variables are resolved using this guest's information.",
+      "sampleNote": "This event has no guests yet, so a sample guest is shown.",
+      "online": "online",
+      "phoneLabel": "WhatsApp preview",
+      "empty": "The message is empty.",
+      "detailsTitle": "Preview details",
+      "detailGuest": "Variables are replaced using the selected guest.",
+      "detailLink": "The RSVP link is the same for all guests."
+    },
+    "sent": {
+      "title": "Recent Sent Messages",
+      "subtitle": "Track your invitation activity.",
+      "columns": {
+        "when": "Date & Time",
+        "guest": "Guest Name",
+        "phone": "Phone",
+        "status": "Status",
+        "message": "Message Preview",
+        "actions": "Actions"
+      },
+      "opened": "Opened WhatsApp",
+      "deletedGuest": "Deleted guest",
+      "more": "Actions for the message to {{name}}",
+      "view": "View message",
+      "sendAgain": "Send again",
+      "emptyTitle": "No messages sent yet",
+      "emptyBody": "Send an invitation from the Guests page and it will be listed here.",
+      "goToGuests": "Go to Guests",
+      "viewTitle": "Message to {{name}}",
+      "sentAt": "{{date}}, {{time}}",
+      "pages": "Sent message pages"
+    },
+    "send": {
+      "title": "Send WhatsApp message",
+      "to": "To {{name}}",
+      "body": "WhatsApp will open with this message ready. Press Send there to deliver it.",
+      "countNote": "This counts as one invitation sent, even if you close WhatsApp without sending.",
+      "confirm": "Open WhatsApp",
+      "done": "WhatsApp opened for {{name}}.",
+      "emptyTemplate": "The message template is empty. Write it on the Messages page first.",
+      "editTemplate": "Edit message"
+    }
+  },
   "settings": {
     "subtitle": "Update your event information and defaults.",
     "save": "Save Changes",
@@ -742,12 +840,6 @@
       "warnings": "Capacity warnings never block saving. They appear when confirmed attendance exceeds the maximum, or when the number of seats differs from it.",
       "date": "The event's date and time can be changed only to a time in the future.",
       "roles": "Owners and Admins can change the event. Viewers can view it and download exports."
-    },
-    "unsaved": {
-      "title": "Leave without saving?",
-      "body": "You have unsaved changes. If you leave this page, they will be lost.",
-      "stay": "Keep Editing",
-      "leave": "Leave"
     }
   },
   "showcase": {

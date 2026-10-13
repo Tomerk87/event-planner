@@ -58,7 +58,7 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 - Version the locally persisted demo dataset. On an incompatible data-model update, provide a safe reset or migration rather than silently crashing.
 - Provide a prominent Demo Mode indicator and a **Reset Demo** action with confirmation. Reset restores the deterministic initial dataset.
 - Keep the mock provider available after real APIs are implemented and deployed. A public demo must not require a user account or populate the real PostgreSQL database.
-- Do not make real-world external actions from Demo Mode: WhatsApp actions must be safely simulated without opening a real recipient or incrementing a real guest counter; likewise disable/simulate other side effects.
+- WhatsApp sending works the same in Demo Mode as elsewhere (owner decision 2026-10-13): it opens the `https://wa.me/<number>?text=<message>` link from the user's own click. The generated demo guests are fictional and their numbers undialable, so the seeded data never reaches a real person, and a demo send changes only that browser's demo data, never a real guest counter. Do not make any other real-world external action from Demo Mode; disable or simulate other side effects.
 - Demo roles are simulations only: never let them authorize backend actions or access real event/customer data. Server-side endpoints must not trust a client-supplied demo flag as authorization.
 - Support exploring Viewer, Admin, and Owner states inside the demo without authenticating as real accounts; simulated role switching must only affect local demo authorization behavior.
 - Demo state must never expose real personal information, credentials, production event data, or actual contact numbers.
@@ -321,7 +321,7 @@ Critical flows requiring strong coverage include:
 - CSV/XLSX import/export
 - English/Hebrew and RTL smoke coverage
 - deterministic demo generation, reset, isolation, and persistence across refresh
-- prevention of real WhatsApp/external side effects in Demo Mode
+- WhatsApp links are opened only by an explicit user click and never by the data layer; no other external side effects in Demo Mode
 - mock/API provider contract consistency
 - single-VM Docker deployment and persistent data after restart
 

@@ -118,6 +118,9 @@ Preview tab:
 - `whatsapp_message_preview_mobile.png`
 
 Notes:
+- The toolbar has Bold, Italic, Strikethrough and Emoji; Underline and Link are not built. Variables show as plain `{{name}}` text in the editor.
+- Save Changes is also in the desktop header. Send Test Message opens WhatsApp with no recipient.
+- The "⋯" menu on a sent message holds View message and Send again.
 - The two-button bar at the bottom of both mobile mockups is drawn wider than the page. That is a mockup error. Build it aligned with the page content, with equal-width buttons, pinned to the bottom of the screen.
 
 ## Event Settings

@@ -759,12 +759,95 @@ export function describeServicesContract(
         const guest = await findGuest(services, events.owner, () => true)
         const { event } = await services.events.get(events.owner)
 
-        const preview = await services.messages.preview(events.owner, guest.id)
+        const { message, launchUrl } = await services.messages.preview(
+          events.owner,
+          guest.id,
+        )
 
-        expect(preview).toContain(guest.firstName)
-        expect(preview).toContain(event.name)
-        expect(preview).toContain(`/rsvp/${event.rsvpSlug}`)
-        expect(preview).not.toContain('{{')
+        expect(message).toContain(guest.firstName)
+        expect(message).toContain(event.name)
+        expect(message).toContain(`/rsvp/${event.rsvpSlug}`)
+        expect(message).not.toContain('{{')
+        // The guest's full international number, digits only, and the
+        // message percent-encoded.
+        expect(launchUrl).toBe(
+          `https://wa.me/${guest.normalizedPhone.slice(1)}?text=${encodeURIComponent(message)}`,
+        )
+        expect(launchUrl).toMatch(/^https:\/\/wa\.me\/\d+\?text=[^ \n&?+]+$/)
+      })
+
+      it('says what each variable stands for, for a guest and for a sample one', async () => {
+        const { services, events } = setup()
+        const guest = await findGuest(services, events.owner, () => true)
+        const { event } = await services.events.get(events.owner)
+
+        const forGuest = await services.messages.getValues(
+          events.owner,
+          guest.id,
+        )
+        const sample = await services.messages.getValues(events.owner, null)
+
+        expect(forGuest).toMatchObject({
+          first_name: guest.firstName,
+          last_name: guest.lastName,
+          event_name: event.name,
+        })
+        expect(forGuest.rsvp_url).toContain(`/rsvp/${event.rsvpSlug}`)
+        expect(sample.first_name).not.toBe('')
+        expect(sample.rsvp_url).toBe(forGuest.rsvp_url)
+        expect(
+          await codeOf(services.messages.getValues(events.owner, 'no-guest')),
+        ).toBe('NOT_FOUND')
+      })
+
+      it('lists each send with the guest it went to, even after the guest is deleted', async () => {
+        const { services, events } = setup()
+        const guest = await services.guests.create(events.owner, newGuest)
+        const { launchUrl, send } = await services.messages.send(
+          events.owner,
+          guest.id,
+        )
+
+        expect(launchUrl).toBe(
+          `https://wa.me/${guest.normalizedPhone.slice(1)}?text=${encodeURIComponent(send.message)}`,
+        )
+        const listed = (await services.messages.listSends(events.owner)).find(
+          (item) => item.id === send.id,
+        )
+        expect(listed).toMatchObject({
+          guestName: `${guest.firstName} ${guest.lastName}`,
+          phone: guest.phone,
+          guestActive: true,
+        })
+
+        await services.guests.remove(events.owner, guest.id)
+
+        expect(
+          (await services.messages.listSends(events.owner)).find(
+            (item) => item.id === send.id,
+          ),
+        ).toMatchObject({ guestActive: false, phone: guest.phone })
+      })
+
+      it('offers the default template and refuses an empty or over-long one', async () => {
+        const { services, events } = setup()
+        const original = (await services.messages.getTemplate(events.owner))
+          .body
+
+        expect(
+          await services.messages.getDefaultTemplate(events.owner),
+        ).toContain('{{rsvp_url}}')
+        expect(
+          await codeOf(services.messages.updateTemplate(events.owner, '   ')),
+        ).toBe('VALIDATION')
+        expect(
+          await codeOf(
+            services.messages.updateTemplate(events.owner, 'x'.repeat(1001)),
+          ),
+        ).toBe('VALIDATION')
+        expect((await services.messages.getTemplate(events.owner)).body).toBe(
+          original,
+        )
       })
 
       it('counts five sends to one guest as one invited guest, and records each send', async () => {
@@ -797,17 +880,15 @@ export function describeServicesContract(
         expect(open).not.toHaveBeenCalled()
       })
 
-      it('refuses to send with an empty template, as a Viewer, or on a past event', async () => {
+      it('refuses to send as a Viewer or on a past event', async () => {
         const { services, events } = setup()
         const guest = await findGuest(services, events.owner, () => true)
         const viewerGuest = await findGuest(services, events.viewer, () => true)
         const pastGuest = await findGuest(services, events.past, () => true)
 
-        await services.messages.updateTemplate(events.owner, '   ')
-
         expect(
           await codeOf(services.messages.send(events.owner, guest.id)),
-        ).toBe('VALIDATION')
+        ).toBe('NO_ERROR')
         expect(
           await codeOf(services.messages.send(events.viewer, viewerGuest.id)),
         ).toBe('FORBIDDEN')

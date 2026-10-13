@@ -100,6 +100,13 @@
 
   --control-height: 2.75rem;
   --control-height-sm: 2.25rem;
+  /* WhatsApp message preview */
+  --color-whatsapp-chat: #efe7dd;
+  --color-whatsapp-bubble: #d9fdd3;
+  --color-whatsapp-link: #075e9a;
+  --color-whatsapp-meta: #54656f;
+  --color-phone-frame: #111827;
+
   --sidebar-width: 15.5rem;
   --sidebar-width-collapsed: 4.5rem;
   --topbar-height: 4rem;

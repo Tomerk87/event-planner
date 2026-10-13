@@ -107,8 +107,12 @@ Found while building (Phase 6):
 ### WhatsApp Messages
 
 - **Recent Sent Messages** lists each send with time, status "Opened WhatsApp" and a message preview. The PRD stores a counter and the last send time, not a per-send history. Built as shown; the per-send record is added to the PRD in Phase 8.
-- **Send Test Message** is not in the PRD. **Decision needed.**
-- The editor toolbar offers bold, italic, underline, link and emoji. WhatsApp has its own plain-text formatting markers and no underline. **Decision needed** on which formatting controls are kept.
+- **Send Test Message** is not in the PRD. **Decided (2026-10-13):** it opens WhatsApp with the previewed message and no recipient; nothing is counted.
+- The desktop mockup has **no Save Changes button**; one is added to the header beside Send Test Message.
+- The editor draws variables as highlighted chips inside the text. The editor is a plain text box, so variables appear as `{{first_name}}` text; they are inserted with the Insert Variable buttons.
+- The **"⋯" menu** on each sent message holds View message and Send again.
+- The phone preview is drawn in CSS: the guest's name and the message bubble, without the status bar and call icons of the mockup.
+- The editor toolbar offers bold, italic, underline, link and emoji. WhatsApp has its own plain-text formatting markers and no underline. **Decided (2026-10-13):** Bold, Italic, Strikethrough and Emoji; Underline and Link are not built.
 - The variable set shown is `first_name`, `last_name`, `event_name`, `event_date`, `event_time`, `rsvp_url`. PRD §7 gives these as examples; this set is taken as the approved list.
 
 ### RSVP Settings and public RSVP

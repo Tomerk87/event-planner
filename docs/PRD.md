@@ -186,13 +186,22 @@ The organizer configures one reusable event-level WhatsApp message, with useful 
 
 ### 7.1 MVP send behavior
 
-An authorized organizer selects a guest and invokes the WhatsApp button. The system prepares a recipient-specific WhatsApp deep link with a prefilled message and opens WhatsApp/WhatsApp Web.
+An authorized organizer selects a guest and invokes the WhatsApp button, on the Guests page or with **Send again** in Recent Sent Messages. The system shows the message for that guest and, on confirmation, opens `https://wa.me/<number>?text=<message>`: the number is the guest's full international number, digits only, and the message is percent-encoded. WhatsApp or WhatsApp Web opens with the message ready; the organizer presses Send there.
 
 - `invitation_sent_count` begins at `0` and **only increases**.
 - Each system-initiated WhatsApp action increments the guest counter by exactly `1` and records its time.
 - The MVP cannot verify whether WhatsApp's final Send action or delivery occurred; the counter therefore measures **send attempts initiated from Event Planner**, not verified deliveries.
 - Repeated sends to one guest do **not** increase the distinct Invitations Sent Dashboard KPI more than once.
 - Viewer cannot invoke message actions.
+- The send is counted when WhatsApp is opened. A cancelled confirmation counts nothing.
+
+### 7.2 Template editor
+
+- The template is plain text, up to 1,000 characters, and cannot be saved empty. A template without `{{rsvp_url}}` can be saved but shows a warning. A placeholder that is not a supported variable is sent as written and is pointed out.
+- Formatting uses WhatsApp's own marks: `*bold*`, `_italic_`, `~strikethrough~`. The toolbar offers these and a small set of emoji; the preview shows the result. There is no underline or link button: WhatsApp has no underline and turns addresses into links by itself.
+- The preview shows the message for a chosen guest, or for a sample guest when the event has none. Dates and times in a message are written in the event's default RSVP language and time zone.
+- **Send Test Message** opens WhatsApp with the previewed message and no recipient, so the organizer chooses one. It is not counted or recorded.
+- **Recent Sent Messages** lists sends newest first, ten per page, with **View message** and **Send again**.
 
 ## 8. RSVP
 
@@ -361,7 +370,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 ### 12.4 External side effects and security
 
-- Demo WhatsApp actions are simulations only; do not attempt to message real phone numbers or open live links to fictional recipients.
+- Demo WhatsApp actions open the same WhatsApp link as the product (owner decision 2026-10-13). The generated demo guests have fictional, undialable numbers, so WhatsApp reports that the number is not on WhatsApp.
 - Do not send real emails, create real calendar events, or invoke other irreversible integrations from Demo Mode.
 - Demo-generated names/phone numbers must be fictional and safe for demonstration.
 - Demo roles are UI/workflow simulations and must not confer real backend access.

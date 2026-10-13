@@ -53,8 +53,6 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 
 | # | Decision | Needed by |
 |---|---|---|
-| D16 | "Send Test Message": include or omit, and what it does | Phase 8 |
-| D17 | Message editor formatting controls | Phase 8 |
 | D22 | Thresholds for table status labels (Ready / Almost Full / Over Capacity) | Phase 10 |
 
 ### Defaults applied in Phase 3, to confirm
@@ -133,3 +131,9 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D42 | **"Expected attendees"** is the name shown for a guest's allowed attendees: Guests table and cards, Add/Edit Guest, details panel, import and export. The rule is unchanged (it is the most the guest can confirm). Imports accept the old "Allowed attendees" heading too. Event Settings keeps "Default Maximum Attendees per Guest". | 2026-10-13 |
 | D43 | **The Guests page's Approved card** shows confirmed attendees (people), labelled "attendees"; the other cards in the strip count invitations. | 2026-10-13 |
 | D44 | **Collapsible side menu:** on desktop a button in the top bar reduces the side menu to a strip of icons and restores it. Collapsed, the event selector and language selector are hidden until it is expanded. The choice is remembered in the browser. The phone drawer is unchanged. | 2026-10-13 |
+| D45 | **Real WhatsApp sending, everywhere.** The WhatsApp button opens `https://wa.me/<number>?text=<message>` (full international number, digits only; message percent-encoded), in signed-up accounts and in the demo. The demo's generated guests keep undialable numbers. This replaces the earlier rule that Demo Mode only simulates a send; `AGENTS.md` was changed accordingly. | 2026-10-13 |
+| D16 | **Send Test Message** opens WhatsApp with the previewed message and no recipient; the organizer picks one. Not counted, not recorded. | 2026-10-13 |
+| D17 | **Formatting controls:** Bold, Italic, Strikethrough and Emoji, written as WhatsApp's own marks. No Underline and no Link button. | 2026-10-13 |
+| D46 | **Recent Sent Messages "⋯" menu:** View message, and Send again (hidden for Viewers, past events and deleted guests). | 2026-10-13 |
+| D47 | **Sending a message:** a confirmation shows the message first. The send is counted when WhatsApp is opened; a cancelled confirmation counts nothing. Owners and Admins only, on upcoming events. | 2026-10-13 |
+| D48 | **Message template rules:** up to 1,000 characters; cannot be saved empty; a template without `{{rsvp_url}}` saves with a warning. Save Changes is added to the desktop header, which the desktop mockup lacks. Leaving with unsaved changes asks first. | 2026-10-13 |

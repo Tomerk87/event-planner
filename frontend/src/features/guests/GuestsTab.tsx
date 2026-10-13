@@ -48,6 +48,7 @@ import { EmptyState } from '../../shared/ui/States.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import { PHONE_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
 import { useQueryParams } from '../../shared/useQueryParams.ts'
+import { SendMessageDialog } from '../messages/SendMessageDialog.tsx'
 import { ColumnChooser } from './ColumnChooser.tsx'
 import { DeleteGuestsDialog } from './DeleteGuestsDialog.tsx'
 import { resolveGuestColumns, type GuestColumnId } from './guestColumns.ts'
@@ -68,7 +69,7 @@ const NONE = '—'
 const NO_TABLE = 'NONE'
 
 type OpenPanel =
-  | { kind: 'edit' | 'rsvp' | 'details'; guestId: string }
+  | { kind: 'edit' | 'rsvp' | 'details' | 'send'; guestId: string }
   | { kind: 'delete'; guestIds: string[] }
 
 function isRsvpStatus(value: string | null): value is RsvpStatus {
@@ -226,15 +227,15 @@ export function GuestsTab({
     const name = guestFullName(guest)
     return (
       <div className={styles.rowActions}>
-        <IconButton
-          label={t('guests.row.whatsapp', { name })}
-          className={styles.whatsapp}
-          disabled
-        >
-          <MessageCircle />
-        </IconButton>
         {canEdit && (
           <>
+            <IconButton
+              label={t('guests.row.whatsapp', { name })}
+              className={styles.whatsapp}
+              onClick={() => setPanel({ kind: 'send', guestId: guest.id })}
+            >
+              <MessageCircle />
+            </IconButton>
             <IconButton
               label={t('guests.row.edit', { name })}
               variant="ghost"
@@ -718,6 +719,15 @@ export function GuestsTab({
         onChangeRsvp={() =>
           panelGuest && setPanel({ kind: 'rsvp', guestId: panelGuest.id })
         }
+      />
+      <SendMessageDialog
+        eventId={eventId}
+        guest={
+          panel?.kind === 'send' && panelGuest
+            ? { id: panelGuest.id, name: guestFullName(panelGuest) }
+            : null
+        }
+        onClose={closePanel}
       />
       <DeleteGuestsDialog
         open={panel?.kind === 'delete'}

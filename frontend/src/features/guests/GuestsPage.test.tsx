@@ -375,13 +375,75 @@ describe('Guests list', () => {
     ).toHaveValue(guest.firstName)
   })
 
-  it('shows the WhatsApp button as not yet available', async () => {
-    await openGuests()
+  it('sends a WhatsApp message: shows it, opens WhatsApp and counts the send', async () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const services = createTestServices()
+    const [guest] = await services.guests.list(MAIN)
+    const name = guestFullName(guest!)
+    const { message, launchUrl } = await services.messages.preview(
+      MAIN,
+      guest!.id,
+    )
+    await openGuests(`?q=${encodeURIComponent(guest!.phone)}`, services)
 
-    const button = within(rows()[0]!).getByRole('button', {
-      name: /^Send a WhatsApp message to .* \(available soon\)$/,
+    fireEvent.click(
+      within(rows()[0]!).getByRole('button', {
+        name: `Send a WhatsApp message to ${name}`,
+      }),
+    )
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Send WhatsApp message',
     })
-    expect(button).toBeDisabled()
+    expect(within(dialog).getByText(`To ${name}`)).toBeInTheDocument()
+    await within(dialog).findByText(new RegExp(guest!.firstName))
+    expect(open).not.toHaveBeenCalled()
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Open WhatsApp' }),
+    )
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(
+      launchUrl,
+      '_blank',
+      'noopener,noreferrer',
+    )
+    expect(launchUrl).toBe(
+      `https://wa.me/${guest!.normalizedPhone.slice(1)}?text=${encodeURIComponent(message)}`,
+    )
+    expect(
+      await screen.findByText(`WhatsApp opened for ${name}.`),
+    ).toBeInTheDocument()
+    const after = (await services.guests.list(MAIN)).find(
+      (candidate) => candidate.id === guest!.id,
+    )
+    expect(after?.invitationSentCount).toBe(guest!.invitationSentCount + 1)
+    open.mockRestore()
+  })
+
+  it('counts nothing when the send is cancelled, and offers no send to a Viewer', async () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const { services, unmount } = await openGuests()
+    const before = await services.messages.listSends(MAIN)
+
+    fireEvent.click(
+      within(rows()[0]!).getByRole('button', {
+        name: /^Send a WhatsApp message to/,
+      }),
+    )
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Send WhatsApp message',
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+
+    expect(open).not.toHaveBeenCalled()
+    expect(await services.messages.listSends(MAIN)).toHaveLength(before.length)
+
+    unmount()
+    await openGuests('', createTestServices(), DEMO_EVENTS.viewer)
+    expect(
+      screen.queryByRole('button', { name: /^Send a WhatsApp message to/ }),
+    ).not.toBeInTheDocument()
+    open.mockRestore()
   })
 })
 

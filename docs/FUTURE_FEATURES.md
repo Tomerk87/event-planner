@@ -36,6 +36,8 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Bulk sending | Sending to many guests in one action. | PRD §17 |
 | Automated reminders | Scheduled follow-ups to guests who have not responded. | PRD §17 |
 | Delivery, read and failure tracking | The MVP records only that a send was initiated. | PRD §7.1, §17 |
+| Variables as chips inside the editor | The mockup draws each variable as a highlighted chip within the message text. In the MVP the editor is a plain text box. | Mockup `whatsapp_message.png`; Phase 8 |
+| Test message to a saved number | Send Test Message opens WhatsApp with no recipient. Keeping the organizer's own number for one-click tests is not built. | Owner decision 2026-10-13 |
 
 ## Event management
 

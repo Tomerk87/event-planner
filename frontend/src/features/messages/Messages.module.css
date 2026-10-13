@@ -1,0 +1,307 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+/* Editor */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  margin-block-end: var(--space-2);
+  background: var(--color-surface-muted);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  border-start-start-radius: var(--radius-md);
+  border-start-end-radius: var(--radius-md);
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.tool:hover {
+  background: var(--color-border);
+}
+
+.tool svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.reset {
+  margin-inline-start: auto;
+}
+
+.emojis {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: var(--space-1);
+  padding: var(--space-2);
+}
+
+.emoji {
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.emoji:hover {
+  background: var(--color-surface-muted);
+}
+
+.editorField textarea {
+  min-block-size: 16rem;
+  resize: vertical;
+}
+
+.subheading {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-info-soft);
+  border: var(--border-width) solid var(--color-info-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-info);
+  font-family: var(--font-family-mono, monospace);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.variables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.available {
+  padding: var(--space-4);
+  background: var(--color-info-soft);
+  border-radius: var(--radius-md);
+}
+
+.availableTitle {
+  margin-block-end: var(--space-2);
+  color: var(--color-info);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.availableList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-xs);
+}
+
+.availableList dt {
+  font-family: var(--font-family-mono, monospace);
+}
+
+.availableList dd {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* Preview */
+.hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.phoneArea {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4) var(--space-3) 0;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.phone {
+  inline-size: min(20rem, 100%);
+  border: 0.5rem solid var(--color-phone-frame);
+  border-block-end: 0;
+  border-start-start-radius: 2rem;
+  border-start-end-radius: 2rem;
+  background: var(--color-whatsapp-chat);
+  overflow: hidden;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+}
+
+.chatName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chatStatus {
+  font-size: var(--font-size-xs);
+  color: var(--color-whatsapp-meta);
+}
+
+.chat {
+  min-block-size: 18rem;
+  padding: var(--space-4) var(--space-3);
+}
+
+.bubble {
+  padding: var(--space-3);
+  background: var(--color-whatsapp-bubble);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.messageText {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.link {
+  color: var(--color-whatsapp-link);
+  text-decoration: underline;
+}
+
+.bubbleTime {
+  margin-block-start: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-whatsapp-meta);
+  text-align: end;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Sent messages */
+.excerpt {
+  display: block;
+  max-inline-size: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sentCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.sentCardText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  font-size: var(--font-size-sm);
+}
+
+.sentCardName {
+  font-weight: var(--font-weight-semibold);
+}
+
+.sentCardMeta {
+  color: var(--color-text-muted);
+}
+
+.sentCard .excerpt {
+  max-inline-size: 100%;
+  color: var(--color-text-muted);
+}
+
+.iconControl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: var(--space-4);
+}
+
+/* Send dialog */
+.sendDialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sendTo {
+  font-weight: var(--font-weight-semibold);
+}
+
+.note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 1024px) {
+  .columns {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
