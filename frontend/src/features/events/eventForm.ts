@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { isDomainError } from '../../domain/errors.ts'
 import {
   fromLocalDateTime,
@@ -98,6 +99,67 @@ export function defaultEventFormValues(timeZone: string): EventFormValues {
 /** Whole numbers only; anything else fails the range check that follows. */
 export function toInteger(value: string): number {
   return /^\d+$/.test(value.trim()) ? Number(value.trim()) : Number.NaN
+}
+
+function isInRange(value: number, range: { min: number; max: number }) {
+  return Number.isInteger(value) && value >= range.min && value <= range.max
+}
+
+/** What is wrong with the form as typed; empty when it can be saved. */
+export function validateEventForm(
+  values: EventFormValues,
+  startsAt: IsoDateTime | null,
+): EventFormErrors {
+  const errors: EventFormErrors = {}
+  if (values.name.trim() === '') {
+    errors.name = 'invalid'
+  }
+  if (startsAt === null) {
+    errors.startsAt = 'invalid'
+  } else if (new Date(startsAt).getTime() <= Date.now()) {
+    errors.startsAt = 'past'
+  }
+  if (!isInRange(toInteger(values.maxAttendees), EVENT_LIMITS.maxAttendees)) {
+    errors.maxAttendees = 'invalid'
+  }
+  if (
+    !isInRange(
+      toInteger(values.defaultAllowedAttendees),
+      EVENT_LIMITS.allowedAttendees,
+    )
+  ) {
+    errors.defaultAllowedAttendees = 'invalid'
+  }
+  return errors
+}
+
+/** The message shown under a field, or undefined when the field is fine. */
+export function eventFormErrorMessage(
+  t: TFunction,
+  errors: EventFormErrors,
+  field: EventFormField,
+): string | undefined {
+  const error = errors[field]
+  if (error === undefined) {
+    return undefined
+  }
+  if (field === 'startsAt') {
+    return t(
+      error === 'past'
+        ? 'events.form.errors.startsAtPast'
+        : 'events.form.errors.startsAt',
+    )
+  }
+  if (field === 'maxAttendees') {
+    return t('events.form.errors.maxAttendees', EVENT_LIMITS.maxAttendees)
+  }
+  if (field === 'defaultAllowedAttendees') {
+    return t(
+      'events.form.errors.defaultAllowedAttendees',
+      EVENT_LIMITS.allowedAttendees,
+    )
+  }
+  return t(`events.form.errors.${field}`)
 }
 
 function isFormField(value: unknown): value is EventFormField {

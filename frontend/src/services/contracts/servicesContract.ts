@@ -278,6 +278,36 @@ export function describeServicesContract(
         ).toBe('VALIDATION')
       })
 
+      it('refuses to move an event into the past, and keeps what the form does not send', async () => {
+        const { services, events } = setup()
+        const { event } = await services.events.get(events.owner)
+
+        await expect(
+          services.events.update(events.owner, {
+            ...event,
+            startsAt: '2020-01-01T10:00:00.000Z',
+          }),
+        ).rejects.toMatchObject({
+          code: 'VALIDATION',
+          details: { field: 'startsAt', reason: 'past' },
+        })
+
+        const saved = await services.events.update(events.owner, {
+          ...event,
+          name: 'Renamed',
+          location: '  ',
+        })
+        expect(saved).toMatchObject({
+          id: event.id,
+          name: 'Renamed',
+          location: null,
+          rsvpLanguage: event.rsvpLanguage,
+          rsvpTitle: event.rsvpTitle,
+          rsvpSlug: event.rsvpSlug,
+          startsAt: event.startsAt,
+        })
+      })
+
       it('updates an event for an Owner and an Admin, not for a Viewer, and not once past', async () => {
         const { services, events } = setup()
         const edit = async (eventId: string) => {
@@ -1242,6 +1272,24 @@ export function describeServicesContract(
           'phone',
           'status',
         ])
+      })
+
+      it('remembers whether the side menu is collapsed, apart from the columns', async () => {
+        const { services } = setup()
+
+        expect(await services.preferences.getSidebarCollapsed()).toBe(false)
+
+        await services.preferences.setGuestColumns(['name', 'phone'])
+        await services.preferences.setSidebarCollapsed(true)
+
+        expect(await services.preferences.getSidebarCollapsed()).toBe(true)
+        expect(await services.preferences.getGuestColumns()).toEqual([
+          'name',
+          'phone',
+        ])
+
+        await services.preferences.setSidebarCollapsed(false)
+        expect(await services.preferences.getSidebarCollapsed()).toBe(false)
       })
 
       it('reads and saves RSVP settings with validation', async () => {

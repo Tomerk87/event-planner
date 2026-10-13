@@ -65,6 +65,7 @@ Notes:
 - The sliders button beside the filters is a column chooser on the desktop table and is not shown on a phone. A "Clear filters" button is added beside it.
 - The "⋯" menu holds Change RSVP and Delete; the ">" arrow on a phone and the guest's name on desktop open a details panel.
 - Row checkboxes offer Delete selected and Export selected.
+- "Allowed" is named "Expected attendees". The Approved card counts confirmed attendees (people).
 - The WhatsApp button on each row is disabled with a "Soon" hint until the message page is built.
 - See `docs/MOCKUP_NOTES.md` for the full list.
 
@@ -129,6 +130,9 @@ Mobile:
 
 Notes:
 - The mobile mockup shows Save Changes beside the page title. On a phone it goes in the pinned bottom action bar instead, as on the other form pages.
+- The RSVP Language selector is not built here; the language belongs to RSVP Settings. The "RSVP Settings" card keeps only the notice.
+- An optional Location field is added under Event Name.
+- "View Event Rules" opens a read-only dialog listing the event's rules.
 
 ## Permissions
 

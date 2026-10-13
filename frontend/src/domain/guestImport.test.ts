@@ -36,6 +36,19 @@ describe('detectMapping', () => {
     ).toEqual({ firstName: 3, lastName: 1, phone: 0, allowedAttendees: 2 })
   })
 
+  it('recognises the attendees column under its current and former names', () => {
+    for (const heading of [
+      'Expected attendees',
+      'Expected',
+      'Allowed attendees',
+      'משתתפים צפויים',
+    ]) {
+      expect(detectMapping(['First name', 'Phone', heading])).toMatchObject({
+        allowedAttendees: 2,
+      })
+    }
+  })
+
   it('recognises Hebrew headings', () => {
     expect(
       detectMapping(['שם פרטי', 'שם משפחה', 'טלפון', 'מספר מוזמנים']),

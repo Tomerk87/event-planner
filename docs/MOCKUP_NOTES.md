@@ -76,6 +76,10 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
 - On a phone the mockup shows no header button; the Event Settings button is shown full-width under the title.
 - No charting library is used; the ring and bars are drawn with SVG and CSS.
 
+### Side menu
+
+- The mockups draw a fixed side menu on desktop. **Decided (2026-10-13):** a button in the top bar collapses it to a strip of icons and expands it again; the choice is remembered in the browser.
+
 ### Guests
 
 Decided 2026-10-13 unless noted.
@@ -84,6 +88,8 @@ Decided 2026-10-13 unless noted.
 - Guests with `invitation_sent_count = 0` and no response are badged "Awaiting Response" in the mockup. PRD §10 defines Awaiting Response as sent count above zero with `NO_RESPONSE`. Such guests are labelled **Not Sent**.
 - The **sliders button** beside the filters has no label or drawn behaviour. It is a column chooser: a dropdown listing every column with a checkbox, with Select all and Clear; Name and Phone are always shown. It appears only with the desktop table, so the phone mockup's sliders button is not reproduced.
 - A **Clear filters** button, not in the mockup, is added beside it.
+- The column and field the mockup calls "Allowed" is named **Expected attendees**.
+- The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
 - The **"⋯" menu** holds Change RSVP and Delete. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel.
 - The **WhatsApp button** on each row is shown disabled with a "Soon" hint until Phase 8.
 - The **Export** dropdown offers CSV and Excel.
@@ -109,7 +115,7 @@ Found while building (Phase 6):
 
 - The public form shows **Number of attendees as a required field above the three response buttons**. **Decided (2026-10-12):** the field is always required, as drawn. For Declined and Not Sure the submitted number is discarded. PRD §8.1 has been updated.
 - The RSVP page shows a **location** ("Tel Aviv, Israel") and a short **display title** ("Deborah & Tomer") that differs from the event name. The event header in other mockups also shows a location. The PRD has no event location or RSVP title field; location exists only inside the Google Calendar action. Built as shown; the fields are added to the PRD in Phase 7 / Phase 9.
-- An **RSVP Language selector** appears on both RSVP Settings and Event Settings. The PRD calls the language "fixed per event" without saying when it becomes fixed or which page owns it. **Decision needed.**
+- An **RSVP Language selector** appears on both RSVP Settings and Event Settings. **Decided (2026-10-13):** RSVP Settings owns the event's default language, and each guest can switch the public page between English and Hebrew. Event Settings has no language selector; its "RSVP Settings" card keeps only the "RSVP remains open" notice. Organizer-written texts are not translated.
 - **QR code** button and "RSVP page is active" status are not in the PRD. Built as shown.
 - The mockup states limits the PRD does not: 500 characters per message, and background image "1920 × 1080, JPG or PNG, up to 5MB". Adopted as requirements.
 - The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state.
@@ -122,7 +128,8 @@ Found while building (Phase 6):
 ### Event Settings
 
 - A required **Timezone** field is shown. PRD §5.2 relies on an event timezone and `PLAN.md` Phase 7 includes it, but the PRD §5.1 field table omits it. Treated as required; the PRD table should be updated when Phase 7 is implemented.
-- The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here.
+- The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here. **Decided (2026-10-13):** the button opens a read-only dialog listing the event's rules; Duplicate and Delete stay in the event card menu only.
+- The mockup has no **Location** field, although an event has a location. **Decided (2026-10-13):** an optional Location field is added to General Information, under Event Name.
 
 ### Permissions
 

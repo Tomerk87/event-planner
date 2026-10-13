@@ -101,6 +101,7 @@
   --control-height: 2.75rem;
   --control-height-sm: 2.25rem;
   --sidebar-width: 15.5rem;
+  --sidebar-width-collapsed: 4.5rem;
   --topbar-height: 4rem;
   --content-max-width: 80rem;
 }

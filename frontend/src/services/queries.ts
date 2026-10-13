@@ -22,6 +22,7 @@ export const queryKeys = {
   eventAccess: (eventId: string) => ['events', eventId, 'access'],
   dashboard: (eventId: string) => ['events', eventId, 'dashboard'],
   demoRole: ['demo', 'role'],
+  sidebarCollapsed: ['preferences', 'sidebarCollapsed'],
 } as const
 
 export function useCurrentUser(): UseQueryResult<User> {
@@ -77,4 +78,28 @@ export function useResetDemo() {
     },
     onSettled: () => queryClient.invalidateQueries(),
   })
+}
+
+/**
+ * Whether the desktop side menu shows icons only, and a way to flip it. The
+ * choice is remembered for this browser.
+ */
+export function useSidebarCollapsed(): {
+  collapsed: boolean
+  toggle: () => void
+} {
+  const { preferences } = useServices()
+  const queryClient = useQueryClient()
+  const { data: collapsed = false } = useQuery({
+    queryKey: queryKeys.sidebarCollapsed,
+    queryFn: () => preferences.getSidebarCollapsed(),
+    staleTime: Infinity,
+  })
+  return {
+    collapsed,
+    toggle: () => {
+      queryClient.setQueryData(queryKeys.sidebarCollapsed, !collapsed)
+      void preferences.setSidebarCollapsed(!collapsed)
+    },
+  }
 }

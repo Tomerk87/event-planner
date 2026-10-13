@@ -91,6 +91,8 @@ Inside an event, the user's avatar carries an icon for their role in that event,
 
 The notification bell and the Profile and Settings entries that appear in the mockups are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
 
+On desktop the side menu can be collapsed to a strip of icons and expanded again; the choice is remembered in the browser.
+
 Use concise navigation labels that match the product's UI language.
 
 The mockups were created after the PRD. Where a mapped mockup differs from or adds to the PRD, build what the mockup shows (layout, navigation, fields, panels, buttons). The PRD remains the source of truth for business rules (calculations, validation, permissions, RSVP and seating behavior, lifecycle), and is updated in the same phase so that it stays accurate. Where a mockup element's behavior is not evident, it is confirmed with the product owner rather than inferred.
@@ -105,13 +107,15 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Maximum attendees | Required integer; **minimum 50, default 300, maximum 3000** |
 | Event date and time | Required |
 | Time zone | Required; the event's date and time are expressed in it |
-| RSVP language | Fixed per event: English or Hebrew |
+| RSVP language | The default language of the public RSVP page, English or Hebrew. Chosen when the event is created and changed on RSVP Settings; a guest can switch (section 8) |
 | Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
-| Location | Optional; shown in the event selector and on the public RSVP page |
+| Location | Optional; shown in the event selector and on the public RSVP page. Edited in Event Settings |
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
 | Cover image | Optional; shown on the event card and in the event selector. Until upload is built (deferred, section 17), a cover is generated for each event |
 
-The event creator becomes an Owner. A new event must start in the future. The application UI language can differ from the event's fixed guest-facing RSVP language.
+The event creator becomes an Owner. A new event must start in the future, and an existing event's date and time can only be changed to a time in the future. Changing the time zone keeps the date and time as typed. Changing the default allowed attendees affects only guests added afterwards. The application UI language can differ from the event's default guest-facing RSVP language.
+
+Event Settings edits the name, location, maximum attendees, date, time, time zone and default allowed attendees. It shows a capacity summary with the Dashboard's figures and warnings, and a **View Event Rules** dialog listing the rules in this section. Leaving the page with unsaved changes asks for confirmation.
 
 ### 5.2 Past events
 
@@ -146,7 +150,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Invitation name | Guest-entered name on the RSVP form; may differ from the organizer's name |
 | Phone number | Required; guest identifier within the event |
 | Normalized phone | Internal matching and uniqueness value |
-| Allowed attendees | Maximum attendees the invitation may approve |
+| Allowed attendees | Maximum attendees the invitation may approve. Shown to organizers as **Expected attendees** |
 | Confirmed attendees | Actual approved count; see RSVP rules |
 | RSVP status | `NO_RESPONSE`, `APPROVED`, `NOT_SURE`, `DECLINED` |
 | Invitation sent count | Nonnegative, starts at `0`, increases on each system-initiated WhatsApp action |
@@ -239,7 +243,7 @@ The organizer can configure:
 - Optional YouTube link/action after approval.
 - Mobile Settings and Preview tabs as mapped in `mockups/README.md`.
 
-The public RSVP renders in the event's fixed RSVP language, English or Hebrew. There is no guest-side language switch in MVP.
+The public RSVP opens in the event's default RSVP language, English or Hebrew, set on RSVP Settings. A guest can switch the page to the other language. Texts the organizer wrote (the welcome and response messages) are shown as written in either language; translating them is deferred (section 17).
 
 ## 9. Unknown Guests
 
@@ -371,7 +375,7 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 
 - Admin interface languages: English (`en`) and Hebrew (`he`), with a user-selectable interface language.
 - Hebrew uses a first-class RTL layout; English uses LTR.
-- The event's guest-facing RSVP language is configured separately and is fixed per event.
+- The event's default guest-facing RSVP language is configured separately, on RSVP Settings; each guest can switch the public RSVP page between the two languages.
 - Translate all user-facing copy, including validation errors, statuses, confirmation dialogs, empty states, and demo controls.
 - Handle phone numbers, URLs, email addresses, dates, and other mixed-direction values intelligibly in Hebrew.
 - All core pages and workflows must work on mobile. Desktop tables should be adapted into usable mobile patterns rather than simply shrunk.
@@ -432,7 +436,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 
 - Visual Arrangement canvas editor (the planned post-MVP phase).
 - Automated WhatsApp Business API delivery, bulk sending, reminders, and delivery/read tracking.
-- Guest-specific RSVP URLs or multi-language guest choice within one event.
+- Guest-specific RSVP URLs, guest-facing languages beyond English and Hebrew, and translation of organizer-written RSVP texts.
 - Individual attendee entities, group splitting, and seat-level assignment.
 - Vendor, budget, payment, and full event-production management.
 - Advanced analytics, audit history, reusable event templates, and configurable early RSVP deadlines.

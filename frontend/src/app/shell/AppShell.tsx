@@ -56,6 +56,10 @@ interface AppShellProps {
   banner?: ReactNode
   /** Shown in the top bar on desktop and inside the drawer below it. */
   tools?: ReactNode
+  /** On desktop, show the side menu as icons only. */
+  collapsed?: boolean
+  /** Offers the desktop button that collapses and expands the side menu. */
+  onToggleCollapsed?: () => void
   children: ReactNode
 }
 
@@ -75,9 +79,12 @@ function Logo() {
 function NavItemLink({
   item,
   onNavigate,
+  showTooltip = false,
 }: {
   item: ShellNavItem
   onNavigate: () => void
+  /** The label is hidden, so offer it on hover. */
+  showTooltip?: boolean
 }) {
   const Icon = item.icon
 
@@ -85,6 +92,7 @@ function NavItemLink({
     <NavLink
       to={item.to}
       end={item.exact}
+      title={showTooltip ? item.label : undefined}
       className={({ isActive }) =>
         cx(styles.navLink, isActive && styles.navLinkActive)
       }
@@ -101,7 +109,7 @@ function NavItemLink({
 
 type SidebarContentProps = Omit<
   AppShellProps,
-  'children' | 'user' | 'banner'
+  'children' | 'user' | 'banner' | 'onToggleCollapsed'
 > & {
   onNavigate: () => void
 }
@@ -115,6 +123,7 @@ function SidebarContent({
   tools,
   onSignOut,
   signOutInSidebar = false,
+  collapsed = false,
   onNavigate,
 }: SidebarContentProps) {
   const { t } = useTranslation()
@@ -132,7 +141,11 @@ function SidebarContent({
         <ul className={styles.navList}>
           {navItems.map((item) => (
             <li key={item.to}>
-              <NavItemLink item={item} onNavigate={onNavigate} />
+              <NavItemLink
+                item={item}
+                onNavigate={onNavigate}
+                showTooltip={collapsed}
+              />
             </li>
           ))}
         </ul>
@@ -141,11 +154,16 @@ function SidebarContent({
         {tools}
         <LanguageSwitcher />
         {footerLink && (
-          <NavItemLink item={footerLink} onNavigate={onNavigate} />
+          <NavItemLink
+            item={footerLink}
+            onNavigate={onNavigate}
+            showTooltip={collapsed}
+          />
         )}
         {signOutInSidebar && onSignOut && (
           <button
             type="button"
+            title={collapsed ? t('nav.logOut') : undefined}
             className={cx(styles.navLink, styles.navButton)}
             onClick={() => {
               onNavigate()
@@ -218,6 +236,8 @@ export function AppShell({
   user,
   banner,
   tools,
+  collapsed = false,
+  onToggleCollapsed,
   children,
   ...sidebar
 }: AppShellProps) {
@@ -232,9 +252,11 @@ export function AppShell({
   if (isDesktop && menuOpen) {
     setMenuOpen(false)
   }
+  const canCollapse = isDesktop && onToggleCollapsed !== undefined
+  const isCollapsed = canCollapse && collapsed
 
   return (
-    <div className={styles.shell}>
+    <div className={cx(styles.shell, isCollapsed && styles.collapsed)}>
       <a href="#main-content" className={styles.skipLink}>
         {t('nav.skipToContent')}
       </a>
@@ -243,7 +265,11 @@ export function AppShell({
         <div className={styles.sidebarHeader}>
           <Logo />
         </div>
-        <SidebarContent {...sidebar} onNavigate={closeMenu} />
+        <SidebarContent
+          {...sidebar}
+          collapsed={isCollapsed}
+          onNavigate={closeMenu}
+        />
       </aside>
 
       <dialog
@@ -274,9 +300,19 @@ export function AppShell({
         <header className={styles.topbar}>
           <button
             type="button"
-            className={styles.menuButton}
-            aria-label={t('nav.openMenu')}
-            onClick={() => setMenuOpen(true)}
+            className={cx(
+              styles.menuButton,
+              canCollapse && styles.menuButtonDesktop,
+            )}
+            aria-label={t(
+              !canCollapse
+                ? 'nav.openMenu'
+                : isCollapsed
+                  ? 'nav.expandMenu'
+                  : 'nav.collapseMenu',
+            )}
+            aria-expanded={canCollapse ? !isCollapsed : undefined}
+            onClick={canCollapse ? onToggleCollapsed : () => setMenuOpen(true)}
           >
             <MenuIcon aria-hidden="true" />
           </button>

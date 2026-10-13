@@ -114,7 +114,7 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 ### RSVP
 
 - There is one public RSVP URL per event, shared by all guests.
-- RSVP language is fixed per event.
+- Each event has a default RSVP language, set on RSVP Settings. A guest can switch the public RSVP page between English and Hebrew; texts the organizer wrote are shown as written.
 - Public RSVP asks for name, phone number, number of attendees, and response. Number of attendees is always required; for Declined and Not Sure the submitted number is discarded.
 - Known guests are matched by normalized phone number.
 - Unmatched responses are stored as Unknown Guests for organizer review.
@@ -226,7 +226,7 @@ Add nested `AGENTS.md` files only when a subdirectory has important instructions
 - Prefer CSS logical properties such as `margin-inline-start`, `padding-inline-end`, and `text-align: start/end` over left/right-specific styling.
 - Components containing phone numbers, URLs, emails, or other inherently LTR values may explicitly use LTR direction inside an RTL page.
 - Coding agents may generate initial English/Hebrew translation resources; libraries only resolve translations and do not translate automatically. Keep terminology editable and reviewable.
-- The authenticated application's UI language is independent of the event's fixed guest-facing RSVP language.
+- The authenticated application's UI language is independent of the event's default guest-facing RSVP language.
 
 ## UI mockups and visual guidance
 

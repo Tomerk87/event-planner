@@ -13,10 +13,12 @@ import styles from './EventDialog.module.css'
 import {
   browserTimeZone,
   defaultEventFormValues,
+  eventFormErrorMessage,
   fieldErrorOf,
   listTimeZones,
   toInteger,
   toStartsAt,
+  validateEventForm,
   type EventFormErrors,
   type EventFormField,
   type EventFormValues,
@@ -28,34 +30,6 @@ interface EventDialogProps {
   onClose: () => void
   /** The event being duplicated; leave out to create a new event. */
   source?: Event | null
-}
-
-function isInRange(value: number, range: { min: number; max: number }) {
-  return Number.isInteger(value) && value >= range.min && value <= range.max
-}
-
-function validate(values: EventFormValues, startsAt: string | null) {
-  const errors: EventFormErrors = {}
-  if (values.name.trim() === '') {
-    errors.name = 'invalid'
-  }
-  if (startsAt === null) {
-    errors.startsAt = 'invalid'
-  } else if (new Date(startsAt).getTime() <= Date.now()) {
-    errors.startsAt = 'past'
-  }
-  if (!isInRange(toInteger(values.maxAttendees), EVENT_LIMITS.maxAttendees)) {
-    errors.maxAttendees = 'invalid'
-  }
-  if (
-    !isInRange(
-      toInteger(values.defaultAllowedAttendees),
-      EVENT_LIMITS.allowedAttendees,
-    )
-  ) {
-    errors.defaultAllowedAttendees = 'invalid'
-  }
-  return errors
 }
 
 function EventForm({
@@ -90,34 +64,13 @@ function EventForm({
     setValues((current) => ({ ...current, [field]: value }))
   }
 
-  function message(field: EventFormField): string | undefined {
-    const error = errors[field]
-    if (error === undefined) {
-      return undefined
-    }
-    if (field === 'startsAt') {
-      return t(
-        error === 'past'
-          ? 'events.form.errors.startsAtPast'
-          : 'events.form.errors.startsAt',
-      )
-    }
-    if (field === 'maxAttendees') {
-      return t('events.form.errors.maxAttendees', EVENT_LIMITS.maxAttendees)
-    }
-    if (field === 'defaultAllowedAttendees') {
-      return t(
-        'events.form.errors.defaultAllowedAttendees',
-        EVENT_LIMITS.allowedAttendees,
-      )
-    }
-    return t(`events.form.errors.${field}`)
-  }
+  const message = (field: EventFormField) =>
+    eventFormErrorMessage(t, errors, field)
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const startsAt = toStartsAt(values.date, values.time, values.timeZone)
-    const found = validate(values, startsAt)
+    const found = validateEventForm(values, startsAt)
     setErrors(found)
     setFailure(null)
     if (Object.keys(found).length > 0 || startsAt === null) {

@@ -91,17 +91,28 @@ export interface MockOptions {
 /** Display choices as stored in the browser. */
 export interface StoredPreferences {
   guestColumns?: string[]
+  sidebarCollapsed?: boolean
 }
 
 function readPreferences(stored: unknown): StoredPreferences {
   if (typeof stored !== 'object' || stored === null) {
     return {}
   }
-  const { guestColumns } = stored as { guestColumns?: unknown }
-  return Array.isArray(guestColumns) &&
+  const { guestColumns, sidebarCollapsed } = stored as {
+    guestColumns?: unknown
+    sidebarCollapsed?: unknown
+  }
+  const preferences: StoredPreferences = {}
+  if (
+    Array.isArray(guestColumns) &&
     guestColumns.every((column) => typeof column === 'string')
-    ? { guestColumns }
-    : {}
+  ) {
+    preferences.guestColumns = guestColumns
+  }
+  if (typeof sidebarCollapsed === 'boolean') {
+    preferences.sidebarCollapsed = sidebarCollapsed
+  }
+  return preferences
 }
 
 interface EventContext {
@@ -475,7 +486,10 @@ export function createMockServices(options: MockOptions): Services {
       update: (eventId, input) =>
         run('events.update', () => {
           const { event } = authorize(eventId, 'EDIT')
-          const updated: Event = { ...event, ...validateEventInput(input) }
+          const fields = validateEventInput(input)
+          // A date in the past would lock the event the moment it is saved.
+          assertStartsInFuture(fields.startsAt, now())
+          const updated: Event = { ...event, ...fields }
           commit({
             ...state,
             events: state.events.map((candidate) =>
@@ -1068,6 +1082,17 @@ export function createMockServices(options: MockOptions): Services {
         preferencesPersistence.save({
           ...readPreferences(preferencesPersistence.load()),
           guestColumns: [...columns],
+        })
+      },
+
+      getSidebarCollapsed: async () =>
+        readPreferences(preferencesPersistence.load()).sidebarCollapsed ??
+        false,
+
+      setSidebarCollapsed: async (collapsed) => {
+        preferencesPersistence.save({
+          ...readPreferences(preferencesPersistence.load()),
+          sidebarCollapsed: collapsed,
         })
       },
     },

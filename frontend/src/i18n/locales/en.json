@@ -16,6 +16,8 @@
     "permissions": "Permissions",
     "backToMyEvents": "Back to My Events",
     "openMenu": "Open menu",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
     "closeMenu": "Close menu",
     "skipToContent": "Skip to content",
     "logOut": "Log out"
@@ -430,7 +432,8 @@
       "notSent": "Not Sent",
       "approved": "Approved",
       "notSure": "Not Sure",
-      "declined": "Declined"
+      "declined": "Declined",
+      "approvedHint": "attendees"
     },
     "tabs": {
       "label": "Guest lists",
@@ -474,7 +477,7 @@
       "name": "Name",
       "invitationName": "Invitation Name",
       "phone": "Phone",
-      "allowed": "Allowed",
+      "allowed": "Expected attendees",
       "confirmed": "Confirmed",
       "status": "RSVP Status",
       "sent": "Invitations Sent",
@@ -499,7 +502,7 @@
       "delete": "Delete"
     },
     "card": {
-      "allowed": "Allowed {{count}}",
+      "allowed": "Expected {{count}}",
       "confirmed": "Confirmed {{count}}",
       "sent": "Sent {{count}}"
     },
@@ -525,7 +528,7 @@
       "lastName": "Last name",
       "phone": "Phone number",
       "phoneHint": "A local number such as 050-123-4567. For a number from another country, start with + and the country code. It must be unique within the event.",
-      "allowed": "Allowed attendees",
+      "allowed": "Expected attendees",
       "allowedHint": "Between {{min}} and {{max}}.",
       "add": "Add Guest",
       "save": "Save Changes",
@@ -536,7 +539,7 @@
         "phone": "Enter a valid phone number.",
         "duplicate": "Another guest in this event already has this phone number.",
         "allowed": "Enter a whole number between {{min}} and {{max}}.",
-        "belowConfirmed": "This guest already confirmed {{count}} attendees, so the allowance cannot be lower."
+        "belowConfirmed": "This guest already confirmed {{count}} attendees, so the expected attendees cannot be lower."
       }
     },
     "rsvpDialog": {
@@ -582,7 +585,7 @@
         "lastName": "Last name",
         "invitationName": "Invitation name",
         "phone": "Phone",
-        "allowedAttendees": "Allowed attendees",
+        "allowedAttendees": "Expected attendees",
         "confirmedAttendees": "Confirmed attendees",
         "status": "RSVP status",
         "invitationSentCount": "Invitations sent",
@@ -592,7 +595,7 @@
     "import": {
       "title": "Import guests",
       "intro": "Add many guests at once from a CSV or Excel (.xlsx) file. The file is read in your browser.",
-      "ruleRequired": "Each guest needs a first name and a phone number. Last name and allowed attendees are optional.",
+      "ruleRequired": "Each guest needs a first name and a phone number. Last name and expected attendees are optional.",
       "rulePhones": "Phone numbers can be written in any local format. A number from another country must start with + and its country code.",
       "ruleDuplicates": "A phone number that a guest in this event already has is skipped; existing guests are never changed.",
       "ruleLimit": "Up to {{max}} rows and 5 MB.",
@@ -622,7 +625,7 @@
         "firstName": "First name",
         "lastName": "Last name",
         "phone": "Phone number",
-        "allowedAttendees": "Allowed attendees"
+        "allowedAttendees": "Expected attendees"
       },
       "outcome": {
         "new": "New guest",
@@ -633,7 +636,7 @@
         "MISSING_FIRST_NAME": "No first name",
         "MISSING_PHONE": "No phone number",
         "INVALID_PHONE": "Phone number is not valid",
-        "INVALID_ALLOWED": "Allowed attendees must be a whole number from 1 to 10",
+        "INVALID_ALLOWED": "Expected attendees must be a whole number from 1 to 10",
         "DUPLICATE_IN_FILE": "Same phone as an earlier row",
         "DUPLICATE_IN_EVENT": "A guest already has this phone"
       },
@@ -670,7 +673,7 @@
       "chooseGuest": "Choose the guest",
       "noGuestFound": "No guest matches this search.",
       "refineSearch": "More guests match. Refine the search to see them.",
-      "mergeOverAllowance": "The response is for {{count}} attendees but this guest is allowed {{max}}. Raise the guest's allowance first.",
+      "mergeOverAllowance": "The response is for {{count}} attendees but this guest is expected to bring up to {{max}}. Raise the guest's expected attendees first.",
       "cardAttendees": "Attendees {{count}}",
       "columns": {
         "name": "Name given",
@@ -679,6 +682,72 @@
         "submitted": "Submitted",
         "rejectedAt": "Rejected"
       }
+    }
+  },
+  "settings": {
+    "subtitle": "Update your event information and defaults.",
+    "save": "Save Changes",
+    "saved": "Event settings saved.",
+    "general": {
+      "title": "General Information",
+      "subtitle": "Basic details about your event.",
+      "name": "Event Name",
+      "location": "Location",
+      "locationHint": "Optional. Shown to guests on the RSVP page.",
+      "maxAttendees": "Maximum Attendees",
+      "maxAttendeesHint": "Allowed range: {{min}} – {{max}} attendees.",
+      "date": "Event Date",
+      "time": "Event Time",
+      "timeZone": "Timezone",
+      "status": "Event Status",
+      "upcomingBody": "Your event is active and visible to guests.",
+      "pastBody": "This event has started. It is read-only."
+    },
+    "guestDefaults": {
+      "title": "Guest Defaults",
+      "subtitle": "Default settings for newly added guests.",
+      "allowed": "Default Maximum Attendees per Guest",
+      "allowedHint": "Used for newly created guests. Allowed range: {{min}} – {{max}}.",
+      "overrideTitle": "Guests can override this value",
+      "overrideBody": "This is the default value for new guests, but you can set a different maximum number of attendees for each guest individually."
+    },
+    "rsvp": {
+      "title": "RSVP Settings",
+      "subtitle": "When guests can respond.",
+      "openTitle": "RSVP remains open until the event start time.",
+      "openBody": "Guests can submit and update their RSVP at any time until {{date}}, {{time}} ({{timeZone}}).",
+      "closedTitle": "RSVP is closed.",
+      "closedBody": "The event started on {{date}}, {{time}} ({{timeZone}}). Guests can no longer respond."
+    },
+    "capacity": {
+      "title": "Capacity Summary",
+      "subtitle": "Current event capacity and attendance overview.",
+      "maxAttendees": "Maximum Attendees"
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "subtitle": "Important information about event changes and limitations.",
+      "lockTitle": "Past events become read-only",
+      "lockBody": "After the event start time ({{date}}, {{time}}), this event will be locked and become read-only. You will still be able to view all data, but you won't be able to make changes to guests, seating, or settings.",
+      "lockedBody": "This event started on {{date}}, {{time}} and is locked. You can still view all data and download exports.",
+      "viewRules": "View Event Rules"
+    },
+    "rules": {
+      "title": "Event Rules",
+      "lock": "From its start time the event is read-only: guests, messages, seating and settings can no longer be changed.",
+      "rsvp": "Guests can submit and update their RSVP until the event starts. After that the RSVP page is closed.",
+      "exports": "Viewing the event and downloading exports stay available after the event.",
+      "maxAttendees": "Maximum attendees is a whole number from {{min}} to {{max}}.",
+      "allowed": "The default attendees per guest is a whole number from {{min}} to {{max}}. It applies to guests added afterwards and can be changed for each guest.",
+      "warnings": "Capacity warnings never block saving. They appear when confirmed attendance exceeds the maximum, or when the number of seats differs from it.",
+      "date": "The event's date and time can be changed only to a time in the future.",
+      "roles": "Owners and Admins can change the event. Viewers can view it and download exports."
+    },
+    "unsaved": {
+      "title": "Leave without saving?",
+      "body": "You have unsaved changes. If you leave this page, they will be lost.",
+      "stay": "Keep Editing",
+      "leave": "Leave"
     }
   },
   "showcase": {
@@ -772,12 +841,12 @@
       "caption": "Sample guests",
       "name": "Name",
       "phone": "Phone",
-      "allowed": "Allowed",
+      "allowed": "Expected attendees",
       "status": "RSVP Status",
       "tableNumber": "Table",
       "noTable": "No table",
       "tableValue": "Table {{number}}",
-      "allowedValue": "Allowed {{count}}"
+      "allowedValue": "Expected {{count}}"
     },
     "overlays": {
       "title": "Dialogs, drawers and toasts",

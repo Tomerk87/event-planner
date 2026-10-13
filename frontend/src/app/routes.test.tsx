@@ -9,14 +9,14 @@ import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { changeLanguage } from '../i18n/i18n.ts'
 import { RouteError } from '../shared/RouteError.tsx'
-import { renderApp } from '../test/renderApp.tsx'
+import { setViewportWidth } from '../test/matchMedia.ts'
+import { createTestServices, renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
   it.each([
     ['/events/evt-1/rsvp', 'RSVP Settings'],
     ['/events/evt-1/messages', 'WhatsApp Messages'],
     ['/events/evt-1/layout', 'Event Layout'],
-    ['/events/evt-1/settings', 'Event Settings'],
     ['/events/evt-1/permissions', 'Permissions'],
     ['/rsvp/abc123', 'RSVP'],
   ])('renders a placeholder at %s', async (path, title) => {
@@ -174,5 +174,59 @@ describe('routes', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Something went wrong',
     )
+  })
+})
+
+describe('collapsible side menu', () => {
+  it('collapses to icons that keep their names, and remembers the choice', async () => {
+    const services = createTestServices()
+    const first = renderApp('/events/evt-1/guests', services)
+    const collapse = await screen.findByRole('button', {
+      name: 'Collapse menu',
+    })
+    expect(collapse).toHaveAttribute('aria-expanded', 'true')
+    const sidebar = screen.getByRole('complementary')
+    expect(
+      within(sidebar).getByRole('link', { name: 'Guests' }),
+    ).not.toHaveAttribute('title')
+
+    fireEvent.click(collapse)
+
+    const expand = await screen.findByRole('button', { name: 'Expand menu' })
+    expect(expand).toHaveAttribute('aria-expanded', 'false')
+    expect(
+      within(sidebar).getByRole('link', { name: 'Guests' }),
+    ).toHaveAttribute('title', 'Guests')
+    expect(
+      within(sidebar).getByRole('link', { name: 'Back to My Events' }),
+    ).toHaveAttribute('title', 'Back to My Events')
+    await waitFor(async () =>
+      expect(await services.preferences.getSidebarCollapsed()).toBe(true),
+    )
+
+    first.unmount()
+    renderApp('/events', services)
+    expect(
+      await screen.findByRole('button', { name: 'Expand menu' }),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand menu' }))
+    expect(
+      await screen.findByRole('button', { name: 'Collapse menu' }),
+    ).toBeInTheDocument()
+  })
+
+  it('leaves the phone layout with its drawer', async () => {
+    setViewportWidth(400)
+    const services = createTestServices()
+    await services.preferences.setSidebarCollapsed(true)
+    renderApp('/events/evt-1/guests', services)
+
+    expect(
+      await screen.findByRole('button', { name: 'Open menu' }),
+    ).not.toHaveAttribute('aria-expanded')
+    expect(
+      screen.queryByRole('button', { name: 'Expand menu' }),
+    ).not.toBeInTheDocument()
   })
 })

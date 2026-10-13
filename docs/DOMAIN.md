@@ -12,7 +12,7 @@ A glossary of the terms used across the PRD, plan and code, followed by the deci
 | Super User | `SUPER_USER`, a system-level flag on the user, set only in the database. Gives Owner-equivalent capability on every event without a membership. Not an event role and not assignable in the UI. |
 | Guest | One invitation, also called a party. It can stand for several people. Belongs to exactly one event. |
 | Attendee | One person expected at the event. Attendees are counted, not stored as individual records. |
-| Allowed attendees | The maximum number of attendees a guest may confirm. Starts from the event default and can be overridden per guest. |
+| Allowed attendees | The maximum number of attendees a guest may confirm. Starts from the event default and can be overridden per guest. Shown on the Guests page, in the guest form, and in imports and exports as **Expected attendees**. |
 | Confirmed attendees | The number a guest confirmed. `null` for `NO_RESPONSE` and `NOT_SURE`, `0` for `DECLINED`, and an integer from 1 to allowed attendees for `APPROVED`. |
 | First name / Last name | The organizer's own name for the guest. Never overwritten by RSVP input. |
 | Invitation name | The name the guest typed on the public RSVP form. |
@@ -53,10 +53,8 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 
 | # | Decision | Needed by |
 |---|---|---|
-| D12 | Target of the Event Settings "View Event Rules" button (the Dashboard half was resolved 2026-10-13) | Phase 7 |
 | D16 | "Send Test Message": include or omit, and what it does | Phase 8 |
 | D17 | Message editor formatting controls | Phase 8 |
-| D19 | RSVP language: which page owns it and at what point it becomes fixed | Phase 7 |
 | D22 | Thresholds for table status labels (Ready / Almost Full / Over Capacity) | Phase 10 |
 
 ### Defaults applied in Phase 3, to confirm
@@ -67,19 +65,8 @@ The approved documents do not settle these. Each was given the most conservative
 |---|---|---|
 | P1 | Permissions can still be managed on a past event. PRD section 5.2 lists the operational data that becomes read-only and does not include permissions | Phase 11 |
 | P4 | A table's capacity can be lowered below its current occupancy; the table is then shown as over capacity | Phase 10 |
-| P7 | The RSVP language can be changed when editing an event, until D19 is decided | Phase 7 |
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
-
-### Defaults applied in Phase 6, to confirm
-
-| # | Default applied | Where it matters |
-|---|---|---|
-| P14 | When a phone whose unknown response was rejected submits the RSVP form again, the response is updated and returns to the review list | Phase 9 |
-| P15 | Row selection and its bulk actions exist on the desktop table only; the phone cards have no checkboxes, as in the mobile mockup | Phase 6 |
-| P16 | Import rules: a single "Name" column is taken as the first name; a phone that an active guest already has, or that appears earlier in the file, is skipped and reported, never overwritten; a blank allowed-attendees value takes the event's default; limits of 5,000 rows and 5 MB; a nine-digit number starting with 5 gets back the leading zero a spreadsheet dropped | Phase 6 |
-| P17 | An organizer can set a guest's RSVP back to "No response" by hand. Rows per page offers 10, 25, 50 and 100 | Phase 6 |
-| P18 | A cell in an exported file that a spreadsheet would run as a formula is written as plain text (prefixed with an apostrophe in CSV, typed as text in Excel) | Phase 6 |
 
 ## Resolved decisions
 
@@ -132,3 +119,17 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D35 | **Clear filters:** a button beside the column chooser resets the search and the three filter dropdowns. It leaves the column choice and sorting alone and is shown only when something is filtered. | 2026-10-13 |
 | D36 | **The per-row WhatsApp button** on the Guests page is shown disabled with a "Soon" hint until the message page is built in Phase 8. | 2026-10-13 |
 | D37 | **Phone numbers, Israel first.** A number without `+` is read as Israeli; a number from another country is entered with `+` and its country code. Israeli numbers are always shown in local form, `050-730-8828` (landlines `03-123-4567`), however they were typed or imported; foreign numbers are shown with their code, `+1 2125550123`. A number that is local to another country is refused rather than read as Israeli. A default country per event and a country selector are deferred (`docs/FUTURE_FEATURES.md`). | 2026-10-13 |
+| D19 / P7 | **Guest RSVP language.** RSVP Settings owns the event's default language for the public RSVP page; it is first chosen when the event is created. Each guest can switch the page between English and Hebrew. Texts the organizer wrote are shown as written in either language; translating them is deferred (`docs/FUTURE_FEATURES.md`). Event Settings has no language selector. This replaces "fixed per event, no guest-side switch". | 2026-10-13 |
+| D12 (Event Settings) | **View Event Rules** opens a read-only dialog listing the event's rules. | 2026-10-13 |
+| D38 | **Danger Zone** is built as the mockup shows: Duplicate and Delete are not added there and stay in the event card menu. | 2026-10-13 |
+| D39 | **Location** is edited on Event Settings, as an optional field in General Information. The RSVP title is edited on RSVP Settings (Phase 9). | 2026-10-13 |
+| D40 | **Editing an event:** its date and time can only be moved to a time in the future. Changing the time zone keeps the date and time as typed. Changing the default allowed attendees affects only guests added afterwards. Lowering the maximum below the confirmed count is allowed and shows the over-capacity warning. | 2026-10-13 |
+| D41 | **Unsaved changes:** leaving Event Settings asks for confirmation only when something was changed and not saved. | 2026-10-13 |
+| P14 | Confirmed: when a phone whose unknown response was rejected submits the RSVP form again, the response is updated and returns to the review list. | 2026-10-13 |
+| P15 | Confirmed: row selection and its bulk actions exist on the desktop table only. | 2026-10-13 |
+| P16 | Confirmed: import rules — a single "Name" column is the first name; a phone already used by an active guest or earlier in the file is skipped and reported, never overwritten; a blank allowed-attendees value takes the event's default; limits of 5,000 rows and 5 MB; a nine-digit number starting with 5 gets back its leading zero. | 2026-10-13 |
+| P17 | Confirmed: an organizer can set a guest's RSVP back to "No response". Rows per page offers 10, 25, 50 and 100. | 2026-10-13 |
+| P18 | Confirmed: an exported cell that a spreadsheet would run as a formula is written as plain text. | 2026-10-13 |
+| D42 | **"Expected attendees"** is the name shown for a guest's allowed attendees: Guests table and cards, Add/Edit Guest, details panel, import and export. The rule is unchanged (it is the most the guest can confirm). Imports accept the old "Allowed attendees" heading too. Event Settings keeps "Default Maximum Attendees per Guest". | 2026-10-13 |
+| D43 | **The Guests page's Approved card** shows confirmed attendees (people), labelled "attendees"; the other cards in the strip count invitations. | 2026-10-13 |
+| D44 | **Collapsible side menu:** on desktop a button in the top bar reduces the side menu to a strip of icons and restores it. Collapsed, the event selector and language selector are hidden until it is expanded. The choice is remembered in the browser. The phone drawer is unchanged. | 2026-10-13 |

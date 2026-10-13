@@ -129,8 +129,9 @@ export function GuestsPage() {
       tone: 'neutral',
     },
     {
+      // People, not invitations: the attendees the approved guests confirmed.
       id: 'approved',
-      value: metrics.rsvpApproved,
+      value: metrics.confirmedAttendees,
       icon: CheckCheck,
       tone: 'success',
     },
@@ -170,6 +171,9 @@ export function GuestsPage() {
                 key={id}
                 label={t(`guests.kpis.${id}`)}
                 value={number(value)}
+                hint={
+                  id === 'approved' ? t('guests.kpis.approvedHint') : undefined
+                }
                 icon={<Icon />}
                 tone={tone}
               />
