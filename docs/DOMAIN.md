@@ -53,7 +53,7 @@ Details for each are in `docs/MOCKUP_NOTES.md`.
 
 | # | Decision | Needed by |
 |---|---|---|
-| D12 | Target of the Dashboard "View Event" button and the Event Settings "View Event Rules" button | Phase 5 / Phase 7 |
+| D12 | Target of the Event Settings "View Event Rules" button (the Dashboard half was resolved 2026-10-13) | Phase 7 |
 | D13 | Bulk selection on the Guests table: which bulk actions, if any | Phase 6 |
 | D14 | Display label for a guest with no invitation sent and no response | Phase 6 |
 | D16 | "Send Test Message": include or omit, and what it does | Phase 8 |
@@ -71,7 +71,6 @@ The approved documents do not settle these. Each was given the most conservative
 | P2 | A guest needs a first name; the last name is optional | Phase 6 |
 | P3 | A guest's allowed attendees cannot be lowered below a count they have already confirmed | Phase 6 |
 | P4 | A table's capacity can be lowered below its current occupancy; the table is then shown as over capacity | Phase 10 |
-| P5 | An organizer's manual RSVP edit counts as the guest's latest response for the activity list | Phase 5 |
 | P6 | Converting or merging an unknown response is refused if its attendee count exceeds the guest's allowance; the organizer raises the allowance first | Phase 6 |
 | P7 | The RSVP language can be changed when editing an event, until D19 is decided | Phase 7 |
 | P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
@@ -107,3 +106,8 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D25 | **Entry flows:** Landing → Sign Up → account created → My Events; Landing → Sign In → My Events; Landing → Try Demo → the populated demo. A signed-out visitor who opens an application address is sent to the landing page; a visitor with a session who opens the landing page goes to My Events. | 2026-10-13 |
 | D26 | **Accounts before the backend exist only in the browser.** Sign-up and sign-in are simulated: accounts and their events are kept in the visitor's browser, in a workspace separate from the demo, and the two never share data. A password is asked for but never stored or checked, and the forms say so. This is not authentication and guards nothing real; it is replaced in Phase 14/16. | 2026-10-13 |
 | D27 | **A new or duplicated event must start in the future.** From its start an event is read-only, so one created in the past could not be set up. | 2026-10-13 |
+| D12 (Dashboard) | The Dashboard button drawn as "View Event" is named **Event Settings** and opens the Event Settings page. | 2026-10-13 |
+| P5 | Confirmed: an organizer's manual RSVP change counts as the guest's latest response in Recent Guest Activity. | 2026-10-13 |
+| D28 | **Dashboard KPI cards** include Seating Capacity and Unassigned Confirmed Attendees as two more cards, in the mockup's card style, after Confirmed Attendees. | 2026-10-13 |
+| D29 | **Dashboard warnings** the mockup does not draw (table chairs above or below the event maximum, confirmed attendees awaiting a table) use the same style as the mockup's over-capacity warning. | 2026-10-13 |
+| D30 | **Landing page preview** stays a drawing; it is not replaced by a screenshot of the Dashboard. | 2026-10-13 |

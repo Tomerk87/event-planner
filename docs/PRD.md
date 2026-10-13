@@ -269,7 +269,11 @@ All guest-based metrics include active guests only (`deleted = 0`). Dashboard va
 
 There is no separate ambiguous Expected Attendees KPI in MVP: the authoritative expected count is **Confirmed Attendees**, and Not Sure is excluded.
 
-The Recent Guest Activity list is derived from existing records: every recorded send, and each guest's latest RSVP response. No separate activity record is kept, so a guest who changed their answer appears once, with the latest answer.
+All ten figures are shown as KPI cards.
+
+The Recent Guest Activity list is derived from existing records: every recorded send, and each guest's latest RSVP response. No separate activity record is kept, so a guest who changed their answer appears once, with the latest answer. A response changed by an organizer counts as the guest's latest response.
+
+The Dashboard has an **Event Settings** button that opens the Event Settings page, and a Quick Actions panel of shortcuts to other pages of the event.
 
 ### 10.1 Warnings
 

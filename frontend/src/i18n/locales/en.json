@@ -419,6 +419,15 @@
       "toastSuccess": "Changes saved.",
       "toastError": "Could not save changes."
     },
+    "menus": {
+      "title": "Menus and event covers",
+      "subtitle": "A menu of actions that works with the arrow keys and Escape, and the cover generated for each event.",
+      "label": "Sample actions",
+      "open": "Open",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "chosen": "Action chosen."
+    },
     "states": {
       "title": "Empty, loading and error states",
       "subtitle": "Shown in place of content.",

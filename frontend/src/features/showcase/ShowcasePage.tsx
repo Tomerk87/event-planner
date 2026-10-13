@@ -4,7 +4,9 @@ import {
   CircleHelp,
   CircleX,
   Clock,
+  Copy,
   Download,
+  Ellipsis,
   Eye,
   Globe,
   Mail,
@@ -36,8 +38,10 @@ import { Button, IconButton } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard, KpiGrid } from '../../shared/ui/Card.tsx'
 import { DataTable, type Column } from '../../shared/ui/DataTable.tsx'
 import { Dialog, Drawer } from '../../shared/ui/Dialog.tsx'
+import { EventCover } from '../../shared/ui/EventCover.tsx'
 import { SelectField, TextArea, TextField } from '../../shared/ui/Field.tsx'
 import { LtrText } from '../../shared/ui/LtrText.tsx'
+import { Menu } from '../../shared/ui/Menu.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { RoleIcon } from '../../shared/ui/RoleIcon.tsx'
@@ -476,6 +480,55 @@ export function ShowcasePage() {
               >
                 {t('showcase.overlays.showErrorToast')}
               </Button>
+            </div>
+          </Card>
+
+          <Card
+            title={t('showcase.menus.title')}
+            subtitle={t('showcase.menus.subtitle')}
+          >
+            <div className={styles.row}>
+              <Menu
+                label={t('showcase.menus.label')}
+                align="start"
+                triggerClassName={styles.menuTrigger}
+                items={[
+                  {
+                    id: 'open',
+                    label: t('showcase.menus.open'),
+                    icon: <Eye />,
+                    to: '/showcase',
+                  },
+                  {
+                    id: 'duplicate',
+                    label: t('showcase.menus.duplicate'),
+                    icon: <Copy />,
+                    onSelect: () =>
+                      showToast({
+                        tone: 'success',
+                        message: t('showcase.menus.chosen'),
+                      }),
+                  },
+                  {
+                    id: 'delete',
+                    label: t('showcase.menus.delete'),
+                    icon: <Trash2 />,
+                    tone: 'danger',
+                    onSelect: () =>
+                      showToast({
+                        tone: 'success',
+                        message: t('showcase.menus.chosen'),
+                      }),
+                  },
+                ]}
+              >
+                <Ellipsis aria-hidden="true" />
+              </Menu>
+              <EventCover eventId="sample-wedding" size="thumb" />
+              <EventCover eventId="sample-party" size="thumb" />
+              <span className={styles.coverSample}>
+                <EventCover eventId="sample-gala" />
+              </span>
             </div>
           </Card>
 

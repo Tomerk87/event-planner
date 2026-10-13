@@ -47,6 +47,11 @@ Desktop:
 Mobile:
 - `dashboard_mobile.png`
 
+Notes:
+- The button drawn as "View Event" is named "Event Settings" and opens the Event Settings page.
+- Two KPI cards are added to those drawn: Seating Capacity and Unassigned Confirmed Attendees, after Confirmed Attendees.
+- Never copy the sample numbers; every figure is calculated from the event's data.
+
 ## Guests
 
 Desktop:

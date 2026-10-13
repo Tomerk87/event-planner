@@ -125,6 +125,28 @@ describe('routes', () => {
     ).toBeInTheDocument()
   })
 
+  it('shows a working menu and event covers in the showcase', async () => {
+    renderApp('/showcase')
+    await screen.findByRole('heading', { level: 1, name: 'Design System' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sample actions' }))
+    const menu = screen.getByRole('menu', { name: 'Sample actions' })
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Open', 'Duplicate', 'Delete'])
+
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Duplicate' }))
+
+    expect(await screen.findByText('Action chosen.')).toBeInTheDocument()
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sample actions' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
   it('renders the not-found page at an unknown address', async () => {
     renderApp('/nope')
 

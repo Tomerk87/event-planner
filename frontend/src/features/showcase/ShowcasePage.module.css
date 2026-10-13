@@ -70,3 +70,29 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
+
+.menuTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height-sm);
+  block-size: var(--control-height-sm);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-primary-border);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.menuTrigger svg {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+}
+
+.coverSample {
+  display: block;
+  inline-size: 12rem;
+  block-size: 6rem;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}

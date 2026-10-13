@@ -176,7 +176,10 @@
 - [ ] Add event maximum vs confirmed warning, chairs vs event maximum warning (either direction), and over-capacity table warning.
 - [ ] Reflect changes to RSVP, messages and tables immediately via shared mock state.
 - [ ] Add loading/empty/error presentations.
-- [ ] Replace the drawn product preview on the landing page with a real screenshot of the Dashboard, or confirm the drawing stays.
+- [ ] Show Seating Capacity and Unassigned Confirmed Attendees as two more KPI cards after Confirmed Attendees (decision D28).
+- [ ] Name the header button "Event Settings" (drawn as "View Event") and open the Event Settings page; build the Quick Actions shortcuts as drawn (decision D12).
+- [ ] Show the warnings the mockup does not draw in the same style as its over-capacity warning (decision D29).
+- [ ] Build Recent Guest Activity from the message history and each guest's latest response (decisions D11, P5).
 
 ### Validation and exit criteria
 - [ ] Five sends to one guest count as one Invitations Sent guest.
@@ -762,6 +765,17 @@ Follow-ups/risks:
 - P1–P8 in docs/DOMAIN.md still await the owner's confirmation; P5 is needed in Phase 5.
 - Work is on branch phase_4_completion, created from phase_3_completion (not yet merged to main when this phase started); nothing committed.
 Next: Phase 5 — Dashboard. Needs owner decision D12 (where the Dashboard's "View Event" button leads) and confirmation of default P5 (docs/DOMAIN.md).
+```
+
+```text
+2026-10-13 — Phase 4 follow-ups and Phase 5 decisions.
+Decisions (owner): the Dashboard's "View Event" button is named "Event Settings" and opens Event Settings (D12, Dashboard half); Seating Capacity and Unassigned Confirmed Attendees are two more KPI cards (D28); warnings without a mockup use the over-capacity warning's style (D29); an organizer's manual RSVP change counts as the guest's latest response (P5 confirmed); the landing page keeps its drawn preview (D30). Recorded in docs/DOMAIN.md, docs/PRD.md section 10, docs/MOCKUP_NOTES.md and mockups/README.md; Phase 5 checklist updated.
+Done: the design-system showcase now shows the Menu component and the generated event covers, which Phase 4 had left out.
+Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 531 passed, coverage 97.94% statements, 93.57% branches; `npm run test:e2e` 137 passed, 13 skipped by design, zero accessibility violations including the showcase with the menu open, in English and Hebrew; `npm run build` succeeds.
+Follow-ups/risks:
+- The owner's visual review of the Phase 4 pages and of the Hebrew wording is still to come.
+- phase_3_completion and phase_4_completion are not merged to main; this work is on branch phase_4_followups, created from phase_4_completion; nothing committed.
+Next: Phase 5 — Dashboard. No open decisions remain for it.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

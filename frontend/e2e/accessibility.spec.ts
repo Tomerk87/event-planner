@@ -52,6 +52,18 @@ for (const language of ['en', 'he'] as const) {
       await expectNoViolations(page)
     })
 
+    test('showcase with a menu open has no detectable accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto('/showcase')
+      await page
+        .getByRole('button', { name: /Sample actions|פעולות לדוגמה/ })
+        .click()
+      await expect(page.getByRole('menu')).toBeVisible()
+
+      await expectNoViolations(page)
+    })
+
     test('showcase as a Viewer of a past event has no detectable accessibility violations', async ({
       page,
     }) => {

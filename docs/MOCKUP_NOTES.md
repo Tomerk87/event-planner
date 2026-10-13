@@ -36,7 +36,7 @@ How the mockups show it:
 
 Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-defined flows (2026-10-13): Landing → Sign Up → account created → My Events; Landing → Sign In → My Events; Landing → Try Demo → the populated demo.
 
-- **Hero screenshot.** The mockup shows a different product: navigation "Overview, Guests, RSVPs, WhatsApp, Seating, Tables, Analytics", a "Share Event" button and statuses "Confirmed / Pending / Not Attending". None of that exists here. A decorative preview is drawn in the same position with this product's navigation names, status names and fictional figures. It can be replaced by a real screenshot of the Dashboard once Phase 5 is built.
+- **Hero screenshot.** The mockup shows a different product: navigation "Overview, Guests, RSVPs, WhatsApp, Seating, Tables, Analytics", a "Share Event" button and statuses "Confirmed / Pending / Not Attending". None of that exists here. A decorative preview is drawn in the same position with this product's navigation names, status names and fictional figures. **Decided (2026-10-13):** the drawing stays; it is not replaced by a screenshot.
 - **"How it works"** is a header link with no matching section. Not built; listed in `docs/FUTURE_FEATURES.md`. "Features" scrolls to the feature cards.
 - **Wording adjusted to the MVP** (owner approved with the Phase 4 plan, 2026-10-13):
 
@@ -63,10 +63,10 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
 
 ### Dashboard
 
-- **Recent Guest Activity** lists individual RSVP and send events. The PRD stores only the last-sent and last-response timestamps per guest, and puts audit history out of scope (§17). **Decision needed** on whether the feed is derived from those two timestamps or needs an activity record.
-- The KPI cards omit **Seating Capacity** and **Unassigned Confirmed Attendees**, both required by PRD §10. Seating Capacity appears only in the Attendance vs Capacity chart; Unassigned Confirmed Attendees appears only in `event_settings.png`.
-- The PRD warnings "table chairs above event maximum" and "confirmed attendees awaiting table assignment" are not illustrated.
-- "View Event" button and the Quick Actions panel are not in the PRD; Quick Actions are navigation shortcuts. The target of "View Event" is undefined. **Decision needed.**
+- **Recent Guest Activity** lists individual RSVP and send events. The PRD stores only the last-sent and last-response timestamps per guest, and puts audit history out of scope (§17). **Decided (2026-10-12/13):** the list is derived from the per-send message history and each guest's latest response; an organizer's manual change counts as the guest's latest response.
+- The KPI cards omit **Seating Capacity** and **Unassigned Confirmed Attendees**, both required by PRD §10. Seating Capacity appears only in the Attendance vs Capacity chart; Unassigned Confirmed Attendees appears only in `event_settings.png`. **Decided (2026-10-13):** both are added as two more KPI cards in the same style, after Confirmed Attendees.
+- The PRD warnings "table chairs above event maximum" and "confirmed attendees awaiting table assignment" are not illustrated. **Decided (2026-10-13):** they use the same style as the over-capacity warning the mockup does draw.
+- The "View Event" button and the Quick Actions panel are not in the PRD. **Decided (2026-10-13):** the button is named **Event Settings** and opens the Event Settings page. Quick Actions are navigation shortcuts, built as drawn.
 - The sample numbers are not internally consistent (for example "exceeds by 14 attendees (300 / 286)" beside 214 confirmed of 300). All dashboard values are derived from data per PRD §10, never copied from the image.
 
 ### Guests
