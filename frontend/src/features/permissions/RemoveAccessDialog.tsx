@@ -59,7 +59,7 @@ export function RemoveAccessDialog({
       title={t(`permissions.remove.${kind}.title`)}
       footer={
         <>
-          <Button variant="ghost" onClick={close}>
+          <Button data-autofocus variant="ghost" onClick={close}>
             {t('common.cancel')}
           </Button>
           <Button variant="danger" loading={remove.isPending} onClick={confirm}>

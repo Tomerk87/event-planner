@@ -62,7 +62,11 @@ export function EventSelector({
         disabled={others.length === 0}
         onClick={() => setOpen((value) => !value)}
       >
-        <EventCover eventId={current.id} size="thumb" />
+        <EventCover
+          eventId={current.id}
+          image={current.coverImage}
+          size="thumb"
+        />
         <span className={styles.selectorName}>{current.name}</span>
         {others.length > 0 && (
           <ChevronDown className={styles.selectorChevron} aria-hidden="true" />

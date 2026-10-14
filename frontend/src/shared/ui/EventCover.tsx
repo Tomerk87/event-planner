@@ -26,19 +26,32 @@ const ICONS: readonly LucideIcon[] = [
 
 interface EventCoverProps {
   eventId: string
+  /** The event's own photo; the generated cover is shown without one. */
+  image?: string | null
   size?: 'card' | 'thumb'
   className?: string
 }
 
 /**
- * A generated cover for an event: a gradient and an icon chosen from the
+ * An event's cover: its photo, or a gradient and an icon chosen from the
  * event's id. Decorative; the event's name is always shown beside it.
  */
 export function EventCover({
   eventId,
+  image,
   size = 'card',
   className,
 }: EventCoverProps) {
+  if (image) {
+    return (
+      <span
+        className={cx(styles.cover, styles[size], styles.photo, className)}
+        aria-hidden="true"
+      >
+        <img src={image} alt="" />
+      </span>
+    )
+  }
   const { palette, icon } = coverVariant(eventId)
   const Icon = ICONS[icon % ICONS.length] ?? Sparkles
 

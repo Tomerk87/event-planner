@@ -126,6 +126,16 @@ function openRowMenu(name: string, item: string) {
   fireEvent.click(screen.getByRole('menuitem', { name: item }))
 }
 
+/** Opens a guest's edit form from the first item of the row's ⋯ menu. */
+function openEditGuest(row: HTMLElement, name: string) {
+  fireEvent.click(
+    within(row).getByRole('button', { name: `More actions for ${name}` }),
+  )
+  const items = screen.getAllByRole('menuitem')
+  expect(items[0]).toHaveTextContent('Edit Guest')
+  fireEvent.click(items[0]!)
+}
+
 describe('Guests list', () => {
   it('shows the figures, both tabs and the first page of guests by name', async () => {
     const { services } = await openGuests()
@@ -501,11 +511,7 @@ describe('Changing guests', () => {
     search('0507308828')
     expect(shownNames()).toEqual(['Local Phoneform'])
 
-    fireEvent.click(
-      within(rowOf('Local Phoneform')).getByRole('button', {
-        name: 'Edit Local Phoneform',
-      }),
-    )
+    openEditGuest(rowOf('Local Phoneform'), 'Local Phoneform')
     expect(
       within(screen.getByRole('dialog', { name: 'Edit Guest' })).getByLabelText(
         /Phone Number/,
@@ -595,9 +601,7 @@ describe('Changing guests', () => {
     const name = guestFullName(guest)
     await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
 
-    fireEvent.click(
-      within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
-    )
+    openEditGuest(rowOf(name), name)
     const dialog = screen.getByRole('dialog', { name: 'Edit Guest' })
     fillGuestForm(dialog, { allowed: '1' })
     fireEvent.click(
@@ -1722,9 +1726,7 @@ describe('Groups, and the Table field of the guest form', () => {
     const name = guestFullName(guest)
     await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
 
-    fireEvent.click(
-      within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
-    )
+    openEditGuest(rowOf(name), name)
     const dialog = await screen.findByRole('dialog', { name: 'Edit Guest' })
     const table = within(dialog).getByLabelText('Table')
     expect(table).toBeEnabled()
@@ -1779,9 +1781,7 @@ describe('Groups, and the Table field of the guest form', () => {
     const name = guestFullName(guest)
     await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
 
-    fireEvent.click(
-      within(rowOf(name)).getByRole('button', { name: `Edit ${name}` }),
-    )
+    openEditGuest(rowOf(name), name)
     const dialog = await screen.findByRole('dialog', { name: 'Edit Guest' })
     change(within(dialog).getByLabelText('Table'), {
       target: { value: full.table.id },
@@ -1901,6 +1901,10 @@ describe('Choosing a group in the guest form', () => {
         'The group "Famly" does not exist yet. Create it and put this guest in it?',
       ),
     ).toBeInTheDocument()
+    // Enter, pressed again after typing the name, creates the group.
+    expect(
+      within(confirm).getByRole('button', { name: 'Create Group' }),
+    ).toHaveFocus()
 
     fireEvent.click(within(confirm).getByRole('button', { name: 'Cancel' }))
     await waitFor(() =>

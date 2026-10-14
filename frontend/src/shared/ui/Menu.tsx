@@ -9,6 +9,7 @@ import {
 import { Link } from 'react-router'
 import { cx } from './cx.ts'
 import styles from './Menu.module.css'
+import { useFloatingPosition } from './useFloatingPosition.ts'
 
 export interface MenuItem {
   id: string
@@ -46,7 +47,16 @@ export function Menu({
   const containerRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const itemRefs = useRef(new Map<string, HTMLElement>())
+  const listRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
+  // Floats above the page, so a menu on a table's last row does not make
+  // the table scroll.
+  const position = useFloatingPosition({
+    open,
+    anchorRef: triggerRef,
+    floatingRef: listRef,
+    align,
+  })
 
   useEffect(() => {
     if (!open) {
@@ -137,10 +147,12 @@ export function Menu({
       </button>
       {open && (
         <div
+          ref={listRef}
           id={menuId}
           role="menu"
           aria-label={label}
-          className={cx(styles.list, styles[align])}
+          className={styles.list}
+          style={position}
         >
           {items.map((item) => {
             const className = cx(

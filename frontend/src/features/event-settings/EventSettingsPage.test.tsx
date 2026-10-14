@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { changeLanguage } from '../../i18n/i18n.ts'
 import type { Services } from '../../services/contracts/index.ts'
 import {
@@ -36,6 +36,11 @@ function save() {
 async function savedEvent(services: Services, eventId: string = MAIN) {
   return (await services.events.get(eventId)).event
 }
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 
 describe('Event Settings', () => {
   it('shows the saved event, with nothing to save until something changes', async () => {
@@ -133,12 +138,10 @@ describe('Event Settings', () => {
     expect(
       await screen.findByRole('button', { name: /Our Big Day/ }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByText('Seating capacity below event capacity'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Not enough seats')).toBeInTheDocument()
     expect(
       screen.getByText(
-        new RegExp(`^${metrics.seatingCapacity} seats are configured`),
+        `${metrics.confirmedAttendees} confirmed attendees and ${metrics.seatingCapacity} seats: ${metrics.confirmedAttendees - metrics.seatingCapacity} more seats are needed.`,
       ),
     ).toBeInTheDocument()
   })
@@ -153,6 +156,78 @@ describe('Event Settings', () => {
 
     expect(await screen.findByText('Event over capacity')).toBeInTheDocument()
     expect((await savedEvent(services)).maxAttendees).toBe(50)
+  })
+
+  it('adds an event photo, shown in the event selector, and removes it again', async () => {
+    const { services } = await openSettings()
+    const photo = 'data:image/jpeg;base64,BBBB'
+    vi.stubGlobal('createImageBitmap', () =>
+      Promise.resolve({ width: 3000, height: 2000, close: () => undefined }),
+    )
+    const drawImage = vi.fn()
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      drawImage,
+    } as unknown as CanvasRenderingContext2D)
+    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue(photo)
+
+    fireEvent.change(screen.getByTestId('cover-file'), {
+      target: {
+        files: [new File(['x'], 'photo.jpg', { type: 'image/jpeg' })],
+      },
+    })
+
+    expect(
+      await screen.findByRole('button', { name: 'Change Photo' }),
+    ).toBeInTheDocument()
+    expect(drawImage).toHaveBeenCalledWith(expect.anything(), 0, 0, 1200, 800)
+    save()
+    await screen.findByText('Event settings saved.')
+    expect((await savedEvent(services)).coverImage).toBe(photo)
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole('button', { name: /Current event:/ })
+          .querySelector('img'),
+      ).toHaveAttribute('src', photo),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Photo' }))
+    save()
+    await screen.findByRole('button', { name: 'Upload Photo' })
+    await waitFor(async () =>
+      expect((await savedEvent(services)).coverImage).toBeNull(),
+    )
+  })
+
+  it('refuses a file that is not a JPG or PNG picture', async () => {
+    await openSettings()
+
+    fireEvent.change(screen.getByTestId('cover-file'), {
+      target: { files: [new File(['x'], 'photo.gif', { type: 'image/gif' })] },
+    })
+
+    expect(
+      await screen.findByText('Choose a JPG or PNG image.'),
+    ).toBeInTheDocument()
+  })
+
+  it('finds a time zone by typing part of its name', async () => {
+    await openSettings()
+    const zone = field('Timezone')
+
+    fireEvent.click(zone)
+    fireEvent.change(zone, { target: { value: 'jerus' } })
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent),
+    ).toEqual(['Asia/Jerusalem'])
+
+    fireEvent.change(zone, { target: { value: 'new york' } })
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent),
+    ).toEqual(['America/New York'])
+
+    fireEvent.change(zone, { target: { value: 'no such place' } })
+    expect(screen.getByText('No time zone matches')).toBeInTheDocument()
   })
 
   it('keeps the typed date and time when the time zone changes', async () => {

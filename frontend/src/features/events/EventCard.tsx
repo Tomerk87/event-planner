@@ -73,7 +73,7 @@ export function EventCard({
   return (
     <article className={cx(styles.card, styles[view])}>
       <div className={styles.media}>
-        <EventCover eventId={event.id} />
+        <EventCover eventId={event.id} image={event.coverImage} />
         <span className={styles.status}>
           <Badge tone={isPast ? 'neutral' : 'success'}>
             <span className={styles.dot} aria-hidden="true" />

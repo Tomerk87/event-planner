@@ -55,7 +55,6 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Photo Sharing | Sidebar entry shown in two mockups. No requirements written. | Same |
 | Payments and full event-production management | | PRD §17 |
 | Reusable event templates | | PRD §17 |
-| Event cover image upload | Uploading a photo for an event when creating it and in Event Settings; shown on the event card and in the event selector. In the MVP each event shows a generated cover (a gradient with an icon). | Mockups `homepage.png`, `homepage_mobile.png`; owner decision 2026-10-12 |
 | Duplicating an event with its guest list | In the MVP a duplicate copies the event's details, RSVP settings, message template and tables, without guests. | Owner decision 2026-10-12 |
 | Recoverable event deletion | Restoring a deleted event within a period. In the MVP deletion is permanent. | Owner decision 2026-10-12 |
 

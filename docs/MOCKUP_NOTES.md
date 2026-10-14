@@ -105,6 +105,7 @@ Found while building (Phase 6):
 - The Actions column stays pinned at the end of the table while the other columns scroll, so it is reachable in a narrow window.
 - The table selector lists each table as "number (seats free)".
 - Import has no mockup; it is a four-step dialog.
+- **Edit Guest** is the first item of the "⋯" menu; the pencil drawn in `guests.png` is not shown (owner, 2026-10-14, D81).
 
 ### WhatsApp Messages
 
@@ -143,6 +144,8 @@ Found while building (Phase 6):
 - The phone tab is drawn as "Arrangement" with no badge; it is "Table Arrangement" with the Soon badge, as on desktop.
 - The list shows 10 tables a page with the product's pager, not the 8 and 5 drawn. The phone's ↑↓ button opens a sort menu; on desktop the column headings sort.
 - Add Table and Edit Table have no mockup; they are a dialog with Table Number, Capacity and Shape.
+- **Edit Table** is the first item of the row's "⋯" menu; the pencil drawn in `event_layout.png` is not shown (owner, 2026-10-14, D82).
+- The seating card is amber only when confirmed attendees outnumber the chairs; chairs below the event maximum with everyone seated is shown in green (D77).
 
 ### Event Settings
 

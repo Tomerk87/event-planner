@@ -117,7 +117,9 @@ function GroupForm({
             <Button variant="ghost" onClick={() => setConfirmingNew(false)}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={save}>{t('guests.form.newGroup.confirm')}</Button>
+            <Button data-autofocus onClick={save}>
+              {t('guests.form.newGroup.confirm')}
+            </Button>
           </>
         }
       >

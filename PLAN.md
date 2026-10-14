@@ -399,7 +399,7 @@
 
 ### Checklist
 - [ ] Scaffold NestJS TypeScript backend independently of React UI.
-- [ ] When the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images out of browser storage.
+- [ ] When the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images and event photos out of browser storage.
 - [ ] Set up PostgreSQL development database (local install or temporary DB-only container is acceptable; full Compose deployment remains later).
 - [ ] Set up Prisma schema and deterministic migrations.
 - [ ] Implement User, Event, EventPermission, Guest, Unknown RSVP, RSVP Config, Message Config and Table/Assignment entities.
@@ -1061,6 +1061,22 @@ Cause: nothing returned the view to the top on navigation. A page opened for the
 Fix: every change of page scrolls to the top (app/RouteFocus.tsx). Filters, sorting, paging and tabs change only the query in the address and leave the position alone.
 Validation: new browser test (shell.spec.ts) that revisits pages already loaded; it fails without the fix (view left at 701px on desktop, 2205px on a phone) and passes with it. typecheck, lint, format clean; 1071 unit tests; browser tests 317 passed, 25 skipped by design, none failed.
 Next: further owner feedback, then explicit approval to start Phase 13.
+```
+
+```text
+2026-10-14 — Phase 12 — owner feedback after the walk-through guide: eight changes (D75–D82).
+- Time zone found by typing in Create Event and Event Settings; names shown with spaces (D75).
+- Event photo: upload, change and remove in Create Event and Event Settings; shown on the event card and in the event selector; kept by Duplicate (D76). Image shrinking moved to shared/imageTools.ts and shared with RSVP Settings. Domain: validateCoverImage, COVER_IMAGE_MAX_LENGTH; events.create/update accept coverImage (left out on update, it is kept). Moved out of FUTURE_FEATURES; PRD §5.1.
+- Seating: amber "Not enough seats" only when confirmed attendees exceed the chairs; a difference from the event maximum alone is green (D77). Domain: seatsShort, seatingState; one shared message (dashboard/useSeatingNotice.ts) on the Dashboard, Event Layout and Event Settings. PRD §10.1.
+- Every "⋯" menu floats above the page like the dropdowns (shared/ui/useFloatingPosition.ts, used by Menu and Select), so a last-row menu no longer makes a table scroll (D78).
+- Add Table starts at 10 chairs (D79).
+- Confirmation dialogs focus their main button (Create Group, Send); delete/remove/reset/leave dialogs focus Cancel (D80; data-autofocus in useModalDialog).
+- Edit Guest and Edit Table moved into the "⋯" menus as their first item, desktop and phone (D81, D82).
+Validation: typecheck, lint, format clean; 1078 unit tests, coverage 96.5% statements, 91.3% branches; browser tests 321 passed, 25 skipped by design, none failed; build succeeds. New browser test: a last-row menu on Guests and Event Layout is fully on screen and makes nothing scroll (fails with the old menu, passes now). Screenshots checked: Guests last-row menu, seating cards amber (Maya & Daniel's Wedding) and green (Levi Family Birthday), Event Settings photo field, time zone search.
+Follow-ups/risks:
+- Event photos are kept in browser storage until Phase 13 moves them to the server (Phase 13 item extended).
+- Nothing committed; branch phase_12_feedback.
+Next: owner approval of the frontend to start Phase 13.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

@@ -265,6 +265,7 @@ function GuestForm({
               {t('common.cancel')}
             </Button>
             <Button
+              data-autofocus
               onClick={() => awaitingNewGroup && void save(awaitingNewGroup)}
             >
               {t('guests.form.newGroup.confirm')}

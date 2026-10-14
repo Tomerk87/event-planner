@@ -5,13 +5,13 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type CSSProperties,
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
 import { cx } from './cx.ts'
 import listStyles from './Listbox.module.css'
 import styles from './Select.module.css'
+import { useFloatingPosition } from './useFloatingPosition.ts'
 
 export interface SelectOption {
   value: string
@@ -43,8 +43,6 @@ interface SelectProps {
   'aria-invalid'?: true
 }
 
-const GAP = 4
-const EDGE = 8
 const TYPEAHEAD_MS = 600
 
 /**
@@ -70,7 +68,6 @@ export function Select({
   const typed = useRef({ text: '', at: 0 })
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
-  const [position, setPosition] = useState<CSSProperties | null>(null)
   // What was typed into a searchable field since it opened; null shows all.
   const [query, setQuery] = useState<string | null>(null)
   const selected = allOptions.find((option) => option.value === value)
@@ -84,36 +81,21 @@ export function Select({
         )
   const selectedIndex = options.findIndex((option) => option.value === value)
 
-  // Placed against the screen rather than the page, so a table or a dialog
-  // that scrolls cannot cut the list off. It opens upwards near the bottom.
-  function place() {
-    const button = buttonRef.current
-    const list = listRef.current
-    if (!button || !list) {
-      return
-    }
-    const anchor = button.getBoundingClientRect()
-    const width = Math.max(list.offsetWidth, anchor.width)
-    const height = list.offsetHeight
-    const below = window.innerHeight - anchor.bottom
-    const openUp = below < height + GAP + EDGE && anchor.top > below
-    const isRtl = getComputedStyle(button).direction === 'rtl'
-    const left = isRtl ? anchor.right - width : anchor.left
-    setPosition({
-      left: Math.max(EDGE, Math.min(left, window.innerWidth - width - EDGE)),
-      minInlineSize: anchor.width,
-      ...(openUp
-        ? { bottom: window.innerHeight - anchor.top + GAP }
-        : { top: anchor.bottom + GAP }),
-    })
-  }
+  // Placed against the screen, so a table or dialog that scrolls cannot cut
+  // the list off. It opens upwards near the bottom.
+  const position = useFloatingPosition({
+    open,
+    anchorRef: buttonRef,
+    floatingRef: listRef,
+    matchWidth: true,
+    measureKey: query,
+  })
 
   useLayoutEffect(() => {
     const list = listRef.current
     if (!open || !list) {
       return
     }
-    place()
     // Brings the highlighted option into view inside the list only; asking
     // the browser to do it would scroll the page as well.
     const active = list.querySelector<HTMLElement>('[data-active="true"]')
@@ -143,27 +125,14 @@ export function Select({
         setQuery(null)
       }
     }
-    // The list follows its button when the page scrolls or is resized.
-    function follow(event: Event) {
-      if (!(
-        event.target instanceof Node && listRef.current?.contains(event.target)
-      )) {
-        place()
-      }
-    }
     document.addEventListener('pointerdown', closeIfOutside)
-    window.addEventListener('scroll', follow, true)
-    window.addEventListener('resize', follow)
     return () => {
       document.removeEventListener('pointerdown', closeIfOutside)
-      window.removeEventListener('scroll', follow, true)
-      window.removeEventListener('resize', follow)
     }
   }, [open])
 
   function show() {
     typed.current = { text: '', at: 0 }
-    setPosition(null)
     setQuery(null)
     setActiveIndex(allOptions.findIndex((option) => option.value === value))
     setOpen(true)
@@ -298,7 +267,6 @@ export function Select({
               setQuery(event.target.value)
               setActiveIndex(0)
               if (!open) {
-                setPosition(null)
                 setOpen(true)
               }
             }}
@@ -343,7 +311,7 @@ export function Select({
           role="listbox"
           aria-labelledby={id}
           className={cx(listStyles.list, styles.list)}
-          style={position ?? { visibility: 'hidden' }}
+          style={position}
         >
           {options.map((option, index) => (
             <li

@@ -312,6 +312,54 @@ export function describeServicesContract(
         })
       })
 
+      it('keeps an event photo from creation, changes and removes it, and copies it with the event', async () => {
+        const { services, events } = setup()
+        const photo = 'data:image/jpeg;base64,AAAA'
+        const input = {
+          name: 'Photo Party',
+          startsAt: '2031-01-01T18:00:00.000Z',
+          timeZone: 'Asia/Jerusalem',
+          maxAttendees: 80,
+          defaultAllowedAttendees: 2,
+          rsvpLanguage: 'en' as const,
+        }
+
+        const created = await services.events.create({
+          ...input,
+          coverImage: photo,
+        })
+        expect(created.coverImage).toBe(photo)
+
+        // Left out, the photo stays as it is.
+        const kept = await services.events.update(created.id, input)
+        expect(kept.coverImage).toBe(photo)
+
+        const copy = await services.events.duplicate(created.id, {
+          name: 'Photo Party Again',
+          startsAt: '2032-01-01T18:00:00.000Z',
+        })
+        expect(copy.coverImage).toBe(photo)
+
+        const removed = await services.events.update(created.id, {
+          ...input,
+          coverImage: null,
+        })
+        expect(removed.coverImage).toBeNull()
+
+        for (const coverImage of [
+          'https://example.com/photo.jpg',
+          'data:image/gif;base64,AAAA',
+          `data:image/png;base64,${'A'.repeat(400_000)}`,
+        ]) {
+          expect(
+            await codeOf(services.events.create({ ...input, coverImage })),
+          ).toBe('VALIDATION')
+        }
+        expect(
+          (await services.events.get(events.owner)).event.coverImage,
+        ).toBeNull()
+      })
+
       it('updates an event for an Owner and an Admin, not for a Viewer, and not once past', async () => {
         const { services, events } = setup()
         const edit = async (eventId: string) => {

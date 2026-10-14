@@ -284,6 +284,7 @@
       "date": "Date",
       "time": "Time",
       "timeZone": "Time Zone",
+      "timeZoneNoMatch": "No time zone matches",
       "maxAttendees": "Maximum Attendees",
       "maxAttendeesHint": "Between {{min}} and {{max}}.",
       "defaultAllowedAttendees": "Expected Attendees per Guest",
@@ -298,6 +299,14 @@
         "timeZone": "Choose a time zone.",
         "maxAttendees": "Enter a whole number between {{min}} and {{max}}.",
         "defaultAllowedAttendees": "Enter a whole number between {{min}} and {{max}}."
+      },
+      "photo": {
+        "label": "Event Photo",
+        "upload": "Upload Photo",
+        "change": "Change Photo",
+        "remove": "Remove Photo",
+        "none": "JPG or PNG, up to 5 MB. Without a photo the event keeps its generated cover.",
+        "hint": "Shown on the event card and in the event selector."
       }
     },
     "empty": {
@@ -337,9 +346,13 @@
         "title": "Event over capacity",
         "body": "Confirmed attendance exceeds the event maximum by {{over}} ({{confirmed}} / {{max}})."
       },
+      "seatsShort": {
+        "title": "Not enough seats",
+        "body": "{{confirmed}} confirmed attendees and {{seats}} seats: {{short}} more seats are needed."
+      },
       "seatingBelow": {
         "title": "Seating capacity below event capacity",
-        "body": "{{seats}} seats are configured for an event maximum of {{max}}. {{difference}} more are needed."
+        "body": "{{seats}} seats are configured for an event maximum of {{max}}, enough for the {{confirmed}} confirmed attendees."
       },
       "seatingAbove": {
         "title": "Seating capacity above event capacity",
@@ -503,7 +516,7 @@
     },
     "row": {
       "whatsapp": "Send a WhatsApp message to {{name}}",
-      "edit": "Edit {{name}}",
+      "editGuest": "Edit Guest",
       "more": "More actions for {{name}}",
       "details": "View details of {{name}}",
       "changeRsvp": "Change RSVP",
@@ -792,15 +805,13 @@
     },
     "row": {
       "show": "Show {{name}}",
-      "edit": "Edit {{name}}",
       "manage": "Manage guests of {{name}}",
       "view": "View guests of {{name}}",
       "more": "More actions for {{name}}",
       "delete": "Delete Table"
     },
     "card": {
-      "viewGuests": "View Guests ({{count}})",
-      "edit": "Edit"
+      "viewGuests": "View Guests ({{count}})"
     },
     "empty": {
       "title": "No tables yet",

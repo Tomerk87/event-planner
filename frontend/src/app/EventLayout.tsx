@@ -56,11 +56,16 @@ export function EventLayout() {
         exact: true,
       }}
       event={
-        info.data && { id: info.data.event.id, name: info.data.event.name }
+        info.data && {
+          id: info.data.event.id,
+          name: info.data.event.name,
+          coverImage: info.data.event.coverImage,
+        }
       }
       events={events.data?.map(({ event }) => ({
         id: event.id,
         name: event.name,
+        coverImage: event.coverImage,
       }))}
       user={user.data && { name: user.data.name, role }}
       onSignOut={signOut}

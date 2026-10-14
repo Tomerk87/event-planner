@@ -33,6 +33,7 @@ export interface ShellNavItem {
 export interface ShellEvent {
   id: string
   name: string
+  coverImage?: string | null
 }
 
 export interface ShellUser {

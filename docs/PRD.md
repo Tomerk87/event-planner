@@ -122,7 +122,7 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
 | Location | Optional; shown in the event selector and on the public RSVP page. Edited in Event Settings |
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
-| Cover image | Optional; shown on the event card and in the event selector. Until upload is built (deferred, section 17), a cover is generated for each event |
+| Event photo | Optional; JPG or PNG up to 5 MB, uploaded in Create Event and Event Settings and removable. Shown on the event card and in the event selector; a duplicate keeps it. Without one, a cover is generated for the event |
 
 The event creator becomes an Owner. A new event must start in the future, and an existing event's date and time can only be changed to a time in the future. Changing the time zone keeps the date and time as typed. Changing the default allowed attendees affects only guests added afterwards. The application UI language can differ from the event's default guest-facing RSVP language.
 
@@ -314,8 +314,8 @@ The Dashboard has an **Event Settings** button that opens the Event Settings pag
 ### 10.1 Warnings
 
 - Confirmed attendees exceed event Maximum Attendees.
-- Sum of table chairs is **above** event Maximum Attendees.
-- Sum of table chairs is **below** event Maximum Attendees.
+- **Not enough seats:** confirmed attendees exceed the sum of table chairs. Shown as a warning (amber).
+- Sum of table chairs is **above** or **below** event Maximum Attendees while every confirmed attendee has a seat: shown as information (green), not as a warning.
 - A table exceeds its configured capacity due to an RSVP change.
 - Confirmed attendees are awaiting table assignment (operational indicator).
 

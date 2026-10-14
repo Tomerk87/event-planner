@@ -18,6 +18,8 @@ export interface EventFormValues {
   defaultAllowedAttendees: string
   rsvpLanguage: RsvpLanguage
   location: string
+  /** The event's photo, or null for the generated cover. */
+  coverImage: string | null
 }
 
 export type EventFormField =
@@ -35,6 +37,11 @@ export function browserTimeZone(): string {
 }
 
 /** Every time zone the browser knows, always including the given one. */
+/** A time zone as people read it: "America/New_York" as "America/New York". */
+export function timeZoneLabel(timeZone: string): string {
+  return timeZone.replaceAll('_', ' ')
+}
+
 export function listTimeZones(include: string): string[] {
   const supported =
     typeof Intl.supportedValuesOf === 'function'
@@ -93,6 +100,7 @@ export function defaultEventFormValues(timeZone: string): EventFormValues {
     defaultAllowedAttendees: String(EVENT_LIMITS.allowedAttendees.default),
     rsvpLanguage: 'en',
     location: '',
+    coverImage: null,
   }
 }
 

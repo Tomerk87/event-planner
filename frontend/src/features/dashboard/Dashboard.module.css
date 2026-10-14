@@ -455,3 +455,13 @@
     justify-content: center;
   }
 }
+
+.warningCard.success {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+}
+
+.warningCard.success .warningIcon,
+.warningCard.success .warningTitle {
+  color: var(--color-success);
+}
