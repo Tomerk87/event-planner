@@ -70,6 +70,22 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Password reset and account management | No requirements written. Real sign-in arrives with the backend (`PLAN.md` Phase 14). | Phase 4 plan approved 2026-10-13 |
 | Dedicated tablet layouts | In the MVP only desktop and phone layouts are designed and verified; a tablet gets whichever fits its width. | PRD header and §13; owner decision 2026-10-12 |
 
+## Permissions
+
+| Feature | Notes | Source |
+|---|---|---|
+| Invitation emails | Telling an invited person by email, with a link to sign up. In the MVP nothing is sent; the organizer tells them, and the invitation waits until they sign up. | Owner decision 2026-10-13 (D4) |
+| Resending and expiry of invitations | A pending invitation stays until it is used or cancelled. | Owner decision 2026-10-13 (D4) |
+| Assigning Super User in the interface | Database only in the MVP. | PRD §3.2 |
+| A demo event the demo user does not belong to | To show Super User access without a membership; covered by automated tests only. | Owner decision 2026-10-13 (P8) |
+
+## Quality and review
+
+| Item | Notes | Source |
+|---|---|---|
+| Review of the Hebrew texts by a Hebrew speaker | All Hebrew texts were written by the coding agent. The owner accepted them as they are for now. **Ask the owner again how to do the review when this is taken up** (the choices offered on 2026-10-13 were: a side-by-side sheet of English and Hebrew to correct, or going through the pages in Hebrew). Tracked in `PLAN.md` Phase 17. | Owner decision 2026-10-13 (D74) |
+| Design-system showcase page | The `/showcase` gallery of shared components was removed from the application. | Owner decision 2026-10-13 (D73) |
+
 ## Analytics and history
 
 | Feature | Notes | Source |

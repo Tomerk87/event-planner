@@ -446,6 +446,8 @@ describe('WhatsApp Messages', () => {
     )
     await router.navigate(`/events/${MAIN}/messages`)
     await screen.findByRole('heading', { name: 'Message Template' })
+    // Typing before the page has loaded again would be lost.
+    await preview()
 
     type('Unsaved')
     fireEvent.click(screen.getByRole('link', { name: 'Guests' }))

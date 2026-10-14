@@ -21,7 +21,8 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
-function assertEmail(email: string): string {
+/** Returns the normalized email, or refuses one that is not an address. */
+export function assertEmail(email: string): string {
   const normalized = normalizeEmail(email)
   if (!EMAIL_PATTERN.test(normalized)) {
     throw new DomainError('VALIDATION', { field: 'email' })

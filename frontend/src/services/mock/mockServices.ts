@@ -1,3 +1,4 @@
+import { assertEmail, findAccountByEmail } from '../../domain/accounts.ts'
 import { DomainError } from '../../domain/errors.ts'
 import { isEventPast } from '../../domain/eventTime.ts'
 import {
@@ -25,6 +26,7 @@ import {
 } from '../../domain/metrics.ts'
 import type {
   Event,
+  EventInvitation,
   EventTable,
   Guest,
   Id,
@@ -34,13 +36,14 @@ import type {
 } from '../../domain/models.ts'
 import {
   assertCan,
+  assertCanChangeInvitation,
   assertCanChangeMembership,
   effectiveRole,
   type Actor,
   type EventAction,
 } from '../../domain/permissions.ts'
 import { formatPhone, normalizePhone } from '../../domain/phone.ts'
-import type { EventRole } from '../../domain/roles.ts'
+import { EVENT_ROLES, type EventRole } from '../../domain/roles.ts'
 import {
   applyRsvp,
   resolveRsvp,
@@ -69,7 +72,12 @@ import {
   type DemoPersistence,
   type Persistence,
 } from './persistence.ts'
-import { DATASET_VERSION, isUsableStoredDemo, type DemoState } from './state.ts'
+import {
+  DATASET_VERSION,
+  isUsableStoredDemo,
+  withInvitations,
+  type DemoState,
+} from './state.ts'
 
 const RECENT_ACTIVITY_LIMIT = 50
 
@@ -167,7 +175,7 @@ export function createMockServices(options: MockOptions): Services {
       })
     ) {
       // Data saved before guests had groups reads as guests in no group.
-      const { state: found } = stored
+      const found = withInvitations(stored.state)
       return {
         ...found,
         guests: found.guests.map((guest) => ({
@@ -379,6 +387,22 @@ export function createMockServices(options: MockOptions): Services {
     }
   }
 
+  function invitationOf(eventId: Id, invitationId: Id): EventInvitation {
+    return (
+      state.invitations.find(
+        (invitation) =>
+          invitation.id === invitationId && invitation.eventId === eventId,
+      ) ?? notFound('invitation')
+    )
+  }
+
+  /** Roles arrive from outside the type system, so they are checked. */
+  function assertRole(role: EventRole): void {
+    if (!EVENT_ROLES.includes(role)) {
+      throw new DomainError('VALIDATION', { field: 'role' })
+    }
+  }
+
   return {
     session: {
       getCurrentUser: () => run('session.getCurrentUser', currentUser),
@@ -493,6 +517,7 @@ export function createMockServices(options: MockOptions): Services {
             ...state,
             events: state.events.filter((event) => event.id !== eventId),
             memberships: kept(state.memberships),
+            invitations: kept(state.invitations),
             guests: kept(state.guests),
             unknownRsvps: kept(state.unknownRsvps),
             rsvpSettings: kept(state.rsvpSettings),
@@ -1004,56 +1029,77 @@ export function createMockServices(options: MockOptions): Services {
             ADMIN: 1,
             VIEWER: 2,
           }
-          return state.memberships
-            .filter((membership) => membership.eventId === eventId)
-            .map((membership) => memberOf(eventId, membership.userId))
-            .sort(
-              (a, b) =>
-                order[a.role] - order[b.role] ||
-                a.user.name.localeCompare(b.user.name),
-            )
-        }),
-
-      listCandidates: (eventId) =>
-        run('permissions.listCandidates', () => {
-          authorize(eventId, 'MANAGE_PERMISSIONS')
-          const members = new Set(
-            state.memberships
+          return {
+            members: state.memberships
               .filter((membership) => membership.eventId === eventId)
-              .map((membership) => membership.userId),
-          )
-          return state.users.filter((user) => !members.has(user.id))
+              .map((membership) => memberOf(eventId, membership.userId))
+              .sort(
+                (a, b) =>
+                  order[a.role] - order[b.role] ||
+                  a.user.name.localeCompare(b.user.name),
+              ),
+            invitations: state.invitations
+              .filter((invitation) => invitation.eventId === eventId)
+              .sort((a, b) => a.email.localeCompare(b.email)),
+          }
         }),
 
-      grant: (eventId, userId, role) =>
-        run('permissions.grant', () => {
+      invite: (eventId, emailInput, role) =>
+        run('permissions.invite', () => {
           const { actor } = authorize(eventId, 'MANAGE_PERMISSIONS')
-          if (!state.users.some((user) => user.id === userId)) {
-            return notFound('user')
+          const email = assertEmail(emailInput)
+          assertRole(role)
+          const user = findAccountByEmail(state.users, email)
+          if (user) {
+            if (
+              state.memberships.some(
+                (membership) =>
+                  membership.eventId === eventId &&
+                  membership.userId === user.id,
+              )
+            ) {
+              throw new DomainError('ALREADY_MEMBER')
+            }
+            assertCanChangeMembership(actor, state.memberships, {
+              eventId,
+              userId: user.id,
+              newRole: role,
+            })
+            commit({
+              ...state,
+              memberships: [
+                ...state.memberships,
+                { eventId, userId: user.id, role },
+              ],
+            })
+            return { kind: 'member', member: memberOf(eventId, user.id) }
           }
           if (
-            state.memberships.some(
-              (membership) =>
-                membership.eventId === eventId && membership.userId === userId,
+            state.invitations.some(
+              (invitation) =>
+                invitation.eventId === eventId && invitation.email === email,
             )
           ) {
-            throw new DomainError('ALREADY_MEMBER')
+            throw new DomainError('ALREADY_INVITED')
           }
-          assertCanChangeMembership(actor, state.memberships, {
+          assertCanChangeInvitation(actor, { currentRole: null, newRole: role })
+          const invitation: EventInvitation = {
+            id: newId('inv'),
             eventId,
-            userId,
-            newRole: role,
-          })
+            email,
+            role,
+          }
           commit({
             ...state,
-            memberships: [...state.memberships, { eventId, userId, role }],
+            invitations: [...state.invitations, invitation],
           })
-          return memberOf(eventId, userId)
+          return { kind: 'invitation', invitation }
         }),
 
       changeRole: (eventId, userId, role) =>
         run('permissions.changeRole', () => {
           const { actor } = authorize(eventId, 'MANAGE_PERMISSIONS')
+          assertRole(role)
           memberOf(eventId, userId)
           assertCanChangeMembership(actor, state.memberships, {
             eventId,
@@ -1086,6 +1132,41 @@ export function createMockServices(options: MockOptions): Services {
                 !(
                   membership.eventId === eventId && membership.userId === userId
                 ),
+            ),
+          })
+        }),
+
+      changeInvitationRole: (eventId, invitationId, role) =>
+        run('permissions.changeInvitationRole', () => {
+          const { actor } = authorize(eventId, 'MANAGE_PERMISSIONS')
+          assertRole(role)
+          const current = invitationOf(eventId, invitationId)
+          assertCanChangeInvitation(actor, {
+            currentRole: current.role,
+            newRole: role,
+          })
+          const changed = { ...current, role }
+          commit({
+            ...state,
+            invitations: state.invitations.map((invitation) =>
+              invitation.id === invitationId ? changed : invitation,
+            ),
+          })
+          return changed
+        }),
+
+      cancelInvitation: (eventId, invitationId) =>
+        run('permissions.cancelInvitation', () => {
+          const { actor } = authorize(eventId, 'MANAGE_PERMISSIONS')
+          const current = invitationOf(eventId, invitationId)
+          assertCanChangeInvitation(actor, {
+            currentRole: current.role,
+            newRole: null,
+          })
+          commit({
+            ...state,
+            invitations: state.invitations.filter(
+              (invitation) => invitation.id !== invitationId,
             ),
           })
         }),

@@ -16,6 +16,7 @@ export type DomainErrorCode =
   | 'LAST_OWNER'
   | 'SELF_PERMISSION'
   | 'ALREADY_MEMBER'
+  | 'ALREADY_INVITED'
   | 'RSVP_CLOSED'
   | 'EMAIL_TAKEN'
   | 'ACCOUNT_NOT_FOUND'

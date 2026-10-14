@@ -252,7 +252,7 @@ describe('simulated demo role', () => {
 
     expect((await services.events.get(EVENTS.owner)).role).toBe('OWNER')
     expect(
-      (await services.permissions.list(EVENTS.owner)).find(
+      (await services.permissions.list(EVENTS.owner)).members.find(
         (member) => member.isCurrentUser,
       )?.role,
     ).toBe('OWNER')
@@ -379,5 +379,100 @@ describe('side effects', () => {
     expect(
       (await services.messages.preview(EVENTS.owner, guest!.id)).message,
     ).toContain(`https://demo.example.com/rsvp/${event.rsvpSlug}`)
+  })
+})
+
+describe('role and action matrix', () => {
+  const ROLES = ['VIEWER', 'ADMIN', 'OWNER', 'SUPER_USER'] as const
+  const OK = 'NO_ERROR'
+  const NO = 'FORBIDDEN'
+  const ENDED = 'EVENT_READ_ONLY'
+
+  // Per action: the outcome for Viewer, Admin, Owner and Super User.
+  const expected = {
+    upcoming: {
+      'view guests': [OK, OK, OK, OK],
+      'export data (read tables)': [OK, OK, OK, OK],
+      'add a guest': [NO, OK, OK, OK],
+      'add a table': [NO, OK, OK, OK],
+      'save the message': [NO, OK, OK, OK],
+      'see permissions': [NO, OK, OK, OK],
+      'invite a Viewer': [NO, OK, OK, OK],
+      'invite an Owner': [NO, NO, OK, OK],
+      'duplicate the event': [NO, NO, OK, OK],
+      'delete the event': [NO, NO, OK, OK],
+    },
+    past: {
+      'view guests': [OK, OK, OK, OK],
+      'export data (read tables)': [OK, OK, OK, OK],
+      'add a guest': [NO, ENDED, ENDED, ENDED],
+      'add a table': [NO, ENDED, ENDED, ENDED],
+      'save the message': [NO, ENDED, ENDED, ENDED],
+      'see permissions': [NO, OK, OK, OK],
+      'invite a Viewer': [NO, ENDED, OK, OK],
+      'invite an Owner': [NO, ENDED, OK, OK],
+      'duplicate the event': [NO, NO, OK, OK],
+      'delete the event': [NO, NO, OK, OK],
+    },
+  } as const
+
+  type Action = keyof typeof expected.upcoming
+
+  function attempt(
+    services: ReturnType<typeof create>,
+    eventId: string,
+    action: Action,
+  ): Promise<unknown> {
+    switch (action) {
+      case 'view guests':
+        return services.guests.list(eventId)
+      case 'export data (read tables)':
+        return services.tables.list(eventId)
+      case 'add a guest':
+        return services.guests.create(eventId, newGuest)
+      case 'add a table':
+        return services.tables.create(eventId, {
+          number: 900,
+          capacity: 8,
+          shape: 'CIRCLE',
+        })
+      case 'save the message':
+        return services.messages.updateTemplate(eventId, 'Hello {{rsvp_url}}')
+      case 'see permissions':
+        return services.permissions.list(eventId)
+      case 'invite a Viewer':
+        return services.permissions.invite(eventId, 'v@example.org', 'VIEWER')
+      case 'invite an Owner':
+        return services.permissions.invite(eventId, 'o@example.org', 'OWNER')
+      case 'duplicate the event':
+        return services.events.duplicate(eventId, {
+          name: 'Copy',
+          startsAt: '2031-01-01T18:00:00.000Z',
+        })
+      case 'delete the event':
+        return services.events.remove(eventId)
+    }
+  }
+
+  describe.each([
+    ['upcoming', EVENTS.owner],
+    ['past', EVENTS.past],
+  ] as const)('on an %s event', (when, eventId) => {
+    describe.each(ROLES.map((role, index) => [role, index] as const))(
+      'as %s',
+      (role, index) => {
+        it.each(Object.keys(expected[when]) as Action[])(
+          '%s',
+          async (action) => {
+            const services = create()
+            await services.demo?.setRole(role)
+
+            expect(await codeOf(attempt(services, eventId, action))).toBe(
+              expected[when][action][index],
+            )
+          },
+        )
+      },
+    )
   })
 })

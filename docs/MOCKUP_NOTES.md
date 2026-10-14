@@ -152,8 +152,13 @@ Found while building (Phase 6):
 
 ### Permissions
 
-- **Invite User** corresponds to the unspecified invite flow (PRD §3.3, §18 item 4). **Decision needed** before Phase 11.
-- The role explanation says "Viewer can only view the event". Per the PRD, Viewers can also export.
+- **Invite User** opens a dialog with an email and a role. An email with no account becomes a pending invitation (D4); the mockups draw no pending line, so it reuses the member line with a "Pending" badge and "No account yet" in place of the name.
+- The role explanation says "Viewer can only view the event". Per the PRD, Viewers can also export, and the note says so. It also says an Admin cannot change an Owner.
+- The **Actions** heading is drawn; it is hidden, as in every data table (D55).
+- **Change Role** and the bin have nothing drawn behind them; each opens a dialog (D72). On a phone they are the two icon buttons drawn.
+- The role cards draw the icon before the figure; the shared KPI card puts it after, as on the other pages. On a phone the three cards stay on one row, as drawn, with the icon above the figure.
+- Role badge colours: Owner amber (the crown's colour in the top bar), Admin indigo, Viewer grey; the mockup draws the Owner badge violet.
+- Not drawn and added: the read-only note for an Admin of a past event, the note shown while a demo role is simulated, the empty search result, and the state for a Viewer who types the address.
 
 ## Found while building the design system (Phase 2)
 
@@ -178,6 +183,7 @@ Built from the established visual language and shared components (`AGENTS.md`, U
 
 - Sign-in and sign-up forms, create-event form, duplicate-event and delete-event dialogs, account menu
 - Demo Mode entry, indicator, Reset Demo confirmation, demo role switcher
+- Invite User dialog and the pending-invitation line on Permissions
 - Unknown Guests tab content and its review / convert / merge / reject actions
 - Guest add/edit form, guest import flow (mapping, preview, errors), export menu
 - Table add/edit form, assign-guests dialog, populated-table delete confirmation

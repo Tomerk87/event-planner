@@ -13,25 +13,11 @@ import { setViewportWidth } from '../test/matchMedia.ts'
 import { createTestServices, renderApp } from '../test/renderApp.tsx'
 
 describe('routes', () => {
-  it.each([['/events/evt-1/permissions', 'Permissions']])(
-    'renders a placeholder at %s',
-    async (path, title) => {
-      renderApp(path)
-
-      expect(
-        await screen.findByRole('heading', { level: 1, name: title }),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText('This page is not implemented yet.'),
-      ).toBeInTheDocument()
-    },
-  )
-
   it.each([
     ['/events', 'My Events · Event Planner'],
     ['/events/evt-1/messages', 'WhatsApp Messages · Event Planner'],
     ['/rsvp/abc123', 'RSVP · Event Planner'],
-    ['/showcase', 'Design System · Event Planner'],
+    ['/events/evt-1/permissions', 'Permissions · Event Planner'],
     ['/nope', 'Page not found · Event Planner'],
   ])('sets the browser tab title at %s', async (path, title) => {
     renderApp(path)
@@ -113,39 +99,6 @@ describe('routes', () => {
       name: 'This RSVP page is not available',
     })
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
-  })
-
-  it('renders the design-system showcase inside the frame, with the demo events', async () => {
-    renderApp('/showcase')
-
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'Design System' }),
-    ).toBeInTheDocument()
-    expect(
-      await screen.findByRole('button', { name: /Current event: / }),
-    ).toBeInTheDocument()
-  })
-
-  it('shows a working menu and event covers in the showcase', async () => {
-    renderApp('/showcase')
-    await screen.findByRole('heading', { level: 1, name: 'Design System' })
-
-    fireEvent.click(screen.getByRole('button', { name: 'Sample actions' }))
-    const menu = screen.getByRole('menu', { name: 'Sample actions' })
-    expect(
-      within(menu)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
-    ).toEqual(['Open', 'Duplicate', 'Delete'])
-
-    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Duplicate' }))
-
-    expect(await screen.findByText('Action chosen.')).toBeInTheDocument()
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Sample actions' }))
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }))
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
   it('renders the not-found page at an unknown address', async () => {

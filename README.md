@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 and choose **Try Demo** to explore the generated demo events, or **Sign Up** to start with an empty account. Accounts are a preview: they are kept in your browser only and no password is saved or checked. The design-system showcase is at http://localhost:5173/showcase (open the demo first).
+Open http://localhost:5173 and choose **Try Demo** to explore the generated demo events, or **Sign Up** to start with an empty account. Accounts are a preview: they are kept in your browser only and no password is saved or checked.
 
 ## Commands
 

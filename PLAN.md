@@ -352,20 +352,21 @@
 - Follow `docs/PRD.md` for navigation order and scope; the desktop mockup's sidebar shows out-of-scope entries (see `docs/MOCKUP_NOTES.md`).
 
 ### Checklist
-- [ ] Build Permissions table with name, email, role and available actions, using shared visual design and the table guidelines (D55).
-- [ ] Implement Viewer: no Permissions page/API equivalents, read/export only, no mutations or WhatsApp actions.
-- [ ] Implement Admin: normal event editing; manage Viewer/Admin permissions but not Owners, self-permissions or event duplication/deletion.
-- [ ] Implement Owner: full event control; manage others including Owners but not own permission.
-- [ ] Implement Super User simulation: system-wide event access and Owner-equivalent actions, not assignable via event role UI.
-- [ ] Preserve at least one Owner for each event.
-- [ ] Support event-specific memberships; one user may have different roles across events.
-- [ ] Add demo-only role switcher where helpful, visibly labeled as a simulation.
-- [ ] Ensure past-event read-only rules override normal write privileges.
+- [x] Build Permissions table with name, email, role and available actions, using shared visual design and the table guidelines (D55).
+- [x] Invite User by email: a member at once for an existing account, a pending invitation otherwise, which becomes a membership at sign-up (D4). Change and cancel a pending invitation.
+- [x] Implement Viewer: no Permissions page/API equivalents, read/export only, no mutations or WhatsApp actions.
+- [x] Implement Admin: normal event editing; manage Viewer/Admin permissions but not Owners, self-permissions or event duplication/deletion.
+- [x] Implement Owner: full event control; manage others including Owners but not own permission.
+- [x] Implement Super User simulation: system-wide event access and Owner-equivalent actions, not assignable via event role UI. No demo event without a membership was added (P8); that case is covered by tests.
+- [x] Preserve at least one Owner for each event. A pending Owner invitation does not count.
+- [x] Support event-specific memberships; one user may have different roles across events.
+- [x] Add demo-only role switcher where helpful, visibly labeled as a simulation. The Permissions page says which role is simulated.
+- [x] Ensure past-event read-only rules override normal write privileges. Permissions of a past event are changed by an Owner or Super User only (P1).
 
 ### Validation and exit criteria
-- [ ] Full role/action matrix tested in mock layer; UI hides/restricts actions appropriately.
-- [ ] Permissions cannot be modified by a Viewer or unauthorized Admin.
-- [ ] English/Hebrew and desktop/mobile validated.
+- [x] Full role/action matrix tested in mock layer; UI hides/restricts actions appropriately.
+- [x] Permissions cannot be modified by a Viewer or unauthorized Admin.
+- [x] English/Hebrew and desktop/mobile validated.
 
 ---
 
@@ -374,20 +375,20 @@
 **Goal:** finish a cohesive interactive prototype and obtain explicit acceptance before backend implementation.
 
 ### Checklist
-- [ ] Walk through every mockup mapped in `mockups/README.md`; compare implemented pages/tabs and record differences.
-- [ ] Review all core workflows on desktop and mobile, English/LTR and Hebrew/RTL.
-- [ ] Check demo setup, deterministic reset, local persistence and independent visitor data.
-- [ ] Check loading, empty, success, error, conflict, confirmation, disabled and read-only states.
-- [ ] Validate keyboard, labels, focus management and readable text on images.
-- [ ] Check all mock services adhere to service contracts and approved domain rules.
-- [ ] Collect user feedback and iterate on the frontend until approved.
-- [ ] Record accepted UI/interaction decisions and remaining nonblocking visual issues.
-- [ ] Have the Hebrew translations reviewed by a Hebrew speaker; they were written by the coding agent.
-- [ ] Decide whether the `/showcase` route stays reachable in the deployed application or is limited to development.
-- [ ] **Request and record explicit user approval to proceed to the backend phase.**
+- [x] Walk through every mockup mapped in `mockups/README.md`; compare implemented pages/tabs and record differences. Differences are in `docs/MOCKUP_NOTES.md`.
+- [x] Review all core workflows on desktop and mobile, English/LTR and Hebrew/RTL.
+- [x] Check demo setup, deterministic reset, local persistence and independent visitor data.
+- [x] Check loading, empty, success, error, conflict, confirmation, disabled and read-only states.
+- [x] Validate keyboard, labels, focus management and readable text on images.
+- [x] Check all mock services adhere to service contracts and approved domain rules.
+- [ ] Collect user feedback and iterate on the frontend until approved. **Waiting for the owner's walk-through.**
+- [x] Record accepted UI/interaction decisions and remaining nonblocking visual issues (progress log, 2026-10-13 Phase 12 entry).
+- [x] Hebrew translations: review by a Hebrew speaker moved to Phase 17 by the owner (D74); the texts stay as written for now.
+- [x] `/showcase` decided: removed from the application (D73).
+- [ ] **Request and record explicit user approval to proceed to the backend phase.** Requested 2026-10-13; not yet given.
 
 ### Validation and exit criteria
-- [ ] Interactive frontend demonstrates the MVP without a backend.
+- [x] Interactive frontend demonstrates the MVP without a backend.
 - [ ] User has approved the frontend direction or explicitly authorized moving ahead with documented exceptions.
 
 ---
@@ -507,6 +508,7 @@
 - [ ] Review security of public RSVP, file uploads, permissions, CORS, authentication, configuration and sensitive logs.
 - [ ] Measure performance with representative events up to 3000 attendees and multiple simultaneous RSVP submissions.
 - [ ] Validate frontend and backend production builds.
+- [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew.
 
 ### Validation and exit criteria
 - [ ] Critical E2E paths and regression tests pass.
@@ -1006,6 +1008,59 @@ Follow-ups/risks:
 - One Messages unit test ("asks before leaving with an unsaved message") failed once in a full run and passed on every re-run; not touched by this phase.
 - Nothing committed; branch phase_10_implementation.
 Next: Phase 11 — Permissions. Open before it: D4 (invite flow for an email with no account), P1, P8.
+```
+
+```text
+2026-10-13 — Phase 11 — Permissions UI and simulated authorization.
+Decisions (owner): pending invitation for an email with no account (D4); permissions of a past event changed by an Owner or Super User only (P1 changed); simulated role applies to every demo event and no demo event is added for the Super User (P8).
+- Page: header with Invite User, role note, three role cards, Event Members with search and role filter kept in the address, table on desktop and cards on a phone, "You" on the user's own line, Pending badge for an invitation; Invite, Change Role and Remove dialogs. Read-only for an Admin of a past event; refused for a Viewer who types the address; a note while a demo role is simulated.
+- Domain: MANAGE_PERMISSIONS on a past event needs an Owner; canHandleRole, assertCanChangeInvitation (permissions.ts); canManagePermissions, manageableRoles (access.ts); memberList.ts; EventInvitation; error ALREADY_INVITED.
+- Contract: permissions.list returns members and invitations; invite(email, role) replaces listCandidates and grant, so accounts are never listed; changeInvitationRole, cancelInvitation.
+- Mock: invitations stored with the workspace; sign-up turns the invitations of that email into memberships; deleting an event removes them, duplicating does not copy them. Dataset version 7 (one seeded invitation), so stored demo data is regenerated once. Accounts saved earlier are kept: missing invitations read as none.
+- Shared: KpiGrid `trio` keeps three cards on one row on a phone.
+- Docs: PRD §3.2, §3.3, §5.2, §18; DOMAIN (D4, P1, P8, D72); MOCKUP_NOTES; mockups/README; FUTURE_FEATURES.
+Validation: typecheck, lint, format clean; unit tests pass with a role-by-action matrix for Viewer, Admin, Owner and Super User on an upcoming and a past event (80 cases) and the contract suite extended for invitations; permissions feature coverage 97% statements, 93% branches; browser tests for the page on desktop and phone, English and Hebrew, with accessibility checks.
+Mockups reviewed: permissions.png, permissions_mobile.png. Screenshots reviewed: desktop English and Hebrew, phone English and Hebrew.
+Differences from the mockups: recorded in MOCKUP_NOTES under Permissions.
+Follow-ups/risks:
+- Nothing tells an invited person; the organizer must. Invitation emails are in FUTURE_FEATURES.
+- Before the backend, an invitation works only for a sign-up in the same browser, like every account (D26).
+- The backend must apply the same rules, including not revealing whether an email has an account beyond what the inviter learns from the result.
+```
+
+```text
+2026-10-13 — Phase 12 — Frontend UX review. Agent-side work done; waiting for the owner's walk-through and approval.
+Decisions (owner): /showcase removed (D73); Hebrew review moved to Phase 17, texts accepted for now (D74).
+Done:
+- Removed the showcase page, the unused placeholder page and their texts. The browser tests that ran on the showcase now run on real pages: dialog focus, table-to-cards and read-only controls on Event Layout; the phone bottom bar on RSVP Settings; accessibility checks on every event page, in English and Hebrew.
+- Compared each page with its desktop mockup at 1440px (homepage, Dashboard, Guests, Event Layout, RSVP Settings, WhatsApp Messages, Event Settings, Permissions) and looked at the phone layouts in Hebrew (Dashboard, Guests, Permissions).
+- Fixed: Event Layout's Selected Table panel clipped the "Manage Guests" label at 1440px; the two buttons now wrap.
+- Fixed: the Messages unit test that had failed once ("asks before leaving with an unsaved message") typed before the page had loaded again.
+- Texts: English and Hebrew have the same 910 keys and the same placeholders; three unused texts removed.
+Validation: typecheck, lint, format clean; 1071 unit tests pass, coverage 96.5% statements, 91.1% branches; browser tests 314 passed, 25 skipped by design, 1 failed once in the full run (below); build succeeds.
+Remaining nonblocking issues:
+- Guests table at 1440px with every column shown: two-word names wrap onto two lines, because the Group column was added after the mockup. Hiding a column with the column chooser avoids it.
+- Dashboard: with ten KPI cards, the longer labels wrap to two or three lines.
+- Event Layout between 1024px and 1359px has no Selected Table panel (D69).
+- The time zone list has about 400 entries and no search box.
+- Browser test "filters, sorting and paging are kept in the address across a reload" (Guests, phone) timed out once in a full run and passed 8 of 8 when repeated alone; not touched by this work.
+- The remaining phone pages were checked by the automated overflow and accessibility tests in both languages, not by eye in this pass.
+- Hebrew wording is unreviewed (D74).
+Review pack for the owner:
+- Run `npm run dev` in frontend/, open http://localhost:5173, choose Try Demo. Stored demo data refreshes once.
+- Permissions: Maya & Daniel's Wedding (Owner) → invite jamie.rhodes@example.com (has an account) and any other address (pending); change a role; remove someone. Levi Family Birthday (Admin): Owners cannot be touched. Product Launch Evening (Viewer): no Permissions entry. Annual Company Gala (Admin, past): read-only. Spring Garden Party (Owner, past): still manageable.
+- Role switcher in the top bar: Viewer, Admin, Owner, Super User.
+- Sign Up twice in the same browser to see an invitation become access: invite the second address from the first account's event, log out, sign up with it.
+- Every page in Hebrew and at phone width.
+Next: owner feedback and explicit approval to start Phase 13. The backend is not to be started before that.
+```
+
+```text
+2026-10-14 — Phase 12 — owner feedback: a page opened from another page must start at its top.
+Cause: nothing returned the view to the top on navigation. A page opened for the first time showed a short loading state, which happened to pull the view up; a page already seen was shown at once at full height and kept the previous scroll position, so it appeared from the middle.
+Fix: every change of page scrolls to the top (app/RouteFocus.tsx). Filters, sorting, paging and tabs change only the query in the address and leave the position alone.
+Validation: new browser test (shell.spec.ts) that revisits pages already loaded; it fails without the fix (view left at 701px on desktop, 2205px on a phone) and passes with it. typecheck, lint, format clean; 1071 unit tests; browser tests 317 passed, 25 skipped by design, none failed.
+Next: further owner feedback, then explicit approval to start Phase 13.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

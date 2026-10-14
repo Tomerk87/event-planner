@@ -12,6 +12,7 @@ import {
   createEmptyState,
   ACCOUNTS_VERSION,
   isUsableStoredDemo,
+  withInvitations,
   type DemoState,
 } from './state.ts'
 
@@ -128,7 +129,7 @@ export function createMockBackend(options: MockBackendOptions): Backend {
       requireCurrentUser: false,
       version: ACCOUNTS_VERSION,
     })
-      ? stored.state
+      ? withInvitations(stored.state)
       : createEmptyState()
   }
 
@@ -163,12 +164,27 @@ export function createMockBackend(options: MockBackendOptions): Backend {
             id: `usr-n${state.nextId}`,
             isSuperUser: false,
           }
+          // Access offered to this email before the account existed.
+          const invited = state.invitations.filter(
+            (invitation) => invitation.email === user.email,
+          )
           accountsPersistence.save({
             version: ACCOUNTS_VERSION,
             state: {
               ...state,
               nextId: state.nextId + 1,
               users: [...state.users, user],
+              memberships: [
+                ...state.memberships,
+                ...invited.map(({ eventId, role }) => ({
+                  eventId,
+                  userId: user.id,
+                  role,
+                })),
+              ],
+              invitations: state.invitations.filter(
+                (invitation) => !invited.includes(invitation),
+              ),
             },
           })
           // Services read the workspace once, so they are rebuilt after it changes.

@@ -1,15 +1,25 @@
 import { expect, test, type Page } from '@playwright/test'
-import { chooseOption, startInDemo } from './helpers.ts'
+import { startInDemo } from './helpers.ts'
 
 const TOLERANCE = 1
 
-async function gotoShowcase(page: Page, language: 'en' | 'he') {
+/** RSVP Settings: a form page whose two actions go in the bar on a phone. */
+async function gotoFormPage(
+  page: Page,
+  language: 'en' | 'he',
+  eventId = 'evt-1',
+) {
   await startInDemo(page)
   await page.addInitScript((value) => {
     window.localStorage.setItem('event-planner.language', value)
   }, language)
-  await page.goto('/showcase')
+  await page.goto(`/events/${eventId}/rsvp`)
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(
+    page.getByRole('button', {
+      name: /Preview Public Page|תצוגה מקדימה של העמוד/,
+    }),
+  ).toBeVisible()
 }
 
 async function box(locator: ReturnType<Page['locator']>) {
@@ -29,7 +39,7 @@ test.describe('bottom action bar on a phone', () => {
     test(`lines up with the page content and splits the width equally (${language})`, async ({
       page,
     }) => {
-      await gotoShowcase(page, language)
+      await gotoFormPage(page, language)
       const buttons = page
         .getByRole('region', { name: /Page actions|פעולות בעמוד/ })
         .getByRole('button')
@@ -53,10 +63,12 @@ test.describe('bottom action bar on a phone', () => {
   test('puts the primary action on the right in English and on the left in Hebrew', async ({
     page,
   }) => {
-    await gotoShowcase(page, 'en')
+    await gotoFormPage(page, 'en')
     const bar = page.getByRole('region', { name: 'Page actions' })
     const saveEn = await box(bar.getByRole('button', { name: 'Save Changes' }))
-    const previewEn = await box(bar.getByRole('button', { name: 'Preview' }))
+    const previewEn = await box(
+      bar.getByRole('button', { name: 'Preview Public Page' }),
+    )
     expect(saveEn.x).toBeGreaterThan(previewEn.x)
 
     await page.evaluate(() =>
@@ -71,7 +83,7 @@ test.describe('bottom action bar on a phone', () => {
       barHe.getByRole('button', { name: 'שמירת שינויים' }),
     )
     const previewHe = await box(
-      barHe.getByRole('button', { name: 'תצוגה מקדימה' }),
+      barHe.getByRole('button', { name: 'תצוגה מקדימה של העמוד' }),
     )
     expect(saveHe.x).toBeLessThan(previewHe.x)
   })
@@ -79,7 +91,7 @@ test.describe('bottom action bar on a phone', () => {
   test('stays at the bottom of the screen while the page scrolls', async ({
     page,
   }) => {
-    await gotoShowcase(page, 'en')
+    await gotoFormPage(page, 'en')
     const bar = page.getByRole('region', { name: 'Page actions' })
     const viewportHeight = page.viewportSize()?.height ?? 0
     const before = await box(bar)
@@ -98,7 +110,7 @@ test.describe('bottom action bar on a phone', () => {
   })
 
   test('does not cover the end of the page', async ({ page }) => {
-    await gotoShowcase(page, 'en')
+    await gotoFormPage(page, 'en')
     const bar = page.getByRole('region', { name: 'Page actions' })
 
     await page.evaluate(() =>
@@ -111,10 +123,13 @@ test.describe('bottom action bar on a phone', () => {
   })
 
   test('keeps toasts above the bar', async ({ page }) => {
-    await gotoShowcase(page, 'en')
-    await page.getByRole('button', { name: 'Show error toast' }).click()
+    await gotoFormPage(page, 'en')
+    await page.context().grantPermissions(['clipboard-write'])
+    await page.getByRole('button', { name: 'Copy Link' }).click()
     const toast = await box(
-      page.getByRole('region', { name: 'Notifications' }).getByRole('alert'),
+      page
+        .getByRole('region', { name: 'Notifications' })
+        .getByText(/Link copied|could not be copied/),
     )
     const barBox = await box(page.getByRole('region', { name: 'Page actions' }))
 
@@ -123,7 +138,7 @@ test.describe('bottom action bar on a phone', () => {
 
   test('fits a narrow phone without sideways scrolling', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 })
-    await gotoShowcase(page, 'en')
+    await gotoFormPage(page, 'en')
     const bar = await box(page.getByRole('region', { name: 'Page actions' }))
 
     const overflow = await page.evaluate(
@@ -138,11 +153,8 @@ test.describe('bottom action bar on a phone', () => {
   test('drops to one full-width button when only one action is allowed', async ({
     page,
   }) => {
-    await gotoShowcase(page, 'en')
-    await chooseOption(
-      page.getByRole('combobox', { name: 'Role in this event' }),
-      'VIEWER',
-    )
+    // The demo user is a Viewer of this event, so there is nothing to save.
+    await gotoFormPage(page, 'en', 'evt-4')
     const bar = page.getByRole('region', { name: 'Page actions' })
     await expect(bar.getByRole('button')).toHaveCount(1)
     const card = await box(page.locator('main section').first())
@@ -157,10 +169,13 @@ test('page actions stay in the header at desktop width', async ({
   isMobile,
 }) => {
   test.skip(isMobile, 'desktop layout only')
-  await gotoShowcase(page, 'en')
+  await gotoFormPage(page, 'en')
 
   await expect(
     page.getByRole('main').getByRole('button', { name: 'Save Changes' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('main').getByRole('button', { name: 'Preview Public Page' }),
   ).toBeVisible()
   await expect(page.getByRole('region', { name: 'Page actions' })).toHaveCount(
     0,

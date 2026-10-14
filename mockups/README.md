@@ -151,6 +151,7 @@ Mobile:
 
 Notes:
 - The desktop mockup's sidebar is not the approved navigation: it shows entries (Budget, Vendors, Timeline, Photo Sharing) that are not built, and a different order. Use the order in `docs/PRD.md` section 4.2; see `docs/MOCKUP_NOTES.md`.
+- Invite User, Change Role and Remove open dialogs that are not drawn. A pending invitation is shown as a member line with a "Pending" badge. The Actions heading is hidden. See `docs/MOCKUP_NOTES.md`.
 
 ## Breakpoints
 

@@ -1,11 +1,16 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { chooseOption, startInDemo } from './helpers.ts'
+import { startInDemo } from './helpers.ts'
 
 const pages = [
   ['My Events', '/events'],
   ['event page', '/events/evt-1/dashboard'],
-  ['showcase', '/showcase'],
+  ['guests', '/events/evt-1/guests'],
+  ['event layout', '/events/evt-1/layout'],
+  ['event settings', '/events/evt-1/settings'],
+  ['messages', '/events/evt-1/messages'],
+  ['RSVP settings', '/events/evt-1/rsvp'],
+  ['permissions', '/events/evt-1/permissions'],
   ['public RSVP', '/rsvp/abc123'],
   ['not-found page', '/no-such-page'],
 ] as const
@@ -42,63 +47,50 @@ for (const language of ['en', 'he'] as const) {
       })
     }
 
-    test('showcase with a dialog open has no detectable accessibility violations', async ({
+    test('a page with a dialog open has no detectable accessibility violations', async ({
       page,
     }) => {
-      await page.goto('/showcase')
-      await page.getByRole('button', { name: /Open dialog|פתיחת חלון/ }).click()
+      await page.goto('/events/evt-1/layout')
+      await page.getByRole('button', { name: /Add Table|הוספת שולחן/ }).click()
       await expect(page.getByRole('dialog')).toBeVisible()
 
       await expectNoViolations(page)
     })
 
-    test('showcase with a menu open has no detectable accessibility violations', async ({
+    test('a page with a menu open has no detectable accessibility violations', async ({
       page,
     }) => {
-      await page.goto('/showcase')
+      await page.goto('/events/evt-1/layout')
       await page
-        .getByRole('button', { name: /Sample actions|פעולות לדוגמה/ })
+        .getByRole('button', { name: /Export Tables|ייצוא שולחנות/ })
         .click()
       await expect(page.getByRole('menu')).toBeVisible()
 
       await expectNoViolations(page)
     })
 
-    test('showcase as a Viewer of a past event has no detectable accessibility violations', async ({
+    test('a Viewer’s read-only page has no detectable accessibility violations', async ({
       page,
     }) => {
-      await page.goto('/showcase')
-      await chooseOption(
-        page.getByRole('combobox', {
-          name: /Role in this event|התפקיד באירוע/,
-        }),
-        'VIEWER',
-      )
-      await chooseOption(
-        page.getByRole('combobox', { name: /Event state|מצב האירוע/ }),
-        'past',
-      )
+      await page.goto('/events/evt-4/guests')
       await expect(
-        page.getByText(/This event has ended|האירוע הסתיים/).first(),
+        page.getByText(/View-only access|גישה לצפייה בלבד/).first(),
       ).toBeVisible()
 
       await expectNoViolations(page)
     })
 
-    test('showcase with toasts shown has no detectable accessibility violations', async ({
+    test('a page with a toast shown has no detectable accessibility violations', async ({
       page,
     }) => {
-      await page.goto('/showcase')
+      await page.goto('/events/evt-1/layout')
+      await page.getByRole('button', { name: /Add Table|הוספת שולחן/ }).click()
       await page
-        .getByRole('button', { name: /^Show toast$|^הצגת הודעה$/ })
-        .click()
-      await page
-        .getByRole('button', { name: /Show error toast|הצגת הודעת שגיאה/ })
+        .getByRole('dialog')
+        .getByRole('button', { name: /Add Table|הוספת שולחן/ })
         .click()
       await expect(
-        page
-          .getByRole('region', { name: /Notifications|התראות/ })
-          .getByRole('alert'),
+        page.getByRole('region', { name: /Notifications|התראות/ }).locator('p'),
       ).toBeVisible()
 
       await expectNoViolations(page)
@@ -150,7 +142,7 @@ for (const language of ['en', 'he'] as const) {
       isMobile,
     }) => {
       test.skip(!isMobile, 'the drawer exists only on the compact layout')
-      await page.goto('/showcase')
+      await page.goto('/events/evt-1/guests')
       await page.getByRole('button', { name: /Open menu|פתיחת תפריט/ }).click()
       await expect(page.getByRole('dialog')).toBeVisible()
 

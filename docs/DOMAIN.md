@@ -32,6 +32,7 @@ A glossary of the terms used across the PRD, plan and code, followed by the deci
 | Seating capacity | The sum of all table capacities in an event. It may differ from the event's maximum attendees in either direction; that produces a warning, never a blocked save. |
 | Unassigned confirmed attendees | The sum of confirmed attendees for Approved guests with no table. |
 | Demo Mode | The public, no-login mode that runs the same UI on generated fictional data stored in the visitor's browser. |
+| Pending invitation | Access offered to an email that has no account yet. Holds the event, the email and a role. It gives no access and is not a membership; it becomes one when an account is created with that email. |
 | Demo role | A simulated Viewer, Admin or Owner state inside Demo Mode. It changes local behavior only and confers no real access. |
 | Mock provider / API provider | The two implementations of the frontend service contracts: browser-local for the prototype and Demo Mode, and HTTP against NestJS for the real app. |
 
@@ -46,16 +47,6 @@ The open items below are ones the precedence rule (see Resolved decisions, R1) d
 | # | Decision | Needed by |
 |---|---|---|
 | D2 | Public RSVP abuse prevention: rate limits or extra verification | Phase 15 |
-| D4 | Permission invite flow for an email with no account | Phase 11 |
-
-### Defaults applied in Phase 3, to confirm
-
-The approved documents do not settle these. Each was given the most conservative reading so that the rules could be built; say if any should change.
-
-| # | Default applied | Where it matters |
-|---|---|---|
-| P1 | Permissions can still be managed on a past event. PRD section 5.2 lists the operational data that becomes read-only and does not include permissions | Phase 11 |
-| P8 | A simulated demo role applies to every event the demo user can reach, not only the one being viewed | Phase 11 |
 
 
 ## Resolved decisions
@@ -154,3 +145,9 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D69 | **Selected Table panel.** Built beside the tables list on a wide screen (1360px and up), where the list still shows every column: shape, capacity, assigned, available, the parties, Edit Table and Manage Guests. The first table over capacity is shown to begin with. On narrower screens and on a phone, choosing a table opens its guests dialog instead. | 2026-10-13 |
 | D70 | **Seating export.** Export Tables writes the seating list only, as CSV or Excel: one row per seated party, in table order, with First Name, Last Name, Invitation Name, Phone (as dialled locally), Number of Attendees (confirmed) and Table Number. The table summary export is not built (`docs/FUTURE_FEATURES.md`). | 2026-10-13 |
 | D71 | **Event Layout details.** Tables are added one at a time; the dialog pre-fills the next free number and the last table's chairs and shape. The row "…" menu holds Delete Table, which always asks and says how many parties lose their table. The KPI drawn as "Assigned Guests" is labelled "Assigned Attendees"; Available Seats is seating capacity minus assigned attendees. Capacity Warnings also lists chairs above or below the event maximum and attendees awaiting a table, with the Dashboard's texts. Search is by table number. | 2026-10-13 |
+| D4 | **Invite User: pending invitation.** Invite User takes an email and a role. An email with an account becomes a member at once; any other is kept as a pending invitation, listed as "Pending", and becomes a membership when that email signs up. No email is sent. Its role can be changed and it can be cancelled, under the same rules as a member (an Admin handles only Admin and Viewer). It never counts as one of the event's Owners or in the role figures. Already a member or already invited is refused. Accounts are not listed or searched. | 2026-10-13 |
+| P1 | Changed by the owner: on a **past event** permissions are managed only by an Owner or a Super User. An Admin opens the page read-only. | 2026-10-13 |
+| P8 | Confirmed: a simulated demo role applies to every event the demo user can reach. No demo event is added for the Super User simulation; access without a membership is covered by automated tests. | 2026-10-13 |
+| D72 | **Permissions page details.** Search by name or email and a role filter, kept in the address. The user's own line shows "You" and no action; a line the user may not change (an Owner, for an Admin) shows no action. Change Role and Remove each open a dialog; Remove always asks. The role note says a Viewer can view and export. While a role is simulated in the demo, the list still shows the stored permission and a note says which role is simulated. A Viewer who types the address is told the page is not available to them. The demo has one pending invitation so the state can be seen. | 2026-10-13 |
+| D73 | **`/showcase` is removed.** The design-system gallery built in Phase 2 is deleted; the browser tests that ran on it now run on real pages. | 2026-10-13 |
+| D74 | **Hebrew review deferred.** The Hebrew texts were written by the coding agent and have not been reviewed by a Hebrew speaker. The owner accepted them for now; the review is listed in `docs/FUTURE_FEATURES.md` and as an open item of Phase 17 in `PLAN.md`, where the owner is to be asked again how to do it. | 2026-10-13 |

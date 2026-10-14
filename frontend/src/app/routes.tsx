@@ -11,7 +11,6 @@ import { MessagesPage } from '../features/messages/MessagesPage.tsx'
 import { PermissionsPage } from '../features/permissions/PermissionsPage.tsx'
 import { PublicRsvpPage } from '../features/public-rsvp/PublicRsvpPage.tsx'
 import { RsvpSettingsPage } from '../features/rsvp-settings/RsvpSettingsPage.tsx'
-import { ShowcasePage } from '../features/showcase/ShowcasePage.tsx'
 import { NotFoundPage } from '../shared/NotFoundPage.tsx'
 import { RouteError } from '../shared/RouteError.tsx'
 import { EventLayout } from './EventLayout.tsx'
@@ -35,7 +34,6 @@ export const routes: RouteObject[] = [
       {
         element: <RequireSession />,
         children: [
-          { path: '/showcase', element: <ShowcasePage /> },
           {
             element: <HomeLayout />,
             children: [{ path: '/events', element: <EventsPage /> }],

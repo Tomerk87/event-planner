@@ -123,7 +123,9 @@ export function describeServicesContract(
         expect(
           (await services.rsvp.getPublicEvent(created.rsvpSlug)).language,
         ).toBe('he')
-        expect(await services.permissions.list(created.id)).toHaveLength(1)
+        const access = await services.permissions.list(created.id)
+        expect(access.members).toHaveLength(1)
+        expect(access.invitations).toEqual([])
       })
 
       it('refuses to create an event that starts in the past', async () => {
@@ -177,7 +179,9 @@ export function describeServicesContract(
         expect(await services.guests.list(created.id)).toEqual([])
         expect(await services.unknownGuests.list(created.id)).toEqual([])
         expect(await services.messages.listSends(created.id)).toEqual([])
-        expect(await services.permissions.list(created.id)).toHaveLength(1)
+        const access = await services.permissions.list(created.id)
+        expect(access.members).toHaveLength(1)
+        expect(access.invitations).toEqual([])
 
         // The original is untouched.
         expect(await services.tables.list(events.owner)).toEqual(sourceTables)
@@ -1466,10 +1470,16 @@ export function describeServicesContract(
     })
 
     describe('permissions', () => {
+      // People of the demo dataset who are members of neither event below.
+      const outsider = 'jamie.rhodes@example.com'
+      const otherOutsider = 'avery.shaw@example.com'
+
       it('lists members Owners first and marks the current user', async () => {
         const { services, events } = setup()
 
-        const members = await services.permissions.list(events.owner)
+        const { members, invitations } = await services.permissions.list(
+          events.owner,
+        )
 
         expect(members.map((member) => member.role)).toEqual([
           'OWNER',
@@ -1481,6 +1491,9 @@ export function describeServicesContract(
         ])
         expect(members.filter((member) => member.isCurrentUser)).toHaveLength(1)
         expect(members[0]?.isCurrentUser).toBe(true)
+        expect(invitations.map((invitation) => invitation.role)).toEqual([
+          'VIEWER',
+        ])
       })
 
       it('hides permissions from a Viewer', async () => {
@@ -1490,33 +1503,37 @@ export function describeServicesContract(
           'FORBIDDEN',
         )
         expect(
-          await codeOf(services.permissions.listCandidates(events.viewer)),
+          await codeOf(
+            services.permissions.invite(events.viewer, outsider, 'VIEWER'),
+          ),
         ).toBe('FORBIDDEN')
       })
 
-      it('lets an Owner grant, change and revoke, keeping the rules', async () => {
+      it('lets an Owner invite, change and revoke, keeping the rules', async () => {
         const { services, events } = setup()
         const me = await services.session.getCurrentUser()
-        const [candidate] = await services.permissions.listCandidates(
-          events.owner,
-        )
 
-        const granted = await services.permissions.grant(
+        const invited = await services.permissions.invite(
           events.owner,
-          candidate!.id,
+          `  ${outsider.toUpperCase()} `,
           'VIEWER',
         )
+        if (invited.kind !== 'member') {
+          throw new Error('an email with an account becomes a member at once')
+        }
+        const { user } = invited.member
         const changed = await services.permissions.changeRole(
           events.owner,
-          candidate!.id,
+          user.id,
           'OWNER',
         )
 
-        expect(granted.role).toBe('VIEWER')
+        expect(user.email).toBe(outsider)
+        expect(invited.member.role).toBe('VIEWER')
         expect(changed.role).toBe('OWNER')
         expect(
           await codeOf(
-            services.permissions.grant(events.owner, candidate!.id, 'ADMIN'),
+            services.permissions.invite(events.owner, outsider, 'ADMIN'),
           ),
         ).toBe('ALREADY_MEMBER')
         expect(
@@ -1529,26 +1546,125 @@ export function describeServicesContract(
         ).toBe('SELF_PERMISSION')
         expect(
           await codeOf(
-            services.permissions.grant(events.owner, 'no-such-user', 'VIEWER'),
+            services.permissions.invite(events.owner, 'not an email', 'VIEWER'),
+          ),
+        ).toBe('VALIDATION')
+        expect(
+          await codeOf(
+            services.permissions.changeRole(
+              events.owner,
+              'no-such-user',
+              'VIEWER',
+            ),
           ),
         ).toBe('NOT_FOUND')
 
-        await services.permissions.revoke(events.owner, candidate!.id)
-        expect(await services.permissions.list(events.owner)).toHaveLength(6)
+        await services.permissions.revoke(events.owner, user.id)
+        expect(
+          (await services.permissions.list(events.owner)).members,
+        ).toHaveLength(6)
+      })
+
+      it('keeps an email with no account as a pending invitation', async () => {
+        const { services, events } = setup()
+        const email = 'new.person@example.com'
+
+        const invited = await services.permissions.invite(
+          events.owner,
+          ` ${email.toUpperCase()}`,
+          'OWNER',
+        )
+        if (invited.kind !== 'invitation') {
+          throw new Error('an email with no account stays pending')
+        }
+        const { id } = invited.invitation
+
+        expect(invited.invitation).toMatchObject({ email, role: 'OWNER' })
+        expect(
+          await codeOf(
+            services.permissions.invite(events.owner, email, 'VIEWER'),
+          ),
+        ).toBe('ALREADY_INVITED')
+
+        const changed = await services.permissions.changeInvitationRole(
+          events.owner,
+          id,
+          'ADMIN',
+        )
+        const listed = await services.permissions.list(events.owner)
+
+        expect(changed.role).toBe('ADMIN')
+        expect(listed.members).toHaveLength(6)
+        expect(
+          listed.invitations.find((invitation) => invitation.id === id)?.role,
+        ).toBe('ADMIN')
+        expect(
+          await codeOf(
+            services.permissions.changeInvitationRole(
+              events.admin,
+              id,
+              'VIEWER',
+            ),
+          ),
+        ).toBe('NOT_FOUND')
+
+        await services.permissions.cancelInvitation(events.owner, id)
+
+        expect(
+          (await services.permissions.list(events.owner)).invitations.some(
+            (invitation) => invitation.id === id,
+          ),
+        ).toBe(false)
+        expect(
+          await codeOf(services.permissions.cancelInvitation(events.owner, id)),
+        ).toBe('NOT_FOUND')
+      })
+
+      it('does not count a pending Owner as one of the event’s Owners', async () => {
+        const { services, events } = setup()
+        await services.permissions.invite(
+          events.owner,
+          'second.owner@example.com',
+          'OWNER',
+        )
+        const promoted = await services.permissions.invite(
+          events.owner,
+          outsider,
+          'OWNER',
+        )
+        if (promoted.kind !== 'member') {
+          throw new Error('an email with an account becomes a member at once')
+        }
+
+        // Two Owners now; the other one may go, the last one may not.
+        await services.permissions.revoke(events.owner, promoted.member.user.id)
+        const again = await services.permissions.invite(
+          events.owner,
+          outsider,
+          'VIEWER',
+        )
+
+        expect(again.kind).toBe('member')
+        expect(
+          (await services.permissions.list(events.owner)).members.filter(
+            (member) => member.role === 'OWNER',
+          ),
+        ).toHaveLength(1)
       })
 
       it('limits an Admin to Admin and Viewer permissions', async () => {
         const { services, events } = setup()
-        const members = await services.permissions.list(events.admin)
+        const { members } = await services.permissions.list(events.admin)
         const owner = members.find((member) => member.role === 'OWNER')
         const viewer = members.find((member) => member.role === 'VIEWER')
-        const [candidate] = await services.permissions.listCandidates(
-          events.admin,
-        )
+        const invite = services.permissions.invite
 
+        expect(await codeOf(invite(events.admin, outsider, 'OWNER'))).toBe(
+          'FORBIDDEN',
+        )
         expect(
           await codeOf(
-            services.permissions.grant(events.admin, candidate!.id, 'OWNER'),
+            invite(events.admin, 'someone.new@example.com', 'OWNER'),
           ),
         ).toBe('FORBIDDEN')
         expect(
@@ -1562,6 +1678,11 @@ export function describeServicesContract(
         ).toBe('FORBIDDEN')
         expect(
           await codeOf(
+            services.permissions.revoke(events.admin, owner!.user.id),
+          ),
+        ).toBe('FORBIDDEN')
+        expect(
+          await codeOf(
             services.permissions.changeRole(
               events.admin,
               viewer!.user.id,
@@ -1569,11 +1690,58 @@ export function describeServicesContract(
             ),
           ),
         ).toBe('NO_ERROR')
+        expect(await codeOf(invite(events.admin, outsider, 'VIEWER'))).toBe(
+          'NO_ERROR',
+        )
+
+        const pending = await invite(
+          events.admin,
+          'someone.new@example.com',
+          'VIEWER',
+        )
+        if (pending.kind !== 'invitation') {
+          throw new Error('an email with no account stays pending')
+        }
         expect(
           await codeOf(
-            services.permissions.grant(events.admin, candidate!.id, 'VIEWER'),
+            services.permissions.changeInvitationRole(
+              events.admin,
+              pending.invitation.id,
+              'OWNER',
+            ),
+          ),
+        ).toBe('FORBIDDEN')
+        expect(
+          await codeOf(
+            services.permissions.changeInvitationRole(
+              events.admin,
+              pending.invitation.id,
+              'ADMIN',
+            ),
           ),
         ).toBe('NO_ERROR')
+      })
+
+      it('leaves a past event’s permissions to its Owners', async () => {
+        const { services, events, setNow } = setup()
+        const invite = services.permissions.invite
+        const adminEvent = await services.events.get(events.admin)
+        const ownerEvent = await services.events.get(events.owner)
+        const later = Math.max(
+          Date.parse(adminEvent.event.startsAt),
+          Date.parse(ownerEvent.event.startsAt),
+        )
+        setNow(new Date(later + 60_000))
+
+        expect(await codeOf(services.permissions.list(events.admin))).toBe(
+          'NO_ERROR',
+        )
+        expect(await codeOf(invite(events.admin, outsider, 'VIEWER'))).toBe(
+          'EVENT_READ_ONLY',
+        )
+        expect(await codeOf(invite(events.owner, otherOutsider, 'ADMIN'))).toBe(
+          'NO_ERROR',
+        )
       })
     })
   })

@@ -1,5 +1,6 @@
 import type {
   Event,
+  EventInvitation,
   EventMembership,
   EventTable,
   Guest,
@@ -17,7 +18,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 6
+export const DATASET_VERSION = 7
 
 /**
  * Version of the accounts workspace, which holds what people created
@@ -35,6 +36,7 @@ export interface DemoState {
   users: User[]
   events: Event[]
   memberships: EventMembership[]
+  invitations: EventInvitation[]
   guests: Guest[]
   unknownRsvps: UnknownRsvp[]
   rsvpSettings: RsvpSettings[]
@@ -69,6 +71,7 @@ export function createEmptyState(): DemoState {
     users: [],
     events: [],
     memberships: [],
+    invitations: [],
     guests: [],
     unknownRsvps: [],
     rsvpSettings: [],
@@ -76,6 +79,12 @@ export function createEmptyState(): DemoState {
     messageSends: [],
     tables: [],
   }
+}
+
+/** Data saved before invitations existed reads as having none. */
+export function withInvitations(state: DemoState): DemoState {
+  const { invitations } = state as { invitations?: unknown }
+  return Array.isArray(invitations) ? state : { ...state, invitations: [] }
 }
 
 /**

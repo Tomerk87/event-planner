@@ -28,3 +28,23 @@ export function canEditEvent(access: EventAccess): boolean {
 export function canOpenPermissions(role: EventRole): boolean {
   return role !== 'VIEWER'
 }
+
+/**
+ * Whether the user may change who has access. An Admin loses this once the
+ * event is past; an Owner (or a Super User, who counts as one) keeps it.
+ */
+export function canManagePermissions(access: EventAccess): boolean {
+  return (
+    access.role === 'OWNER' || (access.role === 'ADMIN' && !access.isPastEvent)
+  )
+}
+
+/** The roles the user may give, change or take away. */
+export function manageableRoles(access: EventAccess): EventRole[] {
+  if (!canManagePermissions(access)) {
+    return []
+  }
+  return access.role === 'OWNER'
+    ? ['OWNER', 'ADMIN', 'VIEWER']
+    : ['ADMIN', 'VIEWER']
+}

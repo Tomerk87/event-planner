@@ -45,7 +45,11 @@ test('the sidebar sits on the inline-start edge in both directions', async ({
 })
 
 test('the page does not scroll sideways', async ({ page }) => {
-  for (const path of ['/events', '/events/evt-1/dashboard', '/showcase']) {
+  for (const path of [
+    '/events',
+    '/events/evt-1/dashboard',
+    '/events/evt-1/guests',
+  ]) {
     await page.goto(path)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
@@ -83,11 +87,11 @@ test('pages fit a very narrow phone without sideways scrolling', async ({
 test('a dialog keeps focus off the page behind it, closes with Escape and returns focus to its opener', async ({
   page,
 }) => {
-  await page.goto('/showcase')
-  const opener = page.getByRole('button', { name: 'Open dialog' })
+  await page.goto('/events/evt-1/layout')
+  const opener = page.getByRole('button', { name: 'Add Table' })
 
   await opener.click()
-  const dialog = page.getByRole('dialog', { name: 'Delete table?' })
+  const dialog = page.getByRole('dialog', { name: 'Add Table' })
   await expect(dialog).toBeVisible()
 
   // A native modal dialog lets Tab leave to the browser's own controls (the
@@ -107,46 +111,32 @@ test('a dialog keeps focus off the page behind it, closes with Escape and return
   await expect(opener).toBeFocused()
 })
 
-test('the showcase table becomes cards on a phone', async ({
-  page,
-  isMobile,
-}) => {
-  await page.goto('/showcase')
+test('a data table becomes cards on a phone', async ({ page, isMobile }) => {
+  await page.goto('/events/evt-1/layout')
 
-  await expect(page.getByRole('table', { name: 'Sample guests' })).toBeVisible({
+  await expect(page.getByRole('table', { name: 'Tables' })).toBeVisible({
     visible: !isMobile,
   })
-  await expect(page.getByRole('list', { name: 'Sample guests' })).toBeVisible({
+  await expect(page.getByRole('list', { name: 'Tables' })).toBeVisible({
     visible: isMobile,
   })
 })
 
-test('the showcase hides editing controls for a Viewer and for a past event', async ({
+test('editing controls are hidden for a Viewer and for a past event', async ({
   page,
 }) => {
-  await page.goto('/showcase')
-  const addGuest = page.getByRole('button', { name: 'Add Guest' })
-  const baseline = await addGuest.count()
+  await page.goto('/events/evt-1/layout')
+  await expect(page.getByRole('button', { name: 'Add Table' })).toBeVisible()
 
-  await chooseOption(
-    page.getByRole('combobox', { name: 'Role in this event' }),
-    'VIEWER',
-  )
-
-  await expect(addGuest).toHaveCount(baseline - 1)
+  // The demo user is a Viewer of this event.
+  await page.goto('/events/evt-4/layout')
   await expect(page.getByText('View-only access').first()).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Add Table' })).toHaveCount(0)
 
-  await chooseOption(
-    page.getByRole('combobox', { name: 'Role in this event' }),
-    'OWNER',
-  )
-  await chooseOption(
-    page.getByRole('combobox', { name: 'Event state' }),
-    'past',
-  )
-
-  await expect(addGuest).toHaveCount(baseline - 1)
+  // An Owner of an event that has passed.
+  await page.goto('/events/evt-5/layout')
   await expect(page.getByText('This event has ended').first()).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Add Table' })).toHaveCount(0)
 })
 
 test('the side menu collapses to icons, stays usable, and is remembered', async ({
@@ -183,4 +173,41 @@ test('the side menu collapses to icons, stays usable, and is remembered', async 
   await expect(
     sidebar.getByRole('combobox', { name: 'Language' }),
   ).toBeVisible()
+})
+
+test('a page opened from another page starts at its top', async ({ page }) => {
+  async function open(link: string, heading: string) {
+    const nav = await openNavigation(page)
+    await nav.getByRole('link', { name: link, exact: true }).click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: heading }),
+    ).toBeVisible()
+  }
+
+  await page.goto('/events/evt-1/dashboard')
+  await expect(page.getByText('Quick Actions')).toBeVisible()
+
+  // A page seen before is shown at once at its full height, so nothing but
+  // the navigation itself returns the view to the top.
+  for (const [link, heading] of [
+    ['Guests', 'Guests'],
+    ['Dashboard', 'Dashboard'],
+    ['Messages', 'WhatsApp Messages'],
+    ['Dashboard', 'Dashboard'],
+    ['Guests', 'Guests'],
+  ] as const) {
+    // The page grows as its data arrives, so keep scrolling until it moves.
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          window.scrollTo(0, document.documentElement.scrollHeight)
+          return window.scrollY
+        }),
+      )
+      .toBeGreaterThan(100)
+
+    await open(link, heading)
+
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+  }
 })
