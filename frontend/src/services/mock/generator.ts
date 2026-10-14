@@ -652,6 +652,7 @@ export function generateDemoState(now: Date): DemoState {
     users,
     events: [],
     memberships: [],
+    invitations: [],
     guests: [],
     unknownRsvps: [],
     rsvpSettings: [],
@@ -676,6 +677,15 @@ export function generateDemoState(now: Date): DemoState {
 
     state.events.push(event)
     state.memberships.push(...memberships)
+    if (index === 0) {
+      // One person invited before they have an account, to show the state.
+      state.invitations.push({
+        id: 'inv-1',
+        eventId: event.id,
+        email: 'morgan.reed@example.com',
+        role: 'VIEWER',
+      })
+    }
     state.guests.push(...data.guests)
     state.tables.push(...data.tables)
     state.unknownRsvps.push(...data.unknownRsvps)

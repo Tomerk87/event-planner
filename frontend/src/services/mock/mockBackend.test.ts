@@ -206,13 +206,6 @@ describe('mock backend: workspaces', () => {
 
     expect(await sam.events.list()).toEqual([])
     expect(await codeOf(sam.events.get(created.id))).toBe('NOT_FOUND')
-    expect(
-      (
-        await sam.permissions.listCandidates(
-          (await sam.events.create(newEvent)).id,
-        )
-      ).map((user) => user.email),
-    ).toEqual(['riley@example.com'])
     expect(await backend.servicesFor(rileySession).events.list()).toHaveLength(
       1,
     )
@@ -390,5 +383,97 @@ describe('mock backend: public RSVP and other tabs', () => {
     expect(listener).not.toHaveBeenCalled()
     announce(DEMO_STORAGE_KEY)
     expect(listener).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('mock backend: invitations', () => {
+  const sam = { ...riley, name: 'Sam Field', email: 'Sam@Example.com' }
+
+  it('turns a pending invitation into access when its email signs up', async () => {
+    const backend = create()
+    const rileySession = await backend.auth.signUp(riley)
+    const owner = backend.servicesFor(rileySession)
+    const first = await owner.events.create(newEvent)
+    const second = await owner.events.create({ ...newEvent, name: 'Picnic' })
+    await owner.events.create({ ...newEvent, name: 'Not shared' })
+
+    expect(
+      (await owner.permissions.invite(first.id, 'sam@example.com', 'ADMIN'))
+        .kind,
+    ).toBe('invitation')
+    await owner.permissions.invite(second.id, ' SAM@example.com ', 'VIEWER')
+    await owner.permissions.invite(first.id, 'other@example.com', 'VIEWER')
+
+    const samSession = await backend.auth.signUp(sam)
+    const roles = (await backend.servicesFor(samSession).events.list()).map(
+      (item) => [item.event.name, item.role],
+    )
+    const listed = await backend
+      .servicesFor(rileySession)
+      .permissions.list(first.id)
+
+    expect(roles).toEqual([
+      ['Housewarming', 'ADMIN'],
+      ['Picnic', 'VIEWER'],
+    ])
+    expect(listed.members.map((member) => member.user.name)).toEqual([
+      'Riley Stone',
+      'Sam Field',
+    ])
+    expect(listed.invitations.map((invitation) => invitation.email)).toEqual([
+      'other@example.com',
+    ])
+  })
+
+  it('makes an email that already has an account a member at once', async () => {
+    const backend = create()
+    const rileySession = await backend.auth.signUp(riley)
+    await backend.auth.signUp(sam)
+    const owner = backend.servicesFor(rileySession)
+    const created = await owner.events.create(newEvent)
+
+    const invited = await owner.permissions.invite(
+      created.id,
+      'sam@example.com',
+      'VIEWER',
+    )
+
+    expect(invited.kind).toBe('member')
+    expect((await owner.permissions.list(created.id)).invitations).toHaveLength(
+      0,
+    )
+  })
+
+  it('removes an event’s invitations with the event', async () => {
+    const backend = create()
+    const rileySession = await backend.auth.signUp(riley)
+    const owner = backend.servicesFor(rileySession)
+    const created = await owner.events.create(newEvent)
+    await owner.permissions.invite(created.id, 'sam@example.com', 'ADMIN')
+    await owner.events.remove(created.id)
+
+    const samSession = await backend.auth.signUp(sam)
+
+    expect(await backend.servicesFor(samSession).events.list()).toEqual([])
+  })
+
+  it('reads accounts saved before invitations existed', async () => {
+    const stores = createStores()
+    const session = await create(stores).auth.signUp(riley)
+    const stored = stores.accountsPersistence.load() as StoredDemo
+    const { invitations: _removed, ...older } = stored.state
+    stores.accountsPersistence.save({
+      ...stored,
+      state: older as StoredDemo['state'],
+    })
+
+    const backend = create(stores)
+    const services = backend.servicesFor(session)
+    const created = await services.events.create(newEvent)
+
+    expect((await services.permissions.list(created.id)).invitations).toEqual(
+      [],
+    )
+    expect(await codeOf(backend.auth.signUp(sam))).toBe('NO_ERROR')
   })
 })

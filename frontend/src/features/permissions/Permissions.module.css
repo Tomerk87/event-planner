@@ -1,0 +1,72 @@
+.name {
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Marks the user's own line, where no action is offered. */
+.you {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 4rem;
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-soft);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.remove {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.remove:hover {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-hover);
+}
+
+/* Phone card: the email and badges run under the actions, at full width. */
+.memberCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+}
+
+.memberCard > :first-child {
+  grid-row: 1 / span 3;
+  align-self: start;
+}
+
+.memberCard p {
+  margin: 0;
+}
+
+.cardActions {
+  grid-column: 3;
+}
+
+.email {
+  grid-column: 2 / -1;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.badges {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-1);
+}

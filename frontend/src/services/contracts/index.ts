@@ -9,6 +9,7 @@ import type {
 } from '../../domain/metrics.ts'
 import type {
   Event,
+  EventInvitation,
   EventTable,
   Guest,
   Id,
@@ -230,13 +231,33 @@ export interface Member {
   isCurrentUser: boolean
 }
 
+export interface EventAccessList {
+  members: Member[]
+  /** Access offered to emails that have no account yet. */
+  invitations: EventInvitation[]
+}
+
+/** What an invite produced: a member at once, or a pending invitation. */
+export type InviteResult =
+  | { kind: 'member'; member: Member }
+  | { kind: 'invitation'; invitation: EventInvitation }
+
 export interface PermissionsService {
-  list(eventId: Id): Promise<Member[]>
-  /** Existing users who are not yet members of the event. */
-  listCandidates(eventId: Id): Promise<User[]>
-  grant(eventId: Id, userId: Id, role: EventRole): Promise<Member>
+  list(eventId: Id): Promise<EventAccessList>
+  /**
+   * Gives access by email. An email with an account becomes a member at
+   * once; any other is kept as a pending invitation until it signs up.
+   * Accounts are never listed or searched, so no directory is exposed.
+   */
+  invite(eventId: Id, email: string, role: EventRole): Promise<InviteResult>
   changeRole(eventId: Id, userId: Id, role: EventRole): Promise<Member>
   revoke(eventId: Id, userId: Id): Promise<void>
+  changeInvitationRole(
+    eventId: Id,
+    invitationId: Id,
+    role: EventRole,
+  ): Promise<EventInvitation>
+  cancelInvitation(eventId: Id, invitationId: Id): Promise<void>
 }
 
 export type ActivityItem = ActivityEntry & { guestName: string }

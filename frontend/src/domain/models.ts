@@ -54,6 +54,18 @@ export interface EventMembership {
   role: EventRole
 }
 
+/**
+ * Access offered to an email that has no account yet. It becomes a
+ * membership when an account is created with that email.
+ */
+export interface EventInvitation {
+  id: Id
+  eventId: Id
+  /** Normalized: trimmed and in lower case. */
+  email: string
+  role: EventRole
+}
+
 /** One invitation (a party), which may stand for several attendees. */
 export interface Guest {
   id: Id

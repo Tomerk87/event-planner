@@ -133,3 +133,17 @@
     block-size: 2.5rem;
   }
 }
+
+/* Three cards share a phone's width: the icon sits above the figure. */
+@media (max-width: 767px) {
+  .kpiGridTrio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .kpiGridTrio .kpi {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+}

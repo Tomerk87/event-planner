@@ -51,10 +51,6 @@
     "permissions": "Permissions",
     "publicRsvp": "RSVP"
   },
-  "placeholder": {
-    "title": "Coming soon",
-    "body": "This page is not implemented yet."
-  },
   "notFound": {
     "title": "Page not found",
     "body": "The address you opened does not match any page."
@@ -127,6 +123,7 @@
     "LAST_OWNER": "An event must keep at least one Owner.",
     "SELF_PERMISSION": "You cannot change your own permission.",
     "ALREADY_MEMBER": "This person already has access to the event.",
+    "ALREADY_INVITED": "This email has already been invited to the event.",
     "RSVP_CLOSED": "RSVP is closed because the event has started.",
     "UNAVAILABLE": "The service is not available right now. Please try again.",
     "UNKNOWN": "Something went wrong. Please try again.",
@@ -935,7 +932,6 @@
       "title": "Message Preview",
       "subtitle": "This is how your message will appear in WhatsApp.",
       "for": "Preview for",
-      "sampleGuest": "Sample guest",
       "resolved": "Variables are resolved using this guest's information.",
       "sampleNote": "This event has no guests yet, so a sample guest is shown.",
       "online": "online",
@@ -1040,173 +1036,102 @@
       "roles": "Owners and Admins can change the event. Viewers can view it and download exports."
     }
   },
-  "showcase": {
-    "title": "Design System",
-    "subtitle": "Shared components and layout used across Event Planner.",
-    "preview": {
-      "title": "Preview settings",
-      "subtitle": "Change the simulated role and event state to see how the shell and restricted elements respond.",
-      "role": "Role in this event",
-      "eventState": "Event state",
-      "active": "Upcoming event",
-      "past": "Past event"
+  "permissions": {
+    "subtitle": "Manage who can access this event and what they can do.",
+    "actions": {
+      "invite": "Invite User"
     },
-    "buttons": {
-      "title": "Buttons",
-      "subtitle": "Primary, secondary, ghost and destructive actions.",
-      "addGuest": "Add Guest",
-      "export": "Export",
-      "cancel": "Cancel",
-      "delete": "Delete",
-      "saving": "Saving",
-      "disabled": "Disabled",
-      "small": "Small",
-      "edit": "Edit guest",
-      "remove": "Remove guest"
+    "about": {
+      "title": "About event roles",
+      "body": "An Owner can manage everything in the event. An Admin can manage the event but cannot delete or duplicate it, and cannot change an Owner. A Viewer can view the event and download exports."
     },
-    "fields": {
-      "title": "Form fields",
-      "subtitle": "Labels, hints, required markers and validation errors.",
-      "eventName": "Event Name",
-      "eventNameValue": "Garden Celebration",
-      "maxAttendees": "Maximum Attendees",
-      "maxAttendeesHint": "Allowed range: 50 – 3000 attendees.",
-      "maxAttendeesError": "Enter a number between 50 and 3000.",
-      "rsvpLanguage": "RSVP Language",
-      "rsvpLanguageHint": "This language will be used for the public RSVP page.",
-      "welcomeMessage": "Welcome Message",
-      "welcomeMessageValue": "We are so excited to celebrate with you! Please let us know if you will be joining us.",
-      "search": "Search guests",
-      "searchPlaceholder": "Search by name, phone number or invitation name…"
+    "pastEvent": {
+      "title": "This event has ended",
+      "body": "Only an Owner can change the permissions of a past event. You can still see who has access."
     },
-    "badges": {
-      "title": "Badges",
-      "subtitle": "Status labels for RSVP, events, tables and roles.",
-      "approved": "Approved",
-      "declined": "Declined",
-      "notSure": "Not Sure",
-      "awaiting": "Awaiting Response",
-      "upcoming": "Upcoming",
-      "past": "Past",
-      "overCapacity": "Over Capacity",
-      "almostFull": "Almost Full"
+    "simulation": {
+      "title": "Demo: {{role}}",
+      "body": "The list shows your own permission as it is stored. What you can do on this page follows the simulated role."
+    },
+    "noAccess": {
+      "title": "You cannot open this page",
+      "body": "Only Owners and Admins of the event can see its permissions."
     },
     "kpis": {
-      "title": "KPI cards",
-      "subtitle": "Summary figures at the top of a page.",
-      "totalGuests": "Total Guests",
-      "invitationsSent": "Invitations Sent",
-      "awaitingResponse": "Awaiting Response",
-      "confirmedAttendees": "Confirmed Attendees"
+      "label": "Members by role",
+      "OWNER": "Owners",
+      "ADMIN": "Admins",
+      "VIEWER": "Viewers"
     },
-    "notices": {
-      "title": "Notices",
-      "subtitle": "Inline messages for information, warnings and errors.",
-      "infoTitle": "Guests can override this value",
-      "infoBody": "This is the default value for new guests, but you can set a different maximum for each guest.",
-      "successTitle": "RSVP page is active",
-      "successBody": "Guests can submit and update their RSVP until the event start time.",
-      "warningTitle": "Seating capacity below event capacity",
-      "warningBody": "275 seats are configured for an event capacity of 300. Add 25 more seats.",
-      "dangerTitle": "2 tables over capacity",
-      "dangerBody": "Table 12 exceeds capacity by 2 attendees. Table 14 exceeds capacity by 1 attendee.",
-      "action": "View tables"
+    "list": {
+      "title": "Event Members",
+      "caption": "Event members"
     },
-    "tabs": {
-      "title": "Tabs",
-      "subtitle": "Underline tabs for lists and segmented tabs for page views. Use the arrow keys to move between tabs.",
-      "guests": "Guests",
-      "unknownGuests": "Unknown Guests",
-      "guestsPanel": "The known guests list appears here.",
-      "unknownGuestsPanel": "RSVP responses that did not match a guest appear here.",
-      "tables": "Tables",
-      "arrangement": "Table Arrangement",
-      "tablesPanel": "The tables list appears here.",
-      "underlineLabel": "Guest lists",
-      "segmentedLabel": "Event layout views"
+    "search": {
+      "label": "Search members",
+      "placeholder": "Search members by name or email..."
     },
-    "table": {
-      "title": "Table and mobile cards",
-      "subtitle": "A table on wide screens; the same rows as cards on a phone.",
-      "caption": "Sample guests",
+    "filters": {
+      "role": "Role",
+      "all": "All Roles"
+    },
+    "columns": {
       "name": "Name",
-      "phone": "Phone",
-      "allowed": "Expected Attendees",
-      "status": "RSVP Status",
-      "tableNumber": "Table",
-      "noTable": "No table",
-      "tableValue": "Table {{number}}",
-      "allowedValue": "Expected {{count}}"
-    },
-    "overlays": {
-      "title": "Dialogs, drawers and toasts",
-      "subtitle": "Overlays trap keyboard focus and close with Escape.",
-      "openDialog": "Open dialog",
-      "openDrawer": "Open drawer",
-      "showToast": "Show toast",
-      "showErrorToast": "Show error toast",
-      "dialogTitle": "Delete table?",
-      "dialogBody": "The guests assigned to this table will become unassigned. Guests are not deleted.",
-      "drawerTitle": "Filters",
-      "drawerBody": "Additional filters appear here.",
-      "confirm": "Delete table",
-      "toastSuccess": "Changes saved.",
-      "toastError": "Could not save changes."
-    },
-    "menus": {
-      "title": "Menus and event covers",
-      "subtitle": "A menu of actions that works with the arrow keys and Escape, and the cover generated for each event.",
-      "label": "Sample actions",
-      "open": "Open",
-      "duplicate": "Duplicate",
-      "delete": "Delete",
-      "chosen": "Action chosen."
-    },
-    "controls": {
-      "title": "Checkboxes, pagination and popovers",
-      "subtitle": "Selection boxes, page numbers for long lists, and a small panel opened from a button.",
-      "option": "Show seated guests",
-      "mixed": "Some guests selected",
-      "disabled": "Always shown",
-      "pages": "Sample pages",
-      "previous": "Previous page",
-      "next": "Next page",
-      "page": "Page {{page}}",
-      "popover": "Sample options",
-      "popoverBody": "A popover holds a few controls and closes with Escape."
-    },
-    "states": {
-      "title": "Empty, loading and error states",
-      "subtitle": "Shown in place of content.",
-      "emptyTitle": "No guests yet",
-      "emptyBody": "Add your first guest or import a list to get started.",
-      "emptyAction": "Add Guest"
-    },
-    "access": {
-      "title": "Read-only and restricted access",
-      "subtitle": "Editing controls are removed for Viewers and for past events. Change the preview settings above.",
-      "editableAction": "Add Guest",
-      "restricted": "Editing controls are hidden in this state."
-    },
-    "actions": {
-      "preview": "Preview",
-      "save": "Save Changes"
-    },
-    "direction": {
-      "title": "Mixed-direction values and formats",
-      "subtitle": "Phone numbers, email addresses and links keep their left-to-right order in Hebrew. Numbers, dates and times follow the interface language.",
-      "phone": "Phone",
       "email": "Email",
-      "link": "RSVP link",
-      "date": "Event date",
-      "time": "Event time"
+      "role": "Permission Type",
+      "actions": "Actions"
     },
-    "rsvpLanguage": {
-      "title": "Guest-facing language",
-      "subtitle": "RSVP content uses the language fixed for the event, whatever the interface language is.",
-      "sample": "Number of attendees",
-      "english": "Event with English RSVP",
-      "hebrew": "Event with Hebrew RSVP"
+    "pending": "Pending",
+    "noAccountYet": "No account yet",
+    "you": "You",
+    "row": {
+      "change": "Change role of {{name}}",
+      "changeShort": "Change Role",
+      "remove": {
+        "member": "Remove {{name}}",
+        "invitation": "Cancel the invitation of {{name}}"
+      }
+    },
+    "roleHints": {
+      "OWNER": "Full control, including permissions and deleting or duplicating the event.",
+      "ADMIN": "Can change the event and manage Admins and Viewers.",
+      "VIEWER": "Can view the event and download exports."
+    },
+    "empty": {
+      "title": "No members match",
+      "body": "Try a different search or role."
+    },
+    "invite": {
+      "title": "Invite User",
+      "email": "Email",
+      "emailHint": "Someone with an account gets access at once. Anyone else is listed as pending and gets access when they sign up with this email. No email is sent.",
+      "submit": "Invite",
+      "added": "{{name}} now has access to the event.",
+      "pending": "{{email}} is invited and will get access after signing up.",
+      "errors": {
+        "invalid": "Enter a valid email address.",
+        "member": "This person already has access to the event.",
+        "invited": "This email has already been invited."
+      }
+    },
+    "change": {
+      "title": "Change role of {{name}}",
+      "submit": "Save",
+      "done": "{{name}} is now {{role}}."
+    },
+    "remove": {
+      "member": {
+        "title": "Remove member?",
+        "body": "{{name}} will no longer be able to open this event.",
+        "confirm": "Remove",
+        "done": "{{name}} no longer has access."
+      },
+      "invitation": {
+        "title": "Cancel invitation?",
+        "body": "{{name}} will not get access to this event when signing up.",
+        "confirm": "Cancel Invitation",
+        "done": "The invitation of {{name}} was cancelled."
+      }
     }
   },
   "rsvpSettings": {
@@ -1309,7 +1234,6 @@
     }
   },
   "publicRsvp": {
-    "switchLanguage": "Page language",
     "name": "Full Name",
     "phone": "Phone Number",
     "phoneHint": "From outside Israel, start with + and your country code.",

@@ -140,7 +140,7 @@ describe('landing page', () => {
 })
 
 describe('access without a session', () => {
-  it.each(['/events', '/events/evt-1/guests', '/showcase'])(
+  it.each(['/events', '/events/evt-1/guests', '/events/evt-1/permissions'])(
     'sends a signed-out visitor from %s to the landing page',
     async (path) => {
       const { router } = renderSignedOut(path)

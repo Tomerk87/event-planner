@@ -114,7 +114,7 @@ Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
 |---|---|
 | `/` | Landing page; with a session, redirects to `/events` |
 | `/signin`, `/signup` | Simulated sign-in and sign-up; with a session, redirect to `/events` |
-| `/events` | Homepage / My Events (needs a session, as does every `/events/...` page and `/showcase`) |
+| `/events` | Homepage / My Events (needs a session, as does every `/events/...` page) |
 | `/events/:eventId` | Redirects to the event's dashboard |
 | `/events/:eventId/dashboard` | Dashboard |
 | `/events/:eventId/guests` | Guests |
@@ -124,7 +124,6 @@ Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
 | `/events/:eventId/settings` | Event Settings |
 | `/events/:eventId/permissions` | Permissions |
 | `/rsvp/:rsvpId` | Public RSVP (outside the event layout) |
-| `/showcase` | Design-system showcase: the application frame and every shared component, with sample values |
 | anything else | Not-found page |
 
 These are client-side routes, so the production web server must serve `index.html` for unknown paths (tracked in `PLAN.md` Phase 18).

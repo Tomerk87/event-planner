@@ -59,6 +59,14 @@ export function assertCan(
   if (context.isPastEvent && BLOCKED_ON_PAST_EVENT.has(action)) {
     throw new DomainError('EVENT_READ_ONLY', { action })
   }
+  // Once an event is past, only an Owner still manages who can see it.
+  if (
+    context.isPastEvent &&
+    action === 'MANAGE_PERMISSIONS' &&
+    role !== 'OWNER'
+  ) {
+    throw new DomainError('EVENT_READ_ONLY', { action })
+  }
 }
 
 export function can(
@@ -75,8 +83,33 @@ export function can(
 }
 
 function assertMayHandleRole(actor: Actor, role: EventRole): void {
-  if (role === 'OWNER' && effectiveRole(actor) !== 'OWNER') {
+  if (!canHandleRole(actor, role)) {
     throw new DomainError('FORBIDDEN', { action: 'MANAGE_PERMISSIONS' })
+  }
+}
+
+/**
+ * Whether the actor may give, change or take away this role: an Owner any
+ * role, an Admin only Admin and Viewer, a Viewer none.
+ */
+export function canHandleRole(actor: Actor, role: EventRole): boolean {
+  const own = effectiveRole(actor)
+  return own === 'OWNER' || (own === 'ADMIN' && role !== 'OWNER')
+}
+
+/**
+ * Checks a change to a pending invitation: creating it (no current role),
+ * changing its role, or cancelling it (no new role). An invitation is not a
+ * membership, so it never counts as one of the event's Owners.
+ */
+export function assertCanChangeInvitation(
+  actor: Actor,
+  change: { currentRole: EventRole | null; newRole: EventRole | null },
+): void {
+  for (const role of [change.currentRole, change.newRole]) {
+    if (role !== null) {
+      assertMayHandleRole(actor, role)
+    }
   }
 }
 

@@ -56,13 +56,24 @@ Authenticated users see an Events homepage containing events they can access. Ea
 - The event creator automatically becomes an Owner.
 - Super Users have Owner-equivalent capabilities across all events without requiring individual event memberships; there is no UI for assigning Super User.
 - Past-event read-only rules apply to operational modifications regardless of role.
+- On a past event, permissions can be changed only by an Owner or a Super User. An Admin can still open the Permissions page and see who has access, but cannot invite, change or remove anyone.
 - All restrictions must be enforced by the server, not only by hiding UI controls.
 
 ### 3.3 Permissions page
 
 This is the final page in event navigation, after Event Settings. It contains a table showing at least **Name**, **Email**, **Permission Type**, and authorized actions. An authorized user can grant, change, and remove permitted event memberships. A user can belong to multiple events. Viewer cannot see this page or retrieve its data using backend APIs.
 
-Inviting or granting access to an email without an existing account, account activation, and notification delivery have not yet been specified; agents should flag these as implementation decisions instead of inventing a broad invitation system.
+The page shows a short explanation of the roles, the number of Owners, Admins and Viewers, and the members list with a search by name or email and a role filter. The user's own line is marked "You" and offers no action.
+
+**Invite User** asks for an email and a role (an Admin can offer only Admin and Viewer):
+
+- An email that belongs to an account becomes a member at once.
+- Any other email is kept as a **pending invitation**. It is listed with a "Pending" badge and no name, and becomes a membership with the invited role when an account is created with that email. No email is sent in the MVP; the organizer tells the person to sign up.
+- A pending invitation's role can be changed and the invitation cancelled, under the same rules as a member's. It is not a membership: it gives no access, is not counted in the role figures and does not count as one of the event's Owners.
+- An email that is already a member or already invited is refused. Accounts are never listed or searched, so the page does not reveal who has an account.
+- Deleting an event removes its invitations; duplicating an event does not copy them.
+
+Sending invitation emails, reminders and expiry of invitations are deferred (`docs/FUTURE_FEATURES.md`).
 
 ## 4. Product information architecture
 
@@ -119,7 +130,7 @@ Event Settings edits the name, location, maximum attendees, date, time, time zon
 
 ### 5.2 Past events
 
-Once an event's date/time is reached (interpreted in its configured timezone), it becomes **read-only** through normal product flows. Users may view pages and download exports. They may not edit settings, guests, RSVP, messages, tables, seating, or other operational data; public RSVP submissions close at the event start. Apply these rules in the backend, not only the UI.
+Once an event's date/time is reached (interpreted in its configured timezone), it becomes **read-only** through normal product flows. Users may view pages and download exports. They may not edit settings, guests, RSVP, messages, tables, seating, or other operational data; public RSVP submissions close at the event start. Permissions are the exception: an Owner or Super User can still change them, so that access to a finished event can be given or taken away (section 3.2). Apply these rules in the backend, not only the UI.
 
 ### 5.3 Duplication and deletion
 
@@ -466,7 +477,7 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 1. ~~**Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?~~ Resolved 2026-10-12: the event's default allowed attendees (section 8.3).
 2. **Public RSVP abuse prevention:** What rate limits or additional verification are appropriate without creating an unnecessarily difficult guest experience?
 3. ~~**Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?~~ Resolved 2026-10-12: section 5.3.
-4. **Permission invite flow:** What happens when an organizer grants access to an email not yet registered?
+4. ~~**Permission invite flow:** What happens when an organizer grants access to an email not yet registered?~~ Resolved 2026-10-13: a pending invitation that becomes a membership at sign-up (section 3.3).
 5. ~~**Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?~~ Resolved 2026-10-12: fresh RSVP, no table, invitation counter kept (section 6.2).
 6. ~~**Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?~~ Resolved 2026-10-12: stays deferred. The tab is shown as "Soon" and disabled, with no preview panel (section 11.4).
 
