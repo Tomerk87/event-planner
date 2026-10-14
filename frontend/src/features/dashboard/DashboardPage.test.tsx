@@ -174,13 +174,13 @@ describe('Dashboard', () => {
     const list = screen.getByRole('list', { name: 'Warnings' })
 
     expect(warningTitles()).toEqual([
-      'Seating capacity below event capacity',
+      'Not enough seats',
       `Tables over capacity: ${warnings.tablesOverCapacity.length}`,
       'Confirmed attendees without a table',
     ])
     expect(
       within(list).getByText(
-        `${metrics.seatingCapacity} seats are configured for an event maximum of 300. ${300 - metrics.seatingCapacity} more are needed.`,
+        `${metrics.confirmedAttendees} confirmed attendees and ${metrics.seatingCapacity} seats: ${metrics.confirmedAttendees - metrics.seatingCapacity} more seats are needed.`,
       ),
     ).toBeInTheDocument()
     const [first] = warnings.tablesOverCapacity
@@ -208,9 +208,10 @@ describe('Dashboard', () => {
     await openDashboard(MAIN, services)
     const list = screen.getByRole('list', { name: 'Warnings' })
 
+    // People without a seat outweigh having more chairs than the maximum.
     expect(warningTitles().slice(0, 2)).toEqual([
       'Event over capacity',
-      'Seating capacity above event capacity',
+      'Not enough seats',
     ])
     expect(
       within(list).getByText(
@@ -219,7 +220,7 @@ describe('Dashboard', () => {
     ).toBeInTheDocument()
     expect(
       within(list).getByText(
-        `${metrics.seatingCapacity} seats are configured for an event maximum of 50: ${metrics.seatingCapacity - 50} more than the event allows.`,
+        `${metrics.confirmedAttendees} confirmed attendees and ${metrics.seatingCapacity} seats: ${metrics.confirmedAttendees - metrics.seatingCapacity} more seats are needed.`,
       ),
     ).toBeInTheDocument()
     expect(

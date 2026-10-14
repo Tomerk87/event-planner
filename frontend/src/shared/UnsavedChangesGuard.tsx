@@ -25,7 +25,11 @@ export function UnsavedChangesGuard({ active }: { active: boolean }) {
       title={t('common.unsaved.title')}
       footer={
         <>
-          <Button variant="ghost" onClick={() => blocker.reset?.()}>
+          <Button
+            data-autofocus
+            variant="ghost"
+            onClick={() => blocker.reset?.()}
+          >
             {t('common.unsaved.stay')}
           </Button>
           <Button variant="danger" onClick={() => blocker.proceed?.()}>

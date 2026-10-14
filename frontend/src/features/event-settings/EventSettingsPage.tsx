@@ -6,6 +6,8 @@ import { canEditEvent } from '../../domain/access.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import type { Event } from '../../domain/models.ts'
 import { useFormatters } from '../../i18n/format.ts'
+import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
+import { CoverPhotoField } from '../events/CoverPhotoField.tsx'
 import type { EventAccessInfo } from '../../services/contracts/index.ts'
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
@@ -24,6 +26,7 @@ import {
   eventFormErrorMessage,
   fieldErrorOf,
   listTimeZones,
+  timeZoneLabel,
   toDateAndTime,
   toInteger,
   toStartsAt,
@@ -45,6 +48,7 @@ function toFormValues(event: Event): EventFormValues {
     defaultAllowedAttendees: String(event.defaultAllowedAttendees),
     rsvpLanguage: event.rsvpLanguage,
     location: event.location ?? '',
+    coverImage: event.coverImage,
   }
 }
 
@@ -59,6 +63,7 @@ function CapacitySummary({ event }: { event: Event }) {
   const { t } = useTranslation()
   const { number } = useFormatters()
   const dashboard = useDashboard(event.id)
+  const seating = useSeatingNotice(dashboard.data, event.maxAttendees)
 
   if (dashboard.isError) {
     return (
@@ -73,7 +78,6 @@ function CapacitySummary({ event }: { event: Event }) {
   }
 
   const { metrics, warnings } = dashboard.data
-  const seatsBelow = warnings.seatingVersusMaximum < 0
 
   return (
     <div className={styles.fields}>
@@ -111,25 +115,9 @@ function CapacitySummary({ event }: { event: Event }) {
           })}
         </Notice>
       )}
-      {warnings.seatingVersusMaximum !== 0 && (
-        <Notice
-          tone="warning"
-          title={t(
-            seatsBelow
-              ? 'dashboard.warnings.seatingBelow.title'
-              : 'dashboard.warnings.seatingAbove.title',
-          )}
-        >
-          {t(
-            seatsBelow
-              ? 'dashboard.warnings.seatingBelow.body'
-              : 'dashboard.warnings.seatingAbove.body',
-            {
-              seats: number(metrics.seatingCapacity),
-              max: number(event.maxAttendees),
-              difference: number(Math.abs(warnings.seatingVersusMaximum)),
-            },
-          )}
+      {seating && (
+        <Notice tone={seating.tone} title={seating.title}>
+          {seating.body}
         </Notice>
       )}
     </div>
@@ -189,6 +177,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
         maxAttendees: toInteger(values.maxAttendees),
         defaultAllowedAttendees: toInteger(values.defaultAllowedAttendees),
         location: values.location,
+        coverImage: values.coverImage,
         // Edited on RSVP Settings; sent back as they are.
         rsvpLanguage: event.rsvpLanguage,
         rsvpTitle: event.rsvpTitle,
@@ -271,6 +260,12 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   hint={t('settings.general.locationHint')}
                   onChange={(change) => set('location', change.target.value)}
                 />
+                <CoverPhotoField
+                  eventId={event.id}
+                  value={values.coverImage}
+                  disabled={!canEdit}
+                  onChange={(image) => set('coverImage', image)}
+                />
                 <TextField
                   label={t('settings.general.maxAttendees')}
                   type="number"
@@ -322,11 +317,13 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   disabled={!canEdit}
                   value={values.timeZone}
                   error={message('timeZone')}
+                  searchable
+                  emptyLabel={t('events.form.timeZoneNoMatch')}
                   onChange={(change) => set('timeZone', change.target.value)}
                 >
                   {timeZones.map((timeZone) => (
                     <option key={timeZone} value={timeZone}>
-                      {timeZone}
+                      {timeZoneLabel(timeZone)}
                     </option>
                   ))}
                 </SelectField>

@@ -72,6 +72,7 @@ export function SendMessageDialog({
             {t('common.cancel')}
           </Button>
           <Button
+            data-autofocus
             icon={<MessageCircle />}
             loading={send.isPending}
             disabled={!preview.data || isEmpty}

@@ -15,6 +15,17 @@
   block-size: 3rem;
 }
 
+.photo {
+  overflow: hidden;
+  background: var(--color-neutral-soft);
+}
+
+.photo img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
 .thumb {
   flex-shrink: 0;
   inline-size: 2.5rem;

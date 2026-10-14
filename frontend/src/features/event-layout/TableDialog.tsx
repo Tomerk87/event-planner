@@ -44,7 +44,7 @@ function TableForm({
   const { showToast } = useToast()
   const create = useCreateTable(eventId)
   const update = useUpdateTable(eventId)
-  // A new table continues the numbering and repeats the last table's chairs.
+  // A new table continues the numbering and repeats the last table's shape.
   const last = tables.reduce<SeatedTable | null>(
     (highest, item) =>
       highest === null || item.table.number > highest.table.number
@@ -56,7 +56,7 @@ function TableForm({
     String(editing?.table.number ?? (last ? last.table.number + 1 : 1)),
   )
   const [capacity, setCapacity] = useState(
-    String(editing?.table.capacity ?? last?.table.capacity ?? DEFAULT_CAPACITY),
+    String(editing?.table.capacity ?? DEFAULT_CAPACITY),
   )
   const [shape, setShape] = useState<TableShape>(
     editing?.table.shape ?? last?.table.shape ?? 'CIRCLE',

@@ -211,3 +211,42 @@ test('a page opened from another page starts at its top', async ({ page }) => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
   }
 })
+
+for (const [where, path, list] of [
+  ['Guests', '/events/evt-1/guests', 'Guests'],
+  ['Event Layout', '/events/evt-1/layout', 'Tables'],
+] as const) {
+  test(`the menu of the last line on ${where} floats above the page`, async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto(path)
+    const lines = isMobile
+      ? // The cards, not the lists of facts inside them.
+        page.getByRole('list', { name: list }).locator(':scope > li')
+      : page.getByRole('table', { name: list }).getByRole('row')
+    const last = lines.last()
+    await last.scrollIntoViewIfNeeded()
+    const scrollSizes = () =>
+      page.evaluate(() =>
+        Array.from(document.querySelectorAll('*'))
+          .filter((element) => element.scrollHeight > element.clientHeight)
+          .map((element) => element.scrollHeight),
+      )
+    const before = await scrollSizes()
+
+    await last.getByRole('button', { name: /^More actions for/ }).click()
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible()
+    const box = await menu.boundingBox()
+    const viewport = page.viewportSize()
+
+    expect(box && viewport).toBeTruthy()
+    expect(box!.y).toBeGreaterThanOrEqual(0)
+    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height)
+    // Opening it made nothing taller or scrollable.
+    expect(await scrollSizes()).toEqual(before)
+    await expect(menu.getByRole('menuitem').first()).toHaveText(/^Edit/)
+    await expect(menu.getByRole('menuitem').first()).toBeFocused()
+  })
+}

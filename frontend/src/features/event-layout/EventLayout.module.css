@@ -152,6 +152,16 @@ button.warning {
   color: var(--color-info);
 }
 
+.good {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+}
+
+.good .warningIcon,
+.good .warningTitle {
+  color: var(--color-success);
+}
+
 /* A table's figures: in the chosen-table panel and in the guests dialog */
 .facts {
   display: grid;

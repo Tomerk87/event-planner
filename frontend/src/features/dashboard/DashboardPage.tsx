@@ -2,6 +2,7 @@ import {
   Armchair,
   CheckCheck,
   ChevronRight,
+  CircleCheck,
   CircleHelp,
   Clock,
   History,
@@ -26,6 +27,7 @@ import {
   type RsvpSegment,
 } from '../../domain/metrics.ts'
 import { useFormatters } from '../../i18n/format.ts'
+import { useSeatingNotice } from './useSeatingNotice.ts'
 import type {
   ActivityItem,
   Dashboard,
@@ -55,7 +57,7 @@ import { RsvpDonut } from './RsvpDonut.tsx'
 const ACTIVITY_PREVIEW = 5
 const LISTED_TABLE_CONFLICTS = 2
 
-type WarningTone = 'danger' | 'warning' | 'info'
+type WarningTone = 'danger' | 'warning' | 'info' | 'success'
 
 interface Warning {
   id: string
@@ -175,6 +177,7 @@ function DashboardContent({
   const [activityOpen, setActivityOpen] = useState(false)
   const { metrics, warnings, recentActivity } = data
   const { maxAttendees } = info.event
+  const seating = useSeatingNotice(data, maxAttendees)
   const base = `/events/${eventId}`
   const number = format.number
 
@@ -276,29 +279,13 @@ function DashboardContent({
       to: `${base}/settings`,
     })
   }
-  if (warnings.seatingVersusMaximum !== 0) {
-    const below = warnings.seatingVersusMaximum < 0
+  if (seating) {
     shown.push({
       id: 'seating',
-      tone: 'warning',
-      icon: TriangleAlert,
-      title: t(
-        below
-          ? 'dashboard.warnings.seatingBelow.title'
-          : 'dashboard.warnings.seatingAbove.title',
-      ),
-      lines: [
-        t(
-          below
-            ? 'dashboard.warnings.seatingBelow.body'
-            : 'dashboard.warnings.seatingAbove.body',
-          {
-            seats: number(metrics.seatingCapacity),
-            max: number(maxAttendees),
-            difference: number(Math.abs(warnings.seatingVersusMaximum)),
-          },
-        ),
-      ],
+      tone: seating.tone,
+      icon: seating.tone === 'warning' ? TriangleAlert : CircleCheck,
+      title: seating.title,
+      lines: [seating.body],
       to: `${base}/layout`,
     })
   }

@@ -16,6 +16,23 @@ export interface EventInput {
   rsvpLanguage: RsvpLanguage
   location?: string | null
   rsvpTitle?: string | null
+  /** A JPEG or PNG data address; null for the generated cover. Left out, it is unchanged. */
+  coverImage?: string | null
+}
+
+/** Largest stored event photo, in characters of its data address. */
+export const COVER_IMAGE_MAX_LENGTH = 300_000
+
+/** Checks an event photo: a JPEG or PNG data address of limited size. */
+export function validateCoverImage(value: string | null): string | null {
+  if (
+    value !== null &&
+    (!/^data:image\/(jpeg|png);base64,/.test(value) ||
+      value.length > COVER_IMAGE_MAX_LENGTH)
+  ) {
+    throw new DomainError('VALIDATION', { field: 'coverImage' })
+  }
+  return value
 }
 
 type EventFields = Omit<Event, 'id' | 'rsvpSlug' | 'coverImage'>

@@ -4,6 +4,7 @@ import { isEventPast } from '../../domain/eventTime.ts'
 import {
   assertStartsInFuture,
   EVENT_LIMITS,
+  validateCoverImage,
   validateEventInput,
 } from '../../domain/events.ts'
 import {
@@ -429,12 +430,13 @@ export function createMockServices(options: MockOptions): Services {
       create: (input) =>
         run('events.create', () => {
           const fields = validateEventInput(input)
+          const coverImage = validateCoverImage(input.coverImage ?? null)
           assertStartsInFuture(fields.startsAt, now())
           const id = newId('evt')
           const event: Event = {
             ...fields,
             id,
-            coverImage: null,
+            coverImage,
             rsvpSlug: `${id}-${state.nextId.toString(36)}`,
           }
           commit({
@@ -531,9 +533,13 @@ export function createMockServices(options: MockOptions): Services {
         run('events.update', () => {
           const { event } = authorize(eventId, 'EDIT')
           const fields = validateEventInput(input)
+          const coverImage =
+            input.coverImage === undefined
+              ? event.coverImage
+              : validateCoverImage(input.coverImage)
           // A date in the past would lock the event the moment it is saved.
           assertStartsInFuture(fields.startsAt, now())
-          const updated: Event = { ...event, ...fields }
+          const updated: Event = { ...event, ...fields, coverImage }
           commit({
             ...state,
             events: state.events.map((candidate) =>

@@ -282,9 +282,7 @@ describe('Event Layout', () => {
         name: `Table ${first!.tableNumber} is over its capacity by ${first!.over}.`,
       }),
     ).toBeInTheDocument()
-    expect(
-      panel.getByText('Seating capacity below event capacity'),
-    ).toBeInTheDocument()
+    expect(panel.getByText('Not enough seats')).toBeInTheDocument()
     expect(
       panel.getByRole('link', { name: /Confirmed attendees without a table/ }),
     ).toHaveAttribute('href', `/events/${MAIN}/guests?rsvp=APPROVED&table=NONE`)
@@ -342,6 +340,8 @@ describe('Event Layout', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add Table' }))
     const dialog = screen.getByRole('dialog', { name: 'Add Table' })
     expect(within(dialog).getByLabelText(/Table Number/)).toHaveValue(19)
+    // Ten chairs to begin with, whatever the other tables have.
+    expect(within(dialog).getByLabelText(/Capacity/)).toHaveValue(10)
 
     fillTableForm(dialog, { number: '4' })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add Table' }))
@@ -382,8 +382,16 @@ describe('Event Layout', () => {
     const before = await tableNumbered(services, 1)
 
     fireEvent.click(
-      within(rowOf(1)).getByRole('button', { name: 'Edit Table 1' }),
+      within(rowOf(1)).getByRole('button', {
+        name: 'More actions for Table 1',
+      }),
     )
+    const items = screen.getAllByRole('menuitem')
+    expect(items.map((item) => item.textContent)).toEqual([
+      'Edit Table',
+      'Delete Table',
+    ])
+    fireEvent.click(items[0]!)
     const dialog = screen.getByRole('dialog', { name: 'Edit Table 1' })
     fillTableForm(dialog, { capacity: String(before.assigned - 2) })
 
@@ -624,9 +632,6 @@ describe('Event Layout', () => {
       expect(screen.getByText(notice)).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Add Table' }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByRole('button', { name: `Edit ${name}` }),
       ).not.toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: `More actions for ${name}` }),

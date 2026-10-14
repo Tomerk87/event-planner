@@ -25,6 +25,7 @@ import { isDomainError } from '../../domain/errors.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import type { Event, RsvpLanguage, RsvpSettings } from '../../domain/models.ts'
 import {
+  BACKGROUND_IMAGE_MAX_LENGTH,
   CALENDAR_TEXT_MAX_LENGTH,
   RSVP_MESSAGE_MAX_LENGTH,
   RSVP_TITLE_MAX_LENGTH,
@@ -66,7 +67,7 @@ import {
   IMAGE_TYPES,
   shrinkImage,
   type ImageProblem,
-} from './imageTools.ts'
+} from '../../shared/imageTools.ts'
 import { downloadQr, drawQr } from './qr.ts'
 import { useRsvpSettings, useSaveRsvpSettings } from './rsvpQueries.ts'
 import styles from './RsvpSettings.module.css'
@@ -278,7 +279,13 @@ function RsvpSettingsForm({
       return
     }
     try {
-      set('backgroundImage', await shrinkImage(file))
+      set(
+        'backgroundImage',
+        await shrinkImage(file, {
+          maxSide: 1600,
+          maxLength: BACKGROUND_IMAGE_MAX_LENGTH,
+        }),
+      )
     } catch {
       setImageProblem('failed')
     }

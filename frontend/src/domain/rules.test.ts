@@ -29,6 +29,8 @@ import {
   computeDashboardMetrics,
   computeDashboardWarnings,
   deriveRecentActivity,
+  seatingState,
+  type DashboardWarnings,
 } from './metrics.ts'
 import type { EventMembership, MessageSend } from './models.ts'
 import {
@@ -1050,6 +1052,7 @@ describe('dashboard', () => {
     ).toEqual({
       attendeesOverMaximum: 0,
       seatingVersusMaximum: -32,
+      seatsShort: 0,
       tablesOverCapacity: [{ tableId: 't-1', tableNumber: 1, over: 1 }],
       attendeesAwaitingTable: 3,
     })
@@ -1081,9 +1084,56 @@ describe('dashboard', () => {
     ).toEqual({
       attendeesOverMaximum: 0,
       seatingVersusMaximum: 0,
+      seatsShort: 0,
       tablesOverCapacity: [],
       attendeesAwaitingTable: 0,
     })
+  })
+})
+
+describe('seating state', () => {
+  const base: DashboardWarnings = {
+    attendeesOverMaximum: 0,
+    seatingVersusMaximum: 0,
+    seatsShort: 0,
+    tablesOverCapacity: [],
+    attendeesAwaitingTable: 0,
+  }
+
+  it('warns when confirmed attendees outnumber the chairs, whatever the maximum', () => {
+    expect(
+      seatingState({ ...base, seatsShort: 26, seatingVersusMaximum: -118 }),
+    ).toEqual({ kind: 'short', short: 26 })
+    expect(seatingState({ ...base, seatsShort: 4 })).toEqual({
+      kind: 'short',
+      short: 4,
+    })
+  })
+
+  it('only informs when the chairs differ from the maximum but seat everyone', () => {
+    expect(seatingState({ ...base, seatingVersusMaximum: -118 })).toEqual({
+      kind: 'below',
+      difference: 118,
+    })
+    expect(seatingState({ ...base, seatingVersusMaximum: 6 })).toEqual({
+      kind: 'above',
+      difference: 6,
+    })
+    expect(seatingState(base)).toBeNull()
+  })
+
+  it('counts the attendees beyond the chairs', () => {
+    const table = makeTable({ id: 't-9', capacity: 4 })
+    const list = [makeApprovedGuest(5, { tableId: null })]
+
+    expect(
+      computeDashboardWarnings(
+        { maxAttendees: 50 },
+        computeDashboardMetrics(list, [table]),
+        list,
+        [table],
+      ).seatsShort,
+    ).toBe(1)
   })
 })
 

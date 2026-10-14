@@ -121,7 +121,11 @@ export function DemoTools() {
         title={t('demo.resetTitle')}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
+            <Button
+              data-autofocus
+              variant="ghost"
+              onClick={() => setConfirmOpen(false)}
+            >
               {t('common.cancel')}
             </Button>
             <Button

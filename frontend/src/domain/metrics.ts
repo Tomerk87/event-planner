@@ -61,6 +61,8 @@ export interface DashboardWarnings {
   attendeesOverMaximum: number
   /** Chairs minus the event maximum: positive when above, negative when below. */
   seatingVersusMaximum: number
+  /** Confirmed attendees beyond the chairs; 0 when every one has a seat. */
+  seatsShort: number
   tablesOverCapacity: TableConflict[]
   /** Confirmed attendees still waiting for a table. */
   attendeesAwaitingTable: number
@@ -79,6 +81,10 @@ export function computeDashboardWarnings(
       metrics.confirmedAttendees - event.maxAttendees,
     ),
     seatingVersusMaximum: metrics.seatingCapacity - event.maxAttendees,
+    seatsShort: Math.max(
+      0,
+      metrics.confirmedAttendees - metrics.seatingCapacity,
+    ),
     tablesOverCapacity: findTableConflicts(tables, guests),
     attendeesAwaitingTable: metrics.unassignedConfirmedAttendees,
   }
@@ -202,4 +208,27 @@ export function computeRsvpBreakdown(metrics: DashboardMetrics): RsvpShare[] {
     count: counts[segment],
     percent: percents[index] ?? 0,
   }))
+}
+
+/**
+ * How the chairs compare: too few for the confirmed attendees is a warning;
+ * a difference from the event maximum alone is only information, since the
+ * confirmed attendees all have a seat.
+ */
+export type SeatingState =
+  | { kind: 'short'; short: number }
+  | { kind: 'below' | 'above'; difference: number }
+  | null
+
+export function seatingState(warnings: DashboardWarnings): SeatingState {
+  if (warnings.seatsShort > 0) {
+    return { kind: 'short', short: warnings.seatsShort }
+  }
+  if (warnings.seatingVersusMaximum === 0) {
+    return null
+  }
+  return {
+    kind: warnings.seatingVersusMaximum < 0 ? 'below' : 'above',
+    difference: Math.abs(warnings.seatingVersusMaximum),
+  }
 }

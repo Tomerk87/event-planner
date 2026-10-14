@@ -242,17 +242,16 @@ export function GuestsTab({
             >
               <MessageCircle />
             </IconButton>
-            <IconButton
-              label={t('guests.row.edit', { name })}
-              variant="ghost"
-              onClick={() => setPanel({ kind: 'edit', guestId: guest.id })}
-            >
-              <Pencil />
-            </IconButton>
             <Menu
               label={t('guests.row.more', { name })}
               triggerClassName={styles.iconControl}
               items={[
+                {
+                  id: 'edit',
+                  label: t('guests.row.editGuest'),
+                  icon: <Pencil />,
+                  onSelect: () => setPanel({ kind: 'edit', guestId: guest.id }),
+                },
                 {
                   id: 'rsvp',
                   label: t('guests.row.changeRsvp'),

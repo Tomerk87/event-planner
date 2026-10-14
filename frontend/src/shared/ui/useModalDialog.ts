@@ -18,7 +18,8 @@ interface ModalDialog {
 
 /**
  * Drives a native <dialog> as a modal: the browser contains focus, closes on
- * Escape and restores focus to the opener. `onClose` is called exactly once
+ * Escape and restores focus to the opener. On opening, focus goes to the
+ * element marked `data-autofocus`, if any, otherwise to the first control. `onClose` is called exactly once
  * when the user closes the dialog, and not when the parent closes it by
  * setting `open` to false.
  */
@@ -37,6 +38,7 @@ export function useModalDialog(
     }
     if (open && !dialog.open) {
       dialog.showModal()
+      dialog.querySelector<HTMLElement>('[data-autofocus]')?.focus()
     } else if (!open && dialog.open) {
       dialog.close()
     }

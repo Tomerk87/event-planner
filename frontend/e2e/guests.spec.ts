@@ -93,7 +93,10 @@ test('a guest can be added, found, edited and deleted, and the Dashboard follows
   await expect(list.getByText('Zohar Newcomer', { exact: true })).toBeVisible()
   await expect(list.getByText('Not Sent')).toBeVisible()
 
-  await list.getByRole('button', { name: 'Edit Zohar Newcomer' }).click()
+  await list
+    .getByRole('button', { name: 'More actions for Zohar Newcomer' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Edit Guest' }).click()
   const edit = page.getByRole('dialog', { name: 'Edit Guest' })
   await edit.getByLabel(/Last Name/).fill('Renamed')
   await edit.getByRole('button', { name: 'Save Changes' }).click()
@@ -469,6 +472,8 @@ test('the table can be used from the keyboard', async ({ page, isMobile }) => {
   const more = table.getByRole('button', { name: /^More actions for/ }).first()
   await more.focus()
   await page.keyboard.press('Enter')
+  await expect(page.getByRole('menuitem', { name: 'Edit Guest' })).toBeFocused()
+  await page.keyboard.press('ArrowDown')
   await page.keyboard.press('ArrowDown')
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeFocused()
   await page.keyboard.press('Escape')

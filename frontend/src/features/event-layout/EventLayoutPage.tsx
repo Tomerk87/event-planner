@@ -2,6 +2,7 @@ import {
   Armchair,
   ArrowUpDown,
   ChevronRight,
+  CircleCheck,
   Download,
   Ellipsis,
   Pencil,
@@ -36,6 +37,7 @@ import {
   type TableSortKey,
 } from '../../domain/tableList.ts'
 import { useFormatters } from '../../i18n/format.ts'
+import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
@@ -220,29 +222,29 @@ export function EventLayoutPage() {
     }
   }
 
-  function deleteItem(item: SeatedTable) {
-    return {
-      id: 'delete',
-      label: t('layout.row.delete'),
-      icon: <Trash2 />,
-      tone: 'danger' as const,
-      onSelect: () => setPanel({ kind: 'delete', tableId: item.table.id }),
-    }
+  /** Edit and Delete, for Owners and Admins of an upcoming event. */
+  function menuItems(item: SeatedTable) {
+    return [
+      {
+        id: 'edit',
+        label: t('layout.selected.edit'),
+        icon: <Pencil />,
+        onSelect: () => setPanel({ kind: 'edit', tableId: item.table.id }),
+      },
+      {
+        id: 'delete',
+        label: t('layout.row.delete'),
+        icon: <Trash2 />,
+        tone: 'danger' as const,
+        onSelect: () => setPanel({ kind: 'delete', tableId: item.table.id }),
+      },
+    ]
   }
 
   function rowActions(item: SeatedTable) {
     const name = tableName(item)
     return (
       <div className={guestStyles.rowActions}>
-        {canEdit && (
-          <IconButton
-            label={t('layout.row.edit', { name })}
-            variant="ghost"
-            onClick={() => setPanel({ kind: 'edit', tableId: item.table.id })}
-          >
-            <Pencil />
-          </IconButton>
-        )}
         <IconButton
           label={t(canEdit ? 'layout.row.manage' : 'layout.row.view', { name })}
           variant="ghost"
@@ -254,7 +256,7 @@ export function EventLayoutPage() {
           <Menu
             label={t('layout.row.more', { name })}
             triggerClassName={guestStyles.iconControl}
-            items={[deleteItem(item)]}
+            items={menuItems(item)}
           >
             <Ellipsis aria-hidden="true" />
           </Menu>
@@ -347,7 +349,7 @@ export function EventLayoutPage() {
             <Menu
               label={t('layout.row.more', { name })}
               triggerClassName={guestStyles.iconControl}
-              items={[deleteItem(item)]}
+              items={menuItems(item)}
             >
               <Ellipsis aria-hidden="true" />
             </Menu>
@@ -382,27 +384,19 @@ export function EventLayoutPage() {
           >
             {t('layout.card.viewGuests', { count: number(item.assigned) })}
           </Button>
-          {canEdit && (
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Pencil />}
-              aria-label={t('layout.row.edit', { name })}
-              onClick={() => setPanel({ kind: 'edit', tableId: item.table.id })}
-            >
-              {t('layout.card.edit')}
-            </Button>
-          )}
         </div>
       </div>
     )
   }
 
-  const seatingGap = warnings?.seatingVersusMaximum ?? 0
+  const seating = useSeatingNotice(
+    warnings && { metrics, warnings },
+    event?.maxAttendees ?? 0,
+  )
   const hasWarnings =
     warnings !== null &&
     (warnings.tablesOverCapacity.length > 0 ||
-      seatingGap !== 0 ||
+      seating !== null ||
       warnings.attendeesAwaitingTable > 0)
 
   const warningsCard = warnings && event && (
@@ -432,31 +426,28 @@ export function EventLayoutPage() {
               </button>
             </li>
           ))}
-          {seatingGap !== 0 && (
+          {seating && (
             <li>
-              <div className={cx(styles.warning, styles.caution)}>
-                <TriangleAlert
-                  className={styles.warningIcon}
-                  aria-hidden="true"
-                />
+              <div
+                className={cx(
+                  styles.warning,
+                  seating.tone === 'warning' ? styles.caution : styles.good,
+                )}
+              >
+                {seating.tone === 'warning' ? (
+                  <TriangleAlert
+                    className={styles.warningIcon}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <CircleCheck
+                    className={styles.warningIcon}
+                    aria-hidden="true"
+                  />
+                )}
                 <span className={styles.warningText}>
-                  <span className={styles.warningTitle}>
-                    {t(
-                      seatingGap < 0
-                        ? 'dashboard.warnings.seatingBelow.title'
-                        : 'dashboard.warnings.seatingAbove.title',
-                    )}
-                  </span>
-                  {t(
-                    seatingGap < 0
-                      ? 'dashboard.warnings.seatingBelow.body'
-                      : 'dashboard.warnings.seatingAbove.body',
-                    {
-                      seats: number(metrics.seatingCapacity),
-                      max: number(event.maxAttendees),
-                      difference: number(Math.abs(seatingGap)),
-                    },
-                  )}
+                  <span className={styles.warningTitle}>{seating.title}</span>
+                  {seating.body}
                 </span>
               </div>
             </li>

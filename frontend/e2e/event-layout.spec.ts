@@ -109,8 +109,9 @@ test('a table can be added, edited and deleted, and the change survives a reload
   await expect(entry(page, isMobile, 30)).toBeVisible()
 
   await entry(page, isMobile, 30)
-    .getByRole('button', { name: 'Edit Table 30' })
+    .getByRole('button', { name: 'More actions for Table 30' })
     .click()
+  await page.getByRole('menuitem', { name: 'Edit Table' }).click()
   const edit = page.getByRole('dialog', { name: 'Edit Table 30' })
   await edit.getByLabel(/Capacity/).fill('2')
   await edit.getByRole('button', { name: 'Save Changes' }).click()
@@ -200,8 +201,9 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   ).toHaveCount(2)
 
   await entry(page, isMobile, 1)
-    .getByRole('button', { name: 'Edit Table 1' })
+    .getByRole('button', { name: 'More actions for Table 1' })
     .click()
+  await page.getByRole('menuitem', { name: 'Edit Table' }).click()
   const dialog = page.getByRole('dialog', { name: 'Edit Table 1' })
   await dialog.getByLabel(/Capacity/).fill('7')
   await expect(
@@ -374,7 +376,7 @@ for (const language of ['en', 'he'] as const) {
       await expectNoViolations(page)
       await page.keyboard.press('Escape')
 
-      // A table's guests.
+      // The row menu's first action, Edit Table.
       await page
         .getByRole('main')
         .locator('table, ul[aria-label]')
@@ -394,7 +396,7 @@ for (const language of ['en', 'he'] as const) {
             ? 'ul[aria-label] li button[aria-label]:not([aria-haspopup])'
             : 'tbody tr:first-child td:last-child button:not([aria-haspopup])',
         )
-        .nth(isMobile ? 0 : 1)
+        .first()
         .click()
       await expect(
         page.getByRole('dialog').getByRole('searchbox'),

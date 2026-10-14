@@ -16,6 +16,7 @@ import {
   eventFormErrorMessage,
   fieldErrorOf,
   listTimeZones,
+  timeZoneLabel,
   toInteger,
   toStartsAt,
   validateEventForm,
@@ -23,6 +24,7 @@ import {
   type EventFormField,
   type EventFormValues,
 } from './eventForm.ts'
+import { CoverPhotoField } from './CoverPhotoField.tsx'
 import { useCreateEvent, useDuplicateEvent } from './eventMutations.ts'
 
 interface EventDialogProps {
@@ -107,6 +109,7 @@ function EventForm({
           defaultAllowedAttendees: toInteger(values.defaultAllowedAttendees),
           rsvpLanguage: values.rsvpLanguage,
           location: values.location,
+          coverImage: values.coverImage,
         },
         handlers,
       )
@@ -167,11 +170,13 @@ function EventForm({
             required
             value={values.timeZone}
             error={message('timeZone')}
+            searchable
+            emptyLabel={t('events.form.timeZoneNoMatch')}
             onChange={(event) => set('timeZone', event.target.value)}
           >
             {timeZones.map((timeZone) => (
               <option key={timeZone} value={timeZone}>
-                {timeZone}
+                {timeZoneLabel(timeZone)}
               </option>
             ))}
           </SelectField>
@@ -229,6 +234,10 @@ function EventForm({
             maxLength={120}
             value={values.location}
             onChange={(event) => set('location', event.target.value)}
+          />
+          <CoverPhotoField
+            value={values.coverImage}
+            onChange={(image) => set('coverImage', image)}
           />
         </>
       )}

@@ -69,7 +69,7 @@ export function DeleteGuestsDialog({
       title={t(single ? 'guests.delete.titleOne' : 'guests.delete.titleMany')}
       footer={
         <>
-          <Button variant="ghost" onClick={close}>
+          <Button data-autofocus variant="ghost" onClick={close}>
             {t('common.cancel')}
           </Button>
           <Button variant="danger" loading={remove.isPending} onClick={confirm}>
