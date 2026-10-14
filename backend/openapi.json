@@ -1,0 +1,2285 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reports whether the API is up and can reach its database.",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/files/{key}": {
+      "get": {
+        "operationId": "FilesController_get",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Serves a stored picture. Public, because the RSVP background is shown to\nguests without an account; keys are random and never listed.",
+        "tags": [
+          "files"
+        ]
+      }
+    },
+    "/api/auth/sign-up": {
+      "post": {
+        "operationId": "AuthController_signUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/sign-in": {
+      "post": {
+        "operationId": "AuthController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/sign-out": {
+      "post": {
+        "operationId": "AuthController_signOut",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "The signed-in user (the frontend's session.getCurrentUser).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/events": {
+      "get": {
+        "operationId": "EventsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "events"
+        ]
+      },
+      "post": {
+        "operationId": "EventsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/events/{eventId}": {
+      "get": {
+        "operationId": "EventsController_get",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventAccessInfoDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "events"
+        ]
+      },
+      "put": {
+        "operationId": "EventsController_update",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "events"
+        ]
+      },
+      "delete": {
+        "operationId": "EventsController_remove",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/events/{eventId}/duplicate": {
+      "post": {
+        "operationId": "EventsController_duplicate",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DuplicateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/events/{eventId}/permissions": {
+      "get": {
+        "operationId": "PermissionsController_list",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventAccessListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/api/events/{eventId}/permissions/invitations": {
+      "post": {
+        "operationId": "PermissionsController_invite",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "A member at once for an existing account, a pending invitation otherwise.",
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/api/events/{eventId}/permissions/members/{userId}": {
+      "put": {
+        "operationId": "PermissionsController_changeRole",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "permissions"
+        ]
+      },
+      "delete": {
+        "operationId": "PermissionsController_revoke",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/api/events/{eventId}/permissions/invitations/{invitationId}": {
+      "put": {
+        "operationId": "PermissionsController_changeInvitationRole",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "permissions"
+        ]
+      },
+      "delete": {
+        "operationId": "PermissionsController_cancelInvitation",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests": {
+      "get": {
+        "operationId": "GuestsController_list",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuestDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Every active guest (the frontend filters and pages them itself).",
+        "tags": [
+          "guests"
+        ]
+      },
+      "post": {
+        "operationId": "GuestsController_create",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/search": {
+      "get": {
+        "operationId": "GuestsController_search",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "en",
+                "he"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "A sort key, - first for descending",
+            "schema": {}
+          },
+          {
+            "name": "group",
+            "required": false,
+            "in": "query",
+            "description": "A group name; empty for no group",
+            "schema": {}
+          },
+          {
+            "name": "table",
+            "required": false,
+            "in": "query",
+            "description": "A table id, or NONE",
+            "schema": {}
+          },
+          {
+            "name": "invitation",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "SENT",
+                "NOT_SENT"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "rsvp",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "NO_RESPONSE",
+                "APPROVED",
+                "NOT_SURE",
+                "DECLINED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Search, filters, sorting and paging, with the Guests page's rules.",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/{guestId}": {
+      "put": {
+        "operationId": "GuestsController_update",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      },
+      "delete": {
+        "operationId": "GuestsController_remove",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/delete": {
+      "post": {
+        "operationId": "GuestsController_removeMany",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestIdsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/{guestId}/rsvp": {
+      "put": {
+        "operationId": "GuestsController_setRsvp",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestRsvpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/{guestId}/table": {
+      "put": {
+        "operationId": "GuestsController_assignTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/group": {
+      "post": {
+        "operationId": "GuestsController_setGroup",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/import/read": {
+      "post": {
+        "operationId": "GuestsController_readFile",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadsheetRowsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Reads an uploaded CSV or Excel file into rows; nothing is saved.",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/import": {
+      "post": {
+        "operationId": "GuestsController_importMany",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportGuestsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportOutcomeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Adds the rows chosen in the import dialog; all of them or none.",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/guests/export": {
+      "post": {
+        "operationId": "GuestsController_export",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportGuestsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "The guest list as a CSV or Excel file, with every field.",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/unknown-guests": {
+      "get": {
+        "operationId": "UnknownGuestsController_list",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UnknownRsvpDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "unknown guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/unknown-guests/rejected": {
+      "get": {
+        "operationId": "UnknownGuestsController_listRejected",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UnknownRsvpDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "unknown guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/unknown-guests/{unknownId}/convert": {
+      "post": {
+        "operationId": "UnknownGuestsController_convert",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unknownId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertUnknownDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "unknown guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/unknown-guests/{unknownId}/merge": {
+      "post": {
+        "operationId": "UnknownGuestsController_merge",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unknownId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeUnknownDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "unknown guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/unknown-guests/{unknownId}/reject": {
+      "post": {
+        "operationId": "UnknownGuestsController_reject",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unknownId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "unknown guests"
+        ]
+      }
+    },
+    "/api/events/{eventId}/unknown-guests/{unknownId}/restore": {
+      "post": {
+        "operationId": "UnknownGuestsController_restore",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unknownId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownRsvpDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "unknown guests"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Event Planner API",
+    "description": "Errors are returned as { code, details }; the codes are those of src/domain/errors.ts.",
+    "version": "1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ep_session"
+      }
+    },
+    "schemas": {
+      "SignUpDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "isSuperUser": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "isSuperUser"
+        ]
+      },
+      "SignInDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "EventDto": {
+        "type": "object",
+        "properties": {
+          "rsvpLanguage": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "rsvpTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverImage": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "maxAttendees": {
+            "type": "number"
+          },
+          "defaultAllowedAttendees": {
+            "type": "number"
+          },
+          "rsvpSlug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rsvpLanguage",
+          "location",
+          "rsvpTitle",
+          "coverImage",
+          "id",
+          "name",
+          "startsAt",
+          "timeZone",
+          "maxAttendees",
+          "defaultAllowedAttendees",
+          "rsvpSlug"
+        ]
+      },
+      "EventSummaryDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          },
+          "confirmedAttendees": {
+            "type": "number"
+          },
+          "event": {
+            "$ref": "#/components/schemas/EventDto"
+          },
+          "isPast": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "role",
+          "confirmedAttendees",
+          "event",
+          "isPast"
+        ]
+      },
+      "EventAccessInfoDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          },
+          "event": {
+            "$ref": "#/components/schemas/EventDto"
+          },
+          "isPast": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "role",
+          "event",
+          "isPast"
+        ]
+      },
+      "EventInputDto": {
+        "type": "object",
+        "properties": {
+          "coverImage": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 400000,
+            "description": "A JPEG or PNG data address to set the photo, null to remove it, the current photo address or nothing to keep it."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxAttendees": {
+            "type": "number"
+          },
+          "defaultAllowedAttendees": {
+            "type": "number"
+          },
+          "rsvpLanguage": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 120
+          },
+          "rsvpTitle": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "name",
+          "startsAt",
+          "timeZone",
+          "maxAttendees",
+          "defaultAllowedAttendees",
+          "rsvpLanguage"
+        ]
+      },
+      "DuplicateEventDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "startsAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "startsAt"
+        ]
+      },
+      "MemberDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          },
+          "isCurrentUser": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "role",
+          "user",
+          "isCurrentUser"
+        ]
+      },
+      "InvitationDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "id",
+          "eventId",
+          "email"
+        ]
+      },
+      "EventAccessListDto": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberDto"
+            }
+          },
+          "invitations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvitationDto"
+            }
+          }
+        },
+        "required": [
+          "members",
+          "invitations"
+        ]
+      },
+      "InviteDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254
+          }
+        },
+        "required": [
+          "role",
+          "email"
+        ]
+      },
+      "InviteResultDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "member",
+              "invitation"
+            ],
+            "type": "string"
+          },
+          "member": {
+            "$ref": "#/components/schemas/MemberDto"
+          },
+          "invitation": {
+            "$ref": "#/components/schemas/InvitationDto"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "RoleDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "GuestDto": {
+        "type": "object",
+        "properties": {
+          "invitationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmedAttendees": {
+            "type": "number",
+            "nullable": true
+          },
+          "rsvpStatus": {
+            "enum": [
+              "NO_RESPONSE",
+              "APPROVED",
+              "NOT_SURE",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "lastInvitationSentAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastRsvpResponseAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "tableId": {
+            "type": "string",
+            "nullable": true
+          },
+          "group": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "normalizedPhone": {
+            "type": "string"
+          },
+          "allowedAttendees": {
+            "type": "number"
+          },
+          "invitationSentCount": {
+            "type": "number"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "invitationName",
+          "confirmedAttendees",
+          "rsvpStatus",
+          "lastInvitationSentAt",
+          "lastRsvpResponseAt",
+          "tableId",
+          "group",
+          "id",
+          "eventId",
+          "firstName",
+          "lastName",
+          "phone",
+          "normalizedPhone",
+          "allowedAttendees",
+          "invitationSentCount",
+          "deleted"
+        ]
+      },
+      "GuestPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestDto"
+            }
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageCount",
+          "total",
+          "from",
+          "to"
+        ]
+      },
+      "GuestInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "allowedAttendees": {
+            "type": "number"
+          },
+          "group": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phone",
+          "allowedAttendees"
+        ]
+      },
+      "GuestIdsDto": {
+        "type": "object",
+        "properties": {
+          "guestIds": {
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "guestIds"
+        ]
+      },
+      "GuestRsvpDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "NO_RESPONSE",
+              "APPROVED",
+              "NOT_SURE",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "attendees": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "status",
+          "attendees"
+        ]
+      },
+      "AssignTableDto": {
+        "type": "object",
+        "properties": {
+          "tableId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "tableId"
+        ]
+      },
+      "SetGroupDto": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 80
+          },
+          "guestIds": {
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "group",
+          "guestIds"
+        ]
+      },
+      "SpreadsheetRowsDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "rows"
+        ]
+      },
+      "ImportGuestsDto": {
+        "type": "object",
+        "properties": {
+          "guests": {
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestInputDto"
+            }
+          }
+        },
+        "required": [
+          "guests"
+        ]
+      },
+      "ImportOutcomeDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "number"
+          },
+          "restored": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "created",
+          "restored"
+        ]
+      },
+      "ExportLabelsDto": {
+        "type": "object",
+        "properties": {
+          "headings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "statuses": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "headings",
+          "statuses"
+        ]
+      },
+      "ExportGuestsDto": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "type": "string"
+          },
+          "guestIds": {
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "labels": {
+            "$ref": "#/components/schemas/ExportLabelsDto"
+          },
+          "sheetName": {
+            "type": "string",
+            "maxLength": 31
+          },
+          "rightToLeft": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "format",
+          "labels",
+          "sheetName",
+          "rightToLeft"
+        ]
+      },
+      "UnknownRsvpDto": {
+        "type": "object",
+        "properties": {
+          "rsvpStatus": {
+            "enum": [
+              "APPROVED",
+              "NOT_SURE",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "confirmedAttendees": {
+            "type": "number",
+            "nullable": true
+          },
+          "rejectedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "normalizedPhone": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rsvpStatus",
+          "confirmedAttendees",
+          "rejectedAt",
+          "id",
+          "eventId",
+          "name",
+          "phone",
+          "normalizedPhone",
+          "submittedAt"
+        ]
+      },
+      "ConvertUnknownDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "allowedAttendees": {
+            "type": "number"
+          },
+          "group": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "allowedAttendees"
+        ]
+      },
+      "MergeUnknownDto": {
+        "type": "object",
+        "properties": {
+          "guestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "guestId"
+        ]
+      }
+    }
+  }
+}

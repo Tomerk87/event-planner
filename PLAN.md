@@ -381,15 +381,15 @@
 - [x] Check loading, empty, success, error, conflict, confirmation, disabled and read-only states.
 - [x] Validate keyboard, labels, focus management and readable text on images.
 - [x] Check all mock services adhere to service contracts and approved domain rules.
-- [ ] Collect user feedback and iterate on the frontend until approved. **Waiting for the owner's walk-through.**
+- [x] Collect user feedback and iterate on the frontend until approved. Owner feedback 2026-10-14: page scroll position, then eight changes (D75–D82).
 - [x] Record accepted UI/interaction decisions and remaining nonblocking visual issues (progress log, 2026-10-13 Phase 12 entry).
 - [x] Hebrew translations: review by a Hebrew speaker moved to Phase 17 by the owner (D74); the texts stay as written for now.
 - [x] `/showcase` decided: removed from the application (D73).
-- [ ] **Request and record explicit user approval to proceed to the backend phase.** Requested 2026-10-13; not yet given.
+- [x] **Request and record explicit user approval to proceed to the backend phase.** Approved by the owner on 2026-10-14.
 
 ### Validation and exit criteria
 - [x] Interactive frontend demonstrates the MVP without a backend.
-- [ ] User has approved the frontend direction or explicitly authorized moving ahead with documented exceptions.
+- [x] User has approved the frontend direction or explicitly authorized moving ahead with documented exceptions.
 
 ---
 
@@ -398,22 +398,22 @@
 **Goal:** establish real persistence and API architecture after frontend acceptance.
 
 ### Checklist
-- [ ] Scaffold NestJS TypeScript backend independently of React UI.
-- [ ] When the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images and event photos out of browser storage.
-- [ ] Set up PostgreSQL development database (local install or temporary DB-only container is acceptable; full Compose deployment remains later).
-- [ ] Set up Prisma schema and deterministic migrations.
-- [ ] Implement User, Event, EventPermission, Guest, Unknown RSVP, RSVP Config, Message Config and Table/Assignment entities.
-- [ ] Define constraints: unique permission per user/event, unique normalized phone per event (including soft-delete restoration strategy), unique table number per event.
-- [ ] Add validation for attendee bounds, status/count consistency, and role/ownership invariants.
-- [ ] Implement environment configuration, error conventions, logging and health endpoint.
-- [ ] Add upload storage abstraction for RSVP background assets, using local persistent storage initially.
-- [ ] Align backend DTOs/contracts with frontend service interfaces; document API schema (e.g., OpenAPI).
-- [ ] Add backend test and migration test setup.
+- [x] Scaffold NestJS TypeScript backend independently of React UI.
+- [ ] Moved to Phase 16, when the frontend uses the backend: when the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images and event photos out of browser storage.
+- [x] Set up PostgreSQL development database (local install or temporary DB-only container is acceptable; full Compose deployment remains later).
+- [x] Set up Prisma schema and deterministic migrations.
+- [x] Implement User, Event, EventPermission, Guest, Unknown RSVP, RSVP Config, Message Config and Table/Assignment entities.
+- [x] Define constraints: unique permission per user/event, unique normalized phone per event (including soft-delete restoration strategy), unique table number per event.
+- [x] Add validation for attendee bounds, status/count consistency, and role/ownership invariants.
+- [x] Implement environment configuration, error conventions, logging and health endpoint. Logging is Nest's logger, plain text; JSON logs can come with deployment (Phase 18).
+- [x] Add upload storage abstraction for RSVP background assets, using local persistent storage initially.
+- [x] Align backend DTOs/contracts with frontend service interfaces; document API schema (e.g., OpenAPI).
+- [x] Add backend test and migration test setup.
 
 ### Validation and exit criteria
-- [ ] Fresh database migrations work and schema tests pass.
-- [ ] Health endpoint works; backend can access PostgreSQL.
-- [ ] Backend can run independently of full Docker Compose packaging.
+- [x] Fresh database migrations work and schema tests pass.
+- [x] Health endpoint works; backend can access PostgreSQL.
+- [x] Backend can run independently of full Docker Compose packaging.
 
 ---
 
@@ -422,22 +422,22 @@
 **Goal:** replace the simulated core account/event/security workflows with secure backend services.
 
 ### Checklist
-- [ ] Implement actual authentication/session handling and account API; no demo credentials accepted as real authentication.
-- [ ] Implement Events list, creation, settings, duplicate and delete endpoints with explicit ownership rules.
-- [ ] Automatically grant event creator Owner; enforce event max attendees 50–3000/default 300 and default guest allowance 1–10/default 5.
-- [ ] Enforce past-event read-only rules on server; read/export still available.
-- [ ] Implement event permission resolution including database-only system Super User.
-- [ ] Implement role-scoped permissions list/grant/change/remove endpoints.
-- [ ] Prevent self-permission edits, unauthorized Owner management and removing the final Owner.
-- [ ] Implement Guests CRUD, normalized phone uniqueness, soft delete and restore-on-readd.
-- [ ] Implement organizer manual RSVP edits and correct table assignment cleanup.
-- [ ] Implement known/unknown matching foundation, guest searches/sorts/pagination and guest import/export APIs.
-- [ ] Add authentication, authorization, soft-delete and validation integration tests.
+- [x] Implement actual authentication/session handling and account API; no demo credentials accepted as real authentication.
+- [x] Implement Events list, creation, settings, duplicate and delete endpoints with explicit ownership rules.
+- [x] Automatically grant event creator Owner; enforce event max attendees 50–3000/default 300 and default guest allowance 1–10/default 5.
+- [x] Enforce past-event read-only rules on server; read/export still available.
+- [x] Implement event permission resolution including database-only system Super User.
+- [x] Implement role-scoped permissions list/grant/change/remove endpoints, with pending invitations (D4).
+- [x] Prevent self-permission edits, unauthorized Owner management and removing the final Owner.
+- [x] Implement Guests CRUD, normalized phone uniqueness, soft delete and restore-on-readd.
+- [x] Implement organizer manual RSVP edits and correct table assignment cleanup.
+- [x] Implement known/unknown matching foundation (Unknown Guests review: list, convert, merge, reject, restore; the public RSVP submission is Phase 15), guest searches/sorts/pagination and guest import/export APIs.
+- [x] Add authentication, authorization, soft-delete and validation integration tests.
 
 ### Validation and exit criteria
-- [ ] Direct unauthorized API requests fail, regardless of frontend controls.
-- [ ] Multi-event membership, own-role restrictions and restoration behavior pass tests.
-- [ ] Demo Mode remains isolated and unaffected.
+- [x] Direct unauthorized API requests fail, regardless of frontend controls.
+- [x] Multi-event membership, own-role restrictions and restoration behavior pass tests.
+- [x] Demo Mode remains isolated and unaffected.
 
 ---
 
@@ -508,6 +508,7 @@
 - [ ] Review security of public RSVP, file uploads, permissions, CORS, authentication, configuration and sensitive logs.
 - [ ] Measure performance with representative events up to 3000 attendees and multiple simultaneous RSVP submissions.
 - [ ] Validate frontend and backend production builds.
+- [ ] Email verification at sign-up before real users: without it, anyone can sign up with an invited email and receive that invitation's access (owner accepted the risk for the POC, 2026-10-14).
 - [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew.
 
 ### Validation and exit criteria
@@ -1077,6 +1078,29 @@ Follow-ups/risks:
 - Event photos are kept in browser storage until Phase 13 moves them to the server (Phase 13 item extended).
 - Nothing committed; branch phase_12_feedback.
 Next: owner approval of the frontend to start Phase 13.
+```
+
+```text
+2026-10-14 — Phase 12 — frontend approved by the owner; the gate to the backend is open.
+Accepted exceptions: Hebrew review moved to Phase 17 (D74); nonblocking visual issues as listed in the Phase 12 entry of 2026-10-13 (Guests names wrapping at 1440px with every column, long Dashboard KPI labels wrapping, no Selected Table panel at 1024–1359px). The time zone search issue was fixed (D75).
+Decisions for Phases 13–14 (owner): OpenAPI generated from NestJS for the API contract; email + password with an httpOnly session cookie and sessions in PostgreSQL; no email verification for the POC (risk recorded, Phase 17 item); guest import and export on the server.
+Next: Phase 13.
+```
+
+```text
+2026-10-14 — Phases 13 and 14 — backend foundation, then real authentication, events, permissions and guests.
+- backend/: NestJS 12, Prisma 7 (pg adapter), PostgreSQL 17 in a database-only container with a separate test database. One migration with 11 tables and 14 CHECK constraints (attendee bounds, RSVP/count consistency, seat only when Approved, event and table limits); a guest's table must belong to its event (composite foreign key).
+- Business rules: frontend/src/domain copied to backend/src/domain unchanged (plus new-event defaults); its 440 tests run in the backend; a test fails if the copies differ. New shared error codes UNAUTHENTICATED, INVALID_CREDENTIALS, TOO_MANY_REQUESTS (with English and Hebrew texts in the frontend).
+- API (29 routes, OpenAPI at /api/docs, openapi.json): auth (sign-up, sign-in, sign-out, me); events (list, get, create, update with photo, duplicate, delete); permissions (list, invite → member or pending, change role, revoke, change/cancel invitation); guests (list, search with filters/sort/paging, add/restore, edit, delete, bulk delete, RSVP, table, group, file read, import, export); unknown guests (list, rejected, convert, merge, reject, restore); files; health.
+- Security: argon2id; session token hash only; httpOnly SameSite=Lax cookie, Secure in production; 10 sign-in/sign-up attempts a minute per address; unknown and inaccessible events answer 404; input classes reject unknown fields.
+- Super User: `npm run super-user -- <email> [--off]`.
+Validation: backend typecheck, lint (2 warnings, both in the shared domain copy), format clean; unit tests 483 (98% statements on the rules); integration tests 140 against PostgreSQL, including the role-by-action matrix for Viewer, Admin, Owner, Super User and an outsider on an upcoming and a past event, and every event route refused without a session; services 91–99% covered by them. Migrations applied to a brand-new database in a throwaway container (14 checks present). Manual run: server started, /api/health reports the database, sign-up → event → guest → duplicate phone refused → invitation, with curl. Frontend unchanged in behaviour: 1078 unit tests, 321 browser tests passed, 25 skipped by design.
+Not done / follow-ups:
+- `prisma migrate reset` is refused by Prisma when run by an AI agent without the owner's consent; the tests use `migrate deploy` and empty only the `_test` database instead. The owner can run a reset themselves.
+- The RSVP-link notice (D65) and moving images out of browser storage wait for Phase 16, when the frontend uses the API.
+- Logs are plain text; structured JSON logging with the deployment (Phase 18).
+- Nothing committed; branch phase_13_14_implementation.
+Next: owner review; then Phase 15 (messaging, public RSVP, dashboard, tables, seating export APIs).
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

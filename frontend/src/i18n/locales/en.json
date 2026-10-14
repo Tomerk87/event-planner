@@ -110,6 +110,9 @@
     "regenerated": "The demo was updated, so its sample data was refreshed."
   },
   "errors": {
+    "UNAUTHENTICATED": "Your session has ended. Please sign in again.",
+    "INVALID_CREDENTIALS": "The email or password is incorrect.",
+    "TOO_MANY_REQUESTS": "Too many attempts. Wait a minute and try again.",
     "FORBIDDEN": "You do not have permission to do this.",
     "EVENT_READ_ONLY": "This event has ended and can no longer be changed.",
     "NOT_FOUND": "This item could not be found.",

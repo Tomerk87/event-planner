@@ -75,6 +75,8 @@ The page shows a short explanation of the roles, the number of Owners, Admins an
 
 Sending invitation emails, reminders and expiry of invitations are deferred (`docs/FUTURE_FEATURES.md`).
 
+For the POC an email address is not verified at sign-up (owner decision 2026-10-14). Whoever signs up with an invited email receives that invitation's access. Email verification must be in place before real users (`PLAN.md` Phase 17).
+
 ## 4. Product information architecture
 
 ### 4.1 Account level

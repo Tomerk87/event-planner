@@ -1,0 +1,25 @@
+# Development database only. The full application is packaged with Docker
+# Compose later (PLAN.md Phase 18); this file runs PostgreSQL alone.
+name: event-planner-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: event_planner
+      POSTGRES_PASSWORD: event_planner_dev
+      POSTGRES_DB: event_planner
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Creates the test database next to the development one.
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U event_planner -d event_planner']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres-data:
