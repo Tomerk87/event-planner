@@ -11,12 +11,36 @@ export interface AppConfig {
   sessionDays: number
   /** Sign-in and sign-up attempts allowed per minute from one address. */
   authAttemptsPerMinute: number
+  /** The application's own address, used in the RSVP link sent to guests. */
+  publicAppUrl: string
+  /** Public RSVP submissions allowed per window (D2). */
+  rsvpLimits: { perIp: number; perPhone: number; windowMinutes: number }
+  /**
+   * Proxies in front of the server whose forwarded client address is
+   * trusted (Nginx in production: 1). With 0, the connection's address is
+   * used, so behind a proxy every visitor would share one address.
+   */
+  trustProxyHops: number
 }
 
 function required(env: NodeJS.ProcessEnv, name: string): string {
   const value = env[name]?.trim()
   if (!value) {
     throw new Error(`Missing environment variable ${name}`)
+  }
+  return value
+}
+
+function positiveInteger(
+  env: NodeJS.ProcessEnv,
+  name: string,
+  fallback: number,
+  min = 1,
+): number {
+  const raw = env[name]?.trim()
+  const value = raw ? Number(raw) : fallback
+  if (!Number.isInteger(value) || value < min) {
+    throw new Error(`${name} must be a whole number of at least ${min}`)
   }
   return value
 }
@@ -31,14 +55,25 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   if (!['development', 'production', 'test'].includes(nodeEnv)) {
     throw new Error('NODE_ENV must be development, production or test')
   }
+  const corsOrigin = required(env, 'CORS_ORIGIN')
   return {
     databaseUrl: required(env, 'DATABASE_URL'),
     port,
-    corsOrigin: required(env, 'CORS_ORIGIN'),
+    corsOrigin,
     production: nodeEnv === 'production',
     uploadDir: env['UPLOAD_DIR']?.trim() || './uploads',
     sessionDays: 30,
     authAttemptsPerMinute: 10,
+    publicAppUrl: (env['PUBLIC_APP_URL']?.trim() || corsOrigin).replace(
+      /\/+$/,
+      '',
+    ),
+    rsvpLimits: {
+      perIp: positiveInteger(env, 'RSVP_LIMIT_PER_IP', 10),
+      perPhone: positiveInteger(env, 'RSVP_LIMIT_PER_PHONE', 3),
+      windowMinutes: positiveInteger(env, 'RSVP_LIMIT_WINDOW_MINUTES', 10),
+    },
+    trustProxyHops: positiveInteger(env, 'TRUST_PROXY_HOPS', 0, 0),
   }
 }
 

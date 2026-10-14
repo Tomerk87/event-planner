@@ -22,6 +22,11 @@ export interface EventContext {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+/** Whether an identifier from an address can be looked up at all. */
+export function isUuid(value: string): boolean {
+  return UUID.test(value)
+}
+
 /**
  * Resolves who the user is in an event and checks an action against the
  * role matrix and the past-event rule, on every event-scoped request. An
@@ -37,7 +42,7 @@ export class EventAccessService {
     user: User,
     now: Date = new Date(),
   ): Promise<EventContext> {
-    if (!UUID.test(eventId)) {
+    if (!isUuid(eventId)) {
       throw new DomainError('NOT_FOUND', { entity: 'event' })
     }
     const event = await this.prisma.event.findUnique({

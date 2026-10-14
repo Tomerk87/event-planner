@@ -42,11 +42,7 @@ None of these are to be inferred. Each is raised with the product owner at or be
 
 The open items below are ones the precedence rule (see Resolved decisions, R1) does not settle: the mockups either contradict each other or show an element without showing what it does.
 
-### From PRD §18
-
-| # | Decision | Needed by |
-|---|---|---|
-| D2 | Public RSVP abuse prevention: rate limits or extra verification | Phase 15 |
+None open at present.
 
 
 ## Resolved decisions
@@ -161,3 +157,6 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D82 | **Event Layout: Edit Table is the first item of the "⋯" menu**, before Delete Table, on desktop rows and phone cards; the separate pencil and Edit buttons are removed. The guests button stays. | 2026-10-14 |
 | D83 | **Backend decisions (Phases 13–14):** the API contract is OpenAPI generated from NestJS; sign-in is email + password with an httpOnly session cookie and sessions stored in PostgreSQL; there is no email verification for the POC, so invitations activate at sign-up with that email (risk accepted, closed in Phase 17); guest files are read and written on the server. | 2026-10-14 |
 | D84 | **Sign-in errors** do not say whether an account exists: a wrong password and an unknown email both answer "The email or password is incorrect." New error codes: `UNAUTHENTICATED`, `INVALID_CREDENTIALS`, `TOO_MANY_REQUESTS`. | 2026-10-14 |
+| D2 | **Public RSVP abuse prevention: rate limits only.** At most 10 answers per 10 minutes from one IP address, and 3 accepted answers per 10 minutes for one phone number of an event; a refused answer is told to try again in a few minutes and nothing is saved. An answer refused for another reason (for example too many attendees) does not use up the phone's three. The values are server settings. The page answers a known and an unknown phone the same way and never shows stored guest details. No CAPTCHA and no phone verification: someone who knows a guest's phone can answer for that guest (accepted risk; the organizer sees the latest answer and can correct it). Phone verification is in `docs/FUTURE_FEATURES.md`. | 2026-10-14 |
+| D85 | **Preview accounts are discarded.** When Sign Up and Sign In move to the real backend (Phase 16), the browser-local preview accounts and their events are removed, not imported. The demo workspace is unchanged. | 2026-10-14 |
+| D86 | **Display preferences stay per browser** (the Guests column choice and the collapsed side menu), in the demo and in the real application. They are not stored on the server. | 2026-10-14 |

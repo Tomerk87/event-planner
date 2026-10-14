@@ -6,12 +6,17 @@ import { AuthController } from './auth/auth.controller.ts'
 import { AuthModule } from './auth/auth.module.ts'
 import { DomainErrorFilter } from './common/domain-error.filter.ts'
 import { APP_CONFIG, loadConfig, type AppConfig } from './config.ts'
+import { DashboardModule } from './dashboard/dashboard.module.ts'
 import { EventsModule } from './events/events.module.ts'
 import { GuestsModule } from './guests/guests.module.ts'
 import { HealthController } from './health/health.controller.ts'
+import { MessagesModule } from './messages/messages.module.ts'
 import { PermissionsModule } from './permissions/permissions.module.ts'
 import { PrismaModule } from './prisma/prisma.module.ts'
+import { PublicRsvpController } from './rsvp/rsvp.controller.ts'
+import { RsvpModule } from './rsvp/rsvp.module.ts'
 import { StorageModule } from './storage/storage.module.ts'
+import { TablesModule } from './tables/tables.module.ts'
 
 /** The routes the attempt limit applies to. */
 const AUTH_ATTEMPTS = new Set(['signIn', 'signUp'])
@@ -33,14 +38,24 @@ export function createAppModule(config: AppConfig = loadConfig()) {
   @Module({
     imports: [
       ConfigModule.forRoot(config),
-      // Sign-in and sign-up only: a few attempts a minute from one address.
       ThrottlerModule.forRoot([
+        // Sign-in and sign-up only: a few attempts a minute from one address.
         {
           limit: config.authAttemptsPerMinute,
           ttl: 60_000,
           skipIf: (context) =>
             !AUTH_ATTEMPTS.has(context.getHandler().name) ||
             context.getClass() !== AuthController,
+        },
+        // Public RSVP answers from one address (D2); the per-phone limit is
+        // in RsvpService.
+        {
+          name: 'rsvp',
+          limit: config.rsvpLimits.perIp,
+          ttl: config.rsvpLimits.windowMinutes * 60_000,
+          skipIf: (context) =>
+            context.getHandler().name !== 'submit' ||
+            context.getClass() !== PublicRsvpController,
         },
       ]),
       PrismaModule,
@@ -50,6 +65,10 @@ export function createAppModule(config: AppConfig = loadConfig()) {
       EventsModule,
       PermissionsModule,
       GuestsModule,
+      MessagesModule,
+      RsvpModule,
+      TablesModule,
+      DashboardModule,
     ],
     controllers: [HealthController],
     providers: [

@@ -446,22 +446,22 @@
 **Goal:** complete event operational APIs and business rules.
 
 ### Checklist
-- [ ] Implement WhatsApp template settings, placeholder substitution and recorded initiation endpoint.
-- [ ] Increment send counter exactly once per accepted initiation; record timestamp and clarify that initiation is not confirmed delivery.
-- [ ] Implement one public RSVP URL per event and fixed language.
-- [ ] Add known guest matching by normalized phone and Unknown RSVP storage/reconciliation APIs.
-- [ ] Implement Approved/Declined/Not Sure validations and resubmission before event start; lock past events.
-- [ ] Enforce RSVP changes and table assignment cleanup/conflict behavior transactionally.
-- [ ] Add public endpoint privacy, abuse/rate-limit controls and safe error handling so phone lookups do not unnecessarily expose guest data.
-- [ ] Implement table CRUD, approved-only assignments, manual capacity blocking, conflict reporting and event capacity warnings.
-- [ ] Implement Dashboard metrics as derived backend queries, excluding soft-deleted guests and Not Sure from confirmed attendance.
-- [ ] Implement CSV/XLSX guest and venue seating exports and validated import workflows.
-- [ ] Add backend unit/integration tests for each key invariant and edge case.
+- [x] Implement WhatsApp template settings, placeholder substitution and recorded initiation endpoint.
+- [x] Increment send counter exactly once per accepted initiation; record timestamp and clarify that initiation is not confirmed delivery.
+- [x] Implement one public RSVP URL per event and its default language (the guest may switch, D19).
+- [x] Add known guest matching by normalized phone and Unknown RSVP storage/reconciliation APIs.
+- [x] Implement Approved/Declined/Not Sure validations and resubmission before event start; lock past events.
+- [x] Enforce RSVP changes and table assignment cleanup/conflict behavior transactionally.
+- [x] Add public endpoint privacy, abuse/rate-limit controls and safe error handling so phone lookups do not unnecessarily expose guest data (D2: 10 per IP and 3 accepted per phone, per 10 minutes).
+- [x] Implement table CRUD, approved-only assignments, manual capacity blocking, conflict reporting and event capacity warnings.
+- [x] Implement Dashboard metrics as derived backend queries, excluding soft-deleted guests and Not Sure from confirmed attendance.
+- [x] Implement CSV/XLSX guest and venue seating exports and validated import workflows (guest files in Phase 14; seating export here).
+- [x] Add backend unit/integration tests for each key invariant and edge case.
 
 ### Validation and exit criteria
-- [ ] API behavior matches mock provider contracts and PRD rules.
-- [ ] Permission and past-event restrictions hold for public and authenticated endpoints.
-- [ ] Dashboard totals, conflicts, imports and exports reconcile with persisted records.
+- [ ] API behavior matches mock provider contracts and PRD rules. The services mirror the mock provider and the PRD rules are covered by integration tests; the shared contract suite runs against the API provider in Phase 16, which closes this item.
+- [x] Permission and past-event restrictions hold for public and authenticated endpoints.
+- [x] Dashboard totals, conflicts, imports and exports reconcile with persisted records.
 
 ---
 
@@ -529,7 +529,7 @@
 - [ ] Create Docker Compose stack for Nginx, NestJS and PostgreSQL; no production frontend dev server.
 - [ ] Configure persistent PostgreSQL volume and safe upload storage volume.
 - [ ] Add health checks, startup dependencies, restart policies and conservative resource settings.
-- [ ] Configure deployment-time environment variables/secrets without committing credentials.
+- [ ] Configure deployment-time environment variables/secrets without committing credentials. Set `TRUST_PROXY_HOPS=1` behind Nginx (otherwise every guest shares the proxy's address and the RSVP limit of D2 blocks them together) and `PUBLIC_APP_URL` to the public address used in WhatsApp messages.
 - [ ] Configure domain/DNS and HTTPS if exposing publicly; document TLS renewal approach.
 - [ ] Define and rehearse database backup/restore and uploads backup.
 - [ ] Test full stack locally with fresh volumes/migrations.
@@ -1101,6 +1101,22 @@ Not done / follow-ups:
 - Logs are plain text; structured JSON logging with the deployment (Phase 18).
 - Nothing committed; branch phase_13_14_implementation.
 Next: owner review; then Phase 15 (messaging, public RSVP, dashboard, tables, seating export APIs).
+```
+
+```text
+2026-10-14 — Phase 15 — messaging, public RSVP, tables, seating export and Dashboard APIs.
+Decisions (owner): D2 public RSVP abuse — rate limits only, 10 answers per 10 minutes per IP address and 3 accepted answers per 10 minutes per phone of an event, no CAPTCHA or phone verification (accepted risk: someone who knows a guest's number can answer for them); D85 preview accounts are discarded in Phase 16; D86 display preferences stay per browser. Phases 15 and 16 on one branch, with an owner review between them.
+- API (12 new routes, 41 in all): messages (template, default, variable values, preview with wa.me link, send, sent list); RSVP settings with the background picture as a stored file (kept, replaced or removed); public RSVP page and answer (`@Public`); tables (list with occupancy, add, edit, delete, seating export as CSV/Excel); Dashboard.
+- Rules: the shared domain functions, as the mock provider uses them. A send adds one to the counter and records the send in one transaction, under the event lock, so concurrent sends are all counted. A public answer is applied like an organizer's change: leaving Approved frees the seat, a larger party stays seated as a conflict. A deleted guest's phone is treated as unknown. Known and unknown phones get the same response.
+- Limits: a named throttler on the submit route (per IP) and an in-memory per-phone limiter that counts accepted answers only. New settings RSVP_LIMIT_PER_IP, RSVP_LIMIT_PER_PHONE, RSVP_LIMIT_WINDOW_MINUTES, PUBLIC_APP_URL and TRUST_PROXY_HOPS (Express `trust proxy`), all in backend/.env.example.
+- Found and fixed while building: the server did not trust a proxy, so behind Nginx every guest would have shared one address and one RSVP limit (TRUST_PROXY_HOPS; Phase 18 item extended); the first draft of the public answer returned an extra field for a known phone, which would have told a known phone from an unknown one.
+Validation: backend typecheck, lint (the same 2 warnings, in the shared domain copy), format clean; unit tests 492 (new: configuration, AttemptLimiter); integration tests 265 against PostgreSQL (new: messages 9, RSVP 16, tables/seating/Dashboard 10, role matrix extended with nine actions to 191 cases); the new modules are 94–100% covered by them. `npm run openapi` regenerated. Manual run with curl against a running server: template → send (counter 1, wa.me link with the public RSVP address) → known and unknown answers identical → 11th answer from one address refused with 429 → Dashboard totals.
+Follow-ups/risks:
+- When the attendee count is too high, the error gives the limit: the guest's own allowance, or the event default for an unknown phone. This is the product's behaviour (the guest must know the limit) and is recorded in PRD §8.2.
+- Rate-limit counts live in the server's memory; a restart clears them, and a second server process would not share them (not planned for the POC).
+- The frontend still builds the guest and seating export files in the browser; Phase 16 decides whether the API provider uses the server's export routes.
+- Nothing committed; branch phase_15_16_implementation.
+Next: owner review of Phase 15, then Phase 16.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
