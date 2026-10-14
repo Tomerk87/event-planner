@@ -174,3 +174,40 @@ test('the side menu collapses to icons, stays usable, and is remembered', async 
     sidebar.getByRole('combobox', { name: 'Language' }),
   ).toBeVisible()
 })
+
+test('a page opened from another page starts at its top', async ({ page }) => {
+  async function open(link: string, heading: string) {
+    const nav = await openNavigation(page)
+    await nav.getByRole('link', { name: link, exact: true }).click()
+    await expect(
+      page.getByRole('heading', { level: 1, name: heading }),
+    ).toBeVisible()
+  }
+
+  await page.goto('/events/evt-1/dashboard')
+  await expect(page.getByText('Quick Actions')).toBeVisible()
+
+  // A page seen before is shown at once at its full height, so nothing but
+  // the navigation itself returns the view to the top.
+  for (const [link, heading] of [
+    ['Guests', 'Guests'],
+    ['Dashboard', 'Dashboard'],
+    ['Messages', 'WhatsApp Messages'],
+    ['Dashboard', 'Dashboard'],
+    ['Guests', 'Guests'],
+  ] as const) {
+    // The page grows as its data arrives, so keep scrolling until it moves.
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          window.scrollTo(0, document.documentElement.scrollHeight)
+          return window.scrollY
+        }),
+      )
+      .toBeGreaterThan(100)
+
+    await open(link, heading)
+
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+  }
+})

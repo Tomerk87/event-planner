@@ -1055,4 +1055,12 @@ Review pack for the owner:
 Next: owner feedback and explicit approval to start Phase 13. The backend is not to be started before that.
 ```
 
+```text
+2026-10-14 — Phase 12 — owner feedback: a page opened from another page must start at its top.
+Cause: nothing returned the view to the top on navigation. A page opened for the first time showed a short loading state, which happened to pull the view up; a page already seen was shown at once at full height and kept the previous scroll position, so it appeared from the middle.
+Fix: every change of page scrolls to the top (app/RouteFocus.tsx). Filters, sorting, paging and tabs change only the query in the address and leave the position alone.
+Validation: new browser test (shell.spec.ts) that revisits pages already loaded; it fails without the fix (view left at 701px on desktop, 2205px on a phone) and passes with it. typecheck, lint, format clean; 1071 unit tests; browser tests 317 passed, 25 skipped by design, none failed.
+Next: further owner feedback, then explicit approval to start Phase 13.
+```
+
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
