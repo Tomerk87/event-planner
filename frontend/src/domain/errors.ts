@@ -3,6 +3,9 @@
  * them now; the API provider will map server responses to the same codes.
  */
 export type DomainErrorCode =
+  | 'UNAUTHENTICATED'
+  | 'INVALID_CREDENTIALS'
+  | 'TOO_MANY_REQUESTS'
   | 'FORBIDDEN'
   | 'EVENT_READ_ONLY'
   | 'NOT_FOUND'

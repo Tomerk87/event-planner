@@ -2,7 +2,7 @@
 
 Web application for event organizers: guests, WhatsApp invitations, public RSVP, attendance dashboard, tables and seating, exports, and event-level permissions.
 
-The project is being built frontend-first. At this stage only the React frontend exists, and it runs without a backend, database or Docker.
+The project is being built frontend-first. The React frontend runs on its own, with browser-local demo data. The NestJS backend (`backend/`) exists and is tested, but the frontend does not use it yet (`PLAN.md` Phase 16).
 
 ## Prerequisites
 
@@ -44,6 +44,21 @@ The first end-to-end run needs a browser: `npx playwright install chromium`.
 Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DATA_PROVIDER` selects the data source: `mock` (default, browser-local demo data) or `api` (backend, not yet available).
 
 The demo and the preview accounts keep their data in the browser's local storage. To review loading and error states, add `?demoDelay=2000` (milliseconds) or `?demoFail=events.get` (a comma-separated list of operations) to the address when opening the app.
+
+## Run the backend
+
+Needs Docker for the development database.
+
+```sh
+cd backend
+cp .env.example .env
+npm install          # also generates the Prisma client
+npm run db:up        # PostgreSQL in Docker, with a separate test database
+npm run db:deploy    # apply the migrations
+npm run start:dev
+```
+
+The API listens on http://localhost:3000/api; its documentation is at http://localhost:3000/api/docs and `GET /api/health` reports the database. See `backend/README.md` for every command.
 
 ## Documentation
 

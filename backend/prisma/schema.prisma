@@ -1,0 +1,226 @@
+// Event Planner database schema. Business rules live in src/domain; the
+// constraints here (and the checks in the migration SQL) are the database's
+// own guarantees for the invariants it can hold safely.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EventRole {
+  OWNER
+  ADMIN
+  VIEWER
+}
+
+enum RsvpStatus {
+  NO_RESPONSE
+  APPROVED
+  NOT_SURE
+  DECLINED
+}
+
+enum RsvpLanguage {
+  en
+  he
+}
+
+enum TableShape {
+  CIRCLE
+  RECTANGLE
+  SQUARE
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  /// Stored normalized: trimmed and in lower case.
+  email        String   @unique
+  passwordHash String
+  /// System-level permission, set only in the database (scripts/set-super-user).
+  isSuperUser  Boolean  @default(false)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  sessions    Session[]
+  memberships EventMembership[]
+  sends       MessageSend[]
+}
+
+/// A signed-in browser. Only a hash of the cookie's token is stored.
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Event {
+  id                      String       @id @default(uuid()) @db.Uuid
+  name                    String
+  startsAt                DateTime     @db.Timestamptz(3)
+  /// IANA time zone the event's date and time are expressed in.
+  timeZone                String
+  maxAttendees            Int
+  defaultAllowedAttendees Int
+  rsvpLanguage            RsvpLanguage
+  location                String?
+  rsvpTitle               String?
+  /// Key of the event photo in the image storage; null for the generated cover.
+  coverImageKey           String?
+  /// Identifier in the one public RSVP address shared by all guests.
+  rsvpSlug                String       @unique
+  createdAt               DateTime     @default(now()) @db.Timestamptz(3)
+
+  memberships   EventMembership[]
+  invitations   EventInvitation[]
+  guests        Guest[]
+  unknownRsvps  UnknownRsvp[]
+  tables        EventTable[]
+  rsvpSettings  RsvpSettings?
+  template      MessageTemplate?
+  messageSends  MessageSend[]
+}
+
+model EventMembership {
+  eventId String    @db.Uuid
+  userId  String    @db.Uuid
+  role    EventRole
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+  @@index([userId])
+}
+
+/// Access offered to an email with no account yet; becomes a membership at sign-up.
+model EventInvitation {
+  id        String    @id @default(uuid()) @db.Uuid
+  eventId   String    @db.Uuid
+  /// Stored normalized: trimmed and in lower case.
+  email     String
+  role      EventRole
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, email])
+  @@index([email])
+}
+
+/// One invitation (a party). Soft-deleted with `deleted`; a guest re-added
+/// with the same normalized phone restores this row, so the phone stays unique.
+model Guest {
+  id                   String     @id @default(uuid()) @db.Uuid
+  eventId              String     @db.Uuid
+  firstName            String
+  lastName             String
+  invitationName       String?
+  phone                String
+  normalizedPhone      String
+  allowedAttendees     Int
+  confirmedAttendees   Int?
+  rsvpStatus           RsvpStatus @default(NO_RESPONSE)
+  invitationSentCount  Int        @default(0)
+  lastInvitationSentAt DateTime?  @db.Timestamptz(3)
+  lastRsvpResponseAt   DateTime?  @db.Timestamptz(3)
+  tableId              String?    @db.Uuid
+  group                String?
+  deleted              Boolean    @default(false)
+  createdAt            DateTime   @default(now()) @db.Timestamptz(3)
+
+  event Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  /// The table must belong to the same event; unassign before deleting a table.
+  table EventTable? @relation(fields: [tableId, eventId], references: [id, eventId], onDelete: NoAction)
+  sends MessageSend[]
+
+  @@unique([eventId, normalizedPhone])
+  @@index([eventId, deleted])
+  @@index([tableId])
+}
+
+/// An RSVP whose phone matched no active guest, kept for organizer review.
+model UnknownRsvp {
+  id                 String     @id @default(uuid()) @db.Uuid
+  eventId            String     @db.Uuid
+  name               String
+  phone              String
+  normalizedPhone    String
+  rsvpStatus         RsvpStatus
+  confirmedAttendees Int?
+  submittedAt        DateTime   @db.Timestamptz(3)
+  rejectedAt         DateTime?  @db.Timestamptz(3)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, normalizedPhone])
+}
+
+model RsvpSettings {
+  eventId            String  @id @db.Uuid
+  welcomeMessage     String
+  approvedMessage    String
+  declinedMessage    String
+  notSureMessage     String
+  /// Key of the background picture in the image storage.
+  backgroundImageKey String?
+  overlayOpacity     Int
+  calendarEnabled    Boolean
+  calendarTitle      String
+  /// YYYY-MM-DD in the event's time zone.
+  calendarDate       String
+  /// HH:mm in the event's time zone.
+  calendarTime       String
+  calendarLocation   String
+  youtubeEnabled     Boolean
+  youtubeUrl         String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model MessageTemplate {
+  eventId String @id @db.Uuid
+  body    String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+/// One WhatsApp send initiated from the system (not a confirmed delivery).
+model MessageSend {
+  id       String   @id @default(uuid()) @db.Uuid
+  eventId  String   @db.Uuid
+  guestId  String   @db.Uuid
+  sentById String?  @db.Uuid
+  sentAt   DateTime @db.Timestamptz(3)
+  message  String
+
+  event  Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guest  Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  sentBy User? @relation(fields: [sentById], references: [id], onDelete: SetNull)
+
+  @@index([eventId, sentAt])
+}
+
+model EventTable {
+  id       String     @id @default(uuid()) @db.Uuid
+  eventId  String     @db.Uuid
+  number   Int
+  capacity Int
+  shape    TableShape
+
+  event  Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guests Guest[]
+
+  @@unique([eventId, number])
+  /// Lets a guest's table be checked against the guest's own event.
+  @@unique([id, eventId])
+}

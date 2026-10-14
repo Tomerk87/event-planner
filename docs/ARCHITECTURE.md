@@ -42,8 +42,16 @@ Update this file when a decision is made or changed. Do not record a choice here
 | Loading and error state | TanStack Query. Demo data changes only through mutations, which invalidate what they affect | Adopted in Phase 3 |
 | Phone numbers | `frontend/src/domain/phone.ts`. `normalizePhone` turns any accepted form into one canonical form used for matching and uniqueness; a number without `+` is read as Israeli, and one local to another country is refused. `formatPhone` gives the form shown: local for Israeli numbers, with the country code for others. Guests and unknown responses store the shown form, so screens and exports agree | Adopted in Phase 3, extended after Phase 6 |
 | Localization | `i18next` + `react-i18next`; locales `en` and `he`; root `lang`/`dir` follow the active locale; CSS logical properties | `AGENTS.md` Internationalization |
-| Backend | Node.js + NestJS; thin controllers, rules in application/domain services | `AGENTS.md` Technical direction, Backend standards |
-| Database | PostgreSQL, with Prisma for ORM and migrations | `AGENTS.md` Technical direction |
+| Backend | Node.js + NestJS 12 in `backend/` (TypeScript strict, ESM, npm). Thin controllers; rules in services that call `backend/src/domain`. Same tooling as the frontend: oxlint, Prettier, Vitest | `AGENTS.md`; adopted in Phase 13 |
+| Database | PostgreSQL 17, Prisma 7 with the `pg` driver adapter. Schema in `backend/prisma/schema.prisma`, migrations in `backend/prisma/migrations/` (reviewed SQL, including CHECK constraints for attendee bounds, RSVP/count consistency, table and event limits). Development uses a database-only container (`backend/docker-compose.dev.yml`) with a separate `event_planner_test` database | Adopted in Phase 13 |
+| Shared business rules | `backend/src/domain/` is a copy of `frontend/src/domain/` (plus the new-event defaults), so both apply identical rules; the backend copy is authoritative. `sameAsFrontend.test.ts` fails when the copies differ, so a rule is always changed in both, in the same change | Adopted in Phase 13 |
+| API contract | REST under `/api`, described by OpenAPI generated from the NestJS request/response classes (Swagger plugin). Served at `/api/docs`; `backend/openapi.json` is written by `npm run openapi` for Phase 16, which generates the frontend API provider's types from it. Errors are `{ code, details }` with the `DomainError` codes and a matching HTTP status | Owner decision 2026-10-14; adopted in Phase 13 |
+| Authentication | Email + password. Passwords hashed with argon2id. A random session token in an httpOnly, SameSite=Lax cookie (`ep_session`, Secure in production); only its SHA-256 hash is stored, in the `Session` table, so sessions can be revoked. 30-day sessions. Every route requires a session unless marked `@Public()` (global `SessionGuard`). Sign-in and sign-up are limited to 10 attempts a minute per address. A failed sign-in does not reveal whether the account exists | Owner decision 2026-10-14; adopted in Phase 14 |
+| Email verification | None for the POC: invitations to an email are accepted when that email signs up. Must be added before real users (`PLAN.md` Phase 17) | Owner decision 2026-10-14 |
+| Event access on the server | `EventAccessService` resolves the user's role in the event (a Super User counts as Owner) and checks every event-scoped action with `assertCan` from the shared rules. An event the user cannot reach answers 404, never 403. Super User is set only with `npm run super-user` | Adopted in Phase 14 |
+| Concurrency | Changes to an event's guests and memberships run in a transaction that first locks the event's (or its memberships') rows, so uniqueness, capacity and last-Owner checks see what is really stored | Adopted in Phase 14 |
+| Guest files on the server | `POST …/guests/import/read` parses an uploaded CSV/XLSX (5 MB, 5,000 rows) into rows for the import dialog; `POST …/guests/import` adds the chosen rows with the same rules, all or none; `POST …/guests/export` writes CSV/XLSX with headings supplied by the client in the person's language | Owner decision 2026-10-14; adopted in Phase 14 |
+| Image storage | `ImageStorage` (`backend/src/storage/`) keeps pictures on local disk under `UPLOAD_DIR` (a persistent volume in production), referenced by random keys and served at `/api/files/<key>`. Public, because the RSVP background is shown to guests without an account; keys are unguessable and never listed. Object storage can replace it behind the same interface | Adopted in Phase 13 |
 | Data access boundary | UI reads and writes only through typed feature service interfaces. A mock provider and an API provider implement the same contracts; the provider is chosen once at the application boundary | `AGENTS.md` Frontend standards |
 | Page tree | One shared set of pages and components for Demo Mode and the real app; no separate demo page tree | `AGENTS.md` Development strategy |
 | Demo Mode | Permanent public capability. Deterministic seeded fictional data, versioned, stored per browser profile, resettable, with simulated side effects. Never touches PostgreSQL and never authorizes anything server-side | `AGENTS.md` Demo Mode implementation; PRD §12 |
@@ -60,8 +68,7 @@ These are implementation choices that the approved documents leave open. Each is
 
 | Choice | Decide in |
 |---|---|
-| Authentication and session mechanism | Phase 14 |
-| API contract format and whether types are generated or shared | Phase 13 |
+| Email provider for verification and invitation emails | Phase 17 / 18 |
 
 ## Repository structure
 
@@ -75,12 +82,12 @@ Current:
   docs/              PRD and durable product/architecture documentation
   mockups/           UI reference images and their index (README.md)
   frontend/          React + TypeScript app (Vite)
+  backend/           NestJS + Prisma API (Phase 13)
 ```
 
 Added when their phase begins:
 
 ```text
-  backend/           NestJS + Prisma (Phase 13)
   scripts/           shared helper scripts, if needed
   docker-compose.yml single-VM stack (Phase 18)
 ```
@@ -107,6 +114,27 @@ Inside `frontend/`:
 ```
 
 Unit and component tests sit next to the code they cover as `*.test.ts(x)`.
+
+Inside `backend/`:
+
+```text
+  prisma/            schema.prisma and migrations
+  docker-compose.dev.yml  PostgreSQL for development (database only)
+  openapi.json       generated API contract (npm run openapi)
+  src/
+    domain/          copy of frontend/src/domain: the shared business rules
+    auth/            sign-up, sign-in, sessions, the session guard
+    access/          role resolution and checks for every event-scoped request
+    events/ permissions/ guests/   one module per area: controller, service, request/response classes
+    prisma/          database client and row-to-domain mappers
+    storage/         image storage and the file route
+    common/          error-to-response filter
+    scripts/         Super User and OpenAPI command-line scripts
+    generated/       Prisma client (generated, not committed)
+  test/              integration tests against the test database (*.e2e-spec.ts)
+```
+
+Backend unit tests sit next to the code as `*.test.ts` / `*.spec.ts`.
 
 ## Routes
 

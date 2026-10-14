@@ -75,7 +75,9 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 |---|---|---|
 | Invitation emails | Telling an invited person by email, with a link to sign up. In the MVP nothing is sent; the organizer tells them, and the invitation waits until they sign up. | Owner decision 2026-10-13 (D4) |
 | Resending and expiry of invitations | A pending invitation stays until it is used or cancelled. | Owner decision 2026-10-13 (D4) |
-| Assigning Super User in the interface | Database only in the MVP. | PRD §3.2 |
+| Assigning Super User in the interface | Database only in the MVP (`npm run super-user` in `backend/`). | PRD §3.2 |
+| Email verification at sign-up | Required before real users; without it anyone can sign up with an invited email. Tracked in `PLAN.md` Phase 17. | Owner decision 2026-10-14 |
+| Password reset | "Forgot password" by email. Needs an email provider. | Phase 14 scope |
 | A demo event the demo user does not belong to | To show Super User access without a membership; covered by automated tests only. | Owner decision 2026-10-13 (P8) |
 
 ## Quality and review
