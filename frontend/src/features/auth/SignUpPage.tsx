@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useSession } from '../../app/session/sessionContext.ts'
 import { PASSWORD_MIN_LENGTH, validateSignUp } from '../../domain/accounts.ts'
 import { isDomainError } from '../../domain/errors.ts'
@@ -17,8 +17,10 @@ export function SignUpPage() {
   const { t } = useTranslation()
   const { signUp } = useSession()
   const demo = useEnterDemo()
+  const [params] = useSearchParams()
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  // An invitation email links here with the invited address (D90).
+  const [email, setEmail] = useState(() => params.get('email') ?? '')
   const [password, setPassword] = useState('')
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
   const [failure, setFailure] = useState<string | null>(null)

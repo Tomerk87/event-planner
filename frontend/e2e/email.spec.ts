@@ -127,8 +127,9 @@ test('an invitation is emailed, and gives access only once the email is verified
     page.getByText(`${ltr(invited)} was invited by email`),
   ).toBeVisible()
   const invitation = await emailTo(page, invited, /invited to "Emailed Gala"/)
-  expect(invitation.text).toContain('Olive Owner invited you')
-  expect(linkIn(invitation.text, '/signup')).toBe('/signup')
+  expect(invitation.text).toContain('Olive Owner invited you to collaborate')
+  const accept = linkIn(invitation.text, '/signup')
+  expect(accept).toBe(`/signup?email=${encodeURIComponent(invited)}`)
 
   // Sent again on request.
   await page
@@ -140,8 +141,14 @@ test('an invitation is emailed, and gives access only once the email is verified
   ).toBeVisible()
 
   // Signing up is not enough; verifying the email is.
+  // Accepting opens the sign-up form with the invited address filled in.
   const guest = await inNewBrowser(browser)
-  await signUp(guest.page, 'Ada Admin', invited)
+  await guest.page.goto(accept)
+  await expect(guest.page.getByLabel(/Email/)).toHaveValue(invited)
+  await guest.page.getByLabel(/Full name/).fill('Ada Admin')
+  await guest.page.getByLabel(/Password/).fill(TEST_PASSWORD)
+  await guest.page.getByRole('button', { name: 'Sign Up' }).click()
+  await expect(guest.page).toHaveURL(/\/events$/)
   await expect(guest.page.getByText('No events yet')).toBeVisible()
   await verify(guest.page, invited)
   await guest.page.goto('/events')

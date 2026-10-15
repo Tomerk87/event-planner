@@ -320,6 +320,12 @@ describe('sign up, log out and sign in', () => {
     await landing()
   })
 
+  it('fills in the invited address when opened from an invitation email', async () => {
+    renderSignedOut('/signup?email=ada%40example.com')
+    expect(await screen.findByLabelText(/Email/)).toHaveValue('ada@example.com')
+    expect(screen.getByLabelText(/Full name/)).toHaveValue('')
+  })
+
   it('explains each invalid sign-up field and a taken email', async () => {
     const backend = createTestBackend({ session: 'none' })
     await backend.auth.signUp({

@@ -17,7 +17,8 @@
     "test:e2e": "playwright test --project=desktop --project=mobile --project=email",
     "test:api": "npm --prefix ../backend run build && vitest run --config vitest.config.api.ts",
     "test:performance": "playwright test --project=performance",
-    "hebrew-review": "node scripts/hebrew-review-sheet.ts"
+    "hebrew-review": "node scripts/hebrew-review-sheet.ts",
+    "email-images": "node scripts/email-images.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.2",

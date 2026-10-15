@@ -163,6 +163,15 @@ Found while building (Phase 6):
 - Role badge colours: Owner amber (the crown's colour in the top bar), Admin indigo, Viewer grey; the mockup draws the Owner badge violet.
 - Not drawn and added: the read-only note for an Admin of a past event, the note shown while a demo role is simulated, the empty search result, and the state for a Viewer who types the address.
 
+### Emails
+
+- The email mockup (`event_collaboration_email.png`) draws the invitation; the same layout is used for every email the server sends (D93).
+- The greeting uses the person's name only when they have an account; an invitation to an address with no account says "Hi,".
+- The message also names the person who sent the invitation.
+- **Accept Invitation** opens sign-up with the invited address filled in. There is no separate "accept" step: signing up (and verifying the address when email is on) gives the access (D89).
+- The footer's **Help**, **Privacy** and **Terms** links are not shown, since those pages do not exist.
+- The pictures (mark, envelope, Role and Date icons, lock) are redrawn to match and sent inside the email, since email programs block pictures from the web and do not show SVG.
+
 ## Found while building the design system (Phase 2)
 
 - **User menu.** The mockups draw a chevron beside the user name, implying a menu, but never show its contents. Since Phase 4 it holds Log out.

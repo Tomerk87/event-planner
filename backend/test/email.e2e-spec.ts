@@ -271,9 +271,16 @@ describe('invitation emails (D90)', () => {
       subject: 'You\'re invited to "Garden Party" on Event Planner',
     })
     expect(email!.text).toContain(
-      'Riley Stone invited you to the event "Garden Party" as Viewer.',
+      'Riley Stone invited you to collaborate on Garden Party.',
     )
-    expect(email!.text).toContain('http://localhost:5173/signup')
+    expect(email!.text).toContain('Role: Viewer')
+    // The sign-up form opens with the invited address filled in.
+    expect(email!.text).toContain(
+      'Accept Invitation: http://localhost:5173/signup?email=new%40example.com',
+    )
+    expect(email!.images?.map((image) => image.cid)).toContain(
+      'envelope@event-planner',
+    )
 
     const { invitation } = invited.body as { invitation: { id: string } }
     await owner
@@ -303,6 +310,8 @@ describe('invitation emails (D90)', () => {
 
     const email = mailer.to('dana.lev@example.com').at(-1)!
     expect(email).toMatchObject({ kind: 'access-granted' })
+    expect(email.text).toContain('Hi Dana Lev,')
+    expect(email.text).toContain('Role: Admin')
     expect(email.text).toContain(
       `http://localhost:5173/events/${event.id}/dashboard`,
     )

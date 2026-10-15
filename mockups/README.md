@@ -154,6 +154,21 @@ Notes:
 - The desktop mockup's sidebar is not the approved navigation: it shows entries (Budget, Vendors, Timeline, Photo Sharing) that are not built, and a different order. Use the order in `docs/PRD.md` section 4.2; see `docs/MOCKUP_NOTES.md`.
 - Invite User, Change Role and Remove open dialogs that are not drawn. A pending invitation is shown as a member line with a "Pending" badge. The Actions heading is hidden. See `docs/MOCKUP_NOTES.md`.
 
+## Emails
+
+- `event_collaboration_email.png`
+
+Notes:
+- The design of every email the server sends (D93), drawn for the invitation to collaborate on an event. Built in `backend/src/email/templates.ts`; the pictures are drawn in `frontend/scripts/email-images.ts`.
+- Emails are sent only when email is turned on (D88); until Amazon SES is connected in Phase 18, they are caught locally by Mailpit (http://localhost:8025).
+- The other emails (access given, verify email, reset password, test email) use the same layout: the Event Planner mark, a title, the message, one button, "Thanks, Event Planner" and the footer. The envelope picture and the Role and Date box appear only in emails about an event.
+- "Hi Maya," greets by name only when the person has an account; an invitation to an address with no account says "Hi,".
+- The message names who sent the invitation ("Riley Stone invited you to collaborate on …").
+- Accept Invitation opens the sign-up form with the invited address filled in; signing up (and, with email on, verifying the address) turns the invitation into access (D89).
+- The date is the event's day in the event's time zone, written in the email's language.
+- The Help, Privacy and Terms links in the footer are not shown: those pages do not exist yet (`docs/FUTURE_FEATURES.md`).
+- There is no Hebrew mockup; the Hebrew emails mirror it right to left.
+
 ## Breakpoints
 
 - Desktop mockups are 1448×1086 or 1536×1024.
