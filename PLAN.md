@@ -531,6 +531,7 @@
 - [x] Google Maps and Waze links for the location on the RSVP page (D97); exact place with Google's address search is a future feature.
 - [x] Notification bell (D95).
 - [x] Answered: a demo has no time limit; its data stays in the browser until Reset Demo, cleared site data, or a new demo dataset version. Optional, not built: refresh the demo once all its sample events have passed (waits for the owner).
+- [x] Demo time limits: a demo ends 3 days after it started or after 12 hours without activity, clears its data and tells the visitor why on the landing page (owner decision 2026-10-15, D99). This also keeps the sample dates fresh, which replaces the optional refresh above.
 
 ---
 
@@ -1225,6 +1226,14 @@ Validation:
 - By hand: screenshots in English and Hebrew at 1280 and 390 px of My Events and Guests tabs, the bell list, RSVP Additional Options and the map links; fixed from them: tabs breaking mid-word on desktop, the bell list running off a phone in Hebrew, English names out of order in Hebrew notices.
 Follow-ups/risks: the demo's access notices have no real date (they show as today); notices are polled every minute, not pushed. Hebrew review still waits for the owner.
 Next: owner review of these changes and the Hebrew sheet; then Phase 18.
+
+2026-10-15 — Phase 17 — owner feedback: Demo Mode time limits (branch phase_17_feedback).
+Decision (owner): D99, a demo ends 3 days after it started or after 12 hours without activity (the owner first proposed 6 hours and raised it to 12, since people sleep); it signs out, clears the demo data and says why on the landing page.
+- services/mock/demoClock.ts (clock kept under `event-planner.demo-clock`, limits as named constants, activity written at most once a minute, the reason kept for other tabs); the demo backend ends an expired demo at start-up, on Try Demo and when asked, restarts the clock on Try Demo and Reset Demo, and starts a clock for a demo opened before this existed. Backend contract `demoTime` (check, noteActivity, consumeEndedAtStart); DemoControl.getEndsAt for the badge's hover text.
+- SessionProvider: while the demo is open, checks every minute and when the tab is shown, and counts clicks and keys as activity (the bell's refresh does not count); on expiry clears the cache and returns to signed out with the reason. LandingPage shows the notice with Try Demo; it goes once a demo starts or someone signs in.
+Validation: frontend typecheck, lint, format; unit tests (new: demoClock 3, demo backend time limits 7, page-level 3), coverage and build, test:e2e (new e2e/demo-time.spec.ts, 4 tests on desktop and phone: idle end with a fresh demo after Try Demo, 3-day end, a demo within its time goes on, Hebrew with axe). Results: unit 1152, coverage 96.13% statements / 91.09% branches; build succeeds; test:e2e 411 passed, 25 skipped. By hand: the landing notice in English and Hebrew at 1280 and 390 px.
+Follow-ups/risks: the limits use the browser's clock; a visitor who changes it can stretch a demo (harmless: the data is their own).
+Next: owner review; then Phase 18.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

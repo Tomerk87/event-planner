@@ -110,7 +110,13 @@
     "resetTitle": "Reset the demo?",
     "resetBody": "Every change you made in this demo will be removed and the original sample data restored. This cannot be undone.",
     "resetDone": "The demo was reset to its original data.",
-    "regenerated": "The demo was updated, so its sample data was refreshed."
+    "regenerated": "The demo was updated, so its sample data was refreshed.",
+    "ended": {
+      "title": "Your demo has ended",
+      "lifetime": "A demo lasts 3 days, so its sample data was cleared. Try Demo starts a fresh one.",
+      "idle": "The demo was not used for 12 hours, so its sample data was cleared. Try Demo starts a fresh one."
+    },
+    "endsAt": "The demo ends on {{date}} at {{time}}, or after 12 hours without activity."
   },
   "errors": {
     "UNAUTHENTICATED": "Your session has ended. Please sign in again.",

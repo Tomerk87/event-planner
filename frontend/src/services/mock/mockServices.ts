@@ -1362,6 +1362,9 @@ export function createMockServices(options: MockOptions): Services {
               commit(generateDemoState(now()))
             }),
 
+          // The demo's clock belongs to its backend, which tells this.
+          getEndsAt: () => run('demo.getEndsAt', () => null),
+
           consumeRegeneratedNotice: () => {
             const result = regenerated
             regenerated = false

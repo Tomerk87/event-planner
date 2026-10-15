@@ -1,6 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import type { Backend, Session } from '../../services/contracts/index.ts'
+import type {
+  Backend,
+  DemoEndReason,
+  Session,
+} from '../../services/contracts/index.ts'
 import {
   PublicRsvpContext,
   ServicesContext,
@@ -10,7 +14,16 @@ import { LoadingState } from '../../shared/ui/States.tsx'
 import { SessionContext, type SessionContextValue } from './sessionContext.ts'
 
 type SessionState =
-  { status: 'loading' } | { status: 'ready'; session: Session | null }
+  | { status: 'loading' }
+  | {
+      status: 'ready'
+      session: Session | null
+      /** Why the demo ended on its own (D99), shown on the landing page. */
+      demoEnded?: DemoEndReason | null
+    }
+
+/** How often an open demo checks whether its time is up (D99). */
+const DEMO_CHECK_MS = 60_000
 
 interface SessionProviderProps {
   backend: Backend
@@ -33,7 +46,11 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
       .catch(() => null)
       .then((session) => {
         if (!cancelled) {
-          setState({ status: 'ready', session })
+          setState({
+            status: 'ready',
+            session,
+            demoEnded: backend.demoTime?.consumeEndedAtStart() ?? null,
+          })
         }
       })
     return () => {
@@ -67,6 +84,41 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
   )
 
   const session = state.status === 'ready' ? state.session : null
+  const demoEnded = (state.status === 'ready' && state.demoEnded) || null
+
+  // An open demo ends on its own after three days, or twelve hours without
+  // activity (D99): checked every minute and when the tab is shown again.
+  // Clicks and keys count as activity; background refreshes do not.
+  const inDemo = session?.workspace === 'demo'
+  useEffect(() => {
+    const time = backend.demoTime
+    if (!inDemo || !time) {
+      return
+    }
+    function check() {
+      const reason = time?.check()
+      if (reason) {
+        queryClient.clear()
+        setState({ status: 'ready', session: null, demoEnded: reason })
+      }
+    }
+    const noteActivity = () => time.noteActivity()
+    function onVisible() {
+      if (document.visibilityState === 'visible') {
+        check()
+      }
+    }
+    const timer = window.setInterval(check, DEMO_CHECK_MS)
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('pointerdown', noteActivity, true)
+    window.addEventListener('keydown', noteActivity, true)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('pointerdown', noteActivity, true)
+      window.removeEventListener('keydown', noteActivity, true)
+    }
+  }, [backend, inDemo, queryClient])
 
   const value = useMemo<SessionContextValue>(() => {
     function change(next: Session | null) {
@@ -76,6 +128,7 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     return {
       session,
       demoAvailable: backend.demoAvailable,
+      demoEnded,
       accountEmail: backend.accountEmail,
       signUp: async (input) => change(await backend.auth.signUp(input)),
       signIn: async (input) => change(await backend.auth.signIn(input)),
@@ -85,7 +138,7 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
         change(null)
       },
     }
-  }, [backend, queryClient, session])
+  }, [backend, queryClient, session, demoEnded])
 
   const services = useMemo(
     () => (session ? backend.servicesFor(session) : null),

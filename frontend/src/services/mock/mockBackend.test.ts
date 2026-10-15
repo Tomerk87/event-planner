@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DomainError, type DomainErrorCode } from '../../domain/errors.ts'
 import type { Session } from '../contracts/index.ts'
+import type { StoredDemoClock } from './demoClock.ts'
 import { createDemoBackend } from './mockBackend.ts'
 import {
   createBrowserPersistence,
@@ -206,5 +207,126 @@ describe('demo backend: public RSVP and other tabs', () => {
     expect(listener).not.toHaveBeenCalled()
     announce(DEMO_STORAGE_KEY)
     expect(listener).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('demo backend: time limits (D99)', () => {
+  const HOUR = 60 * 60 * 1000
+
+  function timed() {
+    const stores = {
+      ...createStores(),
+      clockPersistence: createMemoryPersistence<StoredDemoClock>(),
+    }
+    let now = NOW
+    const later = (ms: number) => {
+      now = new Date(now.getTime() + ms)
+    }
+    const make = () => createDemoBackend({ ...stores, now: () => now })
+    return { stores, later, make, backend: make() }
+  }
+
+  it('ends an open demo 12 hours after the last activity, clearing its data', async () => {
+    const { backend, later, stores } = timed()
+    await backend.auth.enterDemo()
+    await backend.servicesFor(DEMO).events.remove('evt-1')
+
+    later(11 * HOUR)
+    expect(backend.time.check()).toBeNull()
+    backend.time.noteActivity()
+    later(11 * HOUR)
+    expect(backend.time.check()).toBeNull()
+
+    later(1 * HOUR)
+    expect(backend.time.check()).toBe('idle')
+    expect(await backend.auth.getSession()).toBeNull()
+    expect(stores.demoPersistence.load()).toBeNull()
+
+    // Try Demo starts afresh, with its own time.
+    await backend.auth.enterDemo()
+    expect(await backend.servicesFor(DEMO).events.list()).toHaveLength(6)
+    expect(backend.time.check()).toBeNull()
+  })
+
+  it('ends after 3 days even while the demo is used', async () => {
+    const { backend, later } = timed()
+    await backend.auth.enterDemo()
+    for (let hour = 0; hour < 71; hour += 1) {
+      later(HOUR)
+      backend.time.noteActivity()
+      expect(backend.time.check()).toBeNull()
+    }
+    later(HOUR)
+    expect(backend.time.check()).toBe('lifetime')
+  })
+
+  it('tells once at start-up that the demo ended, and nothing after a logout', async () => {
+    const open = timed()
+    await open.backend.auth.enterDemo()
+    open.later(13 * HOUR)
+    const reopened = open.make()
+    expect(await reopened.auth.getSession()).toBeNull()
+    expect(reopened.time.consumeEndedAtStart()).toBe('idle')
+    expect(reopened.time.consumeEndedAtStart()).toBeNull()
+
+    const left = timed()
+    await left.backend.auth.enterDemo()
+    await left.backend.auth.signOut()
+    left.later(4 * 24 * HOUR)
+    const returning = left.make()
+    expect(await returning.auth.getSession()).toBeNull()
+    expect(returning.time.consumeEndedAtStart()).toBeNull()
+    expect(left.stores.demoPersistence.load()).toBeNull()
+  })
+
+  it('keeps a demo left and reopened within its time', async () => {
+    const { backend, later, make } = timed()
+    await backend.auth.enterDemo()
+    await backend.servicesFor(DEMO).events.remove('evt-1')
+    await backend.auth.signOut()
+
+    later(2 * HOUR)
+    const back = make()
+    await back.auth.enterDemo()
+    expect(await back.servicesFor(DEMO).events.list()).toHaveLength(5)
+  })
+
+  it('starts the time again on Reset Demo, and tells when it ends', async () => {
+    const { backend, later } = timed()
+    await backend.auth.enterDemo()
+    later(60 * HOUR)
+    backend.time.noteActivity()
+
+    await backend.servicesFor(DEMO).demo!.reset()
+    const resetAt = new Date(NOW.getTime() + 60 * HOUR)
+    expect(await backend.servicesFor(DEMO).demo!.getEndsAt()).toBe(
+      new Date(resetAt.getTime() + 72 * HOUR).toISOString(),
+    )
+    later(20 * HOUR)
+    backend.time.noteActivity()
+    expect(backend.time.check()).toBeNull()
+  })
+
+  it('notices a demo another tab ended', async () => {
+    const { backend, later, make } = timed()
+    await backend.auth.enterDemo()
+    const otherTab = make()
+    later(13 * HOUR)
+
+    expect(otherTab.time.check()).toBe('idle')
+    expect(backend.time.check()).toBe('idle')
+  })
+
+  it('starts the clock of a demo stored before the time limits existed', async () => {
+    const { stores, make } = timed()
+    const first = make()
+    await first.auth.enterDemo()
+    await first.servicesFor(DEMO).events.list()
+    stores.clockPersistence.clear()
+
+    make()
+    expect(stores.clockPersistence.load()).toMatchObject({
+      startedAt: NOW.toISOString(),
+    })
   })
 })

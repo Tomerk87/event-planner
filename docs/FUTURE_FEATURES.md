@@ -104,4 +104,4 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 
 | Feature | Notes | Source |
 |---|---|---|
-| Server-backed expiring demos | Only if browser-local Demo Mode proves insufficient. | `PLAN.md` backlog |
+| Server-backed expiring demos | Only if browser-local Demo Mode proves insufficient. (The browser-local demo expires on its own since 2026-10-15: 3 days, or 12 hours without activity, D99.) | `PLAN.md` backlog |

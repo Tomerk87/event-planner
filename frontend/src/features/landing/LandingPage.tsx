@@ -18,6 +18,7 @@ import { Button } from '../../shared/ui/Button.tsx'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { cx } from '../../shared/ui/cx.ts'
 import { Menu } from '../../shared/ui/Menu.tsx'
+import { Notice } from '../../shared/ui/Notice.tsx'
 import { useDocumentTitle } from '../../shared/useDocumentTitle.ts'
 import styles from './LandingPage.module.css'
 import { ProductPreview } from './ProductPreview.tsx'
@@ -34,7 +35,7 @@ const FEATURES = [
 export function LandingPage() {
   const { t } = useTranslation()
   const demo = useEnterDemo()
-  const { demoAvailable } = useSession()
+  const { demoAvailable, demoEnded } = useSession()
   useDocumentTitle(t('landing.documentTitle'))
 
   const tryDemo = (size: 'md' | 'lg' = 'md') => (
@@ -110,6 +111,17 @@ export function LandingPage() {
       </header>
 
       <main id="main-content" tabIndex={-1} className={styles.main}>
+        {demoEnded && (
+          // The demo ended on its own (D99); say why, and offer a new one.
+          <Notice
+            tone="info"
+            title={t('demo.ended.title')}
+            action={demoAvailable ? tryDemo() : undefined}
+            announce
+          >
+            {t(`demo.ended.${demoEnded}`)}
+          </Notice>
+        )}
         <section className={styles.hero}>
           <div className={styles.heroText}>
             <h1 className={styles.headline}>

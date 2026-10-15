@@ -382,7 +382,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 ### 12.1 Entry and scope
 
-- Visitors can choose **Try Demo** on the landing page without authenticating. Leaving the demo (Log out) returns to the landing page and keeps the visitor's demo data.
+- Visitors can choose **Try Demo** on the landing page without authenticating. Leaving the demo (Log out) returns to the landing page and keeps the visitor's demo data until the demo ends: 3 days after it started, or after 12 hours without activity, whichever comes first (D99). Then the data is cleared and the next Try Demo starts afresh; a visitor who was in the demo is told why on the landing page.
 - Demo loads a prepopulated fictional event and allows visitors to explore the same pages/components as the real application.
 - Demo visitors can perform simulated guest CRUD, RSVPs, WhatsApp actions, seating changes, and role-aware exploration of Permissions, with restrictions corresponding to the selected demo role.
 - Demo Mode is clearly labeled and can be disabled by deployment configuration.
@@ -400,6 +400,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 - During the POC, demo data is stored in each visitor's own browser (`localStorage` or IndexedDB as appropriate).
 - Changes survive ordinary browser refreshes in the same browser profile.
+- A demo ends on its own 3 days after it started, or after 12 hours without activity, whichever comes first; its data is then cleared (D99).
 - Visitors do not share mutable data; other users' demo sessions cannot change a visitor's data.
 - The visitor can use **Reset Demo** to restore the initial generated dataset, after confirmation.
 - Demo datasets should be versioned so future application updates can migrate or reset incompatible browser-stored data safely.

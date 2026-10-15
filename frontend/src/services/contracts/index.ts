@@ -298,6 +298,8 @@ export interface DemoControl {
   setRole(role: DemoRole | null): Promise<void>
   /** Discards all changes and restores the initial generated dataset. */
   reset(): Promise<void>
+  /** When the demo ends at the latest (D99); null when unknown. */
+  getEndsAt(): Promise<IsoDateTime | null>
   /**
    * True once after stored demo data was discarded because it came from an
    * older dataset version or could not be read.
@@ -430,6 +432,27 @@ export interface Backend {
    * expired or was revoked), so the application can return to signed out.
    */
   onSessionEnded(listener: () => void): () => void
+  /** The demo's time limits (D99); null when this deployment has no demo. */
+  demoTime: DemoTime | null
+}
+
+/** Why a demo ended on its own (D99). */
+export type DemoEndReason = 'lifetime' | 'idle'
+
+/**
+ * A demo lasts three days from Try Demo, or until twelve hours pass with no
+ * activity (D99). The application asks while the demo is open.
+ */
+export interface DemoTime {
+  /**
+   * Ends the open demo, clearing its data, if its time is up, also when
+   * another tab ended it. Returns why, or null while it goes on.
+   */
+  check(): DemoEndReason | null
+  /** The visitor did something in the demo. */
+  noteActivity(): void
+  /** Why the demo ended when the application started, told once. */
+  consumeEndedAtStart(): DemoEndReason | null
 }
 
 /** The data operations of one session. */
