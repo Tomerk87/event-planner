@@ -9,6 +9,7 @@ import {
   Put,
 } from '@nestjs/common'
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger'
+import { LanguageDto } from '../auth/auth.dto.ts'
 import { CurrentUser } from '../auth/current-user.ts'
 import { SESSION_COOKIE } from '../auth/session-token.ts'
 import type { User } from '../domain/models.ts'
@@ -43,7 +44,30 @@ export class PermissionsController {
     @Body() body: InviteDto,
     @CurrentUser() user: User,
   ): Promise<InviteResultDto> {
-    return this.permissions.invite(eventId, body.email, body.role, user)
+    return this.permissions.invite(
+      eventId,
+      body.email,
+      body.role,
+      user,
+      body.language,
+    )
+  }
+
+  /** Emails a pending invitation again; email on only (D90). */
+  @Post('invitations/:invitationId/resend')
+  @HttpCode(204)
+  resendInvitation(
+    @Param('eventId') eventId: string,
+    @Param('invitationId') invitationId: string,
+    @Body() body: LanguageDto,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    return this.permissions.resendInvitation(
+      eventId,
+      invitationId,
+      user,
+      body.language,
+    )
   }
 
   @Put('members/:userId')

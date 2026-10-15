@@ -103,3 +103,10 @@
     inline-size: 8rem;
   }
 }
+
+.forgotLink {
+  align-self: flex-end;
+  margin-block-start: calc(var(--space-2) * -1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}

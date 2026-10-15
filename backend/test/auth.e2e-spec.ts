@@ -40,13 +40,17 @@ describe('authentication', () => {
     expect(cookie).toMatch(/^ep_session=/)
     expect(cookie).toMatch(/HttpOnly/)
     expect(cookie).toMatch(/SameSite=Lax/)
-    await browser.get('/api/auth/me').expect(200, response.body)
+    await browser
+      .get('/api/auth/me')
+      .expect(200, { ...response.body, emailVerified: true })
 
     const stored = await t.prisma.user.findUniqueOrThrow({
       where: { email: 'dana@example.com' },
     })
     expect(stored.passwordHash).toMatch(/^\$argon2id\$/)
     expect(stored.passwordHash).not.toContain('correct-horse')
+    // Email is off by default (D88): the account counts as verified.
+    expect(stored.emailVerifiedAt).not.toBeNull()
     const session = await t.prisma.session.findFirstOrThrow()
     expect(cookie).not.toContain(session.tokenHash)
   })
@@ -192,6 +196,17 @@ describe('authentication', () => {
     } finally {
       await fresh.close()
     }
+  })
+
+  it('marks every answer as data that is not to be sniffed or framed', async () => {
+    const response = await t.browser().get('/api/health').expect(200)
+
+    expect(response.headers).toMatchObject({
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'DENY',
+      'referrer-policy': 'no-referrer',
+    })
+    expect(response.headers).not.toHaveProperty('x-powered-by')
   })
 
   it('reports the health of the API and its database without a session', async () => {

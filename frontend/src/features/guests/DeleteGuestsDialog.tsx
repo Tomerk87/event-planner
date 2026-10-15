@@ -33,17 +33,22 @@ export function DeleteGuestsDialog({
   const { showToast } = useToast()
   const remove = useRemoveGuests(eventId)
   const [failure, setFailure] = useState<string | null>(null)
-  const [only] = guests
-  const single = guests.length === 1 && only !== undefined
-  const count = format.number(guests.length)
+  // The guests being deleted, kept while the list reloads without them.
+  const [deleting, setDeleting] = useState<readonly Guest[] | null>(null)
+  const shown = deleting ?? guests
+  const [only] = shown
+  const single = shown.length === 1 && only !== undefined
+  const count = format.number(shown.length)
 
   function close() {
     setFailure(null)
+    setDeleting(null)
     onClose()
   }
 
   function confirm() {
     setFailure(null)
+    setDeleting(guests)
     remove.mutate(
       guests.map((guest) => guest.id),
       {
@@ -57,7 +62,10 @@ export function DeleteGuestsDialog({
           onDeleted()
           close()
         },
-        onError: (error) => setFailure(describeError(t, error)),
+        onError: (error) => {
+          setDeleting(null)
+          setFailure(describeError(t, error))
+        },
       },
     )
   }

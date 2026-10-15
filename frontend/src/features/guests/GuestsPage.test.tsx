@@ -136,6 +136,68 @@ function openEditGuest(row: HTMLElement, name: string) {
   fireEvent.click(items[0]!)
 }
 
+describe('deleting the last guest', () => {
+  it('finishes, says so, and does not open again when the guest returns', async () => {
+    const services = createTestServices()
+    const event = await services.events.create({
+      name: 'Small Dinner',
+      startsAt: '2031-02-02T16:00:00.000Z',
+      timeZone: 'Asia/Jerusalem',
+      maxAttendees: 100,
+      defaultAllowedAttendees: 2,
+      rsvpLanguage: 'en',
+      location: null,
+      rsvpTitle: null,
+      coverImage: null,
+    })
+    const guest = {
+      firstName: 'Zohar',
+      lastName: 'Only',
+      phone: '050-555-0199',
+      allowedAttendees: 2,
+    }
+    await services.guests.create(event.id, guest)
+    await openGuests('', services, event.id)
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'More actions for Zohar Only' }),
+    )
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    const dialog = screen.getByRole('dialog', { name: 'Delete Guest' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }))
+
+    expect(
+      await screen.findByText('The guest was deleted.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('No guests yet')).toBeInTheDocument()
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'Delete Guest' }),
+      ).not.toBeInTheDocument(),
+    )
+
+    // Adding the same phone again brings the guest back, with no dialog.
+    fireEvent.click(screen.getAllByRole('button', { name: 'Add Guest' })[0]!)
+    const add = screen.getByRole('dialog', { name: 'Add Guest' })
+    change(within(add).getByLabelText(/First Name/), {
+      target: { value: 'Zohar' },
+    })
+    change(within(add).getByLabelText(/Last Name/), {
+      target: { value: 'Only' },
+    })
+    change(within(add).getByLabelText(/Phone Number/), {
+      target: { value: guest.phone },
+    })
+    fireEvent.click(within(add).getByRole('button', { name: 'Add Guest' }))
+    expect(
+      await screen.findByRole('button', { name: 'Zohar Only' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('dialog', { name: 'Delete Guest' }),
+    ).not.toBeInTheDocument()
+  })
+})
+
 describe('Guests list', () => {
   it('shows the figures, both tabs and the first page of guests by name', async () => {
     const { services } = await openGuests()

@@ -4,11 +4,13 @@ import {
   useQueryClient,
   type UseQueryResult,
 } from '@tanstack/react-query'
+import { useSession } from '../app/session/sessionContext.ts'
 import type { User } from '../domain/models.ts'
 import type {
   DemoRole,
   EventAccessInfo,
   EventSummary,
+  ServerFeatures,
 } from './contracts/index.ts'
 import { useServices } from './servicesContext.ts'
 
@@ -23,6 +25,8 @@ export const queryKeys = {
   dashboard: (eventId: string) => ['events', eventId, 'dashboard'],
   demoRole: ['demo', 'role'],
   sidebarCollapsed: ['preferences', 'sidebarCollapsed'],
+  features: ['system', 'features'],
+  emailVerified: ['session', 'emailVerified'],
 } as const
 
 export function useCurrentUser(): UseQueryResult<User> {
@@ -102,4 +106,35 @@ export function useSidebarCollapsed(): {
       void preferences.setSidebarCollapsed(!collapsed)
     },
   }
+}
+
+/**
+ * Whether this signed-in account gets emails (D88): the server sends email
+ * and the session is a real account. Never in the demo; false while the
+ * server cannot be reached.
+ */
+export function useEmailEnabled(): boolean {
+  const { session } = useSession()
+  const features = useServerFeatures()
+  return session?.workspace !== 'demo' && features.data?.email === true
+}
+
+/** What the server offers; asked once per session. */
+export function useServerFeatures(): UseQueryResult<ServerFeatures> {
+  const { accountEmail } = useSession()
+  return useQuery({
+    queryKey: queryKeys.features,
+    queryFn: () => accountEmail.getFeatures(),
+    staleTime: Infinity,
+    retry: false,
+  })
+}
+
+/** Whether the account's email is verified (D89); true in the demo. */
+export function useEmailVerified(): UseQueryResult<boolean> {
+  const { session } = useServices()
+  return useQuery({
+    queryKey: queryKeys.emailVerified,
+    queryFn: () => session.getEmailVerified(),
+  })
 }

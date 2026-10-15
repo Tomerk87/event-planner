@@ -483,3 +483,7 @@
 .language.languageLight .languageSelect svg {
   color: var(--color-text-muted);
 }
+
+.notice:not(:empty) {
+  margin-block-end: var(--space-4);
+}

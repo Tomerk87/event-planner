@@ -1,4 +1,5 @@
 import { DomainError, isDomainError } from '../domain/errors.ts'
+import type { Language } from '../i18n/languages.ts'
 import { createApiBackend, type ApiBackend } from './api/apiBackend.ts'
 import type { Backend, Session } from './contracts/index.ts'
 import { createDemoBackend, type DemoBackend } from './mock/mockBackend.ts'
@@ -70,6 +71,9 @@ export function combineBackends(
       },
     },
 
+    // Email belongs to real accounts; the demo never sends any.
+    accountEmail: api.accountEmail,
+
     servicesFor: (session) =>
       session.workspace === 'demo' && demo
         ? demo.servicesFor(session)
@@ -124,8 +128,10 @@ export function createServices(options: {
   location: Pick<Location, 'search' | 'origin'>
   storage: Storage
   apiUrl?: string
+  /** The interface language, for the emails a request sends (D88). */
+  language?: () => Language
 }): Backend {
-  const { demoEnabled, location, storage, apiUrl = '/api' } = options
+  const { demoEnabled, location, storage, apiUrl = '/api', language } = options
   // Preview accounts from before the backend are discarded (D85).
   createBrowserPersistence(storage, LEGACY_ACCOUNTS_STORAGE_KEY).clear()
 
@@ -152,6 +158,7 @@ export function createServices(options: {
   const api = createApiBackend({
     baseUrl: apiUrl,
     preferences: createPreferencesService(preferencesPersistence),
+    language,
   })
   return combineBackends(demo, api)
 }

@@ -18,6 +18,21 @@ export function setupApp(app: INestApplication, config: AppConfig): void {
   // background) and an import can carry 5,000 guests: well above Express's
   // 100 KB default.
   ;(app as NestExpressApplication).useBodyParser('json', { limit: '5mb' })
+  // Answers are data, never pages: not to be sniffed into another type,
+  // framed, or sent on as a referrer. Nginx adds the page headers (Phase 18).
+  app.use(
+    (
+      _request: unknown,
+      response: { setHeader: (name: string, value: string) => void },
+      next: () => void,
+    ) => {
+      response.setHeader('X-Content-Type-Options', 'nosniff')
+      response.setHeader('X-Frame-Options', 'DENY')
+      response.setHeader('Referrer-Policy', 'no-referrer')
+      next()
+    },
+  )
+  ;(app as NestExpressApplication).disable('x-powered-by')
   app.use(cookieParser())
   app.enableCors({ origin: config.corsOrigin, credentials: true })
   app.useGlobalPipes(

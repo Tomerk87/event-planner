@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsIn, IsString, MaxLength } from 'class-validator'
-import { UserDto } from '../auth/auth.dto.ts'
+import { LanguageDto, UserDto } from '../auth/auth.dto.ts'
 
 const ROLES = ['OWNER', 'ADMIN', 'VIEWER'] as const
 type Role = (typeof ROLES)[number]
 
-export class InviteDto {
+export class InviteDto extends LanguageDto {
   @IsString()
   @MaxLength(254)
   email!: string

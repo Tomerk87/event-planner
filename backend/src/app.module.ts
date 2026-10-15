@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module.ts'
 import { DomainErrorFilter } from './common/domain-error.filter.ts'
 import { APP_CONFIG, loadConfig, type AppConfig } from './config.ts'
 import { DashboardModule } from './dashboard/dashboard.module.ts'
+import { EmailModule } from './email/email.module.ts'
 import { EventsModule } from './events/events.module.ts'
 import { GuestsModule } from './guests/guests.module.ts'
 import { HealthController } from './health/health.controller.ts'
@@ -16,10 +17,18 @@ import { PrismaModule } from './prisma/prisma.module.ts'
 import { PublicRsvpController } from './rsvp/rsvp.controller.ts'
 import { RsvpModule } from './rsvp/rsvp.module.ts'
 import { StorageModule } from './storage/storage.module.ts'
+import { SystemController } from './system/system.controller.ts'
 import { TablesModule } from './tables/tables.module.ts'
 
 /** The routes the attempt limit applies to. */
-const AUTH_ATTEMPTS = new Set(['signIn', 'signUp'])
+const AUTH_ATTEMPTS = new Set([
+  'signIn',
+  'signUp',
+  'verifyEmail',
+  'forgotPassword',
+  'resetPassword',
+  'resendVerification',
+])
 
 @Module({})
 export class ConfigModule {
@@ -39,7 +48,8 @@ export function createAppModule(config: AppConfig = loadConfig()) {
     imports: [
       ConfigModule.forRoot(config),
       ThrottlerModule.forRoot([
-        // Sign-in and sign-up only: a few attempts a minute from one address.
+        // Sign-in, sign-up and the email links: a few attempts a minute from
+        // one address.
         {
           limit: config.authAttemptsPerMinute,
           ttl: 60_000,
@@ -59,6 +69,7 @@ export function createAppModule(config: AppConfig = loadConfig()) {
         },
       ]),
       PrismaModule,
+      EmailModule,
       StorageModule,
       AccessModule,
       AuthModule,
@@ -70,7 +81,7 @@ export function createAppModule(config: AppConfig = loadConfig()) {
       TablesModule,
       DashboardModule,
     ],
-    controllers: [HealthController],
+    controllers: [HealthController, SystemController],
     providers: [
       { provide: APP_GUARD, useClass: ThrottlerGuard },
       { provide: APP_FILTER, useClass: DomainErrorFilter },

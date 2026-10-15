@@ -16,6 +16,9 @@ const app = await NestFactory.create(createAppModule(config), {
   logger: config.production ? ['log', 'warn', 'error'] : undefined,
 })
 setupApp(app, config)
-SwaggerModule.setup('api/docs', app, () => createOpenApiDocument(app))
+// The API description is for development; production does not publish it.
+if (!config.production) {
+  SwaggerModule.setup('api/docs', app, () => createOpenApiDocument(app))
+}
 await app.listen(config.port)
 new Logger('Bootstrap').log(`API listening on port ${config.port}`)

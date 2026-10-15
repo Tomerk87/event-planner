@@ -1,14 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { useSession } from '../../app/session/sessionContext.ts'
 import { validateSignIn } from '../../domain/accounts.ts'
 import { isDomainError } from '../../domain/errors.ts'
+import { useServerFeatures } from '../../services/queries.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Button } from '../../shared/ui/Button.tsx'
 import { TextField } from '../../shared/ui/Field.tsx'
+import { Notice } from '../../shared/ui/Notice.tsx'
 import { useEnterDemo } from '../landing/useEnterDemo.ts'
 import { AuthPage, DemoLink } from './AuthPage.tsx'
+import styles from './AuthPage.module.css'
+import type { SignInState } from './ResetPasswordPage.tsx'
 
 type Field = 'email' | 'password'
 
@@ -16,6 +20,9 @@ export function SignInPage() {
   const { t } = useTranslation()
   const { signIn } = useSession()
   const demo = useEnterDemo()
+  const features = useServerFeatures()
+  const passwordChanged =
+    (useLocation().state as SignInState | null)?.passwordChanged === true
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fieldError, setFieldError] = useState<Field | null>(null)
@@ -68,6 +75,9 @@ export function SignInPage() {
         </>
       }
     >
+      {passwordChanged && !failure && (
+        <Notice tone="success" title={t('auth.signIn.passwordChanged')} />
+      )}
       <TextField
         label={t('auth.fields.email')}
         type="email"
@@ -90,6 +100,11 @@ export function SignInPage() {
         }
         onChange={(change) => setPassword(change.target.value)}
       />
+      {features.data?.email && (
+        <Link to="/forgot-password" className={styles.forgotLink}>
+          {t('auth.signIn.forgot')}
+        </Link>
+      )}
       <Button type="submit" fullWidth loading={isPending}>
         {t('auth.signIn.action')}
       </Button>

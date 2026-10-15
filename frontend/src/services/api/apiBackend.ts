@@ -1,19 +1,26 @@
 import { isDomainError } from '../../domain/errors.ts'
 import type { User } from '../../domain/models.ts'
+import type { Language } from '../../i18n/languages.ts'
 import type {
+  AccountEmailService,
   AuthService,
   PreferencesService,
   PublicRsvpService,
   Services,
   Session,
 } from '../contracts/index.ts'
-import { createApiServices, createPublicRsvpApi } from './apiServices.ts'
+import {
+  createAccountEmailApi,
+  createApiServices,
+  createPublicRsvpApi,
+} from './apiServices.ts'
 import { createHttp, type HttpOptions } from './http.ts'
 
 /** The real application: accounts, sessions and data on the server. */
 export interface ApiBackend {
   /** No demo here: `enterDemo` belongs to the browser-local demo backend. */
   auth: Omit<AuthService, 'enterDemo'>
+  accountEmail: AccountEmailService
   servicesFor(session: Session): Services
   publicRsvp: PublicRsvpService
   onSessionEnded(listener: () => void): () => void
@@ -26,8 +33,11 @@ export interface ApiBackend {
 export function createApiBackend(
   options: Omit<HttpOptions, 'onUnauthenticated'> & {
     preferences: PreferencesService
+    /** The interface language, for the emails a request sends (D88). */
+    language?: () => Language
   },
 ): ApiBackend {
+  const language = options.language ?? (() => 'en')
   const listeners = new Set<() => void>()
   const http = createHttp({
     ...options,
@@ -36,7 +46,7 @@ export function createApiBackend(
   // Asking who is signed in expects "nobody" as an answer: it never means
   // that a session ended.
   const quiet = createHttp(options)
-  const services = createApiServices(http, options.preferences)
+  const services = createApiServices(http, options.preferences, language)
   const sessionOf = (user: User): Session => ({
     workspace: 'account',
     userId: user.id,
@@ -60,6 +70,7 @@ export function createApiBackend(
             name: input.name,
             email: input.email,
             password: input.password,
+            language: language(),
           }),
         ),
       signIn: async (input) =>
@@ -71,6 +82,8 @@ export function createApiBackend(
         ),
       signOut: () => http.post<void>('/auth/sign-out'),
     },
+
+    accountEmail: createAccountEmailApi(http, language),
 
     servicesFor: () => services,
 

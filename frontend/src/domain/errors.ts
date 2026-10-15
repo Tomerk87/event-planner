@@ -23,6 +23,7 @@ export type DomainErrorCode =
   | 'RSVP_CLOSED'
   | 'EMAIL_TAKEN'
   | 'ACCOUNT_NOT_FOUND'
+  | 'LINK_EXPIRED'
   | 'UNAVAILABLE'
 
 export type ErrorDetails = Readonly<Record<string, string | number>>
