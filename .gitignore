@@ -3,6 +3,7 @@ node_modules/
 dist/
 build/
 coverage/
+*.tsbuildinfo
 
 # Environment files — commit only the documented example
 .env

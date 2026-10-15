@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import type { Backend } from '../services/contracts/index.ts'
 import { isDomainError } from '../domain/errors.ts'
+import { getCurrentLanguage } from '../i18n/i18n.ts'
 import { createServices } from '../services/createServices.ts'
 import { parseDemoEnabled } from '../services/providerConfig.ts'
 import styles from '../shared/StandalonePage.module.css'
@@ -35,6 +36,7 @@ function createAppBackend(): Backend | null {
       demoEnabled: parseDemoEnabled(import.meta.env.VITE_DEMO_ENABLED),
       location: window.location,
       storage: window.localStorage,
+      language: getCurrentLanguage,
     })
   } catch {
     return null

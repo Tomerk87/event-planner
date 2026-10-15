@@ -88,7 +88,7 @@ test('an invited email stays pending across a reload, and can be cancelled', asy
 
   await invite(page, 'new.person@example.com', 'ADMIN')
   await expect(
-    page.getByText('new.person@example.com is invited'),
+    page.getByText(/new\.person@example\.com\W* is invited/),
   ).toBeVisible()
 
   await page.reload()

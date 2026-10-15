@@ -9,6 +9,11 @@ import { parseEnv } from 'node:util'
 const port = 5174
 const apiPort = 3102
 const baseURL = `http://localhost:${port}`
+// A second pair with email on, sending to Mailpit (backend
+// docker-compose.dev.yml), for the email flows only (D88).
+const emailPort = 5175
+const emailApiPort = 3103
+const emailBaseURL = `http://localhost:${emailPort}`
 
 /** The backend's test database; the real-account tests write to it. */
 function testDatabaseUrl(): string {
@@ -30,8 +35,27 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   use: { baseURL },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /(email|performance)\.spec\.ts/,
+    },
+    {
+      name: 'mobile',
+      use: { ...devices['Pixel 7'] },
+      testIgnore: /(email|performance)\.spec\.ts/,
+    },
+    {
+      // Run on request: npm run test:performance.
+      name: 'performance',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /performance\.spec\.ts/,
+    },
+    {
+      name: 'email',
+      use: { ...devices['Desktop Chrome'], baseURL: emailBaseURL },
+      testMatch: /email\.spec\.ts/,
+    },
   ],
   webServer: [
     {
@@ -59,6 +83,34 @@ export default defineConfig({
       url: baseURL,
       reuseExistingServer: !process.env.CI,
       env: { API_URL: `http://localhost:${apiPort}` },
+    },
+    {
+      // Started once the first server, which builds the backend, answers.
+      command: `sh -c 'until curl -sf http://localhost:${apiPort}/api/health >/dev/null; do sleep 1; done; node ../backend/dist/main.js'`,
+      url: `http://localhost:${emailApiPort}/api/health`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      env: {
+        DATABASE_URL: testDatabaseUrl(),
+        PORT: String(emailApiPort),
+        CORS_ORIGIN: emailBaseURL,
+        NODE_ENV: 'test',
+        UPLOAD_DIR: mkdtempSync(path.join(tmpdir(), 'event-planner-e2e-')),
+        AUTH_ATTEMPTS_PER_MINUTE: '100000',
+        RSVP_LIMIT_PER_IP: '100000',
+        RSVP_LIMIT_PER_PHONE: '100000',
+        EMAIL_MODE: 'smtp',
+        SMTP_HOST: 'localhost',
+        SMTP_PORT: '1025',
+        EMAIL_FROM: 'Event Planner <noreply@localhost>',
+        EMAIL_LIMIT_PER_HOUR: '100',
+      },
+    },
+    {
+      command: `npm run dev -- --port ${emailPort} --strictPort`,
+      url: emailBaseURL,
+      reuseExistingServer: !process.env.CI,
+      env: { API_URL: `http://localhost:${emailApiPort}` },
     },
   ],
 })

@@ -495,25 +495,29 @@
 **Goal:** validate the integrated product before packaging/deploying.
 
 ### Checklist
-- [ ] E2E: real sign-in → event creation → Owner membership → invite users with roles.
-- [ ] E2E: Admin/Viewer/Owner permissions and attempted forbidden API calls.
-- [ ] E2E: Guests CRUD, soft-delete/restore, duplicates and import/export.
-- [ ] E2E: WhatsApp initiation counters and correct distinct Dashboard metric.
-- [ ] E2E: public RSVP known/unknown, attendee bounds, Not Sure and Declined.
-- [ ] E2E: RSVP changes, table assignment restrictions, seating conflicts and exports.
-- [ ] E2E: past events read-only with view/export still supported.
-- [ ] E2E: Demo Mode initialized from fictional data, persisted, reset, independent from real DB; WhatsApp links open only from a user's click.
-- [ ] Run English/Hebrew, LTR/RTL and desktop/mobile smoke tests.
-- [ ] Run unit/integration suites and meet the coverage threshold specified in `AGENTS.md` where measurable.
-- [ ] Review security of public RSVP, file uploads, permissions, CORS, authentication, configuration and sensitive logs.
-- [ ] Measure performance with representative events up to 3000 attendees and multiple simultaneous RSVP submissions.
-- [ ] Validate frontend and backend production builds.
-- [ ] Email verification at sign-up before real users: without it, anyone can sign up with an invited email and receive that invitation's access (owner accepted the risk for the POC, 2026-10-14).
-- [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew.
+- [x] E2E: real sign-in → event creation → Owner membership → invite users with roles.
+- [x] E2E: Admin/Viewer/Owner permissions and attempted forbidden API calls.
+- [x] E2E: Guests CRUD, soft-delete/restore, duplicates and import/export.
+- [x] E2E: WhatsApp initiation counters and correct distinct Dashboard metric.
+- [x] E2E: public RSVP known/unknown, attendee bounds, Not Sure and Declined.
+- [x] E2E: RSVP changes, table assignment restrictions, seating conflicts and exports.
+- [x] E2E: past events read-only with view/export still supported.
+- [x] E2E: Demo Mode initialized from fictional data, persisted, reset, independent from real DB; WhatsApp links open only from a user's click.
+- [x] Run English/Hebrew, LTR/RTL and desktop/mobile smoke tests.
+- [x] Run unit/integration suites and meet the coverage threshold specified in `AGENTS.md` where measurable.
+- [x] Review security of public RSVP, file uploads, permissions, CORS, authentication, configuration and sensitive logs.
+- [x] Measure performance with representative events up to 3000 attendees and multiple simultaneous RSVP submissions.
+- [x] Validate frontend and backend production builds.
+- [x] Email verification at sign-up before real users: without it, anyone can sign up with an invited email and receive that invitation's access (owner accepted the risk for the POC, 2026-10-14). Built with email configurable and off by default (owner decision 2026-10-15, D88–D89); it takes effect when email is turned on (Phase 18).
+- [x] Email provider support, configurable: `EMAIL_MODE=off` (default; nothing sent) or `smtp` (Amazon SES in production, Mailpit locally) (owner decision 2026-10-15, D88).
+- [x] Forgot password by email, with a one-time link that signs the account out everywhere (D88).
+- [x] Invitation emails, with "Resend email" on a pending invitation (D90).
+- [x] Read-only System page for Super Users: email settings and a test email (D91).
+- [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew. The owner chose the side-by-side sheet (2026-10-15): `docs/hebrew-review.xlsx` (`npm run hebrew-review` in `frontend/`) is ready; **waiting for the owner's corrections**, then apply them and re-check the Hebrew screenshots.
 
 ### Validation and exit criteria
-- [ ] Critical E2E paths and regression tests pass.
-- [ ] Known limitations documented; no blocking security or data integrity defects.
+- [x] Critical E2E paths and regression tests pass.
+- [x] Known limitations documented; no blocking security or data integrity defects.
 
 ---
 
@@ -537,6 +541,7 @@
 - [ ] Verify redeploy/restart does not lose real PostgreSQL or uploaded asset data.
 - [ ] Document deployment, rollback, logs, and low-cost/free-tier billing cautions.
 - [ ] Split the frontend bundle by page (the main file is about 650 kB before compression).
+- [ ] Connect email (D88): buy the domain (Route 53 adds its DNS records), verify it in Amazon SES with DKIM, SPF and DMARC, request production access (leave the SES sandbox), create SES SMTP credentials kept only in the server's environment, set `EMAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`, then send a test email from the System page.
 
 ### Validation and exit criteria
 - [ ] Entire stack works on chosen small VM within observed resource limits.
@@ -1160,6 +1165,28 @@ Follow-ups/risks:
 - Visiting a demo-capable deployment's RSVP link generates the demo dataset in the guest's browser (the link is first looked up there). Harmless, but wasted work for a real guest; worth avoiding before release (Phase 19).
 - Nothing committed; branch phase_15_16_implementation.
 Next: Phase 17 — end-to-end, security and hardening. Ask the owner how to do the Hebrew review before starting it (D74).
+```
+
+```text
+2026-10-15 — Phase 17 — end-to-end, security and hardening, plus configurable email. All items done except the Hebrew review, which waits for the owner's corrections.
+Decisions (owner): Hebrew review by a side-by-side sheet; performance passes at < 2 s per page for 3,000 guests and 100 simultaneous answers all kept; email configurable and off by default, Amazon SES via SMTP in production, domain bought in Phase 18 (D88); unverified accounts sign in, invitations wait for verification (D89); invitation emails sent automatically with Resend (D90); read-only System page for Super Users (D91); link rules: 24 h verify, 1 h single-use reset that signs out everywhere, no account enumeration, 3 emails per kind per address per hour. Future feature added: emailing guests their invitation.
+- Email backend: backend/src/email (Mailer: NullMailer logs the kind only, SmtpMailer via nodemailer; EmailService with per-address limits; en/he templates), EmailToken table (hashed, single-use, expiring) and User.emailVerifiedAt (existing accounts marked verified); routes resend-verification, verify-email, forgot-password, reset-password, invitations/:id/resend, system/features, system/email, system/email/test; GET /auth/me adds emailVerified. An unverified account gets a pending invitation instead of access. New error code LINK_EXPIRED (410), in both domain copies; validateNewPassword shared. Mailpit added to docker-compose.dev.yml.
+- Email frontend: contract AccountEmailService, SessionService.getEmailVerified/resendVerification, PermissionsService.resendInvitation, SystemService; pages /forgot-password, /reset-password, /verify-email, /system; verification notice above every signed-in page; Forgot password? on Sign In; Resend email on pending invitations; texts in en/he. The demo shows none of it. Addresses inside sentences are wrapped in left-to-right isolate marks so they read in order in Hebrew (shared/ltr.ts).
+- E2E on real accounts: real-permissions.spec.ts (invite by role, sign-up activation, Viewer/Admin/outsider/signed-out refusals checked against the API, last Owner kept, past event read-only with export and closed RSVP), real-guests.spec.ts (CRUD, duplicate phone, delete and restore by import, CSV/XLSX export from the server, WhatsApp counters and the distinct Dashboard figure, public answers known/unknown/Not Sure/Declined/over allowance, review of an unknown answer, seating rules: not approved, table full, over capacity after a larger answer, seat freed on decline), email.spec.ts (new "email" project against a second API with EMAIL_MODE=smtp and Mailpit: verify, invitation emailed and activated only after verification, resend, reset ending every session, System page and test email, axe and no sideways scroll in en/he at 1280 and 390 px). backend/test/e2e-tools.ts sets past events and Super Users in the test database.
+- Bug found by the new tests, fixed: deleting the last guest unmounted the Delete dialog before it finished, so no "deleted" message showed and the dialog reopened when that guest came back (same in the demo). The guests tab now keeps its dialogs in place; DeleteGuestsDialog keeps the guests it is deleting. Regression test added.
+- Security review: public RSVP (limits D2, known/unknown answered alike), uploads (types and size checked, served as images with nosniff, random keys), permissions (role matrix + new routes, 403/404/401 checked from the browser), CORS (one origin, credentials), cookies (httpOnly, SameSite=Lax, Secure in production), auth (argon2id, hashed session and email tokens, constant-time-ish sign-in, rate limits on every auth and email route), configuration and logs (no passwords, tokens, phones or addresses logged; provider errors logged by code only). Changes: API security headers (nosniff, X-Frame-Options DENY, Referrer-Policy no-referrer, no X-Powered-By); production refuses non-HTTPS CORS_ORIGIN/PUBLIC_APP_URL; /api/docs not served in production (D92). npm audit: frontend 0; backend 4 high in the Prisma CLI's dependencies (deepmerge-ts, mysql2, the latter unused with PostgreSQL) fixed with package overrides, Prisma validate/migrate checked, now 0. Accepted and documented: uploaded pictures are not checked for a real image signature (served only as images with nosniff; FUTURE_FEATURES); sign-up says when an email is taken (needed to sign up; sign-in does not reveal it); rate-limit counts in memory (one process).
+- Performance (npm run test:performance, real API on the test database, dev machine): 3,000 guests, 300 tables, 2,700 answered, ~2,430 seated. API medians: guests 32 ms, dashboard 36 ms, tables 29 ms. Pages until content shows: Guests 657 ms, Dashboard 260 ms, Event Layout 222 ms (target < 2,000 ms). 100 simultaneous RSVP answers: all 200, done in 1.9 s, counts exact.
+- Hebrew review sheet: docs/hebrew-review.xlsx, 975 texts (965 interface texts and the server's email subjects and bodies) grouped by screen, with correction and comment columns; regenerated by `npm run hebrew-review` in frontend/.
+Validation:
+- Backend: typecheck, lint (same 2 warnings in the shared domain copy), format clean; unit 504; integration 283 (new: email 15, security headers, configuration); openapi.json regenerated; npm audit 0.
+- Frontend: typecheck, lint, format clean; unit 1116, coverage 96.0% statements / 91.3% branches; test:api 57 passed, 2 skipped; test:e2e 347 passed, 25 skipped (desktop, mobile, email), and the new specs 66/66 over three repeats; test:performance passed; build succeeds (known chunk-size warning, Phase 18).
+- By hand: a real verification email in Hebrew reached Mailpit over SMTP; screenshots of Sign In, Forgot password, Reset, Verify, the verification notice, System and Permissions in English and Hebrew at 1280 and 390 px look right.
+Follow-ups/risks:
+- Hebrew review open until the owner returns the sheet.
+- Email stays off in the POC until Phase 18 connects SES (new Phase 18 item). While off, whoever signs up with an invited email gets that invitation's access (accepted, D88).
+- `npm run test:e2e` now also needs Mailpit (`npm run db:up` starts it).
+- Branch phase_17_implementation (from chore/ignore-tsbuildinfo, rebased on main); nothing committed.
+Next: owner review of Phase 17 and the Hebrew sheet; then Phase 18.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

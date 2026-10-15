@@ -55,6 +55,10 @@ Update this file when a decision is made or changed. Do not record a choice here
 | API provider | `frontend/src/services/api/`: `http.ts` (fetch with the session cookie; an error body `{ code, details }` becomes the same `DomainError` the demo throws; a server that cannot be reached is `UNAVAILABLE`), `apiServices.ts` (each contract method to its route, sending only the fields the API accepts) and `apiBackend.ts` (sign-up, sign-in, the session, sign-out). In development Vite forwards `/api` to `http://localhost:3000` (`API_URL` to change it), so the cookie stays on one origin, as Nginx does in production. Queries retry once only when the service could not be reached, and reload on returning to the window (D67) | Adopted in Phase 16 |
 | Guest and seating files | `FilesService` in the contracts (`readGuestFile`, `exportGuests`, `exportSeating`). The demo reads and writes files in the browser (`services/spreadsheets.ts`); a real account uploads the file to the server and downloads what it writes (D83). The size limit is checked before uploading | Owner decision 2026-10-14; adopted in Phase 16 |
 | Request size | The API accepts JSON bodies up to 5 MB (pictures as data addresses, imports of 5,000 guests); a larger request is refused with `VALIDATION` (413) | Found in Phase 16 |
+| Email | Decision D88. `backend/src/email/`: a `Mailer` (`NullMailer` logs only the kind of email; `SmtpMailer` sends with nodemailer) chosen by `EMAIL_MODE` (`off` by default, or `smtp` with `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`), and `EmailService`, which limits each kind of email to `EMAIL_LIMIT_PER_HOUR` (default 3) per address and logs a failed send without failing the request. Texts in English and Hebrew are in `email/templates.ts`. Links are random tokens stored only as hashes in `EmailToken`, used once inside one statement, expiring after `EMAIL_VERIFY_HOURS` (24) or `PASSWORD_RESET_MINUTES` (60). Forgot password answers before preparing the email, so neither the answer nor its timing reveals an account. Amazon SES is used through its SMTP endpoint in production (Phase 18); Mailpit, in `docker-compose.dev.yml`, catches every email locally (http://localhost:8025) | Owner decision 2026-10-15; adopted in Phase 17 |
+| System settings | `GET /api/system/features` (public) tells the frontend whether email is on; `GET /api/system/email` and `POST /api/system/email/test` are for Super Users only and never return the SMTP user or password (D91) | Owner decision 2026-10-15; adopted in Phase 17 |
+| API response headers | Every answer carries `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and `Referrer-Policy: no-referrer`, without `X-Powered-By`. In production the server refuses to start unless `CORS_ORIGIN` and `PUBLIC_APP_URL` are HTTPS (the session cookie is `Secure` there), and `/api/docs` is not served (D92) | Adopted in Phase 17 |
+| Browser tests | `npm run test:e2e` runs three Playwright projects: `desktop` and `mobile` (the demo, and real accounts on the test database through the API on port 3102), and `email`, against a second API (port 3103) with `EMAIL_MODE=smtp` sending to Mailpit, whose API the tests read. `npm run test:performance` runs the 3,000-guest check on its own. `backend/test/e2e-tools.ts` changes the test database where the API rightly refuses (an event in the past, a Super User) | Adopted in Phase 17 |
 | Image storage | `ImageStorage` (`backend/src/storage/`) keeps pictures on local disk under `UPLOAD_DIR` (a persistent volume in production), referenced by random keys and served at `/api/files/<key>`. Public, because the RSVP background is shown to guests without an account; keys are unguessable and never listed. Object storage can replace it behind the same interface | Adopted in Phase 13 |
 | Data access boundary | UI reads and writes only through typed feature service interfaces. A mock provider and an API provider implement the same contracts; the provider is chosen once at the application boundary | `AGENTS.md` Frontend standards |
 | Page tree | One shared set of pages and components for Demo Mode and the real app; no separate demo page tree | `AGENTS.md` Development strategy |
@@ -72,7 +76,7 @@ These are implementation choices that the approved documents leave open. Each is
 
 | Choice | Decide in |
 |---|---|
-| Email provider for verification and invitation emails | Phase 17 / 18 |
+| Email provider for verification and invitation emails | Decided: Amazon SES through SMTP (D88); connected in Phase 18 with the domain |
 
 ## Repository structure
 
@@ -146,7 +150,11 @@ Backend unit tests sit next to the code as `*.test.ts` / `*.spec.ts`.
 | Path | Page |
 |---|---|
 | `/` | Landing page; with a session, redirects to `/events` |
-| `/signin`, `/signup` | Simulated sign-in and sign-up; with a session, redirect to `/events` |
+| `/signin`, `/signup` | Sign-in and sign-up; with a session, redirect to `/events` |
+| `/forgot-password` | Asks for a password-reset email; only while email is on, otherwise back to Sign In |
+| `/reset-password?token=` | Sets a new password from the emailed link, signed in or not |
+| `/verify-email?token=` | Verifies the email from the emailed link, signed in or not |
+| `/system` | System page, for Super Users of real accounts (D91) |
 | `/events` | Homepage / My Events (needs a session, as does every `/events/...` page) |
 | `/events/:eventId` | Redirects to the event's dashboard |
 | `/events/:eventId/dashboard` | Dashboard |

@@ -436,311 +436,10 @@ export function GuestsTab({
     },
   ]
 
-  if (guests.length === 0) {
-    return (
-      <Card>
-        <EmptyState
-          icon={<Users />}
-          title={t('guests.empty.title')}
-          description={t(
-            canEdit ? 'guests.empty.body' : 'guests.empty.bodyReadOnly',
-          )}
-          action={
-            canEdit && (
-              <Button icon={<UserPlus />} onClick={onAdd}>
-                {t('guests.actions.add')}
-              </Button>
-            )
-          }
-        />
-      </Card>
-    )
-  }
-
-  return (
-    <div className={styles.stack}>
-      <div className={styles.toolbar}>
-        <div className={styles.search}>
-          <TextField
-            label={t('guests.search.label')}
-            hideLabel
-            type="search"
-            icon={<Search />}
-            placeholder={t('guests.search.placeholder')}
-            value={filters.query}
-            onChange={(change) => setFilter('q', change.target.value)}
-          />
-        </div>
-        <div className={styles.filters}>
-          <SelectField
-            label={t('guests.filters.rsvp')}
-            hideLabel
-            value={filters.rsvp}
-            onChange={(change) =>
-              setFilter(
-                'rsvp',
-                change.target.value === 'ALL' ? null : change.target.value,
-              )
-            }
-          >
-            <option value="ALL">{t('guests.filters.rsvpAll')}</option>
-            {RSVP_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {t(`guests.rsvp.${status}`)}
-              </option>
-            ))}
-          </SelectField>
-          <SelectField
-            label={t('guests.filters.invitation')}
-            hideLabel
-            value={filters.invitation}
-            onChange={(change) =>
-              setFilter(
-                'inv',
-                change.target.value === 'ALL' ? null : change.target.value,
-              )
-            }
-          >
-            <option value="ALL">{t('guests.filters.invitationAll')}</option>
-            <option value="SENT">{t('guests.filters.sent')}</option>
-            <option value="NOT_SENT">{t('guests.filters.notSent')}</option>
-          </SelectField>
-          <SelectField
-            label={t('guests.filters.table')}
-            hideLabel
-            value={filters.table === 'NONE' ? NO_TABLE : filters.table}
-            onChange={(change) =>
-              setFilter(
-                'table',
-                change.target.value === 'ALL' ? null : change.target.value,
-              )
-            }
-          >
-            <option value="ALL">{t('guests.filters.tableAll')}</option>
-            <option value={NO_TABLE}>{t('guests.table.noTable')}</option>
-            {[...eventTables]
-              .sort((a, b) => a.number - b.number)
-              .map((table) => (
-                <option key={table.id} value={table.id}>
-                  {t('guests.filters.tableOption', {
-                    number: format.number(table.number),
-                  })}
-                </option>
-              ))}
-          </SelectField>
-          {groups.length > 0 && (
-            <SelectField
-              label={t('guests.filters.group')}
-              hideLabel
-              value={filters.group === '' ? NO_GROUP : (filters.group ?? 'ALL')}
-              onChange={(change) =>
-                setParam({
-                  group:
-                    change.target.value === 'ALL' ? null : change.target.value,
-                  page: null,
-                })
-              }
-            >
-              <option value="ALL">{t('guests.filters.groupAll')}</option>
-              <option value={NO_GROUP}>{t('guests.filters.groupNone')}</option>
-              {groups.map((group) => (
-                <option key={group} value={group}>
-                  {group}
-                </option>
-              ))}
-            </SelectField>
-          )}
-          {!isPhone && (
-            <ColumnChooser
-              visible={columns}
-              onChange={(next) => {
-                setChosenColumns(next)
-                setColumns.mutate(next)
-              }}
-            />
-          )}
-          {filtered && (
-            <Button
-              variant="ghost"
-              icon={<X />}
-              onClick={() =>
-                setParam({
-                  q: null,
-                  rsvp: null,
-                  inv: null,
-                  table: null,
-                  group: null,
-                  page: null,
-                })
-              }
-            >
-              {t('guests.filters.clear')}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {!isPhone && selectedGuests.length > 0 && (
-        <div
-          className={styles.bulkBar}
-          role="region"
-          aria-label={t('guests.bulk.label')}
-        >
-          <p className={styles.bulkCount} role="status">
-            {t('guests.bulk.selected', {
-              count: format.number(selectedGuests.length),
-            })}
-          </p>
-          <Menu
-            label={t('guests.bulk.export')}
-            align="start"
-            triggerClassName={styles.bulkButton}
-            items={exportItems(selectedGuests)}
-          >
-            <Download aria-hidden="true" />
-            <span aria-hidden="true">{t('guests.bulk.export')}</span>
-          </Menu>
-          {canEdit && (
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Tags />}
-              onClick={() => setPanel({ kind: 'group' })}
-            >
-              {t('guests.bulk.group.action')}
-            </Button>
-          )}
-          {canEdit && (
-            <Button
-              variant="danger"
-              size="sm"
-              icon={<Trash2 />}
-              onClick={() =>
-                setPanel({
-                  kind: 'delete',
-                  guestIds: selectedGuests.map((guest) => guest.id),
-                })
-              }
-            >
-              {t('guests.bulk.delete')}
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSelected(new Set())}
-          >
-            {t('guests.bulk.clear')}
-          </Button>
-        </div>
-      )}
-
-      {matching.length === 0 ? (
-        <Card>
-          <EmptyState
-            icon={<SearchX />}
-            title={t('guests.empty.noMatchTitle')}
-            description={t('guests.empty.noMatchBody')}
-          />
-        </Card>
-      ) : (
-        <>
-          <DataTable
-            caption={t('guests.table.caption')}
-            columns={tableColumns}
-            rows={page.items}
-            getRowKey={(guest) => guest.id}
-            renderCard={renderCard}
-            sort={{ columnId: sort.key, direction: sort.direction }}
-            sortLabel={(column) => t('guests.table.sortBy', { column })}
-            onSort={(columnId) =>
-              setParam({
-                sort:
-                  sort.key === columnId && sort.direction === 'asc'
-                    ? `-${columnId}`
-                    : columnId === DEFAULT_GUEST_SORT.key &&
-                        sort.key === columnId
-                      ? null
-                      : columnId,
-                page: null,
-              })
-            }
-            selection={{
-              selected,
-              allLabel: t('guests.table.selectAll'),
-              rowLabel: (guest) =>
-                t('guests.table.selectRow', { name: guestFullName(guest) }),
-              onToggle: (id, isSelected) =>
-                setSelected((current) => {
-                  const next = new Set(current)
-                  if (isSelected) {
-                    next.add(id)
-                  } else {
-                    next.delete(id)
-                  }
-                  return next
-                }),
-              onToggleAll: (isSelected) =>
-                setSelected((current) => {
-                  const next = new Set(current)
-                  for (const guest of page.items) {
-                    if (isSelected) {
-                      next.add(guest.id)
-                    } else {
-                      next.delete(guest.id)
-                    }
-                  }
-                  return next
-                }),
-            }}
-          />
-          <div className={styles.footer}>
-            <div className={styles.pageSize}>
-              <SelectField
-                label={t('guests.pagination.rowsPerPage')}
-                value={String(pageSize)}
-                onChange={(change) =>
-                  setParam({
-                    size:
-                      change.target.value === String(DEFAULT_PAGE_SIZE)
-                        ? null
-                        : change.target.value,
-                    page: null,
-                  })
-                }
-              >
-                {PAGE_SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {format.number(size)}
-                  </option>
-                ))}
-              </SelectField>
-            </div>
-            <p className={styles.range} role="status">
-              {t('guests.pagination.range', {
-                from: format.number(page.from),
-                to: format.number(page.to),
-                total: format.number(page.total),
-              })}
-            </p>
-            <Pagination
-              label={t('guests.pagination.label')}
-              page={page.page}
-              pageCount={page.pageCount}
-              previousLabel={t('guests.pagination.previous')}
-              nextLabel={t('guests.pagination.next')}
-              pageLabel={(number) =>
-                t('guests.pagination.page', { page: format.number(number) })
-              }
-              formatNumber={format.number}
-              onPage={(number) =>
-                setParam({ page: number === 1 ? null : String(number) })
-              }
-            />
-          </div>
-        </>
-      )}
-
+  // Kept in place whether or not the list is empty: deleting the last
+  // guest must still finish, and close, its dialog.
+  const dialogs = (
+    <>
       <GuestFormDialog
         open={panel?.kind === 'edit' && panelGuest !== null}
         onClose={closePanel}
@@ -798,6 +497,324 @@ export function GuestsTab({
             : []
         }
       />
+    </>
+  )
+
+  const empty = (
+    <Card>
+      <EmptyState
+        icon={<Users />}
+        title={t('guests.empty.title')}
+        description={t(
+          canEdit ? 'guests.empty.body' : 'guests.empty.bodyReadOnly',
+        )}
+        action={
+          canEdit && (
+            <Button icon={<UserPlus />} onClick={onAdd}>
+              {t('guests.actions.add')}
+            </Button>
+          )
+        }
+      />
+    </Card>
+  )
+
+  return (
+    <div className={styles.stack}>
+      {guests.length === 0 ? (
+        empty
+      ) : (
+        <>
+          <div className={styles.toolbar}>
+            <div className={styles.search}>
+              <TextField
+                label={t('guests.search.label')}
+                hideLabel
+                type="search"
+                icon={<Search />}
+                placeholder={t('guests.search.placeholder')}
+                value={filters.query}
+                onChange={(change) => setFilter('q', change.target.value)}
+              />
+            </div>
+            <div className={styles.filters}>
+              <SelectField
+                label={t('guests.filters.rsvp')}
+                hideLabel
+                value={filters.rsvp}
+                onChange={(change) =>
+                  setFilter(
+                    'rsvp',
+                    change.target.value === 'ALL' ? null : change.target.value,
+                  )
+                }
+              >
+                <option value="ALL">{t('guests.filters.rsvpAll')}</option>
+                {RSVP_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {t(`guests.rsvp.${status}`)}
+                  </option>
+                ))}
+              </SelectField>
+              <SelectField
+                label={t('guests.filters.invitation')}
+                hideLabel
+                value={filters.invitation}
+                onChange={(change) =>
+                  setFilter(
+                    'inv',
+                    change.target.value === 'ALL' ? null : change.target.value,
+                  )
+                }
+              >
+                <option value="ALL">{t('guests.filters.invitationAll')}</option>
+                <option value="SENT">{t('guests.filters.sent')}</option>
+                <option value="NOT_SENT">{t('guests.filters.notSent')}</option>
+              </SelectField>
+              <SelectField
+                label={t('guests.filters.table')}
+                hideLabel
+                value={filters.table === 'NONE' ? NO_TABLE : filters.table}
+                onChange={(change) =>
+                  setFilter(
+                    'table',
+                    change.target.value === 'ALL' ? null : change.target.value,
+                  )
+                }
+              >
+                <option value="ALL">{t('guests.filters.tableAll')}</option>
+                <option value={NO_TABLE}>{t('guests.table.noTable')}</option>
+                {[...eventTables]
+                  .sort((a, b) => a.number - b.number)
+                  .map((table) => (
+                    <option key={table.id} value={table.id}>
+                      {t('guests.filters.tableOption', {
+                        number: format.number(table.number),
+                      })}
+                    </option>
+                  ))}
+              </SelectField>
+              {groups.length > 0 && (
+                <SelectField
+                  label={t('guests.filters.group')}
+                  hideLabel
+                  value={
+                    filters.group === '' ? NO_GROUP : (filters.group ?? 'ALL')
+                  }
+                  onChange={(change) =>
+                    setParam({
+                      group:
+                        change.target.value === 'ALL'
+                          ? null
+                          : change.target.value,
+                      page: null,
+                    })
+                  }
+                >
+                  <option value="ALL">{t('guests.filters.groupAll')}</option>
+                  <option value={NO_GROUP}>
+                    {t('guests.filters.groupNone')}
+                  </option>
+                  {groups.map((group) => (
+                    <option key={group} value={group}>
+                      {group}
+                    </option>
+                  ))}
+                </SelectField>
+              )}
+              {!isPhone && (
+                <ColumnChooser
+                  visible={columns}
+                  onChange={(next) => {
+                    setChosenColumns(next)
+                    setColumns.mutate(next)
+                  }}
+                />
+              )}
+              {filtered && (
+                <Button
+                  variant="ghost"
+                  icon={<X />}
+                  onClick={() =>
+                    setParam({
+                      q: null,
+                      rsvp: null,
+                      inv: null,
+                      table: null,
+                      group: null,
+                      page: null,
+                    })
+                  }
+                >
+                  {t('guests.filters.clear')}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {!isPhone && selectedGuests.length > 0 && (
+            <div
+              className={styles.bulkBar}
+              role="region"
+              aria-label={t('guests.bulk.label')}
+            >
+              <p className={styles.bulkCount} role="status">
+                {t('guests.bulk.selected', {
+                  count: format.number(selectedGuests.length),
+                })}
+              </p>
+              <Menu
+                label={t('guests.bulk.export')}
+                align="start"
+                triggerClassName={styles.bulkButton}
+                items={exportItems(selectedGuests)}
+              >
+                <Download aria-hidden="true" />
+                <span aria-hidden="true">{t('guests.bulk.export')}</span>
+              </Menu>
+              {canEdit && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<Tags />}
+                  onClick={() => setPanel({ kind: 'group' })}
+                >
+                  {t('guests.bulk.group.action')}
+                </Button>
+              )}
+              {canEdit && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  icon={<Trash2 />}
+                  onClick={() =>
+                    setPanel({
+                      kind: 'delete',
+                      guestIds: selectedGuests.map((guest) => guest.id),
+                    })
+                  }
+                >
+                  {t('guests.bulk.delete')}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelected(new Set())}
+              >
+                {t('guests.bulk.clear')}
+              </Button>
+            </div>
+          )}
+
+          {matching.length === 0 ? (
+            <Card>
+              <EmptyState
+                icon={<SearchX />}
+                title={t('guests.empty.noMatchTitle')}
+                description={t('guests.empty.noMatchBody')}
+              />
+            </Card>
+          ) : (
+            <>
+              <DataTable
+                caption={t('guests.table.caption')}
+                columns={tableColumns}
+                rows={page.items}
+                getRowKey={(guest) => guest.id}
+                renderCard={renderCard}
+                sort={{ columnId: sort.key, direction: sort.direction }}
+                sortLabel={(column) => t('guests.table.sortBy', { column })}
+                onSort={(columnId) =>
+                  setParam({
+                    sort:
+                      sort.key === columnId && sort.direction === 'asc'
+                        ? `-${columnId}`
+                        : columnId === DEFAULT_GUEST_SORT.key &&
+                            sort.key === columnId
+                          ? null
+                          : columnId,
+                    page: null,
+                  })
+                }
+                selection={{
+                  selected,
+                  allLabel: t('guests.table.selectAll'),
+                  rowLabel: (guest) =>
+                    t('guests.table.selectRow', { name: guestFullName(guest) }),
+                  onToggle: (id, isSelected) =>
+                    setSelected((current) => {
+                      const next = new Set(current)
+                      if (isSelected) {
+                        next.add(id)
+                      } else {
+                        next.delete(id)
+                      }
+                      return next
+                    }),
+                  onToggleAll: (isSelected) =>
+                    setSelected((current) => {
+                      const next = new Set(current)
+                      for (const guest of page.items) {
+                        if (isSelected) {
+                          next.add(guest.id)
+                        } else {
+                          next.delete(guest.id)
+                        }
+                      }
+                      return next
+                    }),
+                }}
+              />
+              <div className={styles.footer}>
+                <div className={styles.pageSize}>
+                  <SelectField
+                    label={t('guests.pagination.rowsPerPage')}
+                    value={String(pageSize)}
+                    onChange={(change) =>
+                      setParam({
+                        size:
+                          change.target.value === String(DEFAULT_PAGE_SIZE)
+                            ? null
+                            : change.target.value,
+                        page: null,
+                      })
+                    }
+                  >
+                    {PAGE_SIZES.map((size) => (
+                      <option key={size} value={size}>
+                        {format.number(size)}
+                      </option>
+                    ))}
+                  </SelectField>
+                </div>
+                <p className={styles.range} role="status">
+                  {t('guests.pagination.range', {
+                    from: format.number(page.from),
+                    to: format.number(page.to),
+                    total: format.number(page.total),
+                  })}
+                </p>
+                <Pagination
+                  label={t('guests.pagination.label')}
+                  page={page.page}
+                  pageCount={page.pageCount}
+                  previousLabel={t('guests.pagination.previous')}
+                  nextLabel={t('guests.pagination.next')}
+                  pageLabel={(number) =>
+                    t('guests.pagination.page', { page: format.number(number) })
+                  }
+                  formatNumber={format.number}
+                  onPage={(number) =>
+                    setParam({ page: number === 1 ? null : String(number) })
+                  }
+                />
+              </div>
+            </>
+          )}
+        </>
+      )}
+      {dialogs}
     </div>
   )
 }

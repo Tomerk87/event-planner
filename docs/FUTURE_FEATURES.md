@@ -40,6 +40,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 
 | Feature | Notes | Source |
 |---|---|---|
+| Emailing guests their invitation | Sending a guest the invitation by email, as the WhatsApp send does, with the same counting. The email provider exists since Phase 17 (D88). | Owner decision 2026-10-15 |
 | WhatsApp Business API sending | Sending from the system, rather than opening WhatsApp for the organizer to send. | PRD §17 |
 | Bulk sending | Sending to many guests in one action. | PRD §17 |
 | Automated reminders | Scheduled follow-ups to guests who have not responded. | PRD §17 |
@@ -68,25 +69,24 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Profile page | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
 | Account settings | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
 | "How it works" section | A header link on the landing page mockup with no matching section. | Mockups `landing_page.png`; Phase 4 plan approved 2026-10-13 |
-| Password reset and account management | No requirements written. Real sign-in arrives with the backend (`PLAN.md` Phase 14). | Phase 4 plan approved 2026-10-13 |
+| Account management | Changing one's name, email or password from the application. No requirements written. (Forgot password by email was built in Phase 17, D88.) | Phase 4 plan approved 2026-10-13 |
+| Editable system settings page | Changing the email settings from the System page. The page is read-only by design: settings and secrets stay in the server configuration. | Owner decision 2026-10-15 (D91) |
 | Dedicated tablet layouts | In the MVP only desktop and phone layouts are designed and verified; a tablet gets whichever fits its width. | PRD header and §13; owner decision 2026-10-12 |
 
 ## Permissions
 
 | Feature | Notes | Source |
 |---|---|---|
-| Invitation emails | Telling an invited person by email, with a link to sign up. In the MVP nothing is sent; the organizer tells them, and the invitation waits until they sign up. | Owner decision 2026-10-13 (D4) |
-| Resending and expiry of invitations | A pending invitation stays until it is used or cancelled. | Owner decision 2026-10-13 (D4) |
+| Expiry of invitations | A pending invitation stays until it is used or cancelled. (Invitation emails and resending them were built in Phase 17 and are sent when email is on, D90.) | Owner decision 2026-10-13 (D4) |
 | Assigning Super User in the interface | Database only in the MVP (`npm run super-user` in `backend/`). | PRD §3.2 |
-| Email verification at sign-up | Required before real users; without it anyone can sign up with an invited email. Tracked in `PLAN.md` Phase 17. | Owner decision 2026-10-14 |
-| Password reset | "Forgot password" by email. Needs an email provider. | Phase 14 scope |
 | A demo event the demo user does not belong to | To show Super User access without a membership; covered by automated tests only. | Owner decision 2026-10-13 (P8) |
 
 ## Quality and review
 
 | Item | Notes | Source |
 |---|---|---|
-| Review of the Hebrew texts by a Hebrew speaker | All Hebrew texts were written by the coding agent. The owner accepted them as they are for now. **Ask the owner again how to do the review when this is taken up** (the choices offered on 2026-10-13 were: a side-by-side sheet of English and Hebrew to correct, or going through the pages in Hebrew). Tracked in `PLAN.md` Phase 17. | Owner decision 2026-10-13 (D74) |
+| Review of the Hebrew texts by a Hebrew speaker | All Hebrew texts were written by the coding agent. The owner chose a side-by-side sheet (2026-10-15): `docs/hebrew-review.xlsx`, written by `npm run hebrew-review` in `frontend/`. Corrections are applied when the owner returns it. Tracked in `PLAN.md` Phase 17. | Owner decisions 2026-10-13 (D74) and 2026-10-15 |
+| Checking that an uploaded picture is a real image | The server accepts a JPEG or PNG data address without reading the file's own signature. It always serves it as an image with `nosniff`, so a browser never runs it; checking the content is hardening for later. | Phase 17 security review |
 | Design-system showcase page | The `/showcase` gallery of shared components was removed from the application. | Owner decision 2026-10-13 (D73) |
 
 ## Analytics and history

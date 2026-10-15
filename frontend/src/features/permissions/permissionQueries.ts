@@ -40,6 +40,15 @@ function usePermissionChange<Input, Result>(
   })
 }
 
+/** Emails a pending invitation again (D90); nothing in the list changes. */
+export function useResendInvitation(eventId: string) {
+  const { permissions } = useServices()
+  return useMutation({
+    mutationFn: (invitationId: string) =>
+      permissions.resendInvitation(eventId, invitationId),
+  })
+}
+
 export function useInvite(eventId: string) {
   return usePermissionChange(
     (services, { email, role }: { email: string; role: EventRole }) =>

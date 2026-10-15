@@ -2,10 +2,12 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDomainError } from '../../domain/errors.ts'
 import type { EventRole } from '../../domain/roles.ts'
+import { useEmailEnabled } from '../../services/queries.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Button } from '../../shared/ui/Button.tsx'
 import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
+import { ltr } from '../../shared/ltr.ts'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import formStyles from '../guests/Guests.module.css'
@@ -29,6 +31,7 @@ function InviteForm({
   const { t } = useTranslation()
   const { showToast } = useToast()
   const invite = useInvite(eventId)
+  const emailEnabled = useEmailEnabled()
   const [email, setEmail] = useState('')
   // The least access is offered first; more is a deliberate choice.
   const [role, setRole] = useState<EventRole>(roles.at(-1) ?? 'VIEWER')
@@ -66,9 +69,12 @@ function InviteForm({
                 ? t('permissions.invite.added', {
                     name: result.member.user.name,
                   })
-                : t('permissions.invite.pending', {
-                    email: result.invitation.email,
-                  }),
+                : t(
+                    emailEnabled
+                      ? 'permissions.invite.pendingSent'
+                      : 'permissions.invite.pending',
+                    { email: ltr(result.invitation.email) },
+                  ),
           })
           onClose()
         },
@@ -88,7 +94,11 @@ function InviteForm({
         dir="ltr"
         required
         value={email}
-        hint={t('permissions.invite.emailHint')}
+        hint={t(
+          emailEnabled
+            ? 'permissions.invite.emailHintSending'
+            : 'permissions.invite.emailHint',
+        )}
         error={
           emailError ? t(`permissions.invite.errors.${emailError}`) : undefined
         }

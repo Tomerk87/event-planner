@@ -34,6 +34,7 @@ interface DemoState {
 }
 
 const TABLES = [
+  'EmailToken',
   'MessageSend',
   'Guest',
   'EventTable',

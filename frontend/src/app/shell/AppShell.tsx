@@ -57,6 +57,8 @@ interface AppShellProps {
   banner?: ReactNode
   /** Shown in the top bar on desktop and inside the drawer below it. */
   tools?: ReactNode
+  /** Shown above the page, such as a request to verify the email. */
+  notice?: ReactNode
   /** On desktop, show the side menu as icons only. */
   collapsed?: boolean
   /** Offers the desktop button that collapses and expands the side menu. */
@@ -236,6 +238,7 @@ function UserBadge({
 export function AppShell({
   user,
   banner,
+  notice,
   tools,
   collapsed = false,
   onToggleCollapsed,
@@ -327,7 +330,10 @@ export function AppShell({
           </div>
         </header>
         <main id="main-content" tabIndex={-1} className={styles.main}>
-          <div className={styles.content}>{children}</div>
+          <div className={styles.content}>
+            {notice && <div className={styles.notice}>{notice}</div>}
+            {children}
+          </div>
         </main>
       </div>
     </div>

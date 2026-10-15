@@ -6,7 +6,11 @@ import {
 import { DomainError } from '../domain/errors.ts'
 import type { Id, User } from '../domain/models.ts'
 import type { ApiBackend } from '../services/api/apiBackend.ts'
-import type { Services, Session } from '../services/contracts/index.ts'
+import type {
+  EmailStatus,
+  Services,
+  Session,
+} from '../services/contracts/index.ts'
 import {
   createMockServices,
   type MockOptions,
@@ -26,6 +30,19 @@ import {
 const ACCOUNTS_VERSION = 1
 
 /**
+ * Email on, as the server with EMAIL_MODE=smtp: records what is asked and
+ * accepts the link token `valid-token` only.
+ */
+export interface FakeEmail {
+  /** Whether the signed-in account's email is verified. */
+  verified: boolean
+  calls: string[]
+  status?: EmailStatus
+}
+
+export const VALID_TOKEN = 'valid-token'
+
+/**
  * A stand-in for the real backend in component tests, which have no server:
  * accounts in memory, applying the same rules through the mock services.
  * Passwords are accepted without being stored or checked; the real server
@@ -35,11 +52,17 @@ export function createFakeAccountBackend(
   options: Partial<Omit<MockOptions, 'persistence'>> & {
     accountsPersistence?: DemoPersistence
     sessionPersistence?: Persistence<Session>
+    /** The server sends email (D88); off by default, as on the server. */
+    email?: FakeEmail
   } = {},
-): ApiBackend & { endSession: () => void } {
+): ApiBackend & {
+  endSession: () => void
+  makeSuperUser: (email: string) => void
+} {
   const {
     accountsPersistence = createMemoryPersistence(),
     sessionPersistence = createMemoryPersistence<Session>(),
+    email,
     ...mockOptions
   } = options
   let account: { userId: Id; services: Services } | undefined
@@ -61,7 +84,69 @@ export function createFakeAccountBackend(
     return session
   }
 
+  function record(call: string): Promise<void> {
+    email?.calls.push(call)
+    return email ? Promise.resolve() : Promise.reject(notFound())
+  }
+
+  function notFound() {
+    return new DomainError('NOT_FOUND', { entity: 'email' })
+  }
+
+  function redeemToken(token: string, call: string): Promise<void> {
+    if (token !== VALID_TOKEN) {
+      return Promise.reject(new DomainError('LINK_EXPIRED'))
+    }
+    return record(call)
+  }
+
+  /** The demo's operations, with what the server adds for email. */
+  function withEmail(services: Services): Services {
+    return {
+      ...services,
+      session: {
+        ...services.session,
+        getEmailVerified: async () => email?.verified ?? true,
+        resendVerification: () => record('resendVerification'),
+      },
+      permissions: {
+        ...services.permissions,
+        resendInvitation: (_eventId, invitationId) =>
+          record(`resendInvitation:${invitationId}`),
+      },
+      system: {
+        getEmailStatus: async () =>
+          email?.status ?? {
+            mode: 'off',
+            host: null,
+            port: null,
+            from: '',
+            authenticated: false,
+          },
+        sendTestEmail: async () => {
+          email?.calls.push('sendTestEmail')
+          return { sent: Boolean(email) }
+        },
+      },
+    }
+  }
+
   return {
+    accountEmail: {
+      getFeatures: async () => ({ email: Boolean(email) }),
+      forgotPassword: (address) => record(`forgotPassword:${address}`),
+      resetPassword: (token, password) =>
+        redeemToken(token, `resetPassword:${password}`).then(() => {
+          sessionPersistence.clear()
+        }),
+      verifyEmail: (token) =>
+        redeemToken(token, 'verifyEmail').then(() => {
+          if (email) {
+            email.verified = true
+          }
+        }),
+    },
+
     auth: {
       getSession: async () => {
         const stored = sessionPersistence.load() as Session | null
@@ -121,14 +206,16 @@ export function createFakeAccountBackend(
       if (account?.userId !== session.userId) {
         account = {
           userId: session.userId,
-          services: createMockServices({
-            ...mockOptions,
-            persistence: accountsPersistence,
-            actingUserId: session.userId,
-            seed: createEmptyState,
-            demoControls: false,
-            dataVersion: ACCOUNTS_VERSION,
-          }),
+          services: withEmail(
+            createMockServices({
+              ...mockOptions,
+              persistence: accountsPersistence,
+              actingUserId: session.userId,
+              seed: createEmptyState,
+              demoControls: false,
+              dataVersion: ACCOUNTS_VERSION,
+            }),
+          ),
         }
       }
       return account.services
@@ -148,6 +235,21 @@ export function createFakeAccountBackend(
     onSessionEnded(listener) {
       ended.add(listener)
       return () => ended.delete(listener)
+    },
+
+    /** What `npm run super-user` does on the server. */
+    makeSuperUser: (address) => {
+      const state = load()
+      accountsPersistence.save({
+        version: ACCOUNTS_VERSION,
+        state: {
+          ...state,
+          users: state.users.map((user) =>
+            user.email === address ? { ...user, isSuperUser: true } : user,
+          ),
+        },
+      })
+      account = undefined
     },
 
     /** What the server answering 401 does: the session has ended. */

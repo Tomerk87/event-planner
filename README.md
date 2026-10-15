@@ -35,10 +35,12 @@ Run from `frontend/`.
 | `npm test` | Run unit and component tests (Vitest) |
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run test:coverage` | Run tests with a coverage report; fails below 80% |
-| `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright). Starts the built API on the backend's test database and its own development server (port 5174) |
+| `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright): the demo and real accounts on desktop and phone, and the email flows against Mailpit. Starts the built API on the backend's test database (ports 3102 and 3103, the second with email on) and its own development servers (ports 5174 and 5175) |
+| `npm run test:performance` | The 3,000-guest performance check (PLAN.md Phase 17), on its own |
+| `npm run hebrew-review` | Write `docs/hebrew-review.xlsx`, every text in English and Hebrew for review |
 | `npm run test:api` | Builds the backend and runs the provider contract suite on the real API, against the test database |
 
-The first end-to-end run needs a browser: `npx playwright install chromium`. `npm run test:e2e` and `npm run test:api` need the development database running (`npm run db:up` in `backend/`).
+The first end-to-end run needs a browser: `npx playwright install chromium`. `npm run test:e2e` and `npm run test:api` need the development database and Mailpit running (`npm run db:up` in `backend/`).
 
 ## Configuration
 
@@ -59,7 +61,7 @@ npm run db:deploy    # apply the migrations
 npm run start:dev
 ```
 
-The API listens on http://localhost:3000/api; its documentation is at http://localhost:3000/api/docs and `GET /api/health` reports the database. See `backend/README.md` for every command.
+The API listens on http://localhost:3000/api; its documentation is at http://localhost:3000/api/docs and `GET /api/health` reports the database. Email is off by default; `backend/README.md` explains how to turn it on locally with Mailpit, and lists every command.
 
 ## Documentation
 
