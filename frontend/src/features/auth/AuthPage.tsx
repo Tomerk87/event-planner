@@ -14,12 +14,13 @@ interface AuthPageProps {
   subtitle: string
   /** Shown above the fields when the whole submission was refused. */
   failure?: string | null
-  onSubmit: (event: FormEvent) => void
+  /** Without it, the content is shown as it is, with no form. */
+  onSubmit?: (event: FormEvent) => void
   children: ReactNode
   footer: ReactNode
 }
 
-/** The frame shared by the sign-in and sign-up pages. */
+/** The frame shared by the sign-in, sign-up and email-link pages. */
 export function AuthPage({
   title,
   subtitle,
@@ -47,10 +48,14 @@ export function AuthPage({
           <Card>
             <h1 className={styles.title}>{title}</h1>
             <p className={styles.subtitle}>{subtitle}</p>
-            <form className={styles.form} noValidate onSubmit={onSubmit}>
-              {failure && <Notice tone="danger" title={failure} announce />}
-              {children}
-            </form>
+            {onSubmit ? (
+              <form className={styles.form} noValidate onSubmit={onSubmit}>
+                {failure && <Notice tone="danger" title={failure} announce />}
+                {children}
+              </form>
+            ) : (
+              <div className={styles.form}>{children}</div>
+            )}
           </Card>
           <div className={styles.footer}>{footer}</div>
         </div>

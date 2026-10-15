@@ -47,11 +47,16 @@ export function validateSignUp(
 ): Pick<User, 'name' | 'email'> {
   const name = assertNonEmpty(input.name, 'name')
   const email = assertEmail(input.email)
-  assertPassword(input.password, PASSWORD_MIN_LENGTH)
+  validateNewPassword(input.password)
   if (existing.some((user) => normalizeEmail(user.email) === email)) {
     throw new DomainError('EMAIL_TAKEN')
   }
   return { name, email }
+}
+
+/** Checks a new password, chosen at sign-up or with a reset link. */
+export function validateNewPassword(password: string): void {
+  assertPassword(password, PASSWORD_MIN_LENGTH)
 }
 
 /** Checks a sign-in is complete and returns the email to look up. */

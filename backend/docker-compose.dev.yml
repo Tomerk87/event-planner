@@ -1,5 +1,6 @@
-# Development database only. The full application is packaged with Docker
-# Compose later (PLAN.md Phase 18); this file runs PostgreSQL alone.
+# Development services only: PostgreSQL, and Mailpit, a test mail server that
+# catches every email (D88). The full application is packaged with Docker
+# Compose later (PLAN.md Phase 18).
 name: event-planner-dev
 
 services:
@@ -20,6 +21,14 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+
+  # Receives email on port 1025 when EMAIL_MODE=smtp, and shows it at
+  # http://localhost:8025. Nothing it receives leaves this machine.
+  mailpit:
+    image: axllent/mailpit:v1.31.3
+    ports:
+      - '127.0.0.1:1025:1025'
+      - '127.0.0.1:8025:8025'
 
 volumes:
   postgres-data:

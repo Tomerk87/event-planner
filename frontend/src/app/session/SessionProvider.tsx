@@ -76,6 +76,7 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     return {
       session,
       demoAvailable: backend.demoAvailable,
+      accountEmail: backend.accountEmail,
       signUp: async (input) => change(await backend.auth.signUp(input)),
       signIn: async (input) => change(await backend.auth.signIn(input)),
       enterDemo: async () => change(await backend.auth.enterDemo()),

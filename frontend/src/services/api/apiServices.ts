@@ -14,7 +14,9 @@ import type {
 import type { PublicRsvpInput } from '../../domain/rsvp.ts'
 import type { TableInput } from '../../domain/seating.ts'
 import type {
+  AccountEmailService,
   Dashboard,
+  EmailStatus,
   EventAccessInfo,
   EventAccessList,
   EventSummary,
@@ -29,11 +31,16 @@ import type {
   RsvpSettingsInput,
   SendResult,
   SentMessage,
+  ServerFeatures,
   Services,
   TableWithOccupancy,
 } from '../contracts/index.ts'
+import type { Language } from '../../i18n/languages.ts'
 import { assertGuestFileSize } from '../spreadsheets.ts'
 import type { Http } from './http.ts'
+
+/** `GET /auth/me`: the user, and whether their email is verified. */
+type CurrentUser = User & { emailVerified: boolean }
 
 /** A path segment from an identifier, which may come from the address bar. */
 const at = (id: string) => encodeURIComponent(id)
@@ -116,12 +123,22 @@ export function createPublicRsvpApi(http: Http): PublicRsvpService {
 export function createApiServices(
   http: Http,
   preferences: PreferencesService,
+  /** The interface language, for the emails a request sends (D88). */
+  language: () => Language = () => 'en',
 ): Services {
   const event = (eventId: string) => `/events/${at(eventId)}`
 
   return {
     session: {
-      getCurrentUser: () => http.get<User>('/auth/me'),
+      getCurrentUser: async () => {
+        const { id, name, email, isSuperUser } =
+          await http.get<CurrentUser>('/auth/me')
+        return { id, name, email, isSuperUser }
+      },
+      getEmailVerified: async () =>
+        (await http.get<CurrentUser>('/auth/me')).emailVerified,
+      resendVerification: () =>
+        http.post<void>('/auth/resend-verification', { language: language() }),
     },
 
     events: {
@@ -261,6 +278,7 @@ export function createApiServices(
         http.post<InviteResult>(`${event(eventId)}/permissions/invitations`, {
           email,
           role,
+          language: language(),
         }),
       changeRole: (eventId, userId, role) =>
         http.put<Member>(
@@ -277,6 +295,11 @@ export function createApiServices(
       cancelInvitation: (eventId, invitationId) =>
         http.delete(
           `${event(eventId)}/permissions/invitations/${at(invitationId)}`,
+        ),
+      resendInvitation: (eventId, invitationId) =>
+        http.post<void>(
+          `${event(eventId)}/permissions/invitations/${at(invitationId)}/resend`,
+          { language: language() },
         ),
     },
 
@@ -314,8 +337,34 @@ export function createApiServices(
         }),
     },
 
+    system: {
+      getEmailStatus: () => http.get<EmailStatus>('/system/email'),
+      sendTestEmail: () =>
+        http.post<{ sent: boolean }>('/system/email/test', {
+          language: language(),
+        }),
+    },
+
     preferences,
 
     demo: null,
+  }
+}
+
+/** Emails of real accounts that need no session (D88). */
+export function createAccountEmailApi(
+  http: Http,
+  language: () => Language = () => 'en',
+): AccountEmailService {
+  return {
+    getFeatures: () => http.get<ServerFeatures>('/system/features'),
+    forgotPassword: (email) =>
+      http.post<void>('/auth/forgot-password', {
+        email,
+        language: language(),
+      }),
+    resetPassword: (token, password) =>
+      http.post<void>('/auth/reset-password', { token, password }),
+    verifyEmail: (token) => http.post<void>('/auth/verify-email', { token }),
   }
 }

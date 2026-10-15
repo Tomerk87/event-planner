@@ -52,6 +52,13 @@ export interface EventSummary extends EventAccessInfo {
 
 export interface SessionService {
   getCurrentUser(): Promise<User>
+  /**
+   * Whether the account proved its email (D89). Always true in the demo and
+   * while the server sends no email (D88).
+   */
+  getEmailVerified(): Promise<boolean>
+  /** Emails the verification link again; real accounts with email on only. */
+  resendVerification(): Promise<void>
 }
 
 export interface EventsService {
@@ -262,6 +269,8 @@ export interface PermissionsService {
     role: EventRole,
   ): Promise<EventInvitation>
   cancelInvitation(eventId: Id, invitationId: Id): Promise<void>
+  /** Emails a pending invitation again; real accounts with email on only (D90). */
+  resendInvitation(eventId: Id, invitationId: Id): Promise<void>
 }
 
 export type ActivityItem = ActivityEntry & { guestName: string }
@@ -299,6 +308,41 @@ export interface DemoControl {
  * Who is using the application: a visitor exploring the demo, or a signed-in
  * account. The two never share data.
  */
+/** What the server offers (D88). */
+export interface ServerFeatures {
+  /** Whether emails are really sent. */
+  email: boolean
+}
+
+/**
+ * The emails of real accounts (D88): links that work without a session.
+ * The demo has no email; there, `getFeatures` says email is off.
+ */
+export interface AccountEmailService {
+  getFeatures(): Promise<ServerFeatures>
+  /** Answers the same whether or not the email has an account. */
+  forgotPassword(email: string): Promise<void>
+  /** Sets a new password; every session of the account ends. */
+  resetPassword(token: string, password: string): Promise<void>
+  verifyEmail(token: string): Promise<void>
+}
+
+/** The email settings of the server, without any secret (D91). */
+export interface EmailStatus {
+  mode: 'off' | 'smtp'
+  host: string | null
+  port: number | null
+  from: string
+  authenticated: boolean
+}
+
+/** The server's own settings, for a Super User; read-only (D91). */
+export interface SystemService {
+  getEmailStatus(): Promise<EmailStatus>
+  /** Sends a test email to the Super User; `sent` is false while email is off. */
+  sendTestEmail(): Promise<{ sent: boolean }>
+}
+
 export type Session =
   { workspace: 'demo' } | { workspace: 'account'; userId: Id }
 
@@ -357,6 +401,7 @@ export interface Backend {
   /** Whether this deployment offers the public demo (`VITE_DEMO_ENABLED`). */
   demoAvailable: boolean
   auth: AuthService
+  accountEmail: AccountEmailService
   /** The data operations available to a session. */
   servicesFor(session: Session): Services
   publicRsvp: PublicRsvpService
@@ -384,6 +429,7 @@ export interface Services {
   permissions: PermissionsService
   dashboard: DashboardService
   files: FilesService
+  system: SystemService
   preferences: PreferencesService
   /** Present only when the application runs on demo data. */
   demo: DemoControl | null

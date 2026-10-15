@@ -16,6 +16,90 @@
         ]
       }
     },
+    "/api/system/features": {
+      "get": {
+        "operationId": "SystemController_features",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeaturesDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/system/email": {
+      "get": {
+        "operationId": "SystemController_emailStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/system/email/test": {
+      "post": {
+        "operationId": "SystemController_testEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestEmailResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Sends a test email to the Super User's own address.",
+        "tags": [
+          "system"
+        ]
+      }
+    },
     "/api/files/{key}": {
       "get": {
         "operationId": "FilesController_get",
@@ -131,7 +215,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserDto"
+                  "$ref": "#/components/schemas/CurrentUserDto"
                 }
               }
             }
@@ -143,6 +227,111 @@
           }
         ],
         "summary": "The signed-in user (the frontend's session.getCurrentUser).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/resend-verification": {
+      "post": {
+        "operationId": "AuthController_resendVerification",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Another verification email for the signed-in account (email on only).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/verify-email": {
+      "post": {
+        "operationId": "AuthController_verifyEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Opens with the emailed link; the account need not be signed in here.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Always 204, whether or not the email has an account (email on only).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Sets a new password and signs the account out everywhere.",
         "tags": [
           "auth"
         ]
@@ -436,6 +625,53 @@
           }
         ],
         "summary": "A member at once for an existing account, a pending invitation otherwise.",
+        "tags": [
+          "permissions"
+        ]
+      }
+    },
+    "/api/events/{eventId}/permissions/invitations/{invitationId}/resend": {
+      "post": {
+        "operationId": "PermissionsController_resendInvitation",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LanguageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Emails a pending invitation again; email on only (D90).",
         "tags": [
           "permissions"
         ]
@@ -2167,9 +2403,87 @@
       }
     },
     "schemas": {
+      "FeaturesDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "boolean",
+            "description": "Whether emails are really sent."
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "EmailStatusDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "enum": [
+              "off",
+              "smtp"
+            ],
+            "type": "string"
+          },
+          "host": {
+            "type": "string",
+            "nullable": true
+          },
+          "port": {
+            "type": "number",
+            "nullable": true
+          },
+          "from": {
+            "type": "string",
+            "description": "The sender; empty while email is off."
+          },
+          "authenticated": {
+            "type": "boolean",
+            "description": "Whether the server signs in to the provider; never the user or password."
+          }
+        },
+        "required": [
+          "mode",
+          "host",
+          "port",
+          "from",
+          "authenticated"
+        ]
+      },
+      "LanguageDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "TestEmailResultDto": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "description": "Whether the provider accepted the email; false while email is off."
+          }
+        },
+        "required": [
+          "sent"
+        ]
+      },
       "SignUpDto": {
         "type": "object",
         "properties": {
+          "language": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          },
           "name": {
             "type": "string",
             "maxLength": 120
@@ -2226,6 +2540,82 @@
         },
         "required": [
           "email",
+          "password"
+        ]
+      },
+      "CurrentUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "isSuperUser": {
+            "type": "boolean"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "description": "Always true while email is off (D88)."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "isSuperUser",
+          "emailVerified"
+        ]
+      },
+      "EmailLinkDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "token",
           "password"
         ]
       },
@@ -2484,6 +2874,13 @@
       "InviteDto": {
         "type": "object",
         "properties": {
+          "language": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          },
           "role": {
             "enum": [
               "OWNER",

@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { ltr } from '../../shared/ltr.ts'
 import { changeLanguage } from '../../i18n/i18n.ts'
 import type { Services } from '../../services/contracts/index.ts'
 import { change, optionLabels } from '../../test/controls.ts'
@@ -150,7 +151,7 @@ describe('Permissions page', () => {
 
     expect(
       await screen.findByText(
-        'new.person@example.com is invited and will get access after signing up.',
+        `${ltr('new.person@example.com')} is invited and will get access after signing up.`,
       ),
     ).toBeInTheDocument()
     await waitFor(() => expect(rows()).toHaveLength(8))

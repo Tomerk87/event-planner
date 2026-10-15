@@ -25,6 +25,7 @@ const CODES: readonly DomainErrorCode[] = [
   'RSVP_CLOSED',
   'EMAIL_TAKEN',
   'ACCOUNT_NOT_FOUND',
+  'LINK_EXPIRED',
   'UNAVAILABLE',
 ]
 

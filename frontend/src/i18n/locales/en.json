@@ -20,7 +20,8 @@
     "expandMenu": "Expand menu",
     "closeMenu": "Close menu",
     "skipToContent": "Skip to content",
-    "logOut": "Log out"
+    "logOut": "Log out",
+    "system": "System"
   },
   "language": {
     "label": "Language",
@@ -49,7 +50,8 @@
     "eventLayout": "Event Layout",
     "eventSettings": "Event Settings",
     "permissions": "Permissions",
-    "publicRsvp": "RSVP"
+    "publicRsvp": "RSVP",
+    "system": "System"
   },
   "notFound": {
     "title": "Page not found",
@@ -131,7 +133,8 @@
     "UNAVAILABLE": "The service is not available right now. Please try again.",
     "UNKNOWN": "Something went wrong. Please try again.",
     "EMAIL_TAKEN": "An account with this email already exists. Sign in instead.",
-    "ACCOUNT_NOT_FOUND": "No account with this email was found."
+    "ACCOUNT_NOT_FOUND": "No account with this email was found.",
+    "LINK_EXPIRED": "This link has expired or was already used."
   },
   "unavailable": {
     "title": "The application cannot start",
@@ -194,7 +197,9 @@
       "action": "Sign In",
       "title": "Sign in",
       "subtitle": "Welcome back. Sign in to manage your events.",
-      "noAccount": "Don't have an account?"
+      "noAccount": "Don't have an account?",
+      "forgot": "Forgot password?",
+      "passwordChanged": "Your password was changed. Sign in with the new password."
     },
     "signUp": {
       "action": "Sign Up",
@@ -214,7 +219,34 @@
       "passwordRequired": "Enter your password.",
       "passwordLength": "Use at least {{min}} characters."
     },
-    "tryDemoInstead": "Or explore the demo without an account"
+    "tryDemoInstead": "Or explore the demo without an account",
+    "backToSignIn": "Back to sign in",
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle": "Enter the email of your account, and we'll send you a link to choose a new password.",
+      "action": "Send Reset Link",
+      "sentTitle": "Check your inbox",
+      "sentBody": "If an account exists for {{email}}, we've sent it a link to reset the password. The link works for one hour."
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "subtitle": "After saving, you'll be signed out on every device. Then sign in with the new password.",
+      "field": "New password",
+      "action": "Save Password",
+      "missing": "This link is incomplete. Open the link from the email again, or ask for a new one.",
+      "newLink": "Ask for a new link"
+    },
+    "verify": {
+      "title": "Email verification",
+      "checking": "Verifying your email…",
+      "doneTitle": "Your email is verified",
+      "doneBody": "Invitations to events sent to this email now appear in your events.",
+      "toEvents": "Go to My Events",
+      "failedTitle": "We couldn't verify your email",
+      "resendHint": "You can ask for a new verification email.",
+      "signInHint": "Sign in to ask for a new verification email.",
+      "resend": "Send a New Link"
+    }
   },
   "events": {
     "subtitle": "Manage your events, guests, and RSVPs all in one place.",
@@ -1100,7 +1132,9 @@
       "remove": {
         "member": "Remove {{name}}",
         "invitation": "Cancel the invitation of {{name}}"
-      }
+      },
+      "resend": "Email the invitation to {{name}} again",
+      "resent": "The invitation was emailed again to {{email}}."
     },
     "roleHints": {
       "OWNER": "Full control, including permissions and deleting or duplicating the event.",
@@ -1122,7 +1156,9 @@
         "invalid": "Enter a valid email address.",
         "member": "This person already has access to the event.",
         "invited": "This email has already been invited."
-      }
+      },
+      "emailHintSending": "Someone with an account gets access at once and is told by email. Anyone else gets an invitation email and is listed as pending until they sign up with this email.",
+      "pendingSent": "{{email}} was invited by email and will get access after signing up."
     },
     "change": {
       "title": "Change role of {{name}}",
@@ -1276,6 +1312,34 @@
     "unavailable": {
       "title": "This RSVP page is not available",
       "body": "The link may be incomplete, or the event may have been removed."
+    }
+  },
+  "email": {
+    "notice": {
+      "title": "Verify your email",
+      "body": "We sent a link to {{email}}. Invitations to events take effect after you verify.",
+      "resend": "Resend Email",
+      "sent": "We sent a new verification email."
+    }
+  },
+  "system": {
+    "subtitle": "Server settings, for Super Users. They're changed in the server's configuration, not here.",
+    "email": {
+      "title": "Email",
+      "status": "Status",
+      "on": "On: emails are sent",
+      "off": "Off: no emails are sent",
+      "server": "Mail server",
+      "from": "Sender",
+      "authenticated": "Signs in to the mail server",
+      "yes": "Yes",
+      "no": "No",
+      "none": "Not set",
+      "offHint": "While email is off, new accounts count as verified, invitations take effect at sign-up and Forgot password is hidden. To send emails, set EMAIL_MODE=smtp and the SMTP settings on the server, then restart it.",
+      "test": "Send a Test Email",
+      "testHint": "Sends a test email to {{email}}.",
+      "testSent": "A test email was sent to {{email}}.",
+      "testOff": "Email is off, so nothing was sent."
     }
   }
 }

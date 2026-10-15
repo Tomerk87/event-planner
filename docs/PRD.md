@@ -68,14 +68,23 @@ The page shows a short explanation of the roles, the number of Owners, Admins an
 **Invite User** asks for an email and a role (an Admin can offer only Admin and Viewer):
 
 - An email that belongs to an account becomes a member at once.
-- Any other email is kept as a **pending invitation**. It is listed with a "Pending" badge and no name, and becomes a membership with the invited role when an account is created with that email. No email is sent in the MVP; the organizer tells the person to sign up.
+- Any other email is kept as a **pending invitation**. It is listed with a "Pending" badge and no name, and becomes a membership with the invited role when an account with that email is created (email off) or verifies its email (email on).
+- When the server sends email (D88), the invited person is emailed: an invitation asks them to sign up, and an existing account is told it now has access. A pending invitation can be emailed again. With email off, nothing is sent and the organizer tells the person to sign up.
 - A pending invitation's role can be changed and the invitation cancelled, under the same rules as a member's. It is not a membership: it gives no access, is not counted in the role figures and does not count as one of the event's Owners.
 - An email that is already a member or already invited is refused. Accounts are never listed or searched, so the page does not reveal who has an account.
 - Deleting an event removes its invitations; duplicating an event does not copy them.
 
-Sending invitation emails, reminders and expiry of invitations are deferred (`docs/FUTURE_FEATURES.md`).
+Reminders and expiry of invitations are deferred (`docs/FUTURE_FEATURES.md`).
 
-For the POC an email address is not verified at sign-up (owner decision 2026-10-14). Whoever signs up with an invited email receives that invitation's access. Email verification must be in place before real users (`PLAN.md` Phase 17).
+### 3.4 Email (D88–D91)
+
+Email is a server setting, **off by default**, because the POC has no email provider yet:
+
+- **Off:** nothing is sent. An account counts as verified when it signs up, so whoever signs up with an invited email receives that invitation's access (risk accepted for the POC). "Forgot password" is not offered.
+- **On:** sign-up sends a verification link (valid 24 hours). An unverified account can sign in and use its own events, and sees a notice with "Resend email"; invitations to its email take effect only after it verifies. Sign In offers **Forgot password?**, which emails a reset link (valid 1 hour, once) and answers the same whether or not the email has an account; a new password signs the account out everywhere. At most 3 emails of each kind go to an address per hour. Emails are in the language of the interface that caused them.
+- A **System** page, for Super Users of real accounts, shows the email settings without any secret and sends a test email. Settings are changed only in the server configuration.
+
+The demo never sends email and shows none of these.
 
 ## 4. Product information architecture
 
@@ -466,6 +475,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 - Maintain test coverage and end-to-end scenarios per `AGENTS.md` and `PLAN.md`.
 - POC can be deployed to one low-resource VM using static React assets, NestJS, PostgreSQL, and persistent volumes; production Docker packaging is scheduled after frontend/backend integration under the frontend-first execution plan.
 - Ensure backup/restore and restart persistence are considered before opening real-user data collection.
+- Turn email on (section 3.4) before real users, so that an email is verified before an invitation gives access.
 
 ## 17. Out of scope or deferred
 

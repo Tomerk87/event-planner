@@ -7,6 +7,7 @@ import request from 'supertest'
 import type TestAgent from 'supertest/lib/agent.js'
 import { createAppModule } from '../src/app.module.ts'
 import type { AppConfig } from '../src/config.ts'
+import { MAILER, type EmailMessage, type Mailer } from '../src/email/mailer.ts'
 import { PrismaService } from '../src/prisma/prisma.service.ts'
 import { setupApp } from '../src/setup-app.ts'
 import { assertTestDatabase } from './global-setup.ts'
@@ -20,6 +21,7 @@ export interface TestApp {
 }
 
 const TABLES = [
+  'EmailToken',
   'MessageSend',
   'Guest',
   'EventTable',
@@ -33,8 +35,61 @@ const TABLES = [
   'User',
 ]
 
+/** Keeps every email the application sends, instead of delivering it. */
+export class CapturingMailer implements Mailer {
+  readonly sent: EmailMessage[] = []
+  failNext = false
+
+  send(message: EmailMessage): Promise<void> {
+    if (this.failNext) {
+      this.failNext = false
+      return Promise.reject(
+        Object.assign(new Error(`rejected ${message.to}`), {
+          code: 'EENVELOPE',
+        }),
+      )
+    }
+    this.sent.push(message)
+    return Promise.resolve()
+  }
+
+  /** The emails sent to an address, oldest first. */
+  to(address: string): EmailMessage[] {
+    return this.sent.filter((message) => message.to === address)
+  }
+
+  /** The token of the last link of a kind sent to an address. */
+  tokenFor(address: string, kind: string): string {
+    const message = this.to(address)
+      .filter((email) => email.kind === kind)
+      .at(-1)
+    const token = message?.text.match(/token=([\w-]+)/)?.[1]
+    if (!token) {
+      throw new Error(`No ${kind} link sent to ${address}`)
+    }
+    return token
+  }
+}
+
+/** Email settings with sending on, for the tests of the email features. */
+export const EMAIL_ON: AppConfig['email'] = {
+  mode: 'smtp',
+  smtp: {
+    host: 'localhost',
+    port: 1025,
+    secure: false,
+    user: null,
+    password: null,
+  },
+  from: 'Event Planner <noreply@example.com>',
+  verifyHours: 24,
+  resetMinutes: 60,
+  perAddressPerHour: 3,
+}
+
 export async function createTestApp(
   overrides: Partial<AppConfig> = {},
+  options: { mailer?: Mailer } = {},
 ): Promise<TestApp> {
   try {
     process.loadEnvFile()
@@ -54,11 +109,22 @@ export async function createTestApp(
     // Tests answer many RSVPs from one address; the limits have their own tests.
     rsvpLimits: { perIp: 1000, perPhone: 1000, windowMinutes: 10 },
     trustProxyHops: 0,
+    email: {
+      mode: 'off',
+      smtp: null,
+      from: '',
+      verifyHours: 24,
+      resetMinutes: 60,
+      perAddressPerHour: 3,
+    },
     ...overrides,
   }
   const moduleRef = await Test.createTestingModule({
     imports: [createAppModule(config)],
-  }).compile()
+  })
+    .overrideProvider(MAILER)
+    .useValue(options.mailer ?? new CapturingMailer())
+    .compile()
   const app = moduleRef.createNestApplication({ logger: false })
   setupApp(app, config)
   await app.init()

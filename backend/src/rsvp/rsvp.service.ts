@@ -25,7 +25,7 @@ import { loadGuests, lockEvent, saveGuest } from '../guests/event-guests.ts'
 import { PrismaService } from '../prisma/prisma.service.ts'
 import { rsvpSettingsData, toEvent, toRsvpSettings } from '../prisma/mappers.ts'
 import { ImageStorage, imageUrl } from '../storage/image-storage.ts'
-import { AttemptLimiter } from './attempt-limiter.ts'
+import { AttemptLimiter } from '../common/attempt-limiter.ts'
 
 export type RsvpSettingsInput = Omit<RsvpSettings, 'eventId'>
 

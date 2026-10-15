@@ -17,6 +17,7 @@ import { Card } from '../shared/ui/Card.tsx'
 import { ErrorState, LoadingState } from '../shared/ui/States.tsx'
 import { AppShell } from './shell/AppShell.tsx'
 import { useSignOut } from './session/useSignOut.ts'
+import { EmailVerificationNotice } from './shell/EmailVerificationNotice.tsx'
 import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
 import { getEventNavItems } from './shell/eventNav.ts'
 
@@ -70,6 +71,7 @@ export function EventLayout() {
       user={user.data && { name: user.data.name, role }}
       onSignOut={signOut}
       banner={<DemoBadge />}
+      notice={<EmailVerificationNotice />}
       tools={<DemoTools />}
     >
       {info.isPending ? (

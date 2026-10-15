@@ -389,8 +389,13 @@ export function createMockServices(options: MockOptions): Services {
   }
 
   return {
+    // The demo sends no email (D88): its user counts as verified, and the
+    // email actions do not exist here.
     session: {
       getCurrentUser: () => run('session.getCurrentUser', currentUser),
+      getEmailVerified: () => run('session.getEmailVerified', () => true),
+      resendVerification: () =>
+        run('session.resendVerification', () => notFound('email')),
     },
 
     events: {
@@ -1160,6 +1165,9 @@ export function createMockServices(options: MockOptions): Services {
             ),
           })
         }),
+
+      resendInvitation: () =>
+        run('permissions.resendInvitation', () => notFound('email')),
     },
 
     dashboard: {
@@ -1227,6 +1235,13 @@ export function createMockServices(options: MockOptions): Services {
             request,
           )
         }),
+    },
+
+    system: {
+      getEmailStatus: () =>
+        run('system.getEmailStatus', () => notFound('system')),
+      sendTestEmail: () =>
+        run('system.sendTestEmail', () => notFound('system')),
     },
 
     preferences: createPreferencesService(preferencesPersistence),

@@ -12,6 +12,9 @@ import {
   assertCanChangeMembership,
 } from '../domain/permissions.ts'
 import { EVENT_ROLES, type EventRole } from '../domain/roles.ts'
+import { EmailService } from '../email/email.service.ts'
+import * as emails from '../email/templates.ts'
+import type { EmailLanguage } from '../email/templates.ts'
 import { PrismaService } from '../prisma/prisma.service.ts'
 import { toInvitation, toUser } from '../prisma/mappers.ts'
 
@@ -43,12 +46,19 @@ function assertRole(role: string): asserts role is EventRole {
  * 3.2: Admins handle Admins and Viewers only, nobody changes their own
  * permission, every event keeps an Owner, and a past event's permissions are
  * changed by an Owner only. Accounts are never listed or searched.
+ *
+ * With email on (D88, D90), the invited person is told by email: an
+ * invitation asks them to sign up, and access given to an existing account
+ * says so. An account whose email is not verified yet gets a pending
+ * invitation rather than access (D89), so signing up with someone else's
+ * address gives nothing.
  */
 @Injectable()
 export class PermissionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly access: EventAccessService,
+    private readonly email: EmailService,
   ) {}
 
   async list(eventId: string, user: User): Promise<EventAccessList> {
@@ -84,17 +94,21 @@ export class PermissionsService {
     emailInput: string,
     role: string,
     user: User,
+    language: EmailLanguage = 'en',
   ): Promise<InviteResult> {
-    const { actor } = await this.access.authorize(
+    const { actor, event } = await this.access.authorize(
       eventId,
       user,
       'MANAGE_PERMISSIONS',
     )
     const email = assertEmail(emailInput)
     assertRole(role)
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const account = await tx.user.findUnique({ where: { email } })
-      if (account) {
+      const verified =
+        account !== null &&
+        (!this.email.enabled || account.emailVerifiedAt !== null)
+      if (account && verified) {
         const memberships = await this.memberships(tx, eventId)
         if (
           memberships.some((membership) => membership.userId === account.id)
@@ -126,6 +140,60 @@ export class PermissionsService {
       })
       return { kind: 'invitation' as const, invitation: toInvitation(created) }
     })
+    if (this.email.enabled && this.email.allows('invitation', email)) {
+      const input = { inviter: user.name, event: event.name, role }
+      await this.email.send({
+        to: email,
+        ...(result.kind === 'member'
+          ? emails.accessGranted(language, {
+              ...input,
+              url: this.email.link(`/events/${eventId}/dashboard`),
+            })
+          : emails.invitation(language, {
+              ...input,
+              url: this.email.link('/signup'),
+            })),
+      })
+    }
+    return result
+  }
+
+  /** Emails a pending invitation again (email on only). */
+  async resendInvitation(
+    eventId: string,
+    invitationId: string,
+    user: User,
+    language: EmailLanguage = 'en',
+  ): Promise<void> {
+    const { actor, event } = await this.access.authorize(
+      eventId,
+      user,
+      'MANAGE_PERMISSIONS',
+    )
+    if (!this.email.enabled) {
+      throw new DomainError('NOT_FOUND', { entity: 'email' })
+    }
+    const current = await this.invitationOf(eventId, invitationId)
+    // Whoever may change the invitation may send it again.
+    assertCanChangeInvitation(actor, {
+      currentRole: current.role,
+      newRole: current.role,
+    })
+    if (!this.email.allows('invitation', current.email)) {
+      throw new DomainError('TOO_MANY_REQUESTS')
+    }
+    const sent = await this.email.send({
+      to: current.email,
+      ...emails.invitation(language, {
+        inviter: user.name,
+        event: event.name,
+        role: current.role,
+        url: this.email.link('/signup'),
+      }),
+    })
+    if (!sent) {
+      throw new DomainError('UNAVAILABLE')
+    }
   }
 
   async changeRole(

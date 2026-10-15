@@ -1,6 +1,7 @@
 import {
   Clock,
   Lock,
+  Mail,
   Pencil,
   Plus,
   Search,
@@ -23,7 +24,7 @@ import {
 } from '../../domain/memberList.ts'
 import { EVENT_ROLES, type EventRole } from '../../domain/roles.ts'
 import { useFormatters } from '../../i18n/format.ts'
-import { useDemoRole } from '../../services/queries.ts'
+import { useDemoRole, useEmailEnabled } from '../../services/queries.ts'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
@@ -32,6 +33,7 @@ import { Button, IconButton } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard, KpiGrid } from '../../shared/ui/Card.tsx'
 import { DataTable, type Column } from '../../shared/ui/DataTable.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
+import { ltr } from '../../shared/ltr.ts'
 import { LtrText } from '../../shared/ui/LtrText.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
@@ -41,11 +43,12 @@ import {
   ErrorState,
   LoadingState,
 } from '../../shared/ui/States.tsx'
+import { useToast } from '../../shared/ui/toastContext.ts'
 import { useQueryParams } from '../../shared/useQueryParams.ts'
 import guestStyles from '../guests/Guests.module.css'
 import { ChangeRoleDialog } from './ChangeRoleDialog.tsx'
 import { InviteDialog } from './InviteDialog.tsx'
-import { useAccessList } from './permissionQueries.ts'
+import { useAccessList, useResendInvitation } from './permissionQueries.ts'
 import styles from './Permissions.module.css'
 import { RemoveAccessDialog } from './RemoveAccessDialog.tsx'
 
@@ -74,6 +77,9 @@ export function PermissionsPage() {
   const list = useAccessList(eventId, mayOpen)
   const demoRole = useDemoRole()
   const [panel, setPanel] = useState<OpenPanel | null>(null)
+  const emailEnabled = useEmailEnabled()
+  const resend = useResendInvitation(eventId)
+  const { showToast } = useToast()
 
   const header = (actions?: React.ReactNode) => (
     <PageHeader
@@ -145,6 +151,31 @@ export function PermissionsPage() {
     const removeLabel = t(`permissions.row.remove.${row.kind}`, { name })
     return (
       <div className={guestStyles.rowActions}>
+        {emailEnabled && row.kind === 'invitation' && (
+          <IconButton
+            label={t('permissions.row.resend', { name })}
+            variant="secondary"
+            disabled={resend.isPending}
+            onClick={() =>
+              resend.mutate(row.id, {
+                onSuccess: () =>
+                  showToast({
+                    tone: 'success',
+                    message: t('permissions.row.resent', {
+                      email: ltr(row.email),
+                    }),
+                  }),
+                onError: (error) =>
+                  showToast({
+                    tone: 'danger',
+                    message: describeError(t, error),
+                  }),
+              })
+            }
+          >
+            <Mail />
+          </IconButton>
+        )}
         {compact ? (
           <IconButton
             label={t('permissions.row.change', { name })}

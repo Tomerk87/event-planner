@@ -31,6 +31,7 @@ const STATUS: Record<DomainErrorCode, HttpStatus> = {
   RSVP_CLOSED: HttpStatus.CONFLICT,
   EMAIL_TAKEN: HttpStatus.CONFLICT,
   ACCOUNT_NOT_FOUND: HttpStatus.NOT_FOUND,
+  LINK_EXPIRED: HttpStatus.GONE,
   UNAVAILABLE: HttpStatus.SERVICE_UNAVAILABLE,
 }
 

@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { Services } from '../contracts/index.ts'
 import { createApiBackend } from './apiBackend.ts'
-import { createApiServices, createPublicRsvpApi } from './apiServices.ts'
+import {
+  createAccountEmailApi,
+  createApiServices,
+  createPublicRsvpApi,
+} from './apiServices.ts'
 import type { Http } from './http.ts'
 // The backend's API description, written by `npm run openapi` there.
 import openApi from '../../../../backend/openapi.json'
@@ -21,9 +25,11 @@ function recordingHttp(calls: Call[]): Http {
       return (
         method === 'GET' && path.endsWith('/template/default')
           ? { body: '' }
-          : path.endsWith('/import/read')
-            ? { rows: [] }
-            : undefined
+          : path === '/auth/me'
+            ? { ...user, emailVerified: false }
+            : path.endsWith('/import/read')
+              ? { rows: [] }
+              : undefined
       ) as never
     }
   return {
@@ -35,6 +41,8 @@ function recordingHttp(calls: Call[]): Http {
     upload: record('POST'),
   }
 }
+
+const user = { id: 'u1', name: 'R', email: 'r@x.com', isSuperUser: true }
 
 const preferences = {
   getGuestColumns: async () => null,
@@ -82,8 +90,10 @@ const settings = {
 /** Every operation of the API provider, once. */
 async function callEverything(services: Services): Promise<void> {
   const { events, guests, unknownGuests, rsvp, messages, tables } = services
-  const { permissions, dashboard, files, session } = services
+  const { permissions, dashboard, files, session, system } = services
   await session.getCurrentUser()
+  await session.getEmailVerified()
+  await session.resendVerification()
   await events.list()
   await events.get('e1')
   await events.create(event)
@@ -132,6 +142,9 @@ async function callEverything(services: Services): Promise<void> {
   await permissions.revoke('e1', 'u1')
   await permissions.changeInvitationRole('e1', 'i1', 'ADMIN')
   await permissions.cancelInvitation('e1', 'i1')
+  await permissions.resendInvitation('e1', 'i1')
+  await system.getEmailStatus()
+  await system.sendTestEmail()
   await dashboard.get('e1')
   await files.readGuestFile('e1', new File(['a'], 'guests.csv'))
   const options = { format: 'csv' as const, sheetName: 'S', rightToLeft: false }
@@ -163,6 +176,11 @@ describe('API provider', () => {
   it('calls only routes the backend describes in openapi.json', async () => {
     const calls: Call[] = []
     await callEverything(createApiServices(recordingHttp(calls), preferences))
+    const email = createAccountEmailApi(recordingHttp(calls))
+    await email.getFeatures()
+    await email.forgotPassword('a@example.com')
+    await email.resetPassword('token', 'new-password')
+    await email.verifyEmail('token')
     const routes = apiRoutes()
 
     const unknown = calls.filter(
@@ -175,7 +193,35 @@ describe('API provider', () => {
     )
 
     expect(unknown).toEqual([])
-    expect(calls).toHaveLength(48)
+    expect(calls).toHaveLength(57)
+  })
+
+  it('tells the server the interface language of each email it sends', async () => {
+    const calls: Call[] = []
+    const http = recordingHttp(calls)
+    const language = () => 'he' as const
+    const services = createApiServices(http, preferences, language)
+
+    await services.session.resendVerification()
+    await services.permissions.invite('e1', 'a@example.com', 'VIEWER')
+    await services.permissions.resendInvitation('e1', 'i1')
+    await services.system.sendTestEmail()
+    await createAccountEmailApi(http, language).forgotPassword('a@example.com')
+
+    expect(calls.map((call) => call.body)).toEqual([
+      { language: 'he' },
+      { email: 'a@example.com', role: 'VIEWER', language: 'he' },
+      { language: 'he' },
+      { language: 'he' },
+      { email: 'a@example.com', language: 'he' },
+    ])
+  })
+
+  it('reads the user and the verification of the email apart', async () => {
+    const services = createApiServices(recordingHttp([]), preferences)
+
+    expect(await services.session.getCurrentUser()).toEqual(user)
+    expect(await services.session.getEmailVerified()).toBe(false)
   })
 
   it('sends only the fields the API accepts', async () => {
