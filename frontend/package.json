@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:api": "npm --prefix ../backend run build && vitest run --config vitest.config.api.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.2",

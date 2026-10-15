@@ -2,6 +2,7 @@ import { CalendarCheck, FlaskConical } from 'lucide-react'
 import type { FormEvent, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useSession } from '../../app/session/sessionContext.ts'
 import { LanguageSwitcher } from '../../app/shell/LanguageSwitcher.tsx'
 import { Card } from '../../shared/ui/Card.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
@@ -47,9 +48,6 @@ export function AuthPage({
             <h1 className={styles.title}>{title}</h1>
             <p className={styles.subtitle}>{subtitle}</p>
             <form className={styles.form} noValidate onSubmit={onSubmit}>
-              <Notice tone="warning" title={t('auth.prototype.title')}>
-                {t('auth.prototype.body')}
-              </Notice>
               {failure && <Notice tone="danger" title={failure} announce />}
               {children}
             </form>
@@ -61,10 +59,14 @@ export function AuthPage({
   )
 }
 
-/** "Or explore the demo" under either form. */
+/** "Or explore the demo" under either form, when the deployment offers it. */
 export function DemoLink({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation()
+  const { demoAvailable } = useSession()
 
+  if (!demoAvailable) {
+    return null
+  }
   return (
     <button type="button" className={styles.demoLink} onClick={onClick}>
       <FlaskConical aria-hidden="true" />

@@ -1,5 +1,9 @@
 import type { SignInInput, SignUpInput } from '../../domain/accounts.ts'
 import type { EventInput } from '../../domain/events.ts'
+import type {
+  GuestExportLabels,
+  SeatingExportColumn,
+} from '../../domain/exports.ts'
 import type { GuestInput } from '../../domain/guests.ts'
 import type { MessageValues } from '../../domain/messages.ts'
 import type {
@@ -308,11 +312,50 @@ export interface AuthService {
   signOut(): Promise<void>
 }
 
-/** Everything the application needs from its data provider. */
+export type FileFormat = 'csv' | 'xlsx'
+
+/** How an exported file is written: format, sheet name and reading direction. */
+export interface SpreadsheetOptions {
+  format: FileFormat
+  sheetName: string
+  rightToLeft: boolean
+}
+
+export interface GuestExportRequest extends SpreadsheetOptions {
+  /** The guests to include, in any order; they are listed by name. */
+  guestIds: readonly Id[]
+  /** Headings and status names in the person's interface language. */
+  labels: GuestExportLabels
+}
+
+export interface SeatingExportRequest extends SpreadsheetOptions {
+  /** Headings in the person's interface language. */
+  headings: Record<SeatingExportColumn, string>
+}
+
+/**
+ * Guest and seating files. The demo reads and writes them in the browser;
+ * the real application on the server (decision D83).
+ */
+export interface FilesService {
+  /**
+   * Reads a CSV or Excel file into rows of text for the import dialog.
+   * Nothing is saved; the chosen rows go to `guests.importMany`.
+   */
+  readGuestFile(eventId: Id, file: File): Promise<string[][]>
+  /** The guests as a file, with every field. */
+  exportGuests(eventId: Id, request: GuestExportRequest): Promise<Blob>
+  /** The seating list as a file: one row per seated party, in table order. */
+  exportSeating(eventId: Id, request: SeatingExportRequest): Promise<Blob>
+}
+
 /** The public RSVP page: reachable with the link alone, by anyone. */
 export type PublicRsvpService = Pick<RsvpService, 'getPublicEvent' | 'submit'>
 
+/** Everything the application needs from its data provider. */
 export interface Backend {
+  /** Whether this deployment offers the public demo (`VITE_DEMO_ENABLED`). */
+  demoAvailable: boolean
   auth: AuthService
   /** The data operations available to a session. */
   servicesFor(session: Session): Services
@@ -322,8 +365,14 @@ export interface Backend {
    * reloaded. Returns the function that stops listening.
    */
   onExternalChange(listener: () => void): () => void
+  /**
+   * Tells when the server no longer accepts the signed-in session (it
+   * expired or was revoked), so the application can return to signed out.
+   */
+  onSessionEnded(listener: () => void): () => void
 }
 
+/** The data operations of one session. */
 export interface Services {
   session: SessionService
   events: EventsService
@@ -334,6 +383,7 @@ export interface Services {
   tables: TablesService
   permissions: PermissionsService
   dashboard: DashboardService
+  files: FilesService
   preferences: PreferencesService
   /** Present only when the application runs on demo data. */
   demo: DemoControl | null

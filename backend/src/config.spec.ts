@@ -30,8 +30,10 @@ describe('configuration', () => {
         RSVP_LIMIT_PER_PHONE: '5',
         RSVP_LIMIT_WINDOW_MINUTES: '15',
         TRUST_PROXY_HOPS: '1',
+        AUTH_ATTEMPTS_PER_MINUTE: '50',
       }),
     ).toMatchObject({
+      authAttemptsPerMinute: 50,
       publicAppUrl: 'https://events.example.com',
       rsvpLimits: { perIp: 20, perPhone: 5, windowMinutes: 15 },
       trustProxyHops: 1,

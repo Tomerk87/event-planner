@@ -2,6 +2,12 @@ import { assertEmail, findAccountByEmail } from '../../domain/accounts.ts'
 import { DomainError } from '../../domain/errors.ts'
 import { isEventPast } from '../../domain/eventTime.ts'
 import {
+  buildGuestExportRows,
+  buildGuestExportTable,
+  buildSeatingDetailRows,
+  buildSeatingExportTable,
+} from '../../domain/exports.ts'
+import {
   assertStartsInFuture,
   EVENT_LIMITS,
   validateCoverImage,
@@ -65,6 +71,11 @@ import {
   calendarStartOf,
   validateRsvpSettings,
 } from '../../domain/rsvpSettings.ts'
+import {
+  createPreferencesService,
+  type StoredPreferences,
+} from '../preferences.ts'
+import { readSpreadsheet, spreadsheetBlob } from '../spreadsheets.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { generateDemoState } from './generator.ts'
 import { messageValuesFor, SAMPLE_GUEST } from './messageValues.ts'
@@ -104,33 +115,6 @@ export interface MockOptions {
   dataVersion?: number
   /** Where display choices are kept; in memory only when left out. */
   preferencesPersistence?: Persistence<StoredPreferences>
-}
-
-/** Display choices as stored in the browser. */
-export interface StoredPreferences {
-  guestColumns?: string[]
-  sidebarCollapsed?: boolean
-}
-
-function readPreferences(stored: unknown): StoredPreferences {
-  if (typeof stored !== 'object' || stored === null) {
-    return {}
-  }
-  const { guestColumns, sidebarCollapsed } = stored as {
-    guestColumns?: unknown
-    sidebarCollapsed?: unknown
-  }
-  const preferences: StoredPreferences = {}
-  if (
-    Array.isArray(guestColumns) &&
-    guestColumns.every((column) => typeof column === 'string')
-  ) {
-    preferences.guestColumns = guestColumns
-  }
-  if (typeof sidebarCollapsed === 'boolean') {
-    preferences.sidebarCollapsed = sidebarCollapsed
-  }
-  return preferences
 }
 
 interface EventContext {
@@ -219,7 +203,7 @@ export function createMockServices(options: MockOptions): Services {
 
   async function run<Result>(
     operation: string,
-    action: () => Result,
+    action: () => Result | Promise<Result>,
   ): Promise<Result> {
     if (delayMs > 0) {
       await new Promise((resolve) => setTimeout(resolve, delayMs))
@@ -1206,30 +1190,46 @@ export function createMockServices(options: MockOptions): Services {
         }),
     },
 
-    // Display choices are this browser's own, so they are read and saved at
-    // once, with none of the simulated response time of event data.
-    preferences: {
-      getGuestColumns: async () =>
-        readPreferences(preferencesPersistence.load()).guestColumns ?? null,
+    files: {
+      readGuestFile: (eventId, file) =>
+        run('files.readGuestFile', async () => {
+          authorize(eventId, 'EDIT')
+          return readSpreadsheet(file)
+        }),
 
-      setGuestColumns: async (columns) => {
-        preferencesPersistence.save({
-          ...readPreferences(preferencesPersistence.load()),
-          guestColumns: [...columns],
-        })
-      },
+      exportGuests: (eventId, request) =>
+        run('files.exportGuests', () => {
+          authorize(eventId, 'EXPORT')
+          const ids = new Set(request.guestIds)
+          return spreadsheetBlob(
+            buildGuestExportTable(
+              buildGuestExportRows(
+                eventGuests(eventId).filter((guest) => ids.has(guest.id)),
+                eventTables(eventId),
+              ),
+              request.labels,
+            ),
+            request,
+          )
+        }),
 
-      getSidebarCollapsed: async () =>
-        readPreferences(preferencesPersistence.load()).sidebarCollapsed ??
-        false,
-
-      setSidebarCollapsed: async (collapsed) => {
-        preferencesPersistence.save({
-          ...readPreferences(preferencesPersistence.load()),
-          sidebarCollapsed: collapsed,
-        })
-      },
+      exportSeating: (eventId, request) =>
+        run('files.exportSeating', () => {
+          authorize(eventId, 'EXPORT')
+          return spreadsheetBlob(
+            buildSeatingExportTable(
+              buildSeatingDetailRows(
+                eventGuests(eventId),
+                eventTables(eventId),
+              ),
+              request.headings,
+            ),
+            request,
+          )
+        }),
     },
+
+    preferences: createPreferencesService(preferencesPersistence),
 
     demo: !demoControls
       ? null

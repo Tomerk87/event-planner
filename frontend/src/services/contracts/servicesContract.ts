@@ -21,8 +21,13 @@ export interface ContractEnvironment {
     viewer: string
     past: string
   }
-  /** Moves the provider's clock; used to cross an event's start time. */
-  setNow: (now: Date) => void
+  /**
+   * Moves the provider's clock; used to cross an event's start time. The
+   * real server keeps real time, so the API provider has none, and the two
+   * tests that need it run on the mock only (the backend's own tests cover
+   * closing at the event's start).
+   */
+  setNow?: (now: Date) => void
 }
 
 async function codeOf(
@@ -48,8 +53,19 @@ const newGuest = {
 
 export function describeServicesContract(
   name: string,
-  setup: () => ContractEnvironment,
+  setup: () => ContractEnvironment | Promise<ContractEnvironment>,
+  options: { clock?: boolean } = {},
 ): void {
+  const withClock = options.clock === false ? it.skip : it
+
+  /** The clock of a provider that has one. */
+  function clockOf(environment: ContractEnvironment): (now: Date) => void {
+    if (!environment.setNow) {
+      throw new Error('this provider has no clock')
+    }
+    return environment.setNow
+  }
+
   describe(`services contract: ${name}`, () => {
     async function findGuest(
       services: Services,
@@ -65,7 +81,7 @@ export function describeServicesContract(
 
     describe('session and events', () => {
       it('returns the signed-in user', async () => {
-        const { services } = setup()
+        const { services } = await setup()
 
         const user = await services.session.getCurrentUser()
 
@@ -74,7 +90,7 @@ export function describeServicesContract(
       })
 
       it('lists the user’s events soonest first, with role and past state', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         const list = await services.events.list()
         const byId = new Map(list.map((item) => [item.event.id, item]))
@@ -94,7 +110,7 @@ export function describeServicesContract(
       })
 
       it('gets one event and rejects an unknown one', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         expect((await services.events.get(events.owner)).role).toBe('OWNER')
         expect(await codeOf(services.events.get('no-such-event'))).toBe(
@@ -103,7 +119,7 @@ export function describeServicesContract(
       })
 
       it('creates an event owned by its creator, with default content', async () => {
-        const { services } = setup()
+        const { services } = await setup()
 
         const created = await services.events.create({
           name: 'New Year Dinner',
@@ -129,7 +145,7 @@ export function describeServicesContract(
       })
 
       it('refuses to create an event that starts in the past', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { event: past } = await services.events.get(events.past)
 
         expect(await codeOf(services.events.create({ ...past }))).toBe(
@@ -138,7 +154,7 @@ export function describeServicesContract(
       })
 
       it('duplicates an event’s set-up, without its guests, for an Owner only', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const copy = {
           name: 'Second Night',
           startsAt: '2031-03-01T17:00:00.000Z',
@@ -197,7 +213,7 @@ export function describeServicesContract(
       })
 
       it('duplicates a past event, and validates the new name and date', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { role } = await services.events.get(events.past)
         expect(role).toBe('OWNER')
 
@@ -226,7 +242,7 @@ export function describeServicesContract(
       })
 
       it('deletes an event and everything in it, for an Owner only', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { event } = await services.events.get(events.owner)
 
         expect(await codeOf(services.events.remove(events.admin))).toBe(
@@ -258,7 +274,7 @@ export function describeServicesContract(
       })
 
       it('deletes a past event', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         await services.events.remove(events.past)
 
@@ -266,7 +282,7 @@ export function describeServicesContract(
       })
 
       it('validates event input on create and update', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { event } = await services.events.get(events.owner)
 
         expect(
@@ -283,7 +299,7 @@ export function describeServicesContract(
       })
 
       it('refuses to move an event into the past, and keeps what the form does not send', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { event } = await services.events.get(events.owner)
 
         await expect(
@@ -313,7 +329,7 @@ export function describeServicesContract(
       })
 
       it('keeps an event photo from creation, changes and removes it, and copies it with the event', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const photo = 'data:image/jpeg;base64,AAAA'
         const input = {
           name: 'Photo Party',
@@ -328,17 +344,26 @@ export function describeServicesContract(
           ...input,
           coverImage: photo,
         })
-        expect(created.coverImage).toBe(photo)
+        // The demo keeps the picture itself; the server stores it as a file
+        // and gives its address.
+        expect(created.coverImage).not.toBeNull()
 
         // Left out, the photo stays as it is.
         const kept = await services.events.update(created.id, input)
-        expect(kept.coverImage).toBe(photo)
+        expect(kept.coverImage).toBe(created.coverImage)
+
+        // Sent back as given, the photo also stays.
+        const resent = await services.events.update(created.id, {
+          ...input,
+          coverImage: created.coverImage,
+        })
+        expect(resent.coverImage).toBe(created.coverImage)
 
         const copy = await services.events.duplicate(created.id, {
           name: 'Photo Party Again',
           startsAt: '2032-01-01T18:00:00.000Z',
         })
-        expect(copy.coverImage).toBe(photo)
+        expect(copy.coverImage).not.toBeNull()
 
         const removed = await services.events.update(created.id, {
           ...input,
@@ -361,7 +386,7 @@ export function describeServicesContract(
       })
 
       it('updates an event for an Owner and an Admin, not for a Viewer, and not once past', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const edit = async (eventId: string) => {
           const { event } = await services.events.get(eventId)
           return codeOf(
@@ -381,7 +406,7 @@ export function describeServicesContract(
 
     describe('guests', () => {
       it('lists active guests only', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         const guests = await services.guests.list(events.owner)
 
@@ -393,7 +418,7 @@ export function describeServicesContract(
       })
 
       it('adds a guest and reflects it on the dashboard', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const before = (await services.dashboard.get(events.owner)).metrics
 
         const guest = await services.guests.create(events.owner, newGuest)
@@ -411,7 +436,7 @@ export function describeServicesContract(
       })
 
       it('shows a phone in local form however it was typed, and matches it in any form', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { event } = await services.events.get(events.owner)
 
         const local = await services.guests.create(events.owner, {
@@ -470,7 +495,7 @@ export function describeServicesContract(
       })
 
       it('rejects a duplicate phone but allows it in another event', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         await services.guests.create(events.owner, newGuest)
 
         expect(
@@ -487,7 +512,7 @@ export function describeServicesContract(
       })
 
       it('soft-deletes a guest, then restores the same record when the phone is added again', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const seated = await findGuest(
           services,
           events.owner,
@@ -528,7 +553,7 @@ export function describeServicesContract(
       })
 
       it('edits a guest and rejects invalid edits', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await services.guests.create(events.owner, newGuest)
 
         const edited = await services.guests.update(events.owner, guest.id, {
@@ -557,7 +582,7 @@ export function describeServicesContract(
       })
 
       it('applies an organizer’s RSVP edit with the same rules as the public form', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await services.guests.create(events.owner, newGuest)
         const set = (status: Guest['rsvpStatus'], attendees: number | null) =>
           services.guests.setRsvp(events.owner, guest.id, { status, attendees })
@@ -579,7 +604,7 @@ export function describeServicesContract(
       })
 
       it('refuses every guest change to a Viewer and on a past event', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const viewerGuest = await findGuest(services, events.viewer, () => true)
         const pastGuest = await findGuest(services, events.past, () => true)
 
@@ -611,7 +636,7 @@ export function describeServicesContract(
       })
 
       it('still lets a Viewer read, and anyone read a past event', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         expect(
           (await services.guests.list(events.viewer)).length,
@@ -639,7 +664,7 @@ export function describeServicesContract(
       }
 
       it('lists tables in number order with their occupancy', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         const tables = await services.tables.list(events.owner)
 
@@ -656,7 +681,7 @@ export function describeServicesContract(
       })
 
       it('creates, edits and validates tables', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         const table = await services.tables.create(events.owner, newTable)
         const edited = await services.tables.update(events.owner, table.id, {
@@ -686,7 +711,7 @@ export function describeServicesContract(
       })
 
       it('seats only Approved guests, blocks overfilling, and updates related figures', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const table = await services.tables.create(events.owner, newTable)
         const first = await services.guests.create(events.owner, newGuest)
         const second = await services.guests.create(events.owner, {
@@ -729,7 +754,7 @@ export function describeServicesContract(
       })
 
       it('accepts an RSVP increase that overfills a table and reports the conflict', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const table = await services.tables.create(events.owner, newTable)
         const guest = await services.guests.create(events.owner, {
           ...newGuest,
@@ -760,7 +785,7 @@ export function describeServicesContract(
       })
 
       it('clears the table when a seated guest declines', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const seated = await findGuest(
           services,
           events.owner,
@@ -780,7 +805,7 @@ export function describeServicesContract(
       })
 
       it('deletes a table without deleting its guests', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const seated = await findGuest(
           services,
           events.owner,
@@ -806,7 +831,7 @@ export function describeServicesContract(
 
     describe('messages', () => {
       it('previews the template with one guest’s details', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await findGuest(services, events.owner, () => true)
         const { event } = await services.events.get(events.owner)
 
@@ -828,7 +853,7 @@ export function describeServicesContract(
       })
 
       it('says what each variable stands for, for a guest and for a sample one', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await findGuest(services, events.owner, () => true)
         const { event } = await services.events.get(events.owner)
 
@@ -852,7 +877,7 @@ export function describeServicesContract(
       })
 
       it('lists each send with the guest it went to, even after the guest is deleted', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await services.guests.create(events.owner, newGuest)
         const { launchUrl, send } = await services.messages.send(
           events.owner,
@@ -881,7 +906,7 @@ export function describeServicesContract(
       })
 
       it('offers the default template and refuses an empty or over-long one', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const original = (await services.messages.getTemplate(events.owner))
           .body
 
@@ -902,7 +927,7 @@ export function describeServicesContract(
       })
 
       it('counts five sends to one guest as one invited guest, and records each send', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const open = vi.spyOn(window, 'open').mockImplementation(() => null)
         const guest = await services.guests.create(events.owner, newGuest)
         const before = (await services.dashboard.get(events.owner)).metrics
@@ -932,7 +957,7 @@ export function describeServicesContract(
       })
 
       it('refuses to send as a Viewer or on a past event', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await findGuest(services, events.owner, () => true)
         const viewerGuest = await findGuest(services, events.viewer, () => true)
         const pastGuest = await findGuest(services, events.past, () => true)
@@ -952,7 +977,7 @@ export function describeServicesContract(
       })
 
       it('saves an edited template', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         await services.messages.updateTemplate(
           events.owner,
@@ -971,7 +996,7 @@ export function describeServicesContract(
       }
 
       it('shows the public page without any guest data, and as closed once past', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         const open = await services.rsvp.getPublicEvent(
           await slugOf(services, events.owner),
@@ -991,7 +1016,7 @@ export function describeServicesContract(
       })
 
       it('matches a known guest by phone however it is typed, and keeps the organizer’s name', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         const guest = await services.guests.create(events.owner, newGuest)
 
@@ -1019,7 +1044,7 @@ export function describeServicesContract(
       })
 
       it('requires the number of attendees for every response and enforces the guest’s allowance when approving', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         await services.guests.create(events.owner, newGuest)
         const submit = (
@@ -1056,38 +1081,43 @@ export function describeServicesContract(
         })
       })
 
-      it('lets a guest change their answer until the event starts, then closes', async () => {
-        const { services, events, setNow } = setup()
-        const { event } = await services.events.get(events.owner)
-        const guest = await services.guests.create(events.owner, newGuest)
-        const submit = (attendees: number) =>
-          services.rsvp.submit(event.rsvpSlug, {
-            name: 'Connie',
-            phone: newGuest.phone,
-            status: 'APPROVED',
-            attendees,
-          })
+      withClock(
+        'lets a guest change their answer until the event starts, then closes',
+        async () => {
+          const environment = await setup()
+          const { services, events } = environment
+          const setNow = clockOf(environment)
+          const { event } = await services.events.get(events.owner)
+          const guest = await services.guests.create(events.owner, newGuest)
+          const submit = (attendees: number) =>
+            services.rsvp.submit(event.rsvpSlug, {
+              name: 'Connie',
+              phone: newGuest.phone,
+              status: 'APPROVED',
+              attendees,
+            })
 
-        await submit(2)
-        setNow(new Date(new Date(event.startsAt).getTime() - 1))
-        await submit(3)
-        setNow(new Date(event.startsAt))
+          await submit(2)
+          setNow(new Date(new Date(event.startsAt).getTime() - 1))
+          await submit(3)
+          setNow(new Date(event.startsAt))
 
-        expect(await codeOf(submit(1))).toBe('RSVP_CLOSED')
-        expect(
-          (await services.guests.list(events.owner)).find(
-            (candidate) => candidate.id === guest.id,
-          )?.confirmedAttendees,
-        ).toBe(3)
-        expect(
-          await codeOf(
-            services.guests.update(events.owner, guest.id, newGuest),
-          ),
-        ).toBe('EVENT_READ_ONLY')
-      })
+          expect(await codeOf(submit(1))).toBe('RSVP_CLOSED')
+          expect(
+            (await services.guests.list(events.owner)).find(
+              (candidate) => candidate.id === guest.id,
+            )?.confirmedAttendees,
+          ).toBe(3)
+          expect(
+            await codeOf(
+              services.guests.update(events.owner, guest.id, newGuest),
+            ),
+          ).toBe('EVENT_READ_ONLY')
+        },
+      )
 
       it('stores an unmatched response as an unknown guest without touching the dashboard', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         const before = await services.dashboard.get(events.owner)
         const submit = (attendees: number, name = 'Stranger') =>
@@ -1126,7 +1156,7 @@ export function describeServicesContract(
       })
 
       it('treats a deleted guest’s phone as unknown', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         const guest = await services.guests.create(events.owner, newGuest)
         await services.guests.remove(events.owner, guest.id)
@@ -1142,7 +1172,7 @@ export function describeServicesContract(
       })
 
       it('converts an unknown response into a guest, keeping the response', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const [unknown] = (
           await services.unknownGuests.list(events.owner)
         ).filter((item) => item.rsvpStatus === 'APPROVED')
@@ -1171,7 +1201,7 @@ export function describeServicesContract(
       })
 
       it('refuses to convert when the response exceeds the allowance given', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         await services.rsvp.submit(slug, {
           name: 'Big Party',
@@ -1196,7 +1226,7 @@ export function describeServicesContract(
       })
 
       it('merges an unknown response into an existing guest', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const guest = await services.guests.create(events.owner, {
           ...newGuest,
           allowedAttendees: 5,
@@ -1223,7 +1253,7 @@ export function describeServicesContract(
       })
 
       it('keeps a rejected response out of review, restorable, and guards all review actions', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const [unknown] = await services.unknownGuests.list(events.owner)
         const rejectedBefore = await services.unknownGuests.listRejected(
           events.owner,
@@ -1289,7 +1319,7 @@ export function describeServicesContract(
       })
 
       it('returns a rejected response to review when the same phone answers again', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { event } = await services.events.get(events.owner)
         const [unknown] = await services.unknownGuests.list(events.owner)
         await services.unknownGuests.reject(events.owner, unknown!.id)
@@ -1311,7 +1341,7 @@ export function describeServicesContract(
       })
 
       it('soft-deletes several guests at once, or none if one is unknown', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const before = await services.guests.list(events.owner)
         const [first, second] = before
 
@@ -1342,7 +1372,7 @@ export function describeServicesContract(
       })
 
       it('moves several guests to one group, replacing the group they had', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const [first, second, third] = await services.guests.list(events.owner)
         await services.guests.setGroup(events.owner, [first!.id], 'Choir')
 
@@ -1390,7 +1420,7 @@ export function describeServicesContract(
       })
 
       it('imports many guests in one step, restoring a deleted phone, or nothing if one is invalid', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const before = await services.guests.list(events.owner)
         const deleted = before[0]!
         await services.guests.remove(events.owner, deleted.id)
@@ -1441,7 +1471,7 @@ export function describeServicesContract(
       })
 
       it('remembers the chosen guest columns', async () => {
-        const { services } = setup()
+        const { services } = await setup()
 
         expect(await services.preferences.getGuestColumns()).toBeNull()
 
@@ -1455,7 +1485,7 @@ export function describeServicesContract(
       })
 
       it('remembers whether the side menu is collapsed, apart from the columns', async () => {
-        const { services } = setup()
+        const { services } = await setup()
 
         expect(await services.preferences.getSidebarCollapsed()).toBe(false)
 
@@ -1473,7 +1503,7 @@ export function describeServicesContract(
       })
 
       it('reads and saves RSVP settings with validation', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { eventId: _eventId, ...settings } =
           await services.rsvp.getSettings(events.owner)
         const save = (patch: Partial<typeof settings>) =>
@@ -1523,7 +1553,7 @@ export function describeServicesContract(
       const otherOutsider = 'avery.shaw@example.com'
 
       it('lists members Owners first and marks the current user', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         const { members, invitations } = await services.permissions.list(
           events.owner,
@@ -1545,7 +1575,7 @@ export function describeServicesContract(
       })
 
       it('hides permissions from a Viewer', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
 
         expect(await codeOf(services.permissions.list(events.viewer))).toBe(
           'FORBIDDEN',
@@ -1558,7 +1588,7 @@ export function describeServicesContract(
       })
 
       it('lets an Owner invite, change and revoke, keeping the rules', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const me = await services.session.getCurrentUser()
 
         const invited = await services.permissions.invite(
@@ -1614,7 +1644,7 @@ export function describeServicesContract(
       })
 
       it('keeps an email with no account as a pending invitation', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const email = 'new.person@example.com'
 
         const invited = await services.permissions.invite(
@@ -1669,7 +1699,7 @@ export function describeServicesContract(
       })
 
       it('does not count a pending Owner as one of the event’s Owners', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         await services.permissions.invite(
           events.owner,
           'second.owner@example.com',
@@ -1701,7 +1731,7 @@ export function describeServicesContract(
       })
 
       it('limits an Admin to Admin and Viewer permissions', async () => {
-        const { services, events } = setup()
+        const { services, events } = await setup()
         const { members } = await services.permissions.list(events.admin)
         const owner = members.find((member) => member.role === 'OWNER')
         const viewer = members.find((member) => member.role === 'VIEWER')
@@ -1770,8 +1800,10 @@ export function describeServicesContract(
         ).toBe('NO_ERROR')
       })
 
-      it('leaves a past event’s permissions to its Owners', async () => {
-        const { services, events, setNow } = setup()
+      withClock('leaves a past event’s permissions to its Owners', async () => {
+        const environment = await setup()
+        const { services, events } = environment
+        const setNow = clockOf(environment)
         const invite = services.permissions.invite
         const adminEvent = await services.events.get(events.admin)
         const ownerEvent = await services.events.get(events.owner)

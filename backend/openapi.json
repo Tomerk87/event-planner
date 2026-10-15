@@ -2695,7 +2695,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "format": "uuid"
+              "maxLength": 64
             }
           }
         },
@@ -2731,7 +2731,7 @@
           "tableId": {
             "type": "string",
             "nullable": true,
-            "format": "uuid"
+            "maxLength": 64
           }
         },
         "required": [
@@ -2751,7 +2751,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "format": "uuid"
+              "maxLength": 64
             }
           }
         },
@@ -2945,7 +2945,7 @@
         "properties": {
           "guestId": {
             "type": "string",
-            "format": "uuid"
+            "maxLength": 64
           }
         },
         "required": [

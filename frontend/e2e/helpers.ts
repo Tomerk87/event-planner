@@ -40,3 +40,14 @@ export async function chooseOption(
     .locator(`[role="option"][data-value="${value}"]`)
     .click()
 }
+
+/**
+ * An email no other test uses, since accounts live in the real (test)
+ * database and both screen sizes run at the same time.
+ */
+export function uniqueEmail(name: string): string {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  return `${name}.${suffix}@example.com`
+}
+
+export const TEST_PASSWORD = 'correct-horse-battery'

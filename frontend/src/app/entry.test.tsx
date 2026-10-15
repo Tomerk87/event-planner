@@ -1,6 +1,8 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { DomainError } from '../domain/errors.ts'
 import { changeLanguage } from '../i18n/i18n.ts'
+import { createFakeAccountBackend } from '../test/fakeAccountBackend.ts'
 import { setViewportWidth } from '../test/matchMedia.ts'
 import { createTestBackend, renderApp } from '../test/renderApp.tsx'
 import { change } from '../test/controls.ts'
@@ -179,7 +181,8 @@ describe('sign up, log out and sign in', () => {
       level: 1,
       name: 'Create your account',
     })
-    expect(screen.getByText('Preview version')).toBeInTheDocument()
+    // The browser-only preview accounts are gone (D85).
+    expect(screen.queryByText('Preview version')).not.toBeInTheDocument()
 
     signUpAs('Riley Stone', 'riley@example.com')
 
@@ -276,6 +279,35 @@ describe('sign up, log out and sign in', () => {
     expect(await backend.auth.getSession()).toEqual({ workspace: 'demo' })
   })
 
+  it('returns to the landing page when the server ends the session', async () => {
+    const accounts = createFakeAccountBackend()
+    const backend = createTestBackend({ session: 'none', accounts })
+    await backend.auth.signUp({
+      name: 'Riley Stone',
+      email: 'riley@example.com',
+      password: 'long-enough',
+    })
+    const { router } = renderApp('/events', undefined, { backend })
+    await screen.findByText('No events yet')
+
+    act(() => accounts.endSession())
+
+    await landing()
+    expect(router.state.location.pathname).toBe('/')
+  })
+
+  it('leaves a demo visitor alone when a request answers that no account is signed in', async () => {
+    const accounts = createFakeAccountBackend()
+    const backend = createTestBackend({ accounts })
+    const { router } = renderApp('/events', undefined, { backend })
+    await screen.findByRole('list', { name: 'Events' })
+
+    act(() => accounts.endSession())
+
+    expect(screen.getByRole('list', { name: 'Events' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/events')
+  })
+
   it('offers log out from the user menu inside an event', async () => {
     renderApp('/events/evt-1/guests')
     await screen.findByRole('heading', { level: 1, name: 'Guests' })
@@ -324,7 +356,7 @@ describe('sign up, log out and sign in', () => {
     expect(screen.getByRole('button', { name: 'Sign Up' })).toBeEnabled()
   })
 
-  it('refuses to sign in an unknown email, and explains missing details', async () => {
+  it('refuses to sign in an unknown email without saying whether it exists, and explains missing details', async () => {
     renderSignedOut('/signin')
     await screen.findByRole('heading', { level: 1, name: 'Sign in' })
 
@@ -339,7 +371,7 @@ describe('sign up, log out and sign in', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sign In' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'No account with this email was found in this browser. Sign up, or try the demo.',
+      'The email or password is incorrect.',
     )
     expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute(
       'href',
@@ -348,13 +380,9 @@ describe('sign up, log out and sign in', () => {
   })
 
   it('shows a failed sign-up as a message, not as a field error', async () => {
-    renderSignedOut(
-      '/signup',
-      createTestBackend({
-        session: 'none',
-        failOperations: new Set(['auth.signUp']),
-      }),
-    )
+    const accounts = createFakeAccountBackend()
+    accounts.auth.signUp = () => Promise.reject(new DomainError('UNAVAILABLE'))
+    renderSignedOut('/signup', createTestBackend({ session: 'none', accounts }))
     await screen.findByRole('heading', {
       level: 1,
       name: 'Create your account',
@@ -365,6 +393,25 @@ describe('sign up, log out and sign in', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The service is not available right now. Please try again.',
     )
+  })
+
+  it('offers no demo anywhere when this deployment has it switched off', async () => {
+    const backend = createTestBackend({ session: 'none', demoAvailable: false })
+    const first = renderSignedOut('/', backend)
+    await screen.findByRole('heading', { level: 1 })
+    expect(screen.queryByRole('button', { name: 'Try Demo' })).toBeNull()
+    expect(
+      screen.getAllByRole('link', { name: 'Sign Up' }).length,
+    ).toBeGreaterThan(0)
+    first.unmount()
+
+    renderSignedOut('/signin', backend)
+    await screen.findByRole('heading', { level: 1, name: 'Sign in' })
+    expect(
+      screen.queryByRole('button', {
+        name: 'Or explore the demo without an account',
+      }),
+    ).toBeNull()
   })
 
   it('lets a visitor open the demo from either form', async () => {

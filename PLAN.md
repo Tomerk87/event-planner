@@ -399,7 +399,7 @@
 
 ### Checklist
 - [x] Scaffold NestJS TypeScript backend independently of React UI.
-- [ ] Moved to Phase 16, when the frontend uses the backend: when the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images and event photos out of browser storage.
+- [x] Moved to Phase 16, when the frontend uses the backend: when the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images and event photos out of browser storage. Done in Phase 16: notices removed; a real account's pictures are files on the server (the demo keeps its own in the browser by design).
 - [x] Set up PostgreSQL development database (local install or temporary DB-only container is acceptable; full Compose deployment remains later).
 - [x] Set up Prisma schema and deterministic migrations.
 - [x] Implement User, Event, EventPermission, Guest, Unknown RSVP, RSVP Config, Message Config and Table/Assignment entities.
@@ -459,7 +459,7 @@
 - [x] Add backend unit/integration tests for each key invariant and edge case.
 
 ### Validation and exit criteria
-- [ ] API behavior matches mock provider contracts and PRD rules. The services mirror the mock provider and the PRD rules are covered by integration tests; the shared contract suite runs against the API provider in Phase 16, which closes this item.
+- [x] API behavior matches mock provider contracts and PRD rules. Closed in Phase 16: the shared contract suite passes on the API (`npm run test:api`, 57 tests; the 2 that move the clock run on the mock only).
 - [x] Permission and past-event restrictions hold for public and authenticated endpoints.
 - [x] Dashboard totals, conflicts, imports and exports reconcile with persisted records.
 
@@ -470,23 +470,23 @@
 **Goal:** make the same React application work with either isolated browser demo data or real backend data.
 
 ### Checklist
-- [ ] Implement API provider(s) against the existing typed frontend service interfaces.
-- [ ] Run the provider contract suite (`frontend/src/services/contracts/servicesContract.ts`) against the API provider.
-- [ ] Select Demo mock provider or authenticated API provider at application boundary, not individually within components.
-- [ ] Integrate authentication, events, permissions, Guests, Unknown Guests, Messages, RSVP, Dashboard and Tables.
-- [ ] Replace development-only simulated sign-in with real auth on non-demo routes.
-- [ ] Add request loading, validation error display, retries where appropriate and stale state handling.
-- [ ] Verify counter/RSVP/assignment mutations update all related views.
-- [ ] Ensure the WhatsApp deep-link action remains a user-initiated action, in the product and in the demo (D45).
-- [ ] Ensure uploaded images work through storage API rather than assumptions about local browser paths.
-- [ ] Verify Demo Mode remains public, isolated, resettable and functional with no database interaction.
-- [ ] Add provider contract parity and integration tests.
-- [ ] Replace the browser-local accounts workspace (`services/mock/mockBackend.ts`) with the API for Sign Up and Sign In; keep the demo workspace as it is. Remove the "Preview version" notice from the forms.
+- [x] Implement API provider(s) against the existing typed frontend service interfaces.
+- [x] Run the provider contract suite (`frontend/src/services/contracts/servicesContract.ts`) against the API provider (`npm run test:api`).
+- [x] Select Demo mock provider or authenticated API provider at application boundary, not individually within components.
+- [x] Integrate authentication, events, permissions, Guests, Unknown Guests, Messages, RSVP, Dashboard and Tables.
+- [x] Replace development-only simulated sign-in with real auth on non-demo routes.
+- [x] Add request loading, validation error display, retries where appropriate and stale state handling.
+- [x] Verify counter/RSVP/assignment mutations update all related views.
+- [x] Ensure the WhatsApp deep-link action remains a user-initiated action, in the product and in the demo (D45).
+- [x] Ensure uploaded images work through storage API rather than assumptions about local browser paths.
+- [x] Verify Demo Mode remains public, isolated, resettable and functional with no database interaction.
+- [x] Add provider contract parity and integration tests.
+- [x] Replace the browser-local accounts workspace (`services/mock/mockBackend.ts`) with the API for Sign Up and Sign In; keep the demo workspace as it is. Remove the "Preview version" notice from the forms.
 
 ### Validation and exit criteria
-- [ ] All MVP flows work against PostgreSQL-backed APIs.
-- [ ] Switching between demo and authenticated real modes never leaks data or permissions.
-- [ ] No duplication of page components between modes.
+- [x] All MVP flows work against PostgreSQL-backed APIs.
+- [x] Switching between demo and authenticated real modes never leaks data or permissions.
+- [x] No duplication of page components between modes.
 
 ---
 
@@ -557,7 +557,8 @@
 - [ ] Confirm no demo interaction can alter real backend data, and that the generated demo guests' numbers are undialable (D23, D45).
 - [ ] Confirm demo works even if a real backend session is unavailable, subject to static frontend hosting being accessible.
 - [ ] Test mobile/desktop and English/Hebrew/RTL in the deployed app.
-- [ ] Confirm demo deployment feature flag can hide demo entry when configured without changing real app behavior.
+- [ ] Confirm demo deployment feature flag can hide demo entry when configured without changing real app behavior. (`VITE_DEMO_ENABLED` exists since Phase 16, with unit tests; confirm on the deployed build.)
+- [ ] A real event's RSVP link should not generate the demo dataset in the guest's browser (today the link is looked up in the demo first).
 - [ ] Finalize concise `README.md`, deployment docs, and update `PLAN.md` with deferred tasks.
 
 ### Validation and exit criteria
@@ -1117,6 +1118,48 @@ Follow-ups/risks:
 - The frontend still builds the guest and seating export files in the browser; Phase 16 decides whether the API provider uses the server's export routes.
 - Nothing committed; branch phase_15_16_implementation.
 Next: owner review of Phase 15, then Phase 16.
+```
+
+```text
+2026-10-15 — Phase 16 — IN PROGRESS (stopped at the usage limit; nothing ticked yet).
+Decision (owner): real accounts read and write guest and seating files on the server (D83 confirmed).
+Done so far (uncommitted, branch phase_15_16_implementation):
+- Contract: FilesService (readGuestFile, exportGuests, exportSeating), Backend.demoAvailable, Backend.onSessionEnded.
+- services/api/: http.ts (fetch wrapper, {code, details} → DomainError, 401 → session ended), apiServices.ts (every contract method mapped to the API, inputs reduced to the fields the server accepts), apiBackend.ts (real sign-up/sign-in/me/sign-out).
+- services/mock/mockBackend.ts is now demo-only (createDemoBackend); preview accounts removed (D85) and their storage key cleared on load; test-only stand-in in src/test/fakeAccountBackend.ts.
+- services/createServices.ts: combineBackends(demo, api) chosen by session; demo RSVP links answered locally, others by the server; VITE_DEMO_ENABLED replaces VITE_DATA_PROVIDER (Try Demo hidden when off).
+- services/preferences.ts and services/spreadsheets.ts shared by both providers; export hooks and the import dialog use services.files.
+- "Preview version" notice and the D65 "only in this browser" notices removed with their texts.
+- App: retry once only for UNAVAILABLE; refetch on window focus (D67 in API mode).
+- openapi-typescript was not added: it requires TypeScript 5 (the frontend uses 6). Planned instead: a test that every route the API provider calls exists in backend/openapi.json.
+Validation so far: typecheck clean; unit tests 1083 passed, 4 failing (below); new tests: http.test.ts (14), createServices.test.ts (15), rewritten mockBackend.test.ts (15).
+Left to do:
+- Fix the 4 failing unit tests: entry.test.tsx (3, sign-up/sign-in flows now on the fake account backend; INVALID_CREDENTIALS instead of ACCOUNT_NOT_FOUND) and PublicRsvpPage.test.tsx (1, the removed note).
+- Route-vs-openapi.json test for apiServices; run the contract suite against the API (async setup, optional clock, backend seeding helper for the _test database).
+- vite.config.ts proxy /api → http://localhost:3000 (server and preview); README.
+- Playwright: backend as a second webServer on the test database; real-account spec; update entry.spec.ts (preview accounts gone).
+- lint, format, coverage, e2e, build; docs (ARCHITECTURE, services/README.md, DOMAIN D83 note); tick Phase 16 and the Phase 15 contract item.
+```
+
+```text
+2026-10-15 — Phase 16 complete (continues the in-progress entry above).
+- Every signed-in page now uses the API; Try Demo is unchanged and makes no server call. One combined backend, chosen by session (createServices.ts); demo RSVP links answered locally, others by the server. Pages were not duplicated.
+- Guest import/export and the seating export use the server for real accounts (D83, confirmed; D87).
+- Contract suite on the real API: `npm run test:api` builds the backend, starts it on the test database and loads the demo dataset before each test (backend/test/contract-seed.ts, run by Node directly). 57 passed, 2 skipped by design (they move the clock).
+- Bugs it found, fixed in the backend with regression tests:
+  - The API accepted only 100 KB request bodies (Express default), so event photos and RSVP backgrounds of real size failed, and the oversized request was answered as a server error. Now 5 MB; a larger request answers VALIDATION (413).
+  - An unknown table or guest id in a seat, bulk delete, group or merge request answered VALIDATION instead of NOT_FOUND (id-format checks ran before the lookup).
+- Bug found by the browser tests, fixed: a signed-out visitor's start-up session check (401) was treated as a session ending and cleared the data cache, which could leave the public RSVP page loading forever. The check is now separate, and only an open account session can end. Regression test added.
+- Also: sign-in limit configurable (AUTH_ATTEMPTS_PER_MINUTE, default 10); Vite forwards /api to the backend (API_URL); queries retry once only when the service is unreachable and reload on returning to the window; the API provider's routes are checked against openapi.json (openapi-typescript not adopted: it requires TypeScript 5).
+Validation:
+- Frontend: typecheck, lint, format clean; unit tests 1096 passed, coverage 96.4% statements, 91.3% branches; `npm run test:api` 57 passed, 2 skipped; `npm run test:e2e` 325 passed, 25 skipped by design (new real-account.spec.ts: sign-up → event → guest → WhatsApp send → public RSVP from a fresh browser → Dashboard → seating file → reload; account isolation; entry.spec.ts now on real accounts), run five times in a row for the new spec with no failure; build succeeds.
+- Backend: typecheck, lint (same 2 warnings in the shared domain copy), format clean; unit tests 492; integration tests 267; openapi.json regenerated.
+- By hand (browser script): the demo opens and works with every /api request blocked, and sign-in then says the service is unavailable; screenshots of Sign Up and RSVP Settings, desktop and phone, English and Hebrew: notices gone, layout intact.
+Follow-ups/risks:
+- `npm run test:e2e` and `npm run test:api` need the development database (Docker) running.
+- Visiting a demo-capable deployment's RSVP link generates the demo dataset in the guest's browser (the link is first looked up there). Harmless, but wasted work for a real guest; worth avoiding before release (Phase 19).
+- Nothing committed; branch phase_15_16_implementation.
+Next: Phase 17 — end-to-end, security and hardening. Ask the owner how to do the Hebrew review before starting it (D74).
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

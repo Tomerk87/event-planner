@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'node:crypto'
-import { EventAccessService } from '../access/event-access.service.ts'
+import { EventAccessService, isUuid } from '../access/event-access.service.ts'
 import { DomainError } from '../domain/errors.ts'
 import {
   addGuest,
@@ -166,7 +166,7 @@ export class GuestsService {
       const guests = await loadGuests(tx, eventId)
       const guest = activeGuest(guests, guestId)
       const table =
-        tableId === null
+        tableId === null || !isUuid(tableId)
           ? null
           : await tx.eventTable.findFirst({ where: { id: tableId, eventId } })
       if (tableId !== null && !table) {

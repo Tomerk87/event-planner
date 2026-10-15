@@ -22,6 +22,7 @@ import {
 import type { Event, Guest } from '../../domain/models.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import type { ImportOutcome } from '../../services/contracts/index.ts'
+import { useServices } from '../../services/servicesContext.ts'
 import { downloadBlob, safeFileName } from '../../shared/download.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Badge } from '../../shared/ui/Badge.tsx'
@@ -31,7 +32,7 @@ import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField } from '../../shared/ui/Field.tsx'
 import { LtrText } from '../../shared/ui/LtrText.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
-import { ACCEPTED_FILES, readSpreadsheet } from './guestFiles.ts'
+import { ACCEPTED_FILES } from './guestFiles.ts'
 import { useImportGuests } from './guestQueries.ts'
 import styles from './Guests.module.css'
 
@@ -63,6 +64,7 @@ function ImportSteps({
   const format = useFormatters()
   const fileInputId = useId()
   const importGuests = useImportGuests(eventId)
+  const { files } = useServices()
   const [step, setStep] = useState<Step>({ name: 'choose' })
   const [hasHeadings, setHasHeadings] = useState(true)
   const [mapping, setMapping] = useState<ColumnMapping>(detectMapping([]))
@@ -97,7 +99,7 @@ function ImportSteps({
     setFailure(null)
     setReading(true)
     try {
-      const rows = await readSpreadsheet(file)
+      const rows = await files.readGuestFile(eventId, file)
       if (rows.length === 0) {
         setFailure(t('guests.import.errors.empty'))
         return

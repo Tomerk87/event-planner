@@ -162,6 +162,25 @@ describe('RSVP settings', () => {
     ).toBe('VALIDATION')
   })
 
+  it('accepts a picture of realistic size and refuses an oversized request', async () => {
+    const { owner, settings } = await setUp()
+    const { eventId: _eventId, ...base } = (await owner.get(settings)).body
+    // About 500 KB of picture, as the browser sends after shrinking it.
+    const large = `data:image/jpeg;base64,${'A'.repeat(690_000)}`
+
+    const saved = await owner
+      .put(settings)
+      .send({ ...base, backgroundImage: large })
+      .expect(200)
+    expect(saved.body.backgroundImage).toMatch(/^\/api\/files\//)
+
+    const tooLarge = await owner
+      .put(settings)
+      .send({ ...base, welcomeMessage: 'x'.repeat(6 * 1024 * 1024) })
+      .expect(413)
+    expect(tooLarge.body).toEqual({ code: 'VALIDATION', details: {} })
+  })
+
   it('is read-only for a Viewer and on a past event', async () => {
     const { owner, event, settings } = await setUp()
     const viewer = t.browser()

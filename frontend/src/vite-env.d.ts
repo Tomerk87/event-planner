@@ -1,5 +1,5 @@
 interface ImportMetaEnv {
-  readonly VITE_DATA_PROVIDER?: string
+  readonly VITE_DEMO_ENABLED?: string
 }
 
 interface ImportMeta {

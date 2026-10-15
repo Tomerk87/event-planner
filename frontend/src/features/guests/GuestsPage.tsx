@@ -31,7 +31,6 @@ import { useQueryParams } from '../../shared/useQueryParams.ts'
 import type { FileFormat } from './guestFiles.ts'
 import { GuestFormDialog } from './GuestFormDialog.tsx'
 import {
-  tablesOf,
   useGuests,
   useRejectedUnknownGuests,
   useTables,
@@ -57,10 +56,7 @@ export function GuestsPage() {
   const unknown = useUnknownGuests(eventId)
   const rejected = useRejectedUnknownGuests(eventId)
   const [dialog, setDialog] = useState<'add' | 'import' | null>(null)
-  const exportGuests = useGuestExport(
-    info.data?.event.name ?? '',
-    tablesOf(tables.data),
-  )
+  const exportGuests = useGuestExport(eventId, info.data?.event.name ?? '')
   const tab = params.get('tab') === 'unknown' ? 'unknown' : 'guests'
   const queries = [guests, tables, unknown, rejected]
   const failed = queries.find((query) => query.isError)

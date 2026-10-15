@@ -1,42 +1,26 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DomainError, type DomainErrorCode } from '../../domain/errors.ts'
 import type { Session } from '../contracts/index.ts'
-import { createMockBackend } from './mockBackend.ts'
+import { createDemoBackend } from './mockBackend.ts'
 import {
-  ACCOUNTS_STORAGE_KEY,
   createBrowserPersistence,
   createMemoryPersistence,
   DEMO_STORAGE_KEY,
   SESSION_STORAGE_KEY,
 } from './persistence.ts'
-import type { StoredDemo } from './state.ts'
 
 const NOW = new Date('2026-10-12T09:00:00.000Z')
 const DEMO: Session = { workspace: 'demo' }
-const riley = {
-  name: 'Riley Stone',
-  email: 'riley@example.com',
-  password: 'correct-horse',
-}
-const newEvent = {
-  name: 'Housewarming',
-  startsAt: '2031-01-01T18:00:00.000Z',
-  timeZone: 'Asia/Jerusalem',
-  maxAttendees: 80,
-  defaultAllowedAttendees: 2,
-  rsvpLanguage: 'en' as const,
-}
 
 function createStores() {
   return {
     demoPersistence: createMemoryPersistence(),
-    accountsPersistence: createMemoryPersistence(),
     sessionPersistence: createMemoryPersistence<Session>(),
   }
 }
 
 function create(stores = createStores(), failOperations?: Set<string>) {
-  return createMockBackend({ ...stores, now: () => NOW, failOperations })
+  return createDemoBackend({ ...stores, now: () => NOW, failOperations })
 }
 
 async function codeOf(
@@ -53,8 +37,8 @@ async function codeOf(
   return 'NO_ERROR'
 }
 
-describe('mock backend: sessions', () => {
-  it('starts with nobody signed in', async () => {
+describe('demo backend: sessions', () => {
+  it('starts with nobody in the demo', async () => {
     expect(await create().auth.getSession()).toBeNull()
   })
 
@@ -70,78 +54,23 @@ describe('mock backend: sessions', () => {
     expect(backend.servicesFor(session).demo).not.toBeNull()
   })
 
-  it('signs up a new account with no events and no demo controls', async () => {
-    const backend = create()
-
-    const session = await backend.auth.signUp(riley)
-    const services = backend.servicesFor(session)
-
-    expect(session.workspace).toBe('account')
-    expect(await services.session.getCurrentUser()).toMatchObject({
-      name: 'Riley Stone',
-      email: 'riley@example.com',
-      isSuperUser: false,
-    })
-    expect(await services.events.list()).toEqual([])
-    expect(services.demo).toBeNull()
-  })
-
-  it('never stores the password', async () => {
+  it('leaves the demo on sign-out, keeping its data', async () => {
     const stores = createStores()
     const backend = create(stores)
+    await backend.auth.enterDemo()
+    await backend.servicesFor(DEMO).events.remove('evt-1')
 
-    await backend.auth.signUp(riley)
-    await backend.auth.signIn(riley)
+    await backend.auth.signOut()
 
-    for (const store of Object.values(stores)) {
-      expect(JSON.stringify(store.load())).not.toContain(riley.password)
-    }
-  })
-
-  it('refuses a second account with the same email', async () => {
-    const backend = create()
-    await backend.auth.signUp(riley)
-
-    expect(
-      await codeOf(
-        backend.auth.signUp({ ...riley, email: 'RILEY@example.com' }),
-      ),
-    ).toBe('EMAIL_TAKEN')
-  })
-
-  it('signs in an existing account by email and refuses an unknown one', async () => {
-    const stores = createStores()
-    const first = create(stores)
-    const created = await first.auth.signUp(riley)
-    await first.auth.signOut()
-    expect(await first.auth.getSession()).toBeNull()
-
-    const later = create(stores)
-    const session = await later.auth.signIn({
-      email: 'Riley@Example.com',
-      password: 'anything',
-    })
-
-    expect(session).toEqual(created)
-    expect(await later.auth.getSession()).toEqual(created)
-    expect(
-      await codeOf(
-        later.auth.signIn({ email: 'nobody@example.com', password: 'x' }),
-      ),
-    ).toBe('ACCOUNT_NOT_FOUND')
-    expect(
-      await codeOf(later.auth.signIn({ email: 'riley', password: 'x' })),
-    ).toBe('VALIDATION')
+    expect(await backend.auth.getSession()).toBeNull()
+    expect(await create(stores).servicesFor(DEMO).events.list()).toHaveLength(5)
   })
 
   it.each([
     ['unreadable', 'not a session'],
     ['of an unknown kind', { workspace: 'admin' }],
-    [
-      'for an account that no longer exists',
-      { workspace: 'account', userId: 'usr-n9' },
-    ],
-    ['missing its account', { workspace: 'account' }],
+    // A preview account from before the backend (D85).
+    ['for a preview account', { workspace: 'account', userId: 'usr-n1' }],
   ])('ignores a remembered session that is %s', async (_, stored) => {
     const backend = create({
       ...createStores(),
@@ -151,17 +80,6 @@ describe('mock backend: sessions', () => {
     expect(await backend.auth.getSession()).toBeNull()
   })
 
-  it('starts again from no accounts when the stored accounts are damaged', async () => {
-    const backend = create({
-      ...createStores(),
-      accountsPersistence: createMemoryPersistence('damaged'),
-    })
-
-    const session = await backend.auth.signUp(riley)
-
-    expect(await backend.servicesFor(session).events.list()).toEqual([])
-  })
-
   it('fails an operation named in the forced failures', async () => {
     const backend = create(createStores(), new Set(['auth.enterDemo']))
 
@@ -169,82 +87,14 @@ describe('mock backend: sessions', () => {
   })
 
   it('waits for the simulated delay', async () => {
-    const backend = createMockBackend({ ...createStores(), delayMs: 5 })
+    const backend = createDemoBackend({ ...createStores(), delayMs: 5 })
 
     expect(await backend.auth.enterDemo()).toEqual(DEMO)
   })
-})
-
-describe('mock backend: workspaces', () => {
-  it('keeps the demo and an account’s events apart', async () => {
-    const backend = create()
-    const session = await backend.auth.signUp(riley)
-    const account = backend.servicesFor(session)
-    const demo = backend.servicesFor(DEMO)
-
-    const created = await account.events.create(newEvent)
-
-    expect(await account.events.list()).toHaveLength(1)
-    expect(await demo.events.list()).toHaveLength(6)
-    expect(await codeOf(demo.events.get(created.id))).toBe('NOT_FOUND')
-    expect(await codeOf(account.events.get('evt-1'))).toBe('NOT_FOUND')
-  })
-
-  it('keeps each account’s events to that account', async () => {
-    const backend = create()
-    const rileySession = await backend.auth.signUp(riley)
-    const created = await backend
-      .servicesFor(rileySession)
-      .events.create(newEvent)
-
-    const samSession = await backend.auth.signUp({
-      ...riley,
-      name: 'Sam Field',
-      email: 'sam@example.com',
-    })
-    const sam = backend.servicesFor(samSession)
-
-    expect(await sam.events.list()).toEqual([])
-    expect(await codeOf(sam.events.get(created.id))).toBe('NOT_FOUND')
-    expect(await backend.servicesFor(rileySession).events.list()).toHaveLength(
-      1,
-    )
-  })
-
-  it('leaves accounts untouched when the demo is reset', async () => {
-    const backend = create()
-    const session = await backend.auth.signUp(riley)
-    await backend.servicesFor(session).events.create(newEvent)
-    const demo = backend.servicesFor(DEMO)
-    await demo.events.remove('evt-1')
-
-    await demo.demo?.reset()
-
-    expect(await demo.events.list()).toHaveLength(6)
-    expect(await backend.servicesFor(session).events.list()).toHaveLength(1)
-  })
-
-  it('keeps an account’s events between visits', async () => {
-    const stores = createStores()
-    const first = create(stores)
-    const session = await first.auth.signUp(riley)
-    await first.servicesFor(session).events.create(newEvent)
-
-    const later = create(stores)
-    const remembered = await later.auth.getSession()
-
-    expect(remembered).toEqual(session)
-    expect(
-      (await later.servicesFor(session).events.list()).map(
-        (item) => item.event.name,
-      ),
-    ).toEqual(['Housewarming'])
-  })
 
   it('uses ready-made demo services when given', async () => {
-    const backend = create()
-    const custom = backend.servicesFor(DEMO)
-    const wrapped = createMockBackend({
+    const custom = create().servicesFor(DEMO)
+    const wrapped = createDemoBackend({
       ...createStores(),
       demoServices: custom,
     })
@@ -252,13 +102,9 @@ describe('mock backend: workspaces', () => {
     expect(wrapped.servicesFor(DEMO)).toBe(custom)
   })
 
-  it('stores each workspace and the session under its own key', async () => {
-    const backend = createMockBackend({
+  it('stores the demo and the session under their own keys', async () => {
+    const backend = createDemoBackend({
       demoPersistence: createBrowserPersistence(localStorage, DEMO_STORAGE_KEY),
-      accountsPersistence: createBrowserPersistence(
-        localStorage,
-        ACCOUNTS_STORAGE_KEY,
-      ),
       sessionPersistence: createBrowserPersistence<Session>(
         localStorage,
         SESSION_STORAGE_KEY,
@@ -266,23 +112,18 @@ describe('mock backend: workspaces', () => {
       now: () => NOW,
     })
 
-    await backend.auth.signUp(riley)
+    await backend.auth.enterDemo()
     await backend.servicesFor(DEMO).events.list()
 
-    const accounts = JSON.parse(
-      localStorage.getItem(ACCOUNTS_STORAGE_KEY) ?? 'null',
-    ) as StoredDemo
-    expect(accounts.state.users.map((user) => user.email)).toEqual([
-      'riley@example.com',
-    ])
-    expect(localStorage.getItem(DEMO_STORAGE_KEY)).not.toContain(
-      'riley@example.com',
+    expect(localStorage.getItem(DEMO_STORAGE_KEY)).toContain('evt-1')
+    expect(JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) ?? '')).toEqual(
+      DEMO,
     )
-    expect(localStorage.getItem(SESSION_STORAGE_KEY)).toContain('account')
+    localStorage.clear()
   })
 })
 
-describe('mock backend: public RSVP and other tabs', () => {
+describe('demo backend: public RSVP and other tabs', () => {
   const answer = {
     name: 'Walk In',
     phone: '050-000-7777',
@@ -303,24 +144,6 @@ describe('mock backend: public RSVP and other tabs', () => {
     expect(
       await backend.servicesFor(DEMO).unknownGuests.list(event!.event.id),
     ).toContainEqual(expect.objectContaining({ name: 'Walk In' }))
-  })
-
-  it('serves an RSVP link of a signed-up account’s event, also after a reload', async () => {
-    const stores = createStores()
-    const backend = create(stores)
-    const session = await backend.auth.signUp(riley)
-    const created = await backend.servicesFor(session).events.create(newEvent)
-
-    await backend.publicRsvp.submit(created.rsvpSlug, answer)
-    expect(
-      await backend.servicesFor(session).unknownGuests.list(created.id),
-    ).toHaveLength(1)
-
-    // A guest's own tab: a fresh page with nobody signed in.
-    const guestTab = create(stores)
-    expect(
-      (await guestTab.publicRsvp.getPublicEvent(created.rsvpSlug)).title,
-    ).toBe('Housewarming')
   })
 
   it('reports a link that belongs to no event', async () => {
@@ -379,101 +202,9 @@ describe('mock backend: public RSVP and other tabs', () => {
         new StorageEvent('storage', { key, storageArea: window.localStorage }),
       )
 
-    announce(ACCOUNTS_STORAGE_KEY)
+    announce(SESSION_STORAGE_KEY)
     expect(listener).not.toHaveBeenCalled()
     announce(DEMO_STORAGE_KEY)
     expect(listener).toHaveBeenCalledTimes(1)
-  })
-})
-
-describe('mock backend: invitations', () => {
-  const sam = { ...riley, name: 'Sam Field', email: 'Sam@Example.com' }
-
-  it('turns a pending invitation into access when its email signs up', async () => {
-    const backend = create()
-    const rileySession = await backend.auth.signUp(riley)
-    const owner = backend.servicesFor(rileySession)
-    const first = await owner.events.create(newEvent)
-    const second = await owner.events.create({ ...newEvent, name: 'Picnic' })
-    await owner.events.create({ ...newEvent, name: 'Not shared' })
-
-    expect(
-      (await owner.permissions.invite(first.id, 'sam@example.com', 'ADMIN'))
-        .kind,
-    ).toBe('invitation')
-    await owner.permissions.invite(second.id, ' SAM@example.com ', 'VIEWER')
-    await owner.permissions.invite(first.id, 'other@example.com', 'VIEWER')
-
-    const samSession = await backend.auth.signUp(sam)
-    const roles = (await backend.servicesFor(samSession).events.list()).map(
-      (item) => [item.event.name, item.role],
-    )
-    const listed = await backend
-      .servicesFor(rileySession)
-      .permissions.list(first.id)
-
-    expect(roles).toEqual([
-      ['Housewarming', 'ADMIN'],
-      ['Picnic', 'VIEWER'],
-    ])
-    expect(listed.members.map((member) => member.user.name)).toEqual([
-      'Riley Stone',
-      'Sam Field',
-    ])
-    expect(listed.invitations.map((invitation) => invitation.email)).toEqual([
-      'other@example.com',
-    ])
-  })
-
-  it('makes an email that already has an account a member at once', async () => {
-    const backend = create()
-    const rileySession = await backend.auth.signUp(riley)
-    await backend.auth.signUp(sam)
-    const owner = backend.servicesFor(rileySession)
-    const created = await owner.events.create(newEvent)
-
-    const invited = await owner.permissions.invite(
-      created.id,
-      'sam@example.com',
-      'VIEWER',
-    )
-
-    expect(invited.kind).toBe('member')
-    expect((await owner.permissions.list(created.id)).invitations).toHaveLength(
-      0,
-    )
-  })
-
-  it('removes an event’s invitations with the event', async () => {
-    const backend = create()
-    const rileySession = await backend.auth.signUp(riley)
-    const owner = backend.servicesFor(rileySession)
-    const created = await owner.events.create(newEvent)
-    await owner.permissions.invite(created.id, 'sam@example.com', 'ADMIN')
-    await owner.events.remove(created.id)
-
-    const samSession = await backend.auth.signUp(sam)
-
-    expect(await backend.servicesFor(samSession).events.list()).toEqual([])
-  })
-
-  it('reads accounts saved before invitations existed', async () => {
-    const stores = createStores()
-    const session = await create(stores).auth.signUp(riley)
-    const stored = stores.accountsPersistence.load() as StoredDemo
-    const { invitations: _removed, ...older } = stored.state
-    stores.accountsPersistence.save({
-      ...stored,
-      state: older as StoredDemo['state'],
-    })
-
-    const backend = create(stores)
-    const services = backend.servicesFor(session)
-    const created = await services.events.create(newEvent)
-
-    expect((await services.permissions.list(created.id)).invitations).toEqual(
-      [],
-    )
-    expect(await codeOf(backend.auth.signUp(sam))).toBe('NO_ERROR')
   })
 })

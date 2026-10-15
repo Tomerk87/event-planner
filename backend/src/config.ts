@@ -63,7 +63,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     production: nodeEnv === 'production',
     uploadDir: env['UPLOAD_DIR']?.trim() || './uploads',
     sessionDays: 30,
-    authAttemptsPerMinute: 10,
+    authAttemptsPerMinute: positiveInteger(env, 'AUTH_ATTEMPTS_PER_MINUTE', 10),
     publicAppUrl: (env['PUBLIC_APP_URL']?.trim() || corsOrigin).replace(
       /\/+$/,
       '',

@@ -1,14 +1,18 @@
-import { DomainError } from '../domain/errors.ts'
-import type { Backend } from './contracts/index.ts'
-import { createMockBackend } from './mock/mockBackend.ts'
+import { DomainError, isDomainError } from '../domain/errors.ts'
+import { createApiBackend, type ApiBackend } from './api/apiBackend.ts'
+import type { Backend, Session } from './contracts/index.ts'
+import { createDemoBackend, type DemoBackend } from './mock/mockBackend.ts'
 import {
-  ACCOUNTS_STORAGE_KEY,
   createBrowserPersistence,
   DEMO_STORAGE_KEY,
+  LEGACY_ACCOUNTS_STORAGE_KEY,
   PREFERENCES_STORAGE_KEY,
   SESSION_STORAGE_KEY,
 } from './mock/persistence.ts'
-import type { DataProvider } from './providerConfig.ts'
+import {
+  createPreferencesService,
+  type StoredPreferences,
+} from './preferences.ts'
 
 const DEFAULT_DELAY_MS = 150
 const MAX_DELAY_MS = 10_000
@@ -21,38 +25,133 @@ function parseDelay(value: string | null): number {
 }
 
 /**
- * Builds the application's data provider. This is the one place that decides
- * between browser-local data and the backend.
- *
- * For reviewing loading and error states, two address parameters are read
- * once at start-up: `demoDelay` (milliseconds) and `demoFail` (a
- * comma-separated list of operations such as `events.get`).
+ * One backend for the application, from its two sources: the public demo,
+ * kept in this browser, and the real accounts on the server. A session
+ * belongs to exactly one of them, so their data never meets.
  */
-export function createServices(
-  provider: DataProvider,
-  location: Pick<Location, 'search' | 'origin'>,
-  storage: Storage,
+export function combineBackends(
+  demo: DemoBackend | null,
+  api: ApiBackend,
 ): Backend {
-  if (provider === 'api') {
-    throw new DomainError('UNAVAILABLE', { provider })
+  async function demoSession() {
+    return demo ? demo.auth.getSession() : null
   }
 
+  return {
+    demoAvailable: demo !== null,
+    auth: {
+      getSession: async () => (await demoSession()) ?? api.auth.getSession(),
+
+      signUp: async (input) => {
+        const session = await api.auth.signUp(input)
+        await demo?.auth.signOut()
+        return session
+      },
+
+      signIn: async (input) => {
+        const session = await api.auth.signIn(input)
+        await demo?.auth.signOut()
+        return session
+      },
+
+      enterDemo: () => {
+        if (!demo) {
+          return Promise.reject(new DomainError('UNAVAILABLE'))
+        }
+        return demo.auth.enterDemo()
+      },
+
+      signOut: async () => {
+        if (demo && (await demoSession())) {
+          await demo.auth.signOut()
+        } else {
+          await api.auth.signOut()
+        }
+      },
+    },
+
+    servicesFor: (session) =>
+      session.workspace === 'demo' && demo
+        ? demo.servicesFor(session)
+        : api.servicesFor(session),
+
+    // A link of a demo event is answered from this browser; any other link
+    // belongs to the server.
+    publicRsvp: {
+      getPublicEvent: async (slug) => {
+        if (demo) {
+          try {
+            return await demo.publicRsvp.getPublicEvent(slug)
+          } catch (error) {
+            if (!isDomainError(error, 'NOT_FOUND')) {
+              throw error
+            }
+          }
+        }
+        return api.publicRsvp.getPublicEvent(slug)
+      },
+      submit: async (slug, input) => {
+        if (demo) {
+          try {
+            return await demo.publicRsvp.submit(slug, input)
+          } catch (error) {
+            if (!isDomainError(error, 'NOT_FOUND')) {
+              throw error
+            }
+          }
+        }
+        return api.publicRsvp.submit(slug, input)
+      },
+    },
+
+    onExternalChange: (listener) =>
+      demo ? demo.onExternalChange(listener) : () => undefined,
+
+    onSessionEnded: (listener) => api.onSessionEnded(listener),
+  }
+}
+
+/**
+ * Builds the application's backend. This is the one place that decides
+ * where data comes from.
+ *
+ * For reviewing loading and error states in the demo, two address
+ * parameters are read once at start-up: `demoDelay` (milliseconds) and
+ * `demoFail` (a comma-separated list of operations such as `events.get`).
+ */
+export function createServices(options: {
+  demoEnabled: boolean
+  location: Pick<Location, 'search' | 'origin'>
+  storage: Storage
+  apiUrl?: string
+}): Backend {
+  const { demoEnabled, location, storage, apiUrl = '/api' } = options
+  // Preview accounts from before the backend are discarded (D85).
+  createBrowserPersistence(storage, LEGACY_ACCOUNTS_STORAGE_KEY).clear()
+
   const params = new URLSearchParams(location.search)
-  return createMockBackend({
-    demoPersistence: createBrowserPersistence(storage, DEMO_STORAGE_KEY),
-    accountsPersistence: createBrowserPersistence(
-      storage,
-      ACCOUNTS_STORAGE_KEY,
-    ),
-    sessionPersistence: createBrowserPersistence(storage, SESSION_STORAGE_KEY),
-    preferencesPersistence: createBrowserPersistence(
-      storage,
-      PREFERENCES_STORAGE_KEY,
-    ),
-    delayMs: parseDelay(params.get('demoDelay')),
-    failOperations: new Set(
-      (params.get('demoFail') ?? '').split(',').filter(Boolean),
-    ),
-    baseUrl: location.origin,
+  const preferencesPersistence = createBrowserPersistence<StoredPreferences>(
+    storage,
+    PREFERENCES_STORAGE_KEY,
+  )
+  const demo = demoEnabled
+    ? createDemoBackend({
+        demoPersistence: createBrowserPersistence(storage, DEMO_STORAGE_KEY),
+        sessionPersistence: createBrowserPersistence<Session>(
+          storage,
+          SESSION_STORAGE_KEY,
+        ),
+        preferencesPersistence,
+        delayMs: parseDelay(params.get('demoDelay')),
+        failOperations: new Set(
+          (params.get('demoFail') ?? '').split(',').filter(Boolean),
+        ),
+        baseUrl: location.origin,
+      })
+    : null
+  const api = createApiBackend({
+    baseUrl: apiUrl,
+    preferences: createPreferencesService(preferencesPersistence),
   })
+  return combineBackends(demo, api)
 }

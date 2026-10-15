@@ -458,9 +458,6 @@ function RsvpSettingsForm({
               <QrCode />
             </IconButton>
           </div>
-          <Notice title={t('rsvpSettings.link.localTitle')}>
-            {t('rsvpSettings.link.localBody')}
-          </Notice>
         </div>
       </Card>
 

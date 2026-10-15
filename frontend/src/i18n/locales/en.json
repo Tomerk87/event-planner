@@ -131,7 +131,7 @@
     "UNAVAILABLE": "The service is not available right now. Please try again.",
     "UNKNOWN": "Something went wrong. Please try again.",
     "EMAIL_TAKEN": "An account with this email already exists. Sign in instead.",
-    "ACCOUNT_NOT_FOUND": "No account with this email was found in this browser. Sign up, or try the demo."
+    "ACCOUNT_NOT_FOUND": "No account with this email was found."
   },
   "unavailable": {
     "title": "The application cannot start",
@@ -213,10 +213,6 @@
       "email": "Enter a valid email address.",
       "passwordRequired": "Enter your password.",
       "passwordLength": "Use at least {{min}} characters."
-    },
-    "prototype": {
-      "title": "Preview version",
-      "body": "Accounts are kept in this browser only. Your password is not saved or checked, so do not enter a real one."
     },
     "tryDemoInstead": "Or explore the demo without an account"
   },
@@ -1169,9 +1165,7 @@
       "copyFailed": "The link could not be copied. Select it and copy it yourself.",
       "qr": "Show QR Code",
       "active": "RSVP page is active",
-      "closed": "RSVP page is closed",
-      "localTitle": "For now, this link opens only in this browser",
-      "localBody": "Until the product is connected to its server, a guest who opens the link on another device will not find the event."
+      "closed": "RSVP page is closed"
     },
     "qr": {
       "title": "RSVP QR Code",
@@ -1281,8 +1275,7 @@
     },
     "unavailable": {
       "title": "This RSVP page is not available",
-      "body": "The link may be incomplete, or the event may have been removed.",
-      "note": "This is a preview version of the product: an RSVP link opens only in the browser where the event was created."
+      "body": "The link may be incomplete, or the event may have been removed."
     }
   }
 }
