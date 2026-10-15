@@ -238,6 +238,12 @@ The form requests the guest's **name, phone number, number of attendees, and res
 
 Since this is a public form, phone matching is identification for the product workflow, **not proof of phone ownership**. The implementation must consider spam, abuse prevention, and reasonable privacy protections without inventing a mandatory verification feature not specified in the PRD.
 
+Abuse safeguards (decision D2):
+
+- At most **10 submissions per 10 minutes from one IP address**, and **3 accepted submissions per 10 minutes for one phone number** of an event. A refused submission saves nothing and asks the guest to try again in a few minutes. A submission refused for another reason does not count towards the phone's limit. Both values are server settings.
+- The response to a submission is the same whether or not the phone belongs to a guest, and the page never shows stored guest details. The one difference a guest can see is the attendee limit when the count is too high: a guest's own allowance, or the event default for an unknown phone.
+- There is no CAPTCHA and no phone verification. Someone who knows a guest's phone number can answer for that guest; the organizer sees the latest answer and can correct it.
+
 ### 8.3 Status and attendee rules
 
 | RSVP status | Confirmed attendees | Other behavior |
@@ -477,7 +483,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 These do not block creation of the PRD, but should be resolved at the relevant implementation stage rather than inferred:
 
 1. ~~**Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?~~ Resolved 2026-10-12: the event's default allowed attendees (section 8.3).
-2. **Public RSVP abuse prevention:** What rate limits or additional verification are appropriate without creating an unnecessarily difficult guest experience?
+2. ~~**Public RSVP abuse prevention:** What rate limits or additional verification are appropriate without creating an unnecessarily difficult guest experience?~~ Resolved 2026-10-14: rate limits only (section 8.2).
 3. ~~**Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?~~ Resolved 2026-10-12: section 5.3.
 4. ~~**Permission invite flow:** What happens when an organizer grants access to an email not yet registered?~~ Resolved 2026-10-13: a pending invitation that becomes a membership at sign-up (section 3.3).
 5. ~~**Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?~~ Resolved 2026-10-12: fresh RSVP, no table, invitation counter kept (section 6.2).

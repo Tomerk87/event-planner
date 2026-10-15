@@ -1,0 +1,321 @@
+import type { EventInput } from '../../domain/events.ts'
+import type { GuestInput } from '../../domain/guests.ts'
+import type { MessageValues } from '../../domain/messages.ts'
+import type {
+  Event,
+  EventInvitation,
+  EventTable,
+  Guest,
+  MessageTemplate,
+  RsvpSettings,
+  UnknownRsvp,
+  User,
+} from '../../domain/models.ts'
+import type { PublicRsvpInput } from '../../domain/rsvp.ts'
+import type { TableInput } from '../../domain/seating.ts'
+import type {
+  Dashboard,
+  EventAccessInfo,
+  EventAccessList,
+  EventSummary,
+  ImportOutcome,
+  InviteResult,
+  Member,
+  MessagePreview,
+  PreferencesService,
+  PublicRsvpResult,
+  PublicRsvpService,
+  PublicRsvpView,
+  RsvpSettingsInput,
+  SendResult,
+  SentMessage,
+  Services,
+  TableWithOccupancy,
+} from '../contracts/index.ts'
+import { assertGuestFileSize } from '../spreadsheets.ts'
+import type { Http } from './http.ts'
+
+/** A path segment from an identifier, which may come from the address bar. */
+const at = (id: string) => encodeURIComponent(id)
+
+/**
+ * Only the fields the API accepts: pages pass whole records (an event, a
+ * guest) back as input, and the server refuses anything it does not expect.
+ */
+function eventInput(input: EventInput): EventInput {
+  const body: EventInput = {
+    name: input.name,
+    startsAt: input.startsAt,
+    timeZone: input.timeZone,
+    maxAttendees: input.maxAttendees,
+    defaultAllowedAttendees: input.defaultAllowedAttendees,
+    rsvpLanguage: input.rsvpLanguage,
+    location: input.location ?? null,
+    rsvpTitle: input.rsvpTitle ?? null,
+  }
+  // Left out, the photo is kept.
+  if (input.coverImage !== undefined) {
+    body.coverImage = input.coverImage
+  }
+  return body
+}
+
+function guestInput(input: Omit<GuestInput, 'phone'> & { phone?: string }) {
+  return {
+    firstName: input.firstName,
+    lastName: input.lastName,
+    ...(input.phone === undefined ? {} : { phone: input.phone }),
+    allowedAttendees: input.allowedAttendees,
+    group: input.group ?? null,
+  }
+}
+
+function tableInput(input: TableInput): TableInput {
+  return { number: input.number, capacity: input.capacity, shape: input.shape }
+}
+
+function rsvpSettingsInput(input: RsvpSettingsInput): RsvpSettingsInput {
+  return {
+    welcomeMessage: input.welcomeMessage,
+    approvedMessage: input.approvedMessage,
+    declinedMessage: input.declinedMessage,
+    notSureMessage: input.notSureMessage,
+    backgroundImage: input.backgroundImage,
+    overlayOpacity: input.overlayOpacity,
+    calendar: {
+      enabled: input.calendar.enabled,
+      title: input.calendar.title,
+      date: input.calendar.date,
+      time: input.calendar.time,
+      location: input.calendar.location,
+    },
+    youtube: { enabled: input.youtube.enabled, url: input.youtube.url },
+  }
+}
+
+/** The public RSVP page's operations; they need no session. */
+export function createPublicRsvpApi(http: Http): PublicRsvpService {
+  return {
+    getPublicEvent: (slug) =>
+      http.get<PublicRsvpView>(`/public/rsvp/${at(slug)}`),
+    submit: (slug, input: PublicRsvpInput) =>
+      http.post<PublicRsvpResult>(`/public/rsvp/${at(slug)}`, {
+        name: input.name,
+        phone: input.phone,
+        status: input.status,
+        attendees: input.attendees,
+      }),
+  }
+}
+
+/**
+ * The real application's data operations, against the NestJS API. Rules and
+ * permissions are applied by the server; this only carries requests and
+ * answers. Display preferences stay in the browser (D86).
+ */
+export function createApiServices(
+  http: Http,
+  preferences: PreferencesService,
+): Services {
+  const event = (eventId: string) => `/events/${at(eventId)}`
+
+  return {
+    session: {
+      getCurrentUser: () => http.get<User>('/auth/me'),
+    },
+
+    events: {
+      list: () => http.get<EventSummary[]>('/events'),
+      get: (eventId) => http.get<EventAccessInfo>(event(eventId)),
+      create: (input) => http.post<Event>('/events', eventInput(input)),
+      update: (eventId, input) =>
+        http.put<Event>(event(eventId), eventInput(input)),
+      duplicate: (eventId, input) =>
+        http.post<Event>(`${event(eventId)}/duplicate`, {
+          name: input.name,
+          startsAt: input.startsAt,
+        }),
+      remove: (eventId) => http.delete(event(eventId)),
+    },
+
+    guests: {
+      list: (eventId) => http.get<Guest[]>(`${event(eventId)}/guests`),
+      create: (eventId, input) =>
+        http.post<Guest>(`${event(eventId)}/guests`, guestInput(input)),
+      update: (eventId, guestId, input) =>
+        http.put<Guest>(
+          `${event(eventId)}/guests/${at(guestId)}`,
+          guestInput(input),
+        ),
+      remove: (eventId, guestId) =>
+        http.delete(`${event(eventId)}/guests/${at(guestId)}`),
+      setRsvp: (eventId, guestId, input) =>
+        http.put<Guest>(`${event(eventId)}/guests/${at(guestId)}/rsvp`, {
+          status: input.status,
+          attendees: input.attendees,
+        }),
+      assignTable: (eventId, guestId, tableId) =>
+        http.put<Guest>(`${event(eventId)}/guests/${at(guestId)}/table`, {
+          tableId,
+        }),
+      removeMany: (eventId, guestIds) =>
+        http.post<void>(`${event(eventId)}/guests/delete`, {
+          guestIds: [...guestIds],
+        }),
+      setGroup: (eventId, guestIds, group) =>
+        http.post<void>(`${event(eventId)}/guests/group`, {
+          guestIds: [...guestIds],
+          group,
+        }),
+      importMany: (eventId, inputs) =>
+        http.post<ImportOutcome>(`${event(eventId)}/guests/import`, {
+          guests: inputs.map(guestInput),
+        }),
+    },
+
+    unknownGuests: {
+      list: (eventId) =>
+        http.get<UnknownRsvp[]>(`${event(eventId)}/unknown-guests`),
+      listRejected: (eventId) =>
+        http.get<UnknownRsvp[]>(`${event(eventId)}/unknown-guests/rejected`),
+      convertToGuest: (eventId, unknownId, input) =>
+        http.post<Guest>(
+          `${event(eventId)}/unknown-guests/${at(unknownId)}/convert`,
+          guestInput(input),
+        ),
+      mergeIntoGuest: (eventId, unknownId, guestId) =>
+        http.post<Guest>(
+          `${event(eventId)}/unknown-guests/${at(unknownId)}/merge`,
+          { guestId },
+        ),
+      reject: (eventId, unknownId) =>
+        http.post<void>(
+          `${event(eventId)}/unknown-guests/${at(unknownId)}/reject`,
+        ),
+      restore: (eventId, unknownId) =>
+        http.post<UnknownRsvp>(
+          `${event(eventId)}/unknown-guests/${at(unknownId)}/restore`,
+        ),
+    },
+
+    rsvp: {
+      getSettings: (eventId) =>
+        http.get<RsvpSettings>(`${event(eventId)}/rsvp-settings`),
+      updateSettings: (eventId, input) =>
+        http.put<RsvpSettings>(
+          `${event(eventId)}/rsvp-settings`,
+          rsvpSettingsInput(input),
+        ),
+      ...createPublicRsvpApi(http),
+    },
+
+    messages: {
+      getTemplate: (eventId) =>
+        http.get<MessageTemplate>(`${event(eventId)}/messages/template`),
+      updateTemplate: (eventId, body) =>
+        http.put<MessageTemplate>(`${event(eventId)}/messages/template`, {
+          body,
+        }),
+      getDefaultTemplate: async (eventId) =>
+        (
+          await http.get<{ body: string }>(
+            `${event(eventId)}/messages/template/default`,
+          )
+        ).body,
+      getValues: (eventId, guestId) =>
+        http.get<MessageValues>(
+          `${event(eventId)}/messages/values${
+            guestId === null ? '' : `?guestId=${at(guestId)}`
+          }`,
+        ),
+      preview: (eventId, guestId) =>
+        http.get<MessagePreview>(
+          `${event(eventId)}/messages/preview/${at(guestId)}`,
+        ),
+      send: (eventId, guestId) =>
+        http.post<SendResult>(
+          `${event(eventId)}/messages/sends/${at(guestId)}`,
+        ),
+      listSends: (eventId) =>
+        http.get<SentMessage[]>(`${event(eventId)}/messages/sends`),
+    },
+
+    tables: {
+      list: (eventId) =>
+        http.get<TableWithOccupancy[]>(`${event(eventId)}/tables`),
+      create: (eventId, input) =>
+        http.post<EventTable>(`${event(eventId)}/tables`, tableInput(input)),
+      update: (eventId, tableId, input) =>
+        http.put<EventTable>(
+          `${event(eventId)}/tables/${at(tableId)}`,
+          tableInput(input),
+        ),
+      remove: (eventId, tableId) =>
+        http.delete(`${event(eventId)}/tables/${at(tableId)}`),
+    },
+
+    permissions: {
+      list: (eventId) =>
+        http.get<EventAccessList>(`${event(eventId)}/permissions`),
+      invite: (eventId, email, role) =>
+        http.post<InviteResult>(`${event(eventId)}/permissions/invitations`, {
+          email,
+          role,
+        }),
+      changeRole: (eventId, userId, role) =>
+        http.put<Member>(
+          `${event(eventId)}/permissions/members/${at(userId)}`,
+          { role },
+        ),
+      revoke: (eventId, userId) =>
+        http.delete(`${event(eventId)}/permissions/members/${at(userId)}`),
+      changeInvitationRole: (eventId, invitationId, role) =>
+        http.put<EventInvitation>(
+          `${event(eventId)}/permissions/invitations/${at(invitationId)}`,
+          { role },
+        ),
+      cancelInvitation: (eventId, invitationId) =>
+        http.delete(
+          `${event(eventId)}/permissions/invitations/${at(invitationId)}`,
+        ),
+    },
+
+    dashboard: {
+      get: (eventId) => http.get<Dashboard>(`${event(eventId)}/dashboard`),
+    },
+
+    files: {
+      readGuestFile: async (eventId, file) => {
+        // Checked before uploading, so a large file is not sent at all.
+        assertGuestFileSize(file)
+        const form = new FormData()
+        form.append('file', file)
+        return (
+          await http.upload<{ rows: string[][] }>(
+            `${event(eventId)}/guests/import/read`,
+            form,
+          )
+        ).rows
+      },
+      exportGuests: (eventId, request) =>
+        http.download(`${event(eventId)}/guests/export`, {
+          format: request.format,
+          guestIds: [...request.guestIds],
+          labels: request.labels,
+          sheetName: request.sheetName,
+          rightToLeft: request.rightToLeft,
+        }),
+      exportSeating: (eventId, request) =>
+        http.download(`${event(eventId)}/tables/export`, {
+          format: request.format,
+          headings: request.headings,
+          sheetName: request.sheetName,
+          rightToLeft: request.rightToLeft,
+        }),
+    },
+
+    preferences,
+
+    demo: null,
+  }
+}

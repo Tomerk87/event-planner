@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Backend, Session } from '../../services/contracts/index.ts'
 import {
   PublicRsvpContext,
@@ -47,6 +47,25 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     [backend, queryClient],
   )
 
+  // The server no longer accepts the account's session (expired or
+  // revoked): back to signed out, which the route guards turn into the
+  // landing page. Nothing happens for a visitor with no account session.
+  const current = useRef<Session | null>(null)
+  useEffect(() => {
+    current.current = state.status === 'ready' ? state.session : null
+  }, [state])
+  useEffect(
+    () =>
+      backend.onSessionEnded(() => {
+        if (current.current?.workspace !== 'account') {
+          return
+        }
+        queryClient.clear()
+        setState({ status: 'ready', session: null })
+      }),
+    [backend, queryClient],
+  )
+
   const session = state.status === 'ready' ? state.session : null
 
   const value = useMemo<SessionContextValue>(() => {
@@ -56,6 +75,7 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     }
     return {
       session,
+      demoAvailable: backend.demoAvailable,
       signUp: async (input) => change(await backend.auth.signUp(input)),
       signIn: async (input) => change(await backend.auth.signIn(input)),
       enterDemo: async () => change(await backend.auth.enterDemo()),

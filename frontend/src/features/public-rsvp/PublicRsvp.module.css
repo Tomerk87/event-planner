@@ -44,10 +44,3 @@
   inline-size: 1rem;
   block-size: 1rem;
 }
-
-.note {
-  margin-block-start: var(--space-4);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  text-align: center;
-}

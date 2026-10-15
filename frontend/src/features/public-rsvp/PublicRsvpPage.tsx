@@ -175,7 +175,6 @@ function Unavailable() {
         title={t('publicRsvp.unavailable.title')}
         description={t('publicRsvp.unavailable.body')}
       />
-      <p className={styles.note}>{t('publicRsvp.unavailable.note')}</p>
     </Card>
   )
 }

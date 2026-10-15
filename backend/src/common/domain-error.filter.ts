@@ -86,6 +86,15 @@ export class DomainErrorFilter implements ExceptionFilter {
         return { status, body: { code: 'VALIDATION', details: {} } }
       }
     }
+    // A request the body parser refused, such as one that is too large.
+    const parserStatus = (error as { status?: unknown } | null)?.status
+    if (
+      typeof parserStatus === 'number' &&
+      parserStatus >= 400 &&
+      parserStatus < 500
+    ) {
+      return { status: parserStatus, body: { code: 'VALIDATION', details: {} } }
+    }
     this.logger.error(
       error instanceof Error ? (error.stack ?? error.message) : String(error),
     )

@@ -124,7 +124,7 @@ export function EventLayoutPage() {
   const guests = useGuests(eventId)
   const tables = useTables(eventId)
   const [panel, setPanel] = useState<OpenPanel | null>(null)
-  const exportSeating = useSeatingExport(info.data?.event.name ?? '')
+  const exportSeating = useSeatingExport(eventId, info.data?.event.name ?? '')
 
   const queries = [guests, tables]
   const failed = queries.find((query) => query.isError)
@@ -139,8 +139,7 @@ export function EventLayoutPage() {
   const tableName = (item: SeatedTable) =>
     t('layout.tableNumber', { number: number(item.table.number) })
 
-  const onExport = (fileFormat: FileFormat) =>
-    void exportSeating(fileFormat, guestList, tablesOf(tables.data))
+  const onExport = (fileFormat: FileFormat) => void exportSeating(fileFormat)
 
   const actions = (
     <>

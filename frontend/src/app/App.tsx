@@ -2,8 +2,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import type { Backend } from '../services/contracts/index.ts'
+import { isDomainError } from '../domain/errors.ts'
 import { createServices } from '../services/createServices.ts'
-import { parseDataProvider } from '../services/providerConfig.ts'
+import { parseDemoEnabled } from '../services/providerConfig.ts'
 import styles from '../shared/StandalonePage.module.css'
 import { Card } from '../shared/ui/Card.tsx'
 import { ErrorState } from '../shared/ui/States.tsx'
@@ -14,22 +15,27 @@ import { SessionProvider } from './session/SessionProvider.tsx'
 
 const router = createBrowserRouter(routes)
 
-// Data is local and changes only through mutations, which invalidate what
-// they affect, so nothing is retried or refetched on its own.
+// Mutations invalidate what they affect. Returning to the window reloads
+// what is shown, so answers given meanwhile (a guest's RSVP) appear. Only a
+// service that could not be reached is tried again, once; a refusal is final.
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: false, refetchOnWindowFocus: false },
+    queries: {
+      retry: (failures, error) =>
+        failures < 1 && isDomainError(error, 'UNAVAILABLE'),
+      refetchOnWindowFocus: true,
+    },
   },
 })
 
 /** The data provider for this deployment, or null if it cannot be created. */
 function createAppBackend(): Backend | null {
   try {
-    return createServices(
-      parseDataProvider(import.meta.env.VITE_DATA_PROVIDER),
-      window.location,
-      window.localStorage,
-    )
+    return createServices({
+      demoEnabled: parseDemoEnabled(import.meta.env.VITE_DEMO_ENABLED),
+      location: window.location,
+      storage: window.localStorage,
+    })
   } catch {
     return null
   }

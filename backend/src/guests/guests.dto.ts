@@ -60,8 +60,11 @@ export class ConvertUnknownDto {
   group?: string | null
 }
 
+// Identifiers are checked against the event's records, so an unknown one
+// answers "not found" whatever its shape.
 export class MergeUnknownDto {
-  @IsUUID()
+  @IsString()
+  @MaxLength(64)
   guestId!: string
 }
 
@@ -79,14 +82,16 @@ export class GuestRsvpDto {
 export class AssignTableDto {
   @ApiProperty({ type: String, nullable: true })
   @ValidateIf((_, value) => value !== null)
-  @IsUUID()
+  @IsString()
+  @MaxLength(64)
   tableId!: string | null
 }
 
 export class GuestIdsDto {
   @IsArray()
   @ArrayMaxSize(5000)
-  @IsUUID('all', { each: true })
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
   guestIds!: string[]
 }
 

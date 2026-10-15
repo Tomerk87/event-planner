@@ -50,6 +50,10 @@ export async function createTestApp(
     sessionDays: 30,
     // Tests sign up many people from one address.
     authAttemptsPerMinute: 1000,
+    publicAppUrl: 'http://localhost:5173',
+    // Tests answer many RSVPs from one address; the limits have their own tests.
+    rsvpLimits: { perIp: 1000, perPhone: 1000, windowMinutes: 10 },
+    trustProxyHops: 0,
     ...overrides,
   }
   const moduleRef = await Test.createTestingModule({

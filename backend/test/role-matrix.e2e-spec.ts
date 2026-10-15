@@ -39,6 +39,15 @@ const EXPECTED = {
     'invite an Owner': [NO, NO, OK, OK, HIDDEN],
     'duplicate the event': [NO, NO, OK, OK, HIDDEN],
     'delete the event': [NO, NO, OK, OK, HIDDEN],
+    'view the dashboard': [OK, OK, OK, OK, HIDDEN],
+    'list sent messages': [OK, OK, OK, OK, HIDDEN],
+    'send a message': [NO, OK, OK, OK, HIDDEN],
+    'edit the message template': [NO, OK, OK, OK, HIDDEN],
+    'view RSVP settings': [OK, OK, OK, OK, HIDDEN],
+    'edit RSVP settings': [NO, OK, OK, OK, HIDDEN],
+    'list tables': [OK, OK, OK, OK, HIDDEN],
+    'add a table': [NO, OK, OK, OK, HIDDEN],
+    'export seating': [OK, OK, OK, OK, HIDDEN],
   },
   past: {
     'view the event': [OK, OK, OK, OK, HIDDEN],
@@ -51,6 +60,15 @@ const EXPECTED = {
     'invite an Owner': [NO, ENDED, OK, OK, HIDDEN],
     'duplicate the event': [NO, NO, OK, OK, HIDDEN],
     'delete the event': [NO, NO, OK, OK, HIDDEN],
+    'view the dashboard': [OK, OK, OK, OK, HIDDEN],
+    'list sent messages': [OK, OK, OK, OK, HIDDEN],
+    'send a message': [NO, ENDED, ENDED, ENDED, HIDDEN],
+    'edit the message template': [NO, ENDED, ENDED, ENDED, HIDDEN],
+    'view RSVP settings': [OK, OK, OK, OK, HIDDEN],
+    'edit RSVP settings': [NO, ENDED, ENDED, ENDED, HIDDEN],
+    'list tables': [OK, OK, OK, OK, HIDDEN],
+    'add a table': [NO, ENDED, ENDED, ENDED, HIDDEN],
+    'export seating': [OK, OK, OK, OK, HIDDEN],
   },
 } as const
 
@@ -78,7 +96,29 @@ const LABELS = {
   ),
 }
 
-function attempt(browser: TestAgent, eventId: string, action: Action) {
+const SETTINGS = {
+  welcomeMessage: 'Welcome',
+  approvedMessage: 'Thanks',
+  declinedMessage: 'Sorry',
+  notSureMessage: 'Maybe',
+  backgroundImage: null,
+  overlayOpacity: 40,
+  calendar: {
+    enabled: false,
+    title: 'Party',
+    date: '2031-06-01',
+    time: '20:00',
+    location: '',
+  },
+  youtube: { enabled: false, url: '' },
+}
+
+function attempt(
+  browser: TestAgent,
+  eventId: string,
+  guestId: string,
+  action: Action,
+) {
   const event = `/api/events/${eventId}`
   switch (action) {
     case 'view the event':
@@ -117,6 +157,40 @@ function attempt(browser: TestAgent, eventId: string, action: Action) {
         .send({ name: 'Copy', startsAt: '2033-01-01T18:00:00.000Z' })
     case 'delete the event':
       return browser.delete(event)
+    case 'view the dashboard':
+      return browser.get(`${event}/dashboard`)
+    case 'list sent messages':
+      return browser.get(`${event}/messages/sends`)
+    case 'send a message':
+      return browser.post(`${event}/messages/sends/${guestId}`)
+    case 'edit the message template':
+      return browser
+        .put(`${event}/messages/template`)
+        .send({ body: 'Hi {{first_name}}' })
+    case 'view RSVP settings':
+      return browser.get(`${event}/rsvp-settings`)
+    case 'edit RSVP settings':
+      return browser.put(`${event}/rsvp-settings`).send(SETTINGS)
+    case 'list tables':
+      return browser.get(`${event}/tables`)
+    case 'add a table':
+      return browser
+        .post(`${event}/tables`)
+        .send({ number: 7, capacity: 8, shape: 'CIRCLE' })
+    case 'export seating':
+      return browser.post(`${event}/tables/export`).send({
+        format: 'csv',
+        headings: {
+          firstName: 'a',
+          lastName: 'b',
+          invitationName: 'c',
+          phone: 'd',
+          confirmedAttendees: 'e',
+          tableNumber: 'f',
+        },
+        sheetName: 'Seating',
+        rightToLeft: false,
+      })
   }
 }
 
@@ -126,6 +200,15 @@ async function world(past: boolean) {
   const owner = t.browser()
   await signUp(owner, 'Owner')
   const event = await createEvent(owner)
+  const guest = await owner
+    .post(`/api/events/${event.id}/guests`)
+    .send({
+      firstName: 'Dana',
+      lastName: 'Lev',
+      phone: '052-123-4567',
+      allowedAttendees: 2,
+    })
+    .expect(201)
   const browsers: Record<Role, TestAgent> = { OWNER: owner } as Record<
     Role,
     TestAgent
@@ -149,7 +232,11 @@ async function world(past: boolean) {
   if (past) {
     await makePast(t.prisma, event.id)
   }
-  return { eventId: event.id, browsers }
+  return {
+    eventId: event.id,
+    guestId: (guest.body as { id: string }).id,
+    browsers,
+  }
 }
 
 describe.each(['upcoming', 'past'] as const)('on an %s event', (when) => {
@@ -157,9 +244,9 @@ describe.each(['upcoming', 'past'] as const)('on an %s event', (when) => {
     'as %s',
     (role, index) => {
       it.each(Object.keys(EXPECTED[when]) as Action[])('%s', async (action) => {
-        const { eventId, browsers } = await world(when === 'past')
+        const { eventId, guestId, browsers } = await world(when === 'past')
 
-        const response = await attempt(browsers[role], eventId, action)
+        const response = await attempt(browsers[role], eventId, guestId, action)
 
         const outcome =
           response.status < 300 ? OK : (response.body as { code: string }).code
@@ -170,11 +257,11 @@ describe.each(['upcoming', 'past'] as const)('on an %s event', (when) => {
 })
 
 it('refuses every event route without a session', async () => {
-  const { eventId } = await world(false)
+  const { eventId, guestId } = await world(false)
   const anonymous = t.browser()
 
   for (const action of Object.keys(EXPECTED.upcoming) as Action[]) {
-    const response = await attempt(anonymous, eventId, action)
+    const response = await attempt(anonymous, eventId, guestId, action)
     expect([action, response.status]).toEqual([action, 401])
   }
 })

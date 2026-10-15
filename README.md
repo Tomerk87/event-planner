@@ -2,7 +2,7 @@
 
 Web application for event organizers: guests, WhatsApp invitations, public RSVP, attendance dashboard, tables and seating, exports, and event-level permissions.
 
-The project is being built frontend-first. The React frontend runs on its own, with browser-local demo data. The NestJS backend (`backend/`) exists and is tested, but the frontend does not use it yet (`PLAN.md` Phase 16).
+The React frontend (`frontend/`) and the NestJS API (`backend/`, PostgreSQL) run together. The public demo needs no backend: its data is generated and kept in the visitor's browser. Accounts, their events and the public RSVP page of a real event use the API.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 and choose **Try Demo** to explore the generated demo events, or **Sign Up** to start with an empty account. Accounts are a preview: they are kept in your browser only and no password is saved or checked.
+Open http://localhost:5173 and choose **Try Demo** to explore the generated demo events. **Sign Up** and **Sign In** need the backend running (below): the development server forwards `/api` to http://localhost:3000.
 
 ## Commands
 
@@ -35,15 +35,16 @@ Run from `frontend/`.
 | `npm test` | Run unit and component tests (Vitest) |
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run test:coverage` | Run tests with a coverage report; fails below 80% |
-| `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright) |
+| `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright). Starts the built API on the backend's test database and its own development server (port 5174) |
+| `npm run test:api` | Builds the backend and runs the provider contract suite on the real API, against the test database |
 
-The first end-to-end run needs a browser: `npx playwright install chromium`.
+The first end-to-end run needs a browser: `npx playwright install chromium`. `npm run test:e2e` and `npm run test:api` need the development database running (`npm run db:up` in `backend/`).
 
 ## Configuration
 
-Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DATA_PROVIDER` selects the data source: `mock` (default, browser-local demo data) or `api` (backend, not yet available).
+Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DEMO_ENABLED=false` hides the demo for a deployment. `API_URL` (an environment variable of the development server) changes where `/api` is forwarded.
 
-The demo and the preview accounts keep their data in the browser's local storage. To review loading and error states, add `?demoDelay=2000` (milliseconds) or `?demoFail=events.get` (a comma-separated list of operations) to the address when opening the app.
+The demo keeps its data in the browser's local storage. To review loading and error states, add `?demoDelay=2000` (milliseconds) or `?demoFail=events.get` (a comma-separated list of operations) to the address when opening the app.
 
 ## Run the backend
 

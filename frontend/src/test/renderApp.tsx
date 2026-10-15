@@ -5,9 +5,10 @@ import { createMemoryRouter, RouterProvider } from 'react-router'
 import { routes } from '../app/routes.tsx'
 import { SessionProvider } from '../app/session/SessionProvider.tsx'
 import type { Backend, Services, Session } from '../services/contracts/index.ts'
+import { combineBackends } from '../services/createServices.ts'
 import {
-  createMockBackend,
-  type MockBackendOptions,
+  createDemoBackend,
+  type DemoBackendOptions,
 } from '../services/mock/mockBackend.ts'
 import {
   createMockServices,
@@ -15,6 +16,7 @@ import {
 } from '../services/mock/mockServices.ts'
 import { createMemoryPersistence } from '../services/mock/persistence.ts'
 import { ToastProvider } from '../shared/ui/ToastProvider.tsx'
+import { createFakeAccountBackend } from './fakeAccountBackend.ts'
 
 /** The moment the demo dataset is generated at in tests. */
 export const TEST_NOW = new Date('2026-10-12T09:00:00.000Z')
@@ -41,19 +43,27 @@ export function createTestServices(
 export type TestSession = 'demo' | 'none'
 
 /**
- * A whole browser-local backend for tests. By default the demo is already
- * open, so pages inside the application can be rendered directly.
+ * The application's backend for tests: the demo, and an in-memory stand-in
+ * for the real accounts server. By default the demo is already open, so
+ * pages inside the application can be rendered directly.
  */
 export function createTestBackend(
   options: {
     services?: Services
     session?: TestSession
-  } & Partial<MockBackendOptions> = {},
+    demoAvailable?: boolean
+    accounts?: ReturnType<typeof createFakeAccountBackend>
+  } & Partial<DemoBackendOptions> = {},
 ): Backend {
-  const { services, session = 'demo', ...rest } = options
-  return createMockBackend({
+  const {
+    services,
+    session = 'demo',
+    demoAvailable = true,
+    accounts = createFakeAccountBackend({ now: () => TEST_NOW }),
+    ...rest
+  } = options
+  const demo = createDemoBackend({
     demoPersistence: createMemoryPersistence(),
-    accountsPersistence: createMemoryPersistence(),
     sessionPersistence:
       session === 'demo'
         ? createMemoryPersistence<Session>({ workspace: 'demo' })
@@ -62,6 +72,7 @@ export function createTestBackend(
     demoServices: services,
     ...rest,
   })
+  return combineBackends(demoAvailable ? demo : null, accounts)
 }
 
 export function AppProviders({

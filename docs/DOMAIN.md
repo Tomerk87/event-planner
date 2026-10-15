@@ -42,11 +42,7 @@ None of these are to be inferred. Each is raised with the product owner at or be
 
 The open items below are ones the precedence rule (see Resolved decisions, R1) does not settle: the mockups either contradict each other or show an element without showing what it does.
 
-### From PRD §18
-
-| # | Decision | Needed by |
-|---|---|---|
-| D2 | Public RSVP abuse prevention: rate limits or extra verification | Phase 15 |
+None open at present.
 
 
 ## Resolved decisions
@@ -136,7 +132,7 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D62 | **QR code:** the QR button opens a dialog with the QR code of the RSVP link and a Download button. One small dependency-free library is added for it. | 2026-10-13 |
 | D63 | **Preview Public Page** shows the page full-size with the current, possibly unsaved, settings. **Open Public Page** opens the real link in a new tab, showing what was last saved. | 2026-10-13 |
 | D64 | **Public RSVP details:** every event has its link from creation; "RSVP page is active" is a status that turns to closed at the event start (no off switch, no regenerate). The three response buttons submit directly; the guest then sees the organizer's message and can change the response. Attendees list offers 1–10; a number above the allowance is refused with advice to contact the organizer. Nothing is pre-filled for a returning guest. An empty organizer message falls back to a default text in the guest's language. The background image is shrunk in the browser before it is stored. The four preview states (Welcome, Approved, Declined, Not Sure) are offered on desktop too. | 2026-10-13 |
-| D65 | **Public link before the backend:** data lives in the organizer's browser, so the link works only there. Opened elsewhere, the page says plainly that it is not available yet. | 2026-10-13 |
+| D65 | **Superseded in Phase 16:** a real event's link is served by the server and opens anywhere; the notices were removed. Originally — **Public link before the backend:** data lives in the organizer's browser, so the link works only there. Opened elsewhere, the page says plainly that it is not available yet. | 2026-10-13 |
 | D66 | **Add to Group for selected guests.** The selected guests are moved to one group, picked, searched or created in the same picker as the guest form; a guest who already has a group changes group, and the dialog says how many will. A new group asks first. An empty choice removes the guests from their groups. Owners and Admins, upcoming events. | 2026-10-13 |
 | D67 | **Other tabs.** Data saved in another tab of the same browser (for example a guest answering the public RSVP page) is picked up by an open organizer page without a reload. | 2026-10-13 |
 | D22 | **Table status.** Over Capacity: more attendees seated than chairs. Full: no seat free. Almost Full: 1 or 2 seats free. Ready: everything else. "Full" is a label the mockups do not draw. | 2026-10-13 |
@@ -161,3 +157,7 @@ Move a row here, with the date and the outcome, when a decision is made. Update 
 | D82 | **Event Layout: Edit Table is the first item of the "⋯" menu**, before Delete Table, on desktop rows and phone cards; the separate pencil and Edit buttons are removed. The guests button stays. | 2026-10-14 |
 | D83 | **Backend decisions (Phases 13–14):** the API contract is OpenAPI generated from NestJS; sign-in is email + password with an httpOnly session cookie and sessions stored in PostgreSQL; there is no email verification for the POC, so invitations activate at sign-up with that email (risk accepted, closed in Phase 17); guest files are read and written on the server. | 2026-10-14 |
 | D84 | **Sign-in errors** do not say whether an account exists: a wrong password and an unknown email both answer "The email or password is incorrect." New error codes: `UNAUTHENTICATED`, `INVALID_CREDENTIALS`, `TOO_MANY_REQUESTS`. | 2026-10-14 |
+| D2 | **Public RSVP abuse prevention: rate limits only.** At most 10 answers per 10 minutes from one IP address, and 3 accepted answers per 10 minutes for one phone number of an event; a refused answer is told to try again in a few minutes and nothing is saved. An answer refused for another reason (for example too many attendees) does not use up the phone's three. The values are server settings. The page answers a known and an unknown phone the same way and never shows stored guest details. No CAPTCHA and no phone verification: someone who knows a guest's phone can answer for that guest (accepted risk; the organizer sees the latest answer and can correct it). Phone verification is in `docs/FUTURE_FEATURES.md`. | 2026-10-14 |
+| D85 | **Preview accounts are discarded.** When Sign Up and Sign In move to the real backend (Phase 16), the browser-local preview accounts and their events are removed, not imported. The demo workspace is unchanged. | 2026-10-14 |
+| D86 | **Display preferences stay per browser** (the Guests column choice and the collapsed side menu), in the demo and in the real application. They are not stored on the server. | 2026-10-14 |
+| D87 | **Phase 16 choices:** guest and seating files are read and written on the server for real accounts, as D83 decided (confirmed by the owner); the demo keeps doing it in the browser. One build serves the demo and the real application; `VITE_DEMO_ENABLED=false` hides the demo. A session that the server stops accepting returns the application to the landing page. | 2026-10-15 |

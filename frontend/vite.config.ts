@@ -1,9 +1,24 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
+/**
+ * The API, reached through this server so the session cookie stays on the
+ * same origin, as Nginx does in production (PLAN.md Phase 18).
+ */
+const api = {
+  '/api': {
+    target: process.env['API_URL'] ?? 'http://localhost:3000',
+    changeOrigin: true,
+  },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: api,
+  },
+  preview: { proxy: api },
   // Loaded only when a file is imported or exported, so the development
   // server would otherwise discover them late and reload the page mid-action.
   optimizeDeps: {

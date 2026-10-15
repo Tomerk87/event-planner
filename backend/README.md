@@ -1,6 +1,6 @@
 # Event Planner API
 
-NestJS 12, PostgreSQL 17 and Prisma 7. The frontend does not call it yet; that is `PLAN.md` Phase 16.
+NestJS 12, PostgreSQL 17 and Prisma 7. The frontend reaches it at `/api` (its development server forwards there).
 
 ## Setup
 
@@ -32,4 +32,6 @@ npm run start:dev    # http://localhost:3000/api, documentation at /api/docs
 - The integration tests empty the tables of `TEST_DATABASE_URL` before each test. They refuse a database whose name does not end in `_test`, or that is the same as `DATABASE_URL`.
 - `src/domain/` is a copy of `frontend/src/domain/`. A unit test fails when the two differ: change a rule in both.
 - Errors are returned as `{ code, details }`, with the codes of `src/domain/errors.ts`.
+- Public RSVP answers are limited per IP address and per phone (`RSVP_LIMIT_*` in `.env.example`). Behind a proxy, set `TRUST_PROXY_HOPS` so the limit sees each guest's own address.
+- `test/contract-seed.ts` loads the frontend's demo dataset into the test database for the frontend's `npm run test:api`; it refuses any other database.
 - There is no email verification yet (owner decision for the POC); see `PLAN.md` Phase 17.

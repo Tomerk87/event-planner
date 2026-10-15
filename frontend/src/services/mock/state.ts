@@ -20,13 +20,6 @@ import type { DemoRole } from '../contracts/index.ts'
  */
 export const DATASET_VERSION = 7
 
-/**
- * Version of the accounts workspace, which holds what people created
- * themselves. It changes only when its shape does, never because the
- * generated demo content changed.
- */
-export const ACCOUNTS_VERSION = 1
-
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {
   currentUserId: Id
@@ -62,7 +55,7 @@ const COLLECTIONS = [
   'tables',
 ] as const satisfies readonly (keyof DemoState)[]
 
-/** A workspace with no data yet; accounts are added to it as people sign up. */
+/** A workspace with no data yet (used by the test stand-in for the server). */
 export function createEmptyState(): DemoState {
   return {
     currentUserId: '',
@@ -89,8 +82,8 @@ export function withInvitations(state: DemoState): DemoState {
 
 /**
  * Stored data comes from the browser, so it is checked before it is trusted.
- * The demo always has a current user; the accounts workspace has none of its
- * own, because the session says who is signed in.
+ * The demo always has a current user; a workspace shared by several
+ * accounts (the test stand-in for the server) has none of its own.
  */
 export function isUsableStoredDemo(
   value: unknown,

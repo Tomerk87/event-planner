@@ -15,6 +15,9 @@ const config = {
   uploadDir: './uploads',
   sessionDays: 30,
   authAttemptsPerMinute: 10,
+  publicAppUrl: 'http://localhost:5173',
+  rsvpLimits: { perIp: 10, perPhone: 3, windowMinutes: 10 },
+  trustProxyHops: 0,
 }
 const app = await NestFactory.create(createAppModule(config), {
   logger: false,

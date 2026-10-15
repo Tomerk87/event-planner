@@ -223,8 +223,8 @@ describe('Public RSVP page', () => {
       }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/opens only in the browser where the event was created/),
-    ).toBeInTheDocument()
+      screen.queryByText(/opens only in the browser/),
+    ).not.toBeInTheDocument()
     first.unmount()
 
     const services = createTestServices({

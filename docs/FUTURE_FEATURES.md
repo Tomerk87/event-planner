@@ -33,6 +33,8 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Calendar entry that follows the event | The Google Calendar action keeps its own date and time once set; it does not move when the event's date is changed. | Owner decision 2026-10-13 (D60) |
 | Add to Group on a phone | Selecting several guests exists only in the desktop table. | Owner decision 2026-10-13 (D66) |
 | Configurable RSVP deadline | Closing RSVP earlier than the event start. | PRD §17; `PLAN.md` backlog |
+| Proving phone ownership on the RSVP page | A code sent by SMS or WhatsApp before an answer is saved, so nobody can answer for a guest whose number they know. Needs a paid messaging provider. The MVP limits submissions per address and per phone instead. | Owner decision 2026-10-14 (D2) |
+| CAPTCHA on the RSVP page | A check against automated submissions. Not needed while the rate limits hold. | Owner decision 2026-10-14 (D2) |
 
 ## Messaging
 

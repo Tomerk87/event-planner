@@ -21,6 +21,7 @@ import { Menu } from '../../shared/ui/Menu.tsx'
 import { useDocumentTitle } from '../../shared/useDocumentTitle.ts'
 import styles from './LandingPage.module.css'
 import { ProductPreview } from './ProductPreview.tsx'
+import { useSession } from '../../app/session/sessionContext.ts'
 import { useEnterDemo } from './useEnterDemo.ts'
 
 const FEATURES = [
@@ -33,6 +34,7 @@ const FEATURES = [
 export function LandingPage() {
   const { t } = useTranslation()
   const demo = useEnterDemo()
+  const { demoAvailable } = useSession()
   useDocumentTitle(t('landing.documentTitle'))
 
   const tryDemo = (size: 'md' | 'lg' = 'md') => (
@@ -70,7 +72,7 @@ export function LandingPage() {
             <ButtonLink to="/signup" variant="soft">
               {t('auth.signUp.action')}
             </ButtonLink>
-            {tryDemo()}
+            {demoAvailable && tryDemo()}
           </div>
           <div className={styles.headerMenu}>
             <Menu
@@ -89,12 +91,16 @@ export function LandingPage() {
                   icon: <UserPlus />,
                   to: '/signup',
                 },
-                {
-                  id: 'demo',
-                  label: t('landing.tryDemo'),
-                  icon: <Sparkles />,
-                  onSelect: demo.enter,
-                },
+                ...(demoAvailable
+                  ? [
+                      {
+                        id: 'demo',
+                        label: t('landing.tryDemo'),
+                        icon: <Sparkles />,
+                        onSelect: demo.enter,
+                      },
+                    ]
+                  : []),
               ]}
             >
               <MenuIcon aria-hidden="true" />
@@ -114,15 +120,23 @@ export function LandingPage() {
             </h1>
             <p className={styles.lead}>{t('landing.lead')}</p>
             <div className={styles.heroActions}>
-              {tryDemo('lg')}
+              {demoAvailable ? (
+                tryDemo('lg')
+              ) : (
+                <ButtonLink to="/signup" size="lg">
+                  {t('auth.signUp.action')}
+                </ButtonLink>
+              )}
               <ButtonLink to="/signin" variant="secondary" size="lg">
                 {t('auth.signIn.action')}
               </ButtonLink>
             </div>
-            <p className={styles.note}>
-              <Sparkles aria-hidden="true" />
-              {t('landing.note')}
-            </p>
+            {demoAvailable && (
+              <p className={styles.note}>
+                <Sparkles aria-hidden="true" />
+                {t('landing.note')}
+              </p>
+            )}
           </div>
           <ProductPreview />
         </section>
@@ -157,15 +171,17 @@ export function LandingPage() {
           </ul>
         </section>
 
-        <section className={styles.band} aria-labelledby="demo-band-title">
-          <div>
-            <h2 id="demo-band-title" className={styles.bandTitle}>
-              {t('landing.band.title')}
-            </h2>
-            <p className={styles.bandBody}>{t('landing.band.body')}</p>
-          </div>
-          {tryDemo()}
-        </section>
+        {demoAvailable && (
+          <section className={styles.band} aria-labelledby="demo-band-title">
+            <div>
+              <h2 id="demo-band-title" className={styles.bandTitle}>
+                {t('landing.band.title')}
+              </h2>
+              <p className={styles.bandBody}>{t('landing.band.body')}</p>
+            </div>
+            {tryDemo()}
+          </section>
+        )}
       </main>
     </div>
   )

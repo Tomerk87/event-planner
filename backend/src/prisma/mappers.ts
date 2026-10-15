@@ -3,6 +3,7 @@ import type {
   EventInvitation,
   EventTable,
   Guest,
+  MessageSend,
   RsvpSettings,
   UnknownRsvp,
   User,
@@ -12,6 +13,7 @@ import type {
   EventInvitation as InvitationRow,
   EventTable as TableRow,
   Guest as GuestRow,
+  MessageSend as SendRow,
   RsvpSettings as RsvpSettingsRow,
   UnknownRsvp as UnknownRow,
   User as UserRow,
@@ -109,6 +111,16 @@ export function toUnknown(row: UnknownRow): UnknownRsvp {
     confirmedAttendees: row.confirmedAttendees,
     submittedAt: row.submittedAt.toISOString(),
     rejectedAt: iso(row.rejectedAt),
+  }
+}
+
+export function toSend(row: SendRow): MessageSend {
+  return {
+    id: row.id,
+    eventId: row.eventId,
+    guestId: row.guestId,
+    sentAt: row.sentAt.toISOString(),
+    message: row.message,
   }
 }
 

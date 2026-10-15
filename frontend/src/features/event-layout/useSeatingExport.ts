@@ -1,30 +1,25 @@
 import { useTranslation } from 'react-i18next'
 import {
-  buildSeatingDetailRows,
-  buildSeatingExportTable,
   SEATING_EXPORT_COLUMNS,
   type SeatingExportColumn,
 } from '../../domain/exports.ts'
-import type { EventTable, Guest } from '../../domain/models.ts'
 import { getCurrentLanguage } from '../../i18n/i18n.ts'
-import { safeFileName } from '../../shared/download.ts'
+import { useServices } from '../../services/servicesContext.ts'
+import { downloadBlob, safeFileName } from '../../shared/download.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { useToast } from '../../shared/ui/toastContext.ts'
-import { saveSpreadsheet, type FileFormat } from '../guests/guestFiles.ts'
+import type { FileFormat } from '../guests/guestFiles.ts'
 
 /**
  * Saves the seating list as a file: one row per seated party, in table
  * order, with headings in the interface language.
  */
-export function useSeatingExport(eventName: string) {
+export function useSeatingExport(eventId: string, eventName: string) {
   const { t } = useTranslation()
   const { showToast } = useToast()
+  const { files } = useServices()
 
-  return async (
-    format: FileFormat,
-    guests: readonly Guest[],
-    tables: readonly EventTable[],
-  ) => {
+  return async (format: FileFormat) => {
     const headings = Object.fromEntries(
       SEATING_EXPORT_COLUMNS.map((column) => [
         column,
@@ -32,17 +27,15 @@ export function useSeatingExport(eventName: string) {
       ]),
     ) as Record<SeatingExportColumn, string>
     try {
-      await saveSpreadsheet(
-        buildSeatingExportTable(
-          buildSeatingDetailRows(guests, tables),
-          headings,
-        ),
+      const blob = await files.exportSeating(eventId, {
         format,
-        safeFileName(t('layout.export.fileName', { event: eventName })),
-        {
-          sheetName: t('layout.export.sheet'),
-          rightToLeft: getCurrentLanguage() === 'he',
-        },
+        headings,
+        sheetName: t('layout.export.sheet'),
+        rightToLeft: getCurrentLanguage() === 'he',
+      })
+      downloadBlob(
+        blob,
+        `${safeFileName(t('layout.export.fileName', { event: eventName }))}.${format}`,
       )
       showToast({ tone: 'success', message: t('layout.export.done') })
     } catch (error) {

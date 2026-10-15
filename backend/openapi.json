@@ -1476,6 +1476,678 @@
           "unknown guests"
         ]
       }
+    },
+    "/api/events/{eventId}/messages/template": {
+      "get": {
+        "operationId": "MessagesController_getTemplate",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageTemplateDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "messages"
+        ]
+      },
+      "put": {
+        "operationId": "MessagesController_updateTemplate",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageTemplateDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/api/events/{eventId}/messages/template/default": {
+      "get": {
+        "operationId": "MessagesController_getDefaultTemplate",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultTemplateDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "The template a new event starts with, in the event's RSVP language.",
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/api/events/{eventId}/messages/values": {
+      "get": {
+        "operationId": "MessagesController_getValues",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageValuesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "What each variable stands for; for a made-up guest when guestId is left out.",
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/api/events/{eventId}/messages/preview/{guestId}": {
+      "get": {
+        "operationId": "MessagesController_preview",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagePreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/api/events/{eventId}/messages/sends/{guestId}": {
+      "post": {
+        "operationId": "MessagesController_send",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Records that a send was started and adds one to the guest's counter.\nThis is an initiation, not a confirmed delivery: whether the message\nwas then sent from WhatsApp cannot be known.",
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/api/events/{eventId}/messages/sends": {
+      "get": {
+        "operationId": "MessagesController_listSends",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SentMessageDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Newest first.",
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/api/events/{eventId}/rsvp-settings": {
+      "get": {
+        "operationId": "RsvpSettingsController_get",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsvpSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "rsvp"
+        ]
+      },
+      "put": {
+        "operationId": "RsvpSettingsController_update",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RsvpSettingsInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RsvpSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "rsvp"
+        ]
+      }
+    },
+    "/api/public/rsvp/{slug}": {
+      "get": {
+        "operationId": "PublicRsvpController_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRsvpViewDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "public rsvp"
+        ]
+      },
+      "post": {
+        "operationId": "PublicRsvpController_submit",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicRsvpInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRsvpResultDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "public rsvp"
+        ]
+      }
+    },
+    "/api/events/{eventId}/tables": {
+      "get": {
+        "operationId": "TablesController_list",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableWithOccupancyDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "tables"
+        ]
+      },
+      "post": {
+        "operationId": "TablesController_create",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TableInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "tables"
+        ]
+      }
+    },
+    "/api/events/{eventId}/tables/{tableId}": {
+      "put": {
+        "operationId": "TablesController_update",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TableInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "tables"
+        ]
+      },
+      "delete": {
+        "operationId": "TablesController_remove",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Deletes the table and unassigns its guests.",
+        "tags": [
+          "tables"
+        ]
+      }
+    },
+    "/api/events/{eventId}/tables/export": {
+      "post": {
+        "operationId": "TablesController_export",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportSeatingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "The seating list as a CSV or Excel file: one row per seated party.",
+        "tags": [
+          "tables"
+        ]
+      }
+    },
+    "/api/events/{eventId}/dashboard": {
+      "get": {
+        "operationId": "DashboardController_get",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Figures, warnings and recent activity, derived from the stored records.",
+        "tags": [
+          "dashboard"
+        ]
+      }
     }
   },
   "info": {
@@ -2023,7 +2695,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "format": "uuid"
+              "maxLength": 64
             }
           }
         },
@@ -2059,7 +2731,7 @@
           "tableId": {
             "type": "string",
             "nullable": true,
-            "format": "uuid"
+            "maxLength": 64
           }
         },
         "required": [
@@ -2079,7 +2751,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "format": "uuid"
+              "maxLength": 64
             }
           }
         },
@@ -2273,11 +2945,731 @@
         "properties": {
           "guestId": {
             "type": "string",
-            "format": "uuid"
+            "maxLength": 64
           }
         },
         "required": [
           "guestId"
+        ]
+      },
+      "MessageTemplateDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventId",
+          "body"
+        ]
+      },
+      "TemplateInputDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "description": "The length limit and the empty check are applied by src/domain/messages.ts.",
+            "maxLength": 5000
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "DefaultTemplateDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "MessageValuesDto": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "event_name": {
+            "type": "string"
+          },
+          "event_date": {
+            "type": "string"
+          },
+          "event_time": {
+            "type": "string"
+          },
+          "rsvp_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "first_name",
+          "last_name",
+          "event_name",
+          "event_date",
+          "event_time",
+          "rsvp_url"
+        ]
+      },
+      "MessagePreviewDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "launchUrl": {
+            "type": "string",
+            "description": "The wa.me link that opens WhatsApp with this message to this guest."
+          }
+        },
+        "required": [
+          "message",
+          "launchUrl"
+        ]
+      },
+      "MessageSendDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "guestId": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "guestId",
+          "sentAt",
+          "message"
+        ]
+      },
+      "SendResultDto": {
+        "type": "object",
+        "properties": {
+          "guest": {
+            "$ref": "#/components/schemas/GuestDto"
+          },
+          "send": {
+            "$ref": "#/components/schemas/MessageSendDto"
+          },
+          "message": {
+            "type": "string"
+          },
+          "launchUrl": {
+            "type": "string",
+            "description": "The wa.me link that opens WhatsApp with this message to this guest."
+          }
+        },
+        "required": [
+          "guest",
+          "send",
+          "message",
+          "launchUrl"
+        ]
+      },
+      "SentMessageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "guestId": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "guestName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "guestActive": {
+            "type": "boolean",
+            "description": "False once the guest has been deleted."
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "guestId",
+          "sentAt",
+          "message",
+          "guestName",
+          "phone",
+          "guestActive"
+        ]
+      },
+      "CalendarDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "date": {
+            "type": "string",
+            "description": "YYYY-MM-DD in the event's time zone.",
+            "maxLength": 10
+          },
+          "time": {
+            "type": "string",
+            "description": "HH:mm in the event's time zone.",
+            "maxLength": 5
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "enabled",
+          "title",
+          "date",
+          "time",
+          "location"
+        ]
+      },
+      "YoutubeDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "enabled",
+          "url"
+        ]
+      },
+      "RsvpSettingsDto": {
+        "type": "object",
+        "properties": {
+          "backgroundImage": {
+            "type": "string",
+            "nullable": true,
+            "description": "A new picture as a `data:image/...;base64,` address, the current\npicture's own address to keep it, or null for none.",
+            "maxLength": 1000000
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "approvedMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "declinedMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "notSureMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "overlayOpacity": {
+            "type": "number"
+          },
+          "calendar": {
+            "$ref": "#/components/schemas/CalendarDto"
+          },
+          "youtube": {
+            "$ref": "#/components/schemas/YoutubeDto"
+          }
+        },
+        "required": [
+          "backgroundImage",
+          "eventId",
+          "welcomeMessage",
+          "approvedMessage",
+          "declinedMessage",
+          "notSureMessage",
+          "overlayOpacity",
+          "calendar",
+          "youtube"
+        ]
+      },
+      "RsvpSettingsInputDto": {
+        "type": "object",
+        "properties": {
+          "backgroundImage": {
+            "type": "string",
+            "nullable": true,
+            "description": "A new picture as a `data:image/...;base64,` address, the current\npicture's own address to keep it, or null for none.",
+            "maxLength": 1000000
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "approvedMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "declinedMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "notSureMessage": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "overlayOpacity": {
+            "type": "number"
+          },
+          "calendar": {
+            "$ref": "#/components/schemas/CalendarDto"
+          },
+          "youtube": {
+            "$ref": "#/components/schemas/YoutubeDto"
+          }
+        },
+        "required": [
+          "backgroundImage",
+          "welcomeMessage",
+          "approvedMessage",
+          "declinedMessage",
+          "notSureMessage",
+          "overlayOpacity",
+          "calendar",
+          "youtube"
+        ]
+      },
+      "PublicRsvpViewDto": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "language": {
+            "enum": [
+              "en",
+              "he"
+            ],
+            "type": "string"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/RsvpSettingsInputDto"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "isClosed": {
+            "type": "boolean"
+          },
+          "maxSelectableAttendees": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "location",
+          "language",
+          "settings",
+          "title",
+          "startsAt",
+          "timeZone",
+          "isClosed",
+          "maxSelectableAttendees"
+        ]
+      },
+      "PublicRsvpInputDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "APPROVED",
+              "NOT_SURE",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "attendees": {
+            "type": "number",
+            "description": "Always required; discarded for Declined and Not Sure."
+          }
+        },
+        "required": [
+          "status",
+          "name",
+          "phone",
+          "attendees"
+        ]
+      },
+      "PublicRsvpResultDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "APPROVED",
+              "NOT_SURE",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "confirmedAttendees": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "status",
+          "confirmedAttendees"
+        ]
+      },
+      "TableDto": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "enum": [
+              "CIRCLE",
+              "RECTANGLE",
+              "SQUARE"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "number": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "shape",
+          "id",
+          "eventId",
+          "number",
+          "capacity"
+        ]
+      },
+      "TableWithOccupancyDto": {
+        "type": "object",
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/TableDto"
+          },
+          "assigned": {
+            "type": "number",
+            "description": "Confirmed attendees seated at the table."
+          },
+          "available": {
+            "type": "number",
+            "description": "Negative when the table is over capacity."
+          }
+        },
+        "required": [
+          "table",
+          "assigned",
+          "available"
+        ]
+      },
+      "TableInputDto": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "enum": [
+              "CIRCLE",
+              "RECTANGLE",
+              "SQUARE"
+            ],
+            "type": "string"
+          },
+          "number": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "shape",
+          "number",
+          "capacity"
+        ]
+      },
+      "SeatingHeadingsDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "invitationName": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "confirmedAttendees": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "tableNumber": {
+            "type": "string",
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "invitationName",
+          "phone",
+          "confirmedAttendees",
+          "tableNumber"
+        ]
+      },
+      "ExportSeatingDto": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "type": "string"
+          },
+          "headings": {
+            "$ref": "#/components/schemas/SeatingHeadingsDto"
+          },
+          "sheetName": {
+            "type": "string",
+            "maxLength": 31
+          },
+          "rightToLeft": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "format",
+          "headings",
+          "sheetName",
+          "rightToLeft"
+        ]
+      },
+      "DashboardMetricsDto": {
+        "type": "object",
+        "properties": {
+          "totalGuests": {
+            "type": "number"
+          },
+          "invitationsSent": {
+            "type": "number"
+          },
+          "invitationsNotSent": {
+            "type": "number"
+          },
+          "awaitingResponse": {
+            "type": "number"
+          },
+          "rsvpApproved": {
+            "type": "number"
+          },
+          "rsvpNotSure": {
+            "type": "number"
+          },
+          "rsvpDeclined": {
+            "type": "number"
+          },
+          "confirmedAttendees": {
+            "type": "number"
+          },
+          "seatingCapacity": {
+            "type": "number"
+          },
+          "unassignedConfirmedAttendees": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalGuests",
+          "invitationsSent",
+          "invitationsNotSent",
+          "awaitingResponse",
+          "rsvpApproved",
+          "rsvpNotSure",
+          "rsvpDeclined",
+          "confirmedAttendees",
+          "seatingCapacity",
+          "unassignedConfirmedAttendees"
+        ]
+      },
+      "TableConflictDto": {
+        "type": "object",
+        "properties": {
+          "tableId": {
+            "type": "string"
+          },
+          "tableNumber": {
+            "type": "number"
+          },
+          "over": {
+            "type": "number",
+            "description": "Attendees beyond the table's capacity."
+          }
+        },
+        "required": [
+          "tableId",
+          "tableNumber",
+          "over"
+        ]
+      },
+      "DashboardWarningsDto": {
+        "type": "object",
+        "properties": {
+          "tablesOverCapacity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableConflictDto"
+            }
+          },
+          "attendeesOverMaximum": {
+            "type": "number"
+          },
+          "seatingVersusMaximum": {
+            "type": "number"
+          },
+          "seatsShort": {
+            "type": "number"
+          },
+          "attendeesAwaitingTable": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "tablesOverCapacity",
+          "attendeesOverMaximum",
+          "seatingVersusMaximum",
+          "seatsShort",
+          "attendeesAwaitingTable"
+        ]
+      },
+      "ActivityItemDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "RSVP",
+              "INVITATION_SENT"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "description": "RSVP entries only.",
+            "enum": [
+              "APPROVED",
+              "NOT_SURE",
+              "DECLINED"
+            ],
+            "type": "string"
+          },
+          "confirmedAttendees": {
+            "type": "number",
+            "nullable": true,
+            "description": "RSVP entries only."
+          },
+          "guestId": {
+            "type": "string"
+          },
+          "guestName": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "guestId",
+          "guestName",
+          "at"
+        ]
+      },
+      "DashboardDto": {
+        "type": "object",
+        "properties": {
+          "metrics": {
+            "$ref": "#/components/schemas/DashboardMetricsDto"
+          },
+          "warnings": {
+            "$ref": "#/components/schemas/DashboardWarningsDto"
+          },
+          "recentActivity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityItemDto"
+            }
+          }
+        },
+        "required": [
+          "metrics",
+          "warnings",
+          "recentActivity"
         ]
       }
     }

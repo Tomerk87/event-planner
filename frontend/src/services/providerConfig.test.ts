@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { parseDataProvider } from './providerConfig.ts'
+import { parseDemoEnabled } from './providerConfig.ts'
 
-describe('parseDataProvider', () => {
-  it.each([undefined, ''])('defaults to mock when the value is %j', (value) => {
-    expect(parseDataProvider(value)).toBe('mock')
+describe('parseDemoEnabled', () => {
+  it.each([undefined, '', 'true'])('turns the demo on for %j', (value) => {
+    expect(parseDemoEnabled(value)).toBe(true)
   })
 
-  it.each(['mock', 'api'] as const)('accepts %s', (value) => {
-    expect(parseDataProvider(value)).toBe(value)
+  it('turns the demo off for "false"', () => {
+    expect(parseDemoEnabled('false')).toBe(false)
   })
 
-  it.each(['API', 'demo', ' mock'])('rejects %j', (value) => {
-    expect(() => parseDataProvider(value)).toThrow('Invalid VITE_DATA_PROVIDER')
+  it.each(['TRUE', 'no', ' false'])('rejects %j', (value) => {
+    expect(() => parseDemoEnabled(value)).toThrow('Invalid VITE_DEMO_ENABLED')
   })
 })

@@ -5,6 +5,8 @@ import type { Session } from '../../services/contracts/index.ts'
 export interface SessionContextValue {
   /** Null while nobody is signed in and the demo is not open. */
   session: Session | null
+  /** False when this deployment has the public demo switched off. */
+  demoAvailable: boolean
   signUp: (input: SignUpInput) => Promise<void>
   signIn: (input: SignInInput) => Promise<void>
   enterDemo: () => Promise<void>

@@ -1,6 +1,6 @@
 import { AxeBuilder } from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { startInDemo } from './helpers.ts'
+import { startInDemo, TEST_PASSWORD, uniqueEmail } from './helpers.ts'
 
 const WEDDING = 'Maya & Daniel’s Wedding'
 
@@ -47,7 +47,7 @@ async function signUp(page: Page, name: string, email: string) {
   await page.goto('/signup')
   await page.getByLabel(/Full name/).fill(name)
   await page.getByLabel(/Email/).fill(email)
-  await page.getByLabel(/Password/).fill('not-a-real-password')
+  await page.getByLabel(/Password/).fill(TEST_PASSWORD)
   await page.getByRole('button', { name: 'Sign Up' }).click()
   await expect(page).toHaveURL(/\/events$/)
 }
@@ -97,9 +97,10 @@ test('Landing → Sign Up creates an account with no events; it survives a reloa
       .click()
   }
   await expect(page).toHaveURL(/\/signup$/)
+  const email = uniqueEmail('riley')
   await page.getByLabel(/Full name/).fill('Riley Stone')
-  await page.getByLabel(/Email/).fill('riley@example.com')
-  await page.getByLabel(/Password/).fill('not-a-real-password')
+  await page.getByLabel(/Email/).fill(email)
+  await page.getByLabel(/Password/).fill(TEST_PASSWORD)
   await page.getByRole('button', { name: 'Sign Up' }).click()
 
   await expect(page).toHaveURL(/\/events$/)
@@ -124,8 +125,13 @@ test('Landing → Sign Up creates an account with no events; it survives a reloa
   await expect(page).toHaveURL(/\/$/)
 
   await page.goto('/signin')
-  await page.getByLabel(/Email/).fill('riley@example.com')
-  await page.getByLabel(/Password/).fill('anything')
+  await page.getByLabel(/Email/).fill(email)
+  await page.getByLabel(/Password/).fill('wrong-password')
+  await page.getByRole('button', { name: 'Sign In' }).click()
+  await expect(page.getByRole('alert')).toContainText(
+    'The email or password is incorrect.',
+  )
+  await page.getByLabel(/Password/).fill(TEST_PASSWORD)
   await page.getByRole('button', { name: 'Sign In' }).click()
 
   await expect(page).toHaveURL(/\/events$/)
@@ -135,14 +141,16 @@ test('Landing → Sign Up creates an account with no events; it survives a reloa
   await expect(page.getByRole('article')).toHaveCount(1)
 })
 
-test('signing in with an unknown email is refused', async ({ page }) => {
+test('signing in with an unknown email is refused without saying so', async ({
+  page,
+}) => {
   await page.goto('/signin')
-  await page.getByLabel(/Email/).fill('nobody@example.com')
-  await page.getByLabel(/Password/).fill('anything')
+  await page.getByLabel(/Email/).fill(uniqueEmail('nobody'))
+  await page.getByLabel(/Password/).fill('anything-at-all')
   await page.getByRole('button', { name: 'Sign In' }).click()
 
   await expect(page.getByRole('alert')).toContainText(
-    'No account with this email',
+    'The email or password is incorrect.',
   )
   await expect(page).toHaveURL(/\/signin$/)
 })
@@ -150,7 +158,7 @@ test('signing in with an unknown email is refused', async ({ page }) => {
 test('an account never sees the demo events, and the demo never sees the account’s', async ({
   page,
 }) => {
-  await signUp(page, 'Riley Stone', 'riley@example.com')
+  await signUp(page, 'Riley Stone', uniqueEmail('riley'))
   await page.getByRole('button', { name: 'Create your first event' }).click()
   await createEvent(page, 'Housewarming')
   await page.goto('/events/evt-1/guests')

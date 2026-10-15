@@ -1,28 +1,25 @@
 import { useTranslation } from 'react-i18next'
 import {
-  buildGuestExportRows,
-  buildGuestExportTable,
   GUEST_EXPORT_COLUMNS,
   type GuestExportLabels,
 } from '../../domain/exports.ts'
 import { GUEST_DISPLAY_STATUSES } from '../../domain/guestStatus.ts'
-import type { EventTable, Guest } from '../../domain/models.ts'
+import type { Guest } from '../../domain/models.ts'
 import { getCurrentLanguage } from '../../i18n/i18n.ts'
-import { safeFileName } from '../../shared/download.ts'
+import { useServices } from '../../services/servicesContext.ts'
+import { downloadBlob, safeFileName } from '../../shared/download.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { useToast } from '../../shared/ui/toastContext.ts'
-import { saveSpreadsheet, type FileFormat } from './guestFiles.ts'
+import type { FileFormat } from './guestFiles.ts'
 
 /**
  * Saves guests as a file. The file always has every field, whatever columns
  * the table is showing, with headings in the interface language.
  */
-export function useGuestExport(
-  eventName: string,
-  tables: readonly EventTable[],
-) {
+export function useGuestExport(eventId: string, eventName: string) {
   const { t } = useTranslation()
   const { showToast } = useToast()
+  const { files } = useServices()
 
   return async (format: FileFormat, guests: readonly Guest[]) => {
     const labels: GuestExportLabels = {
@@ -40,14 +37,16 @@ export function useGuestExport(
       ) as GuestExportLabels['statuses'],
     }
     try {
-      await saveSpreadsheet(
-        buildGuestExportTable(buildGuestExportRows(guests, tables), labels),
+      const blob = await files.exportGuests(eventId, {
         format,
-        safeFileName(t('guests.export.fileName', { event: eventName })),
-        {
-          sheetName: t('guests.export.sheet'),
-          rightToLeft: getCurrentLanguage() === 'he',
-        },
+        guestIds: guests.map((guest) => guest.id),
+        labels,
+        sheetName: t('guests.export.sheet'),
+        rightToLeft: getCurrentLanguage() === 'he',
+      })
+      downloadBlob(
+        blob,
+        `${safeFileName(t('guests.export.fileName', { event: eventName }))}.${format}`,
       )
       showToast({ tone: 'success', message: t('guests.export.done') })
     } catch (error) {

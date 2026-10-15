@@ -1,7 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { DomainError } from '../domain/errors.ts'
-import { createServices } from '../services/createServices.ts'
 import { generateDemoState } from '../services/mock/generator.ts'
 import { createMemoryPersistence } from '../services/mock/persistence.ts'
 import { DATASET_VERSION } from '../services/mock/state.ts'
@@ -318,55 +317,6 @@ describe('demo controls', () => {
       within(drawer).getByRole('button', { name: 'Reset Demo' }),
     ).toBeInTheDocument()
   })
-})
-
-describe('createServices', () => {
-  const DEMO = { workspace: 'demo' } as const
-  const location = { search: '', origin: 'https://demo.example.com' }
-
-  it('creates the demo provider for "mock", stored in the given browser storage', async () => {
-    const services = createServices(
-      'mock',
-      location,
-      window.localStorage,
-    ).servicesFor(DEMO)
-
-    expect(await services.events.list()).toHaveLength(6)
-    expect(services.demo).not.toBeNull()
-    expect(Object.keys(window.localStorage)).toContain('event-planner.demo')
-  })
-
-  it('refuses the "api" provider until it exists', () => {
-    expect(() => createServices('api', location, window.localStorage)).toThrow(
-      DomainError,
-    )
-  })
-
-  it('reads forced failures from the address', async () => {
-    const services = createServices(
-      'mock',
-      { ...location, search: '?demoDelay=0&demoFail=events.list,guests.list' },
-      window.localStorage,
-    ).servicesFor(DEMO)
-
-    await expect(services.events.list()).rejects.toMatchObject({
-      code: 'UNAVAILABLE',
-    })
-    await expect(services.events.get('evt-1')).resolves.toBeDefined()
-  })
-
-  it.each(['abc', '-5', ''])(
-    'ignores an invalid delay of %j',
-    async (value) => {
-      const services = createServices(
-        'mock',
-        { ...location, search: `?demoDelay=${value}` },
-        window.localStorage,
-      ).servicesFor(DEMO)
-
-      await expect(services.events.list()).resolves.toHaveLength(6)
-    },
-  )
 })
 
 describe('describeError', () => {

@@ -13,8 +13,11 @@ export interface Persistence<Value> {
 export type DemoPersistence = Persistence<StoredDemo>
 
 export const DEMO_STORAGE_KEY = 'event-planner.demo'
-/** Accounts created through the simulated sign-up, and their events. */
-export const ACCOUNTS_STORAGE_KEY = 'event-planner.accounts'
+/**
+ * Where the browser-local preview accounts were kept before the backend
+ * existed. They are discarded (decision D85); the key is only removed.
+ */
+export const LEGACY_ACCOUNTS_STORAGE_KEY = 'event-planner.accounts'
 export const SESSION_STORAGE_KEY = 'event-planner.session'
 /** Display choices of this browser, such as visible table columns. */
 export const PREFERENCES_STORAGE_KEY = 'event-planner.preferences'

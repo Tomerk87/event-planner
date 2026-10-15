@@ -201,6 +201,29 @@ describe('guests', () => {
     })
   })
 
+  it('answers not found for an unknown table or guest, whatever its form', async () => {
+    const { owner, base } = await setUp()
+    const dana = await add(owner, base)
+    await owner
+      .put(`${base}/${dana.id}/rsvp`)
+      .send({ status: 'APPROVED', attendees: 2 })
+      .expect(200)
+
+    for (const response of [
+      await owner.put(`${base}/${dana.id}/table`).send({ tableId: 'no-such' }),
+      await owner
+        .post(`${base}/delete`)
+        .send({ guestIds: [dana.id, 'no-such'] }),
+      await owner
+        .post(`${base}/group`)
+        .send({ guestIds: ['no-such'], group: 'Family' }),
+    ]) {
+      expect([response.status, code(response)]).toEqual([404, 'NOT_FOUND'])
+    }
+    // Nothing was deleted.
+    expect((await owner.get(base)).body).toHaveLength(1)
+  })
+
   it('refuses a table of another event', async () => {
     const { owner, base } = await setUp()
     const other = await createEvent(owner, { name: 'Other' })
