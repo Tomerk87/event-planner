@@ -1,4 +1,4 @@
-import { calendarStartOf } from './rsvpSettings.ts'
+import { calendarStartOf, DEFAULT_IMAGE_FRAMING } from './rsvpSettings.ts'
 import type {
   Event,
   MessageTemplate,
@@ -73,6 +73,7 @@ export function defaultRsvpSettings(event: Event): RsvpSettings {
     ...RSVP_TEXTS[event.rsvpLanguage],
     backgroundImage: null,
     overlayOpacity: 40,
+    ...DEFAULT_IMAGE_FRAMING,
     calendar: {
       enabled: false,
       title: event.name,

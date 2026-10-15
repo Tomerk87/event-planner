@@ -1502,6 +1502,26 @@ export function describeServicesContract(
         expect(await services.preferences.getSidebarCollapsed()).toBe(false)
       })
 
+      it('lists the account’s own notices and marks them read', async () => {
+        const { services } = await setup()
+
+        const before = await services.notifications.list()
+        expect(Array.isArray(before.items)).toBe(true)
+        expect(before.unread).toBe(
+          before.items.filter((item) => !item.read).length,
+        )
+        expect(
+          await codeOf(
+            services.notifications.markRead(
+              '00000000-0000-4000-8000-000000000000',
+            ),
+          ),
+        ).toBe('NOT_FOUND')
+
+        await services.notifications.markRead()
+        expect((await services.notifications.list()).unread).toBe(0)
+      })
+
       it('reads and saves RSVP settings with validation', async () => {
         const { services, events } = await setup()
         const { eventId: _eventId, ...settings } =
@@ -1512,13 +1532,21 @@ export function describeServicesContract(
         const saved = await save({
           welcomeMessage: 'x'.repeat(500),
           overlayOpacity: 65,
+          imageZoom: 220,
+          imagePositionX: 10,
+          imagePositionY: 90,
           youtube: {
             enabled: true,
             url: 'https://www.youtube.com/watch?v=1',
           },
         })
 
-        expect(saved.overlayOpacity).toBe(65)
+        expect(saved).toMatchObject({
+          overlayOpacity: 65,
+          imageZoom: 220,
+          imagePositionX: 10,
+          imagePositionY: 90,
+        })
         expect(
           (await services.rsvp.getSettings(events.owner)).youtube.enabled,
         ).toBe(true)
@@ -1526,6 +1554,7 @@ export function describeServicesContract(
           'VALIDATION',
         )
         expect(await codeOf(save({ overlayOpacity: 101 }))).toBe('VALIDATION')
+        expect(await codeOf(save({ imageZoom: 99 }))).toBe('VALIDATION')
         for (const url of [
           'not a link',
           'https://video.example.com/watch?v=1',

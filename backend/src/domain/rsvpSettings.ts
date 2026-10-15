@@ -18,6 +18,20 @@ const YOUTUBE_HOSTS = new Set([
 ])
 
 type Settings = Omit<RsvpSettings, 'eventId'>
+
+/** Zoom and position of the background image: field, lowest, highest. */
+export const IMAGE_FRAMING = [
+  ['imageZoom', 100, 300],
+  ['imagePositionX', 0, 100],
+  ['imagePositionY', 0, 100],
+] as const
+
+/** The background image as uploaded: not enlarged, centred. */
+export const DEFAULT_IMAGE_FRAMING = {
+  imageZoom: 100,
+  imagePositionX: 50,
+  imagePositionY: 50,
+} as const
 type Calendar = RsvpSettings['calendar']
 
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -95,6 +109,12 @@ export function validateRsvpSettings(input: Settings): Settings {
       max: 100,
     })
   }
+  for (const [field, min, max] of IMAGE_FRAMING) {
+    const value = input[field]
+    if (!Number.isInteger(value) || value < min || value > max) {
+      throw new DomainError('VALIDATION', { field, min, max })
+    }
+  }
   if (
     input.backgroundImage !== null &&
     (!/^data:image\/(jpeg|png);base64,/.test(input.backgroundImage) ||
@@ -138,6 +158,9 @@ export function validateRsvpSettings(input: Settings): Settings {
     ...messages,
     backgroundImage: input.backgroundImage,
     overlayOpacity: input.overlayOpacity,
+    imageZoom: input.imageZoom,
+    imagePositionX: input.imagePositionX,
+    imagePositionY: input.imagePositionY,
     calendar,
     youtube,
   }

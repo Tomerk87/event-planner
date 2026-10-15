@@ -77,6 +77,9 @@ const settings = {
   notSureMessage: 'd',
   backgroundImage: null,
   overlayOpacity: 40,
+  imageZoom: 150,
+  imagePositionX: 30,
+  imagePositionY: 60,
   calendar: {
     enabled: false,
     title: 't',
@@ -91,6 +94,7 @@ const settings = {
 async function callEverything(services: Services): Promise<void> {
   const { events, guests, unknownGuests, rsvp, messages, tables } = services
   const { permissions, dashboard, files, session, system } = services
+  const { notifications } = services
   await session.getCurrentUser()
   await session.getEmailVerified()
   await session.resendVerification()
@@ -145,6 +149,9 @@ async function callEverything(services: Services): Promise<void> {
   await permissions.resendInvitation('e1', 'i1')
   await system.getEmailStatus()
   await system.sendTestEmail()
+  await notifications.list()
+  await notifications.markRead()
+  await notifications.markRead('n1')
   await dashboard.get('e1')
   await files.readGuestFile('e1', new File(['a'], 'guests.csv'))
   const options = { format: 'csv' as const, sheetName: 'S', rightToLeft: false }
@@ -193,7 +200,7 @@ describe('API provider', () => {
     )
 
     expect(unknown).toEqual([])
-    expect(calls).toHaveLength(57)
+    expect(calls).toHaveLength(60)
   })
 
   it('tells the server the interface language of each email it sends', async () => {

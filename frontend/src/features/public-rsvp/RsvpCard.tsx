@@ -2,6 +2,8 @@ import {
   CalendarPlus,
   Check,
   CircleHelp,
+  MapPin,
+  Navigation,
   Phone,
   Play,
   User,
@@ -20,6 +22,7 @@ import type { PublicRsvpView } from '../../services/contracts/index.ts'
 import { cx } from '../../shared/ui/cx.ts'
 import { Select } from '../../shared/ui/Select.tsx'
 import styles from './RsvpCard.module.css'
+import { mapLinks } from './mapLinks.ts'
 
 /** The page before a response, after one, or once the event has started. */
 export type RsvpScreen = 'WELCOME' | 'CLOSED' | RsvpResponse
@@ -199,14 +202,24 @@ export function RsvpCard({
       style={
         {
           '--rsvp-overlay': settings.overlayOpacity / 100,
-          backgroundImage: settings.backgroundImage
-            ? `url("${settings.backgroundImage}")`
-            : undefined,
         } as CSSProperties
       }
       // A preview shows the page; it is not a second form to fill in.
       inert={form === undefined}
     >
+      {settings.backgroundImage && (
+        // Zoomed in on, and centred at, the point the organizer chose.
+        <img
+          className={styles.picture}
+          src={settings.backgroundImage}
+          alt=""
+          style={{
+            objectPosition: `${settings.imagePositionX}% ${settings.imagePositionY}%`,
+            transformOrigin: `${settings.imagePositionX}% ${settings.imagePositionY}%`,
+            transform: `scale(${settings.imageZoom / 100})`,
+          }}
+        />
+      )}
       <div className={styles.content}>
         <header className={styles.header}>
           <Title className={styles.title}>{view.title}</Title>
@@ -218,6 +231,28 @@ export function RsvpCard({
             </span>
             {view.location && <span>{view.location}</span>}
           </p>
+          {view.location && (
+            <p className={styles.maps}>
+              <a
+                className={styles.mapLink}
+                href={mapLinks(view.location).google}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MapPin aria-hidden="true" />
+                {t('publicRsvp.maps.google')}
+              </a>
+              <a
+                className={styles.mapLink}
+                href={mapLinks(view.location).waze}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Navigation aria-hidden="true" />
+                {t('publicRsvp.maps.waze')}
+              </a>
+            </p>
+          )}
         </header>
 
         <div className={styles.panel}>

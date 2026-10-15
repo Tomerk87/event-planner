@@ -78,6 +78,9 @@ describe('RSVP settings', () => {
     expect(initial.body).toMatchObject({
       backgroundImage: null,
       overlayOpacity: 40,
+      imageZoom: 100,
+      imagePositionX: 50,
+      imagePositionY: 50,
       calendar: { enabled: false, title: 'Garden Party', date: '2031-06-01' },
       youtube: { enabled: false, url: '' },
     })
@@ -132,11 +135,27 @@ describe('RSVP settings', () => {
     const served = await t.browser().get(firstUrl).expect(200)
     expect(served.headers['content-type']).toBe('image/png')
 
+    // Kept, with its zoom and position, when its own address comes back.
+    const framing = { imageZoom: 180, imagePositionX: 20, imagePositionY: 75 }
     const kept = await owner
       .put(settings)
-      .send({ ...base, backgroundImage: firstUrl, overlayOpacity: 10 })
+      .send({
+        ...base,
+        backgroundImage: firstUrl,
+        overlayOpacity: 10,
+        ...framing,
+      })
       .expect(200)
-    expect(kept.body.backgroundImage).toBe(firstUrl)
+    expect(kept.body).toMatchObject({ backgroundImage: firstUrl, ...framing })
+    expect((await owner.get(settings)).body).toMatchObject(framing)
+    expect(
+      code(
+        await owner
+          .put(settings)
+          .send({ ...base, backgroundImage: firstUrl, imageZoom: 301 })
+          .expect(400),
+      ),
+    ).toBe('VALIDATION')
 
     const replaced = await owner
       .put(settings)

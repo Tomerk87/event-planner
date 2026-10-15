@@ -70,6 +70,11 @@ function GuestForm({
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
   const limits = EVENT_LIMITS.allowedAttendees
+  // An approved guest's allowance cannot drop below the attendees they
+  // confirmed; the server refuses it too.
+  const confirmed =
+    guest?.rsvpStatus === 'APPROVED' ? (guest.confirmedAttendees ?? 0) : 0
+  const lowest = Math.max(limits.min, confirmed)
   // Only a guest who approved can be seated, so a new guest never can.
   const canSeat = guest?.rsvpStatus === 'APPROVED'
 
@@ -115,6 +120,13 @@ function GuestForm({
       allowedAttendees > limits.max
     ) {
       return setFieldError({ field: 'allowed', reason: 'range' })
+    }
+    if (allowedAttendees < confirmed) {
+      return setFieldError({
+        field: 'allowed',
+        reason: 'belowConfirmed',
+        count: confirmed,
+      })
     }
     const input = { firstName, lastName, phone, allowedAttendees, group }
     const wanted = group.trim().toLocaleLowerCase()
@@ -204,7 +216,7 @@ function GuestForm({
         type="number"
         inputMode="numeric"
         required
-        min={limits.min}
+        min={lowest}
         max={limits.max}
         value={allowed}
         hint={t('guests.form.allowedHint', limits)}

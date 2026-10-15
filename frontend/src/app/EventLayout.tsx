@@ -20,6 +20,7 @@ import { useSignOut } from './session/useSignOut.ts'
 import { EmailVerificationNotice } from './shell/EmailVerificationNotice.tsx'
 import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
 import { getEventNavItems } from './shell/eventNav.ts'
+import { NotificationBell } from './notifications/NotificationBell.tsx'
 
 export function EventLayout() {
   const { t } = useTranslation()
@@ -72,6 +73,7 @@ export function EventLayout() {
       onSignOut={signOut}
       banner={<DemoBadge />}
       notice={<EmailVerificationNotice />}
+      bell={<NotificationBell />}
       tools={<DemoTools />}
     >
       {info.isPending ? (

@@ -172,6 +172,48 @@ describe('events', () => {
     expect(refused.body).toMatchObject({ details: { field: 'coverImage' } })
   })
 
+  it('keeps the maximum at or above the attendees already confirmed (D94)', async () => {
+    const owner = t.browser()
+    await signUp(owner, 'Owner')
+    const event = await createEvent(owner, { maxAttendees: 100 })
+    // Ten approved guests of 7 attendees each, and one who declined.
+    await t.prisma.guest.createMany({
+      data: Array.from({ length: 11 }, (_, index) => ({
+        eventId: event.id,
+        firstName: `Guest ${index}`,
+        lastName: '',
+        phone: `05200000${String(index).padStart(2, '0')}`,
+        normalizedPhone: `+9725200000${String(index).padStart(2, '0')}`,
+        allowedAttendees: 10,
+        confirmedAttendees: index < 10 ? 7 : 0,
+        rsvpStatus: index < 10 ? ('APPROVED' as const) : ('DECLINED' as const),
+      })),
+    })
+
+    const refused = await owner
+      .put(`/api/events/${event.id}`)
+      .send({ ...NEW_EVENT, maxAttendees: 69 })
+      .expect(400)
+    expect(refused.body).toMatchObject({
+      code: 'VALIDATION',
+      details: { field: 'maxAttendees', min: 70, max: 3000 },
+    })
+    await owner
+      .put(`/api/events/${event.id}`)
+      .send({ ...NEW_EVENT, maxAttendees: 70 })
+      .expect(200)
+
+    // More answers later go past it; the rest can still be edited.
+    await t.prisma.guest.updateMany({
+      where: { eventId: event.id, rsvpStatus: 'APPROVED' },
+      data: { confirmedAttendees: 9 },
+    })
+    await owner
+      .put(`/api/events/${event.id}`)
+      .send({ ...NEW_EVENT, maxAttendees: 70, name: 'Renamed' })
+      .expect(200)
+  })
+
   it('duplicates details, settings, template and empty tables, not guests or members', async () => {
     const owner = t.browser()
     await signUp(owner, 'Owner')

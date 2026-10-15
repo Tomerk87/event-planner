@@ -14,6 +14,9 @@ const settings = {
   notSureMessage: 'Fine',
   backgroundImage: null,
   overlayOpacity: 40,
+  imageZoom: 100,
+  imagePositionX: 50,
+  imagePositionY: 50,
   calendar: {
     enabled: false,
     title: 'Garden Party',
@@ -80,6 +83,10 @@ describe('validateRsvpSettings', () => {
     ['notSureMessage', { notSureMessage: 'x'.repeat(501) }],
     ['overlayOpacity', { overlayOpacity: 101 }],
     ['overlayOpacity', { overlayOpacity: 12.5 }],
+    ['imageZoom', { imageZoom: 99 }],
+    ['imageZoom', { imageZoom: 301 }],
+    ['imagePositionX', { imagePositionX: -1 }],
+    ['imagePositionY', { imagePositionY: 100.5 }],
     ['backgroundImage', { backgroundImage: 'https://example.com/a.png' }],
     [
       'backgroundImage',

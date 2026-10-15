@@ -73,7 +73,8 @@
       "title": "Leave without saving?",
       "body": "You have unsaved changes. If you leave this page, they will be lost.",
       "stay": "Keep Editing",
-      "leave": "Leave"
+      "leave": "Leave",
+      "save": "Save and Leave"
     }
   },
   "states": {
@@ -1027,9 +1028,10 @@
       "subtitle": "Basic details about your event.",
       "name": "Event Name",
       "location": "Location",
-      "locationHint": "Optional. Shown to guests on the RSVP page.",
+      "locationHint": "Optional. Shown to guests on the RSVP page, with links to Google Maps and Waze; write the full address as Google Maps shows it.",
       "maxAttendees": "Maximum Attendees",
       "maxAttendeesHint": "Allowed range: {{min}} – {{max}} attendees.",
+      "maxAttendeesConfirmedHint": "Between {{min}} and {{max}}: {{confirmed}} attendees have already confirmed.",
       "date": "Event Date",
       "time": "Event Time",
       "timeZone": "Timezone",
@@ -1230,6 +1232,13 @@
       "none": "No image. A plain background is used.",
       "overlay": "Image Overlay",
       "overlayHint": "Adds a dark overlay to improve text readability.",
+      "options": "Additional Options",
+      "framingHint": "Choose how much of the image shows and which part stays in view.",
+      "framingNeedsImage": "Upload an image to zoom and position it.",
+      "zoom": "Zoom",
+      "positionX": "Horizontal Position",
+      "positionY": "Vertical Position",
+      "resetFraming": "Reset Zoom and Position",
       "alt": "Background image",
       "errors": {
         "type": "Choose a JPG or PNG image.",
@@ -1287,6 +1296,10 @@
     "notSure": "Not sure yet",
     "afterConfirming": "After confirming, you'll be able to:",
     "addToCalendar": "Add to Calendar",
+    "maps": {
+      "google": "Open in Google Maps",
+      "waze": "Navigate with Waze"
+    },
     "watchYoutube": "Watch on YouTube",
     "errors": {
       "name": "Enter your name.",
@@ -1340,6 +1353,22 @@
       "testHint": "Sends a test email to {{email}}.",
       "testSent": "A test email was sent to {{email}}.",
       "testOff": "Email is off, so nothing was sent."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "label": "Notifications",
+    "labelUnread_one": "Notifications, {{count}} unread",
+    "labelUnread_other": "Notifications, {{count}} unread",
+    "markAll": "Mark all as read",
+    "empty": "No notifications yet.",
+    "unread": "(unread)",
+    "kinds": {
+      "accessGranted": "{{actor}} gave you {{role}} access to {{event}}.",
+      "accessAccepted": "Your invitation was accepted: you have {{role}} access to {{event}}.",
+      "roleChanged": "{{actor}} changed your role in {{event}} to {{role}}.",
+      "accessRemoved": "{{actor}} removed your access to {{event}}.",
+      "unknownRsvp": "New RSVP answers from phones not on the guest list wait for review in {{event}}."
     }
   }
 }

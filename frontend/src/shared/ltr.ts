@@ -6,3 +6,12 @@
 export function ltr(value: string): string {
   return `\u2066${value}\u2069`
 }
+
+/**
+ * A name of either direction (an event's or a person's) placed inside a
+ * translated sentence, wrapped in first-strong isolate marks so it reads in
+ * its own direction, whatever the sentence's.
+ */
+export function isolate(value: string): string {
+  return `\u2068${value}\u2069`
+}

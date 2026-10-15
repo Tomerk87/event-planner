@@ -3,6 +3,8 @@ import { DomainError } from '../../domain/errors.ts'
 import {
   browserTimeZone,
   defaultEventFormValues,
+  earliestStart,
+  isTypedStartPast,
   fieldErrorOf,
   listTimeZones,
   toDateAndTime,
@@ -44,11 +46,34 @@ describe('event form helpers', () => {
     )
   })
 
+  it('offers dates and times from the next minute on, in the event’s time zone', () => {
+    // 21:59:30 UTC is already the next day in Jerusalem.
+    const now = new Date('2031-01-01T21:59:30.000Z')
+    expect(earliestStart('Asia/Jerusalem', now)).toEqual({
+      date: '2031-01-02',
+      time: '00:00',
+    })
+    expect(earliestStart('America/New_York', now)).toEqual({
+      date: '2031-01-01',
+      time: '17:00',
+    })
+    expect(earliestStart('Not/AZone', now)).toBeNull()
+  })
+
+  it('knows when a typed start is not in the future', () => {
+    const now = new Date('2031-01-01T18:00:00.000Z')
+    const at = (date: string, time: string) =>
+      isTypedStartPast({ date, time, timeZone: 'Asia/Jerusalem' }, now)
+    expect(at('2031-01-01', '20:00')).toBe(true)
+    expect(at('2031-01-01', '20:01')).toBe(false)
+    expect(at('2031-01-01', '')).toBe(false)
+  })
+
   it('starts a new form from the documented defaults', () => {
     expect(defaultEventFormValues('UTC')).toMatchObject({
       name: '',
       timeZone: 'UTC',
-      maxAttendees: '300',
+      maxAttendees: '50',
       defaultAllowedAttendees: '5',
       rsvpLanguage: 'en',
     })

@@ -35,6 +35,7 @@ interface DemoState {
 
 const TABLES = [
   'EmailToken',
+  'Notification',
   'MessageSend',
   'Guest',
   'EventTable',
@@ -177,6 +178,9 @@ await prisma.rsvpSettings.createMany({
       // Demo pictures are not files; the seeded events have none.
       backgroundImageKey: null,
       overlayOpacity: settings['overlayOpacity'] as number,
+      imageZoom: settings['imageZoom'] as number,
+      imagePositionX: settings['imagePositionX'] as number,
+      imagePositionY: settings['imagePositionY'] as number,
       calendarEnabled: calendar['enabled'] as boolean,
       calendarTitle: calendar['title'] as string,
       calendarDate: calendar['date'] as string,

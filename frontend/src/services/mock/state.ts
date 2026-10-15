@@ -36,6 +36,8 @@ export interface DemoState {
   messageTemplates: MessageTemplate[]
   messageSends: MessageSend[]
   tables: EventTable[]
+  /** Notices the visitor has read (D95); absent in demos saved before. */
+  readNotifications?: Id[]
 }
 
 export interface StoredDemo {

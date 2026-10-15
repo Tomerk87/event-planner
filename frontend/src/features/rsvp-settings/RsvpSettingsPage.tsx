@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  ChevronDown,
   Copy,
   Download,
   ExternalLink,
@@ -7,6 +8,7 @@ import {
   ImageUp,
   Link as LinkIcon,
   QrCode,
+  RotateCcw,
   Save,
   Trash2,
 } from 'lucide-react'
@@ -27,6 +29,8 @@ import type { Event, RsvpLanguage, RsvpSettings } from '../../domain/models.ts'
 import {
   BACKGROUND_IMAGE_MAX_LENGTH,
   CALENDAR_TEXT_MAX_LENGTH,
+  DEFAULT_IMAGE_FRAMING,
+  IMAGE_FRAMING,
   RSVP_MESSAGE_MAX_LENGTH,
   RSVP_TITLE_MAX_LENGTH,
   validateRsvpSettings,
@@ -43,6 +47,7 @@ import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { safeFileName } from '../../shared/download.ts'
 import { describeError } from '../../shared/errorMessage.ts'
+import { FailureNotice } from '../../shared/FailureNotice.tsx'
 import { UnsavedChangesGuard } from '../../shared/UnsavedChangesGuard.tsx'
 import { Badge } from '../../shared/ui/Badge.tsx'
 import { Button, IconButton } from '../../shared/ui/Button.tsx'
@@ -93,6 +98,59 @@ const SCREENS = [
   ['DECLINED', 'rsvpSettings.preview.declined'],
   ['NOT_SURE', 'rsvpSettings.preview.notSure'],
 ] as const
+
+/** The zoom and position sliders: field, label, step. */
+const FRAMING = [
+  ['imageZoom', 'rsvpSettings.background.zoom', 5],
+  ['imagePositionX', 'rsvpSettings.background.positionX', 1],
+  ['imagePositionY', 'rsvpSettings.background.positionY', 1],
+] as const
+
+/** A labelled slider showing its value in percent. */
+function RangeField({
+  label,
+  min,
+  max,
+  step,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string
+  min: number
+  max: number
+  step: number
+  value: number
+  disabled: boolean
+  onChange: (value: number) => void
+}) {
+  const id = useId()
+  return (
+    <div className={styles.overlay}>
+      <label htmlFor={id} className={styles.label}>
+        {label}
+      </label>
+      <div className={styles.slider}>
+        {/* Left to right in every language: the picture is not mirrored. */}
+        <input
+          id={id}
+          type="range"
+          dir="ltr"
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          value={value}
+          aria-valuetext={`${value}%`}
+          onChange={(change) => onChange(Number(change.target.value))}
+        />
+        <output htmlFor={id} dir="ltr">
+          {value}%
+        </output>
+      </div>
+    </div>
+  )
+}
 
 function toValues(settings: RsvpSettings, event: Event): Values {
   const { eventId: _eventId, ...rest } = settings
@@ -171,6 +229,8 @@ function RsvpSettingsForm({
   const { showToast } = useToast()
   const formId = useId()
   const overlayId = useId()
+  const optionsId = useId()
+  const [optionsOpen, setOptionsOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const { event, isPast } = info
@@ -226,44 +286,65 @@ function RsvpSettingsForm({
     }
   }
 
-  function handleSubmit(submission: FormEvent) {
-    submission.preventDefault()
+  /** Saves the form; resolves to whether it was saved. */
+  function saveChanges(): Promise<boolean> {
     setErrorField(null)
     setFailure(null)
+    // A stored picture comes back as its address, not as an upload; the
+    // server keeps it as it is, so only a new picture is checked here.
+    const imageChanged = values.backgroundImage !== saved.backgroundImage
     let tidy: RsvpSettingsInput
     try {
-      tidy = validateRsvpSettings(toSettings(values))
+      tidy = {
+        ...validateRsvpSettings({
+          ...toSettings(values),
+          backgroundImage: imageChanged ? values.backgroundImage : null,
+        }),
+        backgroundImage: values.backgroundImage,
+      }
     } catch (error) {
-      return fail(error)
+      fail(error)
+      return Promise.resolve(false)
     }
     const eventChanged =
       values.language !== saved.language ||
       values.rsvpTitle.trim() !== saved.rsvpTitle
 
-    save.mutate(
-      {
-        settings: tidy,
-        event: eventChanged
-          ? {
-              name: event.name,
-              startsAt: event.startsAt,
-              timeZone: event.timeZone,
-              maxAttendees: event.maxAttendees,
-              defaultAllowedAttendees: event.defaultAllowedAttendees,
-              location: event.location,
-              rsvpLanguage: values.language,
-              rsvpTitle: values.rsvpTitle,
-            }
-          : null,
-      },
-      {
-        onSuccess: (result) => {
-          setValues(toValues(result.settings, result.event ?? event))
-          showToast({ tone: 'success', message: t('rsvpSettings.saved') })
+    return new Promise((resolve) =>
+      save.mutate(
+        {
+          settings: tidy,
+          event: eventChanged
+            ? {
+                name: event.name,
+                startsAt: event.startsAt,
+                timeZone: event.timeZone,
+                maxAttendees: event.maxAttendees,
+                defaultAllowedAttendees: event.defaultAllowedAttendees,
+                location: event.location,
+                rsvpLanguage: values.language,
+                rsvpTitle: values.rsvpTitle,
+              }
+            : null,
         },
-        onError: fail,
-      },
+        {
+          onSuccess: (result) => {
+            setValues(toValues(result.settings, result.event ?? event))
+            showToast({ tone: 'success', message: t('rsvpSettings.saved') })
+            resolve(true)
+          },
+          onError: (error) => {
+            fail(error)
+            resolve(false)
+          },
+        },
+      ),
     )
+  }
+
+  function handleSubmit(submission: FormEvent) {
+    submission.preventDefault()
+    void saveChanges()
   }
 
   async function handleImage(change: ChangeEvent<HTMLInputElement>) {
@@ -580,6 +661,67 @@ function RsvpSettingsForm({
                 {t('rsvpSettings.background.overlayHint')}
               </p>
             </div>
+            <div className={styles.options}>
+              <Button
+                variant="ghost"
+                icon={<ChevronDown className={styles.chevron} />}
+                aria-expanded={optionsOpen}
+                aria-controls={optionsId}
+                onClick={() => setOptionsOpen((open) => !open)}
+              >
+                {t('rsvpSettings.background.options')}
+              </Button>
+              {optionsOpen && (
+                <div id={optionsId} className={styles.optionsBody}>
+                  <p className={styles.note}>
+                    {t(
+                      values.backgroundImage
+                        ? 'rsvpSettings.background.framingHint'
+                        : 'rsvpSettings.background.framingNeedsImage',
+                    )}
+                  </p>
+                  {FRAMING.map(([field, label, step]) => {
+                    const range = IMAGE_FRAMING.find(
+                      ([name]) => name === field,
+                    )!
+                    return (
+                      <RangeField
+                        key={field}
+                        label={t(label)}
+                        min={range[1]}
+                        max={range[2]}
+                        step={step}
+                        value={values[field]}
+                        disabled={!canEdit || !values.backgroundImage}
+                        onChange={(value) => set(field, value)}
+                      />
+                    )
+                  })}
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon={<RotateCcw />}
+                      disabled={
+                        !values.backgroundImage ||
+                        IMAGE_FRAMING.every(
+                          ([field]) =>
+                            values[field] === DEFAULT_IMAGE_FRAMING[field],
+                        )
+                      }
+                      onClick={() =>
+                        setValues((current) => ({
+                          ...current,
+                          ...DEFAULT_IMAGE_FRAMING,
+                        }))
+                      }
+                    >
+                      {t('rsvpSettings.background.resetFraming')}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </Card>
@@ -713,7 +855,7 @@ function RsvpSettingsForm({
       />
       <div className={styles.page}>
         <ReadOnlyNotice />
-        {failure && <Notice tone="danger" title={failure} announce />}
+        {failure && <FailureNotice message={failure} />}
         {isDesktop ? (
           <div className={styles.columns}>
             {settingsCards}
@@ -755,7 +897,7 @@ function RsvpSettingsForm({
       >
         {fullPreview && preview}
       </Dialog>
-      <UnsavedChangesGuard active={isDirty} />
+      <UnsavedChangesGuard active={isDirty} onSave={saveChanges} />
     </>
   )
 }

@@ -12,6 +12,7 @@ import type {
   DashboardWarnings,
 } from '../../domain/metrics.ts'
 import type {
+  AccountNotification,
   Event,
   EventInvitation,
   EventTable,
@@ -336,6 +337,20 @@ export interface EmailStatus {
   authenticated: boolean
 }
 
+export interface NotificationList {
+  /** The most recent notices, newest first. */
+  items: AccountNotification[]
+  /** Unread notices, including any beyond the listed ones. */
+  unread: number
+}
+
+/** The signed-in account's notices, under the bell (D95). */
+export interface NotificationsService {
+  list(): Promise<NotificationList>
+  /** Marks one notice read, or every notice when no id is given. */
+  markRead(id?: Id): Promise<void>
+}
+
 /** The server's own settings, for a Super User; read-only (D91). */
 export interface SystemService {
   getEmailStatus(): Promise<EmailStatus>
@@ -430,6 +445,7 @@ export interface Services {
   dashboard: DashboardService
   files: FilesService
   system: SystemService
+  notifications: NotificationsService
   preferences: PreferencesService
   /** Present only when the application runs on demo data. */
   demo: DemoControl | null

@@ -45,6 +45,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Bulk sending | Sending to many guests in one action. | PRD §17 |
 | Automated reminders | Scheduled follow-ups to guests who have not responded. | PRD §17 |
 | Delivery, read and failure tracking | The MVP records only that a send was initiated. | PRD §7.1, §17 |
+| Dragging the RSVP picture | Moving the background picture by dragging it in the preview and zooming with a pinch or the mouse wheel, on top of the Additional Options sliders (D96). | Owner request 2026-10-15 |
 | Variables as chips inside the editor | The mockup draws each variable as a highlighted chip within the message text. In the MVP the editor is a plain text box. | Mockup `whatsapp_message.png`; Phase 8 |
 | Test message to a saved number | Send Test Message opens WhatsApp with no recipient. Keeping the organizer's own number for one-click tests is not built. | Owner decision 2026-10-13 |
 
@@ -58,6 +59,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Photo Sharing | Sidebar entry shown in two mockups. No requirements written. | Same |
 | Payments and full event-production management | | PRD §17 |
 | Reusable event templates | | PRD §17 |
+| Exact event location with Google | Choosing the place with Google's address search in Event Settings (storing its place id, address and coordinates), and a small map on the RSVP page. Needs a Google Cloud project, an API key restricted to the app's domain and a billing account; best done with deployment, once the domain exists. Today the Google Maps and Waze links search for the location as typed (D97). | Owner question 2026-10-15 |
 | Event types: personal and business | Each event gets a type. Personal events are weddings, birthdays and the like, as today. Business events are run for companies, where guests are usually invited by email rather than WhatsApp (see "Emailing guests their invitation" under Messaging). What the type changes beyond the invitation channel (texts, RSVP fields, defaults, cover) has no requirements yet. | Owner request 2026-10-15 |
 | Duplicating an event with its guest list | In the MVP a duplicate copies the event's details, RSVP settings, message template and tables, without guests. | Owner decision 2026-10-12 |
 | Recoverable event deletion | Restoring a deleted event within a period. In the MVP deletion is permanent. | Owner decision 2026-10-12 |
@@ -66,7 +68,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 
 | Feature | Notes | Source |
 |---|---|---|
-| Notifications | The bell shown in the top bar of every mockup. No requirements written: what triggers a notification and where it is listed are undefined. | All mockups; owner decision 2026-10-12 |
+| More notifications | The bell is built (D95) for access, roles and unknown RSVP answers. Not built: other triggers (each RSVP answer, invitations sent, event changes by others), choosing which notices to get, and sending them by email or as phone push notices. | Owner decision 2026-10-15 |
 | Profile page | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
 | Account settings | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
 | "How it works" section | A header link on the landing page mockup with no matching section. | Mockups `landing_page.png`; Phase 4 plan approved 2026-10-13 |

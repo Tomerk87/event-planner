@@ -1,4 +1,5 @@
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import { isolate } from '../src/shared/ltr.ts'
 import { chooseOption } from './helpers.ts'
 import {
   addGuestByApi,
@@ -93,6 +94,23 @@ test('an Owner invites by role; an invitation becomes access at sign-up', async 
   await page.reload()
   await expect(entry(page, isMobile, 'Ada Admin')).toContainText('Admin')
   await expect(entry(page, isMobile, 'Pending')).toHaveCount(0)
+
+  // The bell tells the invited person, and leads to the event (D95).
+  await viewer.page.goto('/events')
+  await viewer.page
+    .getByRole('button', { name: 'Notifications, 1 unread' })
+    .click()
+  await viewer.page
+    .getByRole('link', {
+      name: `${isolate('Olive Owner')} gave you Viewer access to ${isolate('Board Meeting')}.`,
+    })
+    .click()
+  await expect(viewer.page).toHaveURL(
+    new RegExp(`/events/${event.id}/dashboard$`),
+  )
+  await expect(
+    viewer.page.getByRole('button', { name: 'Notifications', exact: true }),
+  ).toBeVisible()
   await viewer.close()
 })
 

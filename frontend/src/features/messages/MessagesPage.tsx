@@ -38,6 +38,7 @@ import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { openExternal } from '../../shared/openExternal.ts'
+import { FailureNotice } from '../../shared/FailureNotice.tsx'
 import { UnsavedChangesGuard } from '../../shared/UnsavedChangesGuard.tsx'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
 import { Badge } from '../../shared/ui/Badge.tsx'
@@ -350,6 +351,11 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
 
   function handleSubmit(submission: FormEvent) {
     submission.preventDefault()
+    void saveChanges()
+  }
+
+  /** Saves the message; resolves to whether it was saved. */
+  function saveChanges(): Promise<boolean> {
     const found =
       draft.trim() === ''
         ? 'empty'
@@ -360,15 +366,21 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
     setFailure(null)
     if (found) {
       editorRef.current?.querySelector('textarea')?.focus()
-      return
+      return Promise.resolve(false)
     }
-    save.mutate(draft, {
-      onSuccess: (template) => {
-        setDraft(template.body)
-        showToast({ tone: 'success', message: t('messages.saved') })
-      },
-      onError: (problem) => setFailure(describeError(t, problem)),
-    })
+    return new Promise((resolve) =>
+      save.mutate(draft, {
+        onSuccess: (template) => {
+          setDraft(template.body)
+          showToast({ tone: 'success', message: t('messages.saved') })
+          resolve(true)
+        },
+        onError: (problem) => {
+          setFailure(describeError(t, problem))
+          resolve(false)
+        },
+      }),
+    )
   }
 
   function reset() {
@@ -685,7 +697,7 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
       />
       <div className={styles.page}>
         <ReadOnlyNotice />
-        {failure && <Notice tone="danger" title={failure} announce />}
+        {failure && <FailureNotice message={failure} />}
         {isDesktop ? (
           <>
             <div className={styles.columns}>
@@ -720,7 +732,7 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
           />
         )}
       </div>
-      <UnsavedChangesGuard active={isDirty} />
+      <UnsavedChangesGuard active={isDirty} onSave={saveChanges} />
     </>
   )
 }

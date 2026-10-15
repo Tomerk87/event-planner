@@ -10,9 +10,18 @@
     var(--color-sidebar-raised),
     var(--color-sidebar)
   );
-  background-position: center;
-  background-size: cover;
+  overflow: hidden;
   color: var(--color-rsvp-text);
+}
+
+/* The organizer's picture, behind the darkening and the content. */
+.picture {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
 }
 
 /* The organizer's darkening of the picture. */
@@ -60,6 +69,38 @@
   margin: 0;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
+}
+
+.maps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* Small pills on the picture, readable on any background. */
+.mapLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-block-size: 2rem;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: rgb(0 0 0 / 35%);
+  color: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.mapLink:hover {
+  background: rgb(0 0 0 / 50%);
+}
+
+.mapLink svg {
+  inline-size: 1rem;
+  block-size: 1rem;
 }
 
 .panel {

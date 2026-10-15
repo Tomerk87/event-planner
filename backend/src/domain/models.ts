@@ -115,6 +115,14 @@ export interface RsvpSettings {
   backgroundImage: string | null
   /** Darkening of the background image, 0–100. */
   overlayOpacity: number
+  /** How much the background image is enlarged, in percent: 100–300. */
+  imageZoom: number
+  /**
+   * The point of the background image kept in view, in percent from the
+   * start (left) and from the top: 0–100 each; 50 is the centre.
+   */
+  imagePositionX: number
+  imagePositionY: number
   /** The calendar entry offered after approval; its own date and time. */
   calendar: {
     enabled: boolean
@@ -148,4 +156,29 @@ export interface EventTable {
   number: number
   capacity: number
   shape: TableShape
+}
+
+export const NOTIFICATION_KINDS = [
+  'ACCESS_GRANTED',
+  'ROLE_CHANGED',
+  'ACCESS_REMOVED',
+  'UNKNOWN_RSVP',
+] as const
+
+export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
+
+/** Something that happened to the account, shown under the bell (D95). */
+export interface AccountNotification {
+  id: Id
+  kind: NotificationKind
+  /** Null once the event was deleted. */
+  eventId: Id | null
+  /** The event's name when it happened. */
+  eventName: string
+  /** Who did it; null when nobody did, e.g. an invitation accepted at sign-up. */
+  actorName: string | null
+  /** The role given, for access given and a changed role. */
+  role: EventRole | null
+  createdAt: IsoDateTime
+  read: boolean
 }

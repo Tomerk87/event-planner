@@ -103,6 +103,9 @@ const SETTINGS = {
   notSureMessage: 'Maybe',
   backgroundImage: null,
   overlayOpacity: 40,
+  imageZoom: 100,
+  imagePositionX: 50,
+  imagePositionY: 50,
   calendar: {
     enabled: false,
     title: 'Party',

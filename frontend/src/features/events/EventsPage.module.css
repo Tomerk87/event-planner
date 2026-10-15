@@ -88,6 +88,10 @@
     margin-block-end: var(--space-4);
   }
 
+  .tabs {
+    inline-size: 100%;
+  }
+
   .grid {
     grid-template-columns: minmax(0, 1fr);
   }

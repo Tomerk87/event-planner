@@ -59,6 +59,8 @@ interface AppShellProps {
   tools?: ReactNode
   /** Shown above the page, such as a request to verify the email. */
   notice?: ReactNode
+  /** The notification bell, beside the user menu at every width. */
+  bell?: ReactNode
   /** On desktop, show the side menu as icons only. */
   collapsed?: boolean
   /** Offers the desktop button that collapses and expands the side menu. */
@@ -239,6 +241,7 @@ export function AppShell({
   user,
   banner,
   notice,
+  bell,
   tools,
   collapsed = false,
   onToggleCollapsed,
@@ -326,6 +329,7 @@ export function AppShell({
           <div className={styles.topbarEnd}>
             {banner}
             {isDesktop && tools}
+            {bell}
             {user && <UserBadge user={user} onSignOut={onSignOut} />}
           </div>
         </header>

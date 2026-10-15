@@ -1,0 +1,154 @@
+.trigger {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--control-height);
+  block-size: var(--control-height);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--color-neutral-soft);
+  color: var(--color-text);
+}
+
+.trigger:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.trigger svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+/* The number of unread notices, on the bell's corner. */
+.count {
+  position: absolute;
+  inset-block-start: 0.3rem;
+  inset-inline-end: 0.2rem;
+  min-inline-size: 1.1rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1rem;
+  text-align: center;
+}
+
+.panel {
+  inline-size: min(22rem, calc(100vw - 2 * var(--space-4)));
+  padding: 0;
+}
+
+/* On a phone the list spans the screen below the top bar, whichever side
+   the bell is on. */
+@media (max-width: 767px) {
+  div.panel {
+    position: fixed;
+    inset-block-start: calc(var(--topbar-height) + var(--space-1));
+    inset-inline: var(--space-4);
+    inline-size: auto;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.markAll {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.markAll:hover {
+  text-decoration: underline;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.list {
+  max-block-size: min(24rem, 70vh);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.item + .item {
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.link:hover {
+  background: var(--color-surface-muted);
+}
+
+.text {
+  font-size: var(--font-size-sm);
+}
+
+.time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* An unread notice: a tinted row and a dot at its start. */
+.unread {
+  background: var(--color-primary-soft);
+}
+
+.unread .text {
+  position: relative;
+  padding-inline-start: var(--space-3);
+  font-weight: var(--font-weight-medium);
+}
+
+.unread .text::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.45em;
+  inline-size: 0.4rem;
+  block-size: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+}

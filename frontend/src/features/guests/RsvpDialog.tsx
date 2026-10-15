@@ -40,8 +40,14 @@ function RsvpForm({
   const { showToast } = useToast()
   const setRsvp = useSetGuestRsvp(eventId)
   const [status, setStatus] = useState<RsvpStatus>(guest.rsvpStatus)
+  // An approved guest keeps their count; otherwise approving starts from
+  // the guest's Expected Attendees.
   const [attendees, setAttendees] = useState(
-    String(guest.confirmedAttendees || 1),
+    String(
+      (guest.rsvpStatus === 'APPROVED' && guest.confirmedAttendees) ||
+        guest.allowedAttendees ||
+        1,
+    ),
   )
   const [attendeesInvalid, setAttendeesInvalid] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)

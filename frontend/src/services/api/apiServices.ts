@@ -24,6 +24,7 @@ import type {
   InviteResult,
   Member,
   MessagePreview,
+  NotificationList,
   PreferencesService,
   PublicRsvpResult,
   PublicRsvpService,
@@ -89,6 +90,9 @@ function rsvpSettingsInput(input: RsvpSettingsInput): RsvpSettingsInput {
     notSureMessage: input.notSureMessage,
     backgroundImage: input.backgroundImage,
     overlayOpacity: input.overlayOpacity,
+    imageZoom: input.imageZoom,
+    imagePositionX: input.imagePositionX,
+    imagePositionY: input.imagePositionY,
     calendar: {
       enabled: input.calendar.enabled,
       title: input.calendar.title,
@@ -343,6 +347,12 @@ export function createApiServices(
         http.post<{ sent: boolean }>('/system/email/test', {
           language: language(),
         }),
+    },
+
+    notifications: {
+      list: () => http.get<NotificationList>('/notifications'),
+      markRead: (id) =>
+        http.post<void>('/notifications/read', id === undefined ? {} : { id }),
     },
 
     preferences,

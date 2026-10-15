@@ -7,6 +7,7 @@ import { AppShell } from './shell/AppShell.tsx'
 import { useSignOut } from './session/useSignOut.ts'
 import { EmailVerificationNotice } from './shell/EmailVerificationNotice.tsx'
 import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
+import { NotificationBell } from './notifications/NotificationBell.tsx'
 
 export function HomeLayout() {
   const { t } = useTranslation()
@@ -39,6 +40,7 @@ export function HomeLayout() {
       signOutInSidebar
       banner={<DemoBadge />}
       notice={<EmailVerificationNotice />}
+      bell={<NotificationBell />}
       tools={<DemoTools />}
     >
       <Outlet />

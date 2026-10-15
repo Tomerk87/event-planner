@@ -9,7 +9,10 @@ interface PopoverProps {
   trigger: ReactNode
   triggerClassName?: string
   align?: 'start' | 'end'
-  children: ReactNode
+  /** The panel; given a function, it can close the panel itself. */
+  children: ReactNode | ((close: () => void) => ReactNode)
+  /** Overrides the panel's own look, such as its width. */
+  panelClassName?: string
 }
 
 /**
@@ -23,6 +26,7 @@ export function Popover({
   triggerClassName,
   align = 'end',
   children,
+  panelClassName,
 }: PopoverProps) {
   const panelId = useId()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -89,9 +93,11 @@ export function Popover({
           id={panelId}
           role="group"
           aria-label={label}
-          className={cx(styles.panel, styles[align])}
+          className={cx(styles.panel, styles[align], panelClassName)}
         >
-          {children}
+          {typeof children === 'function'
+            ? children(() => setOpen(false))
+            : children}
         </div>
       )}
     </div>

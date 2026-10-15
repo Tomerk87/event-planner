@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
-import { EVENT_LIMITS } from '../../domain/events.ts'
+import { EVENT_LIMITS, maxAttendeesRange } from '../../domain/events.ts'
 import type { Event } from '../../domain/models.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
@@ -13,6 +13,7 @@ import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
+import { FailureNotice } from '../../shared/FailureNotice.tsx'
 import { UnsavedChangesGuard } from '../../shared/UnsavedChangesGuard.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard } from '../../shared/ui/Card.tsx'
@@ -29,6 +30,9 @@ import {
   timeZoneLabel,
   toDateAndTime,
   toInteger,
+  clampToRange,
+  earliestStart,
+  isTypedStartPast,
   toStartsAt,
   validateEventForm,
   type EventFormErrors,
@@ -141,6 +145,12 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
   const [failure, setFailure] = useState<string | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const isDirty = canEdit && differs(values, toFormValues(event))
+  // The maximum may not drop below the attendees already confirmed (D94);
+  // an unchanged maximum is kept as it is.
+  const confirmed = useDashboard(event.id).data?.metrics.confirmedAttendees ?? 0
+  const allowedMax = maxAttendeesRange(confirmed)
+  const maxChanged = values.maxAttendees !== String(event.maxAttendees)
+  const checkedMax = maxChanged ? allowedMax : EVENT_LIMITS.maxAttendees
 
   // A rejected save moves focus to the first field that needs attention.
   useEffect(() => {
@@ -157,49 +167,69 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
   }
 
   const message = (field: EventFormField) =>
-    eventFormErrorMessage(t, errors, field)
+    eventFormErrorMessage(t, errors, field, checkedMax)
 
   function handleSubmit(submission: FormEvent) {
     submission.preventDefault()
+    void saveChanges()
+  }
+
+  /** Saves the form; resolves to whether it was saved. */
+  function saveChanges(): Promise<boolean> {
     const startsAt = toStartsAt(values.date, values.time, values.timeZone)
-    const found = validateEventForm(values, startsAt)
+    const found = validateEventForm(values, startsAt, checkedMax)
     setErrors(found)
     setFailure(null)
     if (Object.keys(found).length > 0 || startsAt === null) {
-      return
+      return Promise.resolve(false)
     }
 
-    update.mutate(
-      {
-        name: values.name,
-        startsAt,
-        timeZone: values.timeZone,
-        maxAttendees: toInteger(values.maxAttendees),
-        defaultAllowedAttendees: toInteger(values.defaultAllowedAttendees),
-        location: values.location,
-        coverImage: values.coverImage,
-        // Edited on RSVP Settings; sent back as they are.
-        rsvpLanguage: event.rsvpLanguage,
-        rsvpTitle: event.rsvpTitle,
-      },
-      {
-        onSuccess: (saved) => {
-          setValues(toFormValues(saved))
-          showToast({ tone: 'success', message: t('settings.saved') })
+    return new Promise((resolve) =>
+      update.mutate(
+        {
+          name: values.name,
+          startsAt,
+          timeZone: values.timeZone,
+          maxAttendees: toInteger(values.maxAttendees),
+          defaultAllowedAttendees: toInteger(values.defaultAllowedAttendees),
+          location: values.location,
+          coverImage: values.coverImage,
+          // Edited on RSVP Settings; sent back as they are.
+          rsvpLanguage: event.rsvpLanguage,
+          rsvpTitle: event.rsvpTitle,
         },
-        onError: (error) => {
-          const fieldError = fieldErrorOf(error)
-          if (fieldError) {
-            setErrors(fieldError)
-          } else {
-            setFailure(describeError(t, error))
-          }
+        {
+          onSuccess: (saved) => {
+            setValues(toFormValues(saved))
+            showToast({ tone: 'success', message: t('settings.saved') })
+            resolve(true)
+          },
+          onError: (error) => {
+            const fieldError = fieldErrorOf(error)
+            if (fieldError) {
+              setErrors(fieldError)
+            } else {
+              setFailure(describeError(t, error))
+            }
+            resolve(false)
+          },
         },
-      },
+      ),
     )
   }
 
-  const startsAtError = message('startsAt')
+  // A past date and time is pointed out as soon as it is typed; the saved
+  // date of an event that has started is not a mistake.
+  const savedValues = toFormValues(event)
+  const startChanged =
+    values.date !== savedValues.date ||
+    values.time !== savedValues.time ||
+    values.timeZone !== savedValues.timeZone
+  const startsAtError =
+    canEdit && startChanged && isTypedStartPast(values)
+      ? t('events.form.errors.startsAtPast')
+      : message('startsAt')
+  const earliest = earliestStart(values.timeZone)
   const start = new Date(event.startsAt)
   const startsAtText = {
     date: format.date(start, event.timeZone),
@@ -229,7 +259,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
       />
       <div className={styles.page}>
         <ReadOnlyNotice />
-        {failure && <Notice tone="danger" title={failure} announce />}
+        {failure && <FailureNotice message={failure} />}
         <div className={styles.columns}>
           <form
             id={formId}
@@ -271,18 +301,30 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   type="number"
                   inputMode="numeric"
                   required
-                  min={EVENT_LIMITS.maxAttendees.min}
-                  max={EVENT_LIMITS.maxAttendees.max}
+                  min={allowedMax.min}
+                  max={allowedMax.max}
                   disabled={!canEdit}
                   value={values.maxAttendees}
-                  hint={t(
-                    'settings.general.maxAttendeesHint',
-                    EVENT_LIMITS.maxAttendees,
-                  )}
+                  hint={
+                    confirmed > EVENT_LIMITS.maxAttendees.min
+                      ? t('settings.general.maxAttendeesConfirmedHint', {
+                          ...allowedMax,
+                          confirmed,
+                        })
+                      : t('settings.general.maxAttendeesHint', allowedMax)
+                  }
                   error={message('maxAttendees')}
                   onChange={(change) =>
                     set('maxAttendees', change.target.value)
                   }
+                  onBlur={() => {
+                    if (maxChanged) {
+                      set(
+                        'maxAttendees',
+                        clampToRange(values.maxAttendees, allowedMax),
+                      )
+                    }
+                  }}
                 />
                 <div className={styles.row}>
                   <TextField
@@ -291,6 +333,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                     required
                     disabled={!canEdit}
                     value={values.date}
+                    min={earliest?.date}
                     aria-describedby={startsAtError ? dateErrorId : undefined}
                     aria-invalid={startsAtError ? true : undefined}
                     onChange={(change) => set('date', change.target.value)}
@@ -301,6 +344,9 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                     required
                     disabled={!canEdit}
                     value={values.time}
+                    min={
+                      values.date === earliest?.date ? earliest.time : undefined
+                    }
                     aria-describedby={startsAtError ? dateErrorId : undefined}
                     aria-invalid={startsAtError ? true : undefined}
                     onChange={(change) => set('time', change.target.value)}
@@ -440,7 +486,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
         </div>
       </div>
       <EventRulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
-      <UnsavedChangesGuard active={isDirty} />
+      <UnsavedChangesGuard active={isDirty} onSave={saveChanges} />
     </>
   )
 }

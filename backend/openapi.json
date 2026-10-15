@@ -2384,6 +2384,62 @@
           "dashboard"
         ]
       }
+    },
+    "/api/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "The most recent notices, newest first, and how many are unread.",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/read": {
+      "post": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkReadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
     }
   },
   "info": {
@@ -3606,6 +3662,18 @@
           "overlayOpacity": {
             "type": "number"
           },
+          "imageZoom": {
+            "type": "number",
+            "description": "Zoom of the background picture, 100–300 percent."
+          },
+          "imagePositionX": {
+            "type": "number",
+            "description": "The point of the picture kept in view, 0–100 percent from the start."
+          },
+          "imagePositionY": {
+            "type": "number",
+            "description": "The point of the picture kept in view, 0–100 percent from the top."
+          },
           "calendar": {
             "$ref": "#/components/schemas/CalendarDto"
           },
@@ -3621,6 +3689,9 @@
           "declinedMessage",
           "notSureMessage",
           "overlayOpacity",
+          "imageZoom",
+          "imagePositionX",
+          "imagePositionY",
           "calendar",
           "youtube"
         ]
@@ -3653,6 +3724,18 @@
           "overlayOpacity": {
             "type": "number"
           },
+          "imageZoom": {
+            "type": "number",
+            "description": "Zoom of the background picture, 100–300 percent."
+          },
+          "imagePositionX": {
+            "type": "number",
+            "description": "The point of the picture kept in view, 0–100 percent from the start."
+          },
+          "imagePositionY": {
+            "type": "number",
+            "description": "The point of the picture kept in view, 0–100 percent from the top."
+          },
           "calendar": {
             "$ref": "#/components/schemas/CalendarDto"
           },
@@ -3667,6 +3750,9 @@
           "declinedMessage",
           "notSureMessage",
           "overlayOpacity",
+          "imageZoom",
+          "imagePositionX",
+          "imagePositionY",
           "calendar",
           "youtube"
         ]
@@ -4068,6 +4154,90 @@
           "warnings",
           "recentActivity"
         ]
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "ACCESS_GRANTED",
+              "ROLE_CHANGED",
+              "ACCESS_REMOVED",
+              "UNKNOWN_RSVP"
+            ],
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null once the event was deleted."
+          },
+          "actorName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Who did it; null when nobody did."
+          },
+          "role": {
+            "nullable": true,
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "VIEWER"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "eventName": {
+            "type": "string",
+            "description": "The event's name when it happened."
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "eventId",
+          "actorName",
+          "role",
+          "id",
+          "eventName",
+          "createdAt",
+          "read"
+        ]
+      },
+      "NotificationListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDto"
+            }
+          },
+          "unread": {
+            "type": "number",
+            "description": "Unread notices, including any beyond the listed ones."
+          }
+        },
+        "required": [
+          "items",
+          "unread"
+        ]
+      },
+      "MarkReadDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The notice to mark read; every notice when left out."
+          }
+        }
       }
     }
   }

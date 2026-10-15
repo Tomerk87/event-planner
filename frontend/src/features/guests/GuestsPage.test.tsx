@@ -665,6 +665,9 @@ describe('Changing guests', () => {
 
     openEditGuest(rowOf(name), name)
     const dialog = screen.getByRole('dialog', { name: 'Edit Guest' })
+    expect(
+      within(dialog).getByLabelText(/^Expected Attendees/),
+    ).toHaveAttribute('min', String(guest.confirmedAttendees))
     fillGuestForm(dialog, { allowed: '1' })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Save Changes' }),
@@ -755,6 +758,10 @@ describe('Changing guests', () => {
     ).not.toBeInTheDocument()
 
     fireEvent.click(within(dialog).getByRole('radio', { name: 'Approved' }))
+    // Approving starts from the guest's Expected Attendees.
+    expect(within(dialog).getByLabelText(/Confirmed Attendees/)).toHaveValue(
+      guest.allowedAttendees,
+    )
     change(within(dialog).getByLabelText(/Confirmed Attendees/), {
       target: { value: String(guest.allowedAttendees + 1) },
     })
@@ -777,6 +784,24 @@ describe('Changing guests', () => {
     expect(
       within(rowOf(name)).getByRole('combobox', { name: `Table for ${name}` }),
     ).toHaveValue('NONE')
+  })
+
+  it('keeps an approved guest’s confirmed count when the RSVP dialog opens', async () => {
+    const services = createTestServices()
+    const guest = await find(
+      services,
+      (candidate) =>
+        candidate.rsvpStatus === 'APPROVED' &&
+        (candidate.confirmedAttendees ?? 0) < candidate.allowedAttendees,
+    )
+    const name = guestFullName(guest)
+    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
+
+    openRowMenu(name, 'Change RSVP')
+    const dialog = screen.getByRole('dialog', { name: 'Change RSVP' })
+    expect(within(dialog).getByLabelText(/Confirmed Attendees/)).toHaveValue(
+      guest.confirmedAttendees,
+    )
   })
 
   it('warns that a seated guest loses their table when they stop being approved', async () => {

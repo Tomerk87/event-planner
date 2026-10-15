@@ -88,7 +88,7 @@
 - [x] Read `mockups/README.md`; inspect all supplied screen types to extract common patterns.
 - [x] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
 - [x] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
-- [x] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). The event selector is in the sidebar only. Do not build the notification bell, Profile or account Settings. Inside an event the avatar shows the user's role icon (crown Owner, shield Admin, people icon Viewer; Super User without membership shows the crown); no icon outside an event. Design and verify desktop and phone widths; tablets are not a separate target.
+- [x] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). The event selector is in the sidebar only. Do not build the notification bell, Profile or account Settings (the bell was later built at the owner's request, D95, 2026-10-15). Inside an event the avatar shows the user's role icon (crown Owner, shield Admin, people icon Viewer; Super User without membership shows the crown); no icon outside an event. Design and verify desktop and phone widths; tablets are not a separate target.
 - [x] Add `i18next`/`react-i18next` with `en` and `he` translation resources and language persistence.
 - [x] Move the hard-coded English strings left from Phase 1 (placeholder, not-found and error pages, event navigation labels) into translation resources.
 - [x] Switch root `lang` and `dir` properly; use logical CSS properties and handle LTR phone/email/URL values inside RTL.
@@ -519,6 +519,18 @@
 ### Validation and exit criteria
 - [x] Critical E2E paths and regression tests pass.
 - [x] Known limitations documented; no blocking security or data integrity defects.
+
+### Owner feedback (2026-10-15)
+- [x] RSVP Settings Save did nothing on a real account once a picture was stored (the stored picture's address failed the browser's upload check, and the message was out of view); fixed, and a failed save's message now scrolls into view on RSVP Settings, Event Settings and WhatsApp Messages.
+- [x] "Leave without saving?" offers Save and Leave (D98).
+- [x] Change RSVP: approving starts from the guest's Expected Attendees (D98).
+- [x] Date and time pickers offer no past date or time; a past one is pointed out as typed (D98).
+- [x] Maximum Attendees starts at 50, never below the confirmed attendees, brought back within range when left; Expected Attendees not below what a guest confirmed (D94).
+- [x] Rows of tabs never scroll sideways; Guests and My Events use segmented buttons (D98).
+- [x] RSVP picture zoom and position under Additional Options (D96).
+- [x] Google Maps and Waze links for the location on the RSVP page (D97); exact place with Google's address search is a future feature.
+- [x] Notification bell (D95).
+- [x] Answered: a demo has no time limit; its data stays in the browser until Reset Demo, cleared site data, or a new demo dataset version. Optional, not built: refresh the demo once all its sample events have passed (waits for the owner).
 
 ---
 
@@ -1199,6 +1211,20 @@ Validation: backend typecheck, lint (same 2 warnings), format, unit 508 (new: la
 Mockups reviewed: mockups/event_collaboration_email.png.
 Follow-ups/risks: email stays off until Phase 18; the Hebrew email texts are part of the Hebrew review.
 Next: owner review of Phase 17 and the Hebrew sheet; then Phase 18.
+
+2026-10-15 — Phase 17 — owner feedback: ten items (branch phase_17_feedback, carrying the email-design changes).
+Decisions (owner, plan approved): D94 maximum attendees (default 50, not below confirmed, clamped); D95 notification bell (access given, role changed, access removed, unknown RSVP answers for Owners/Admins; 90 days; demo derives its notices); D96 RSVP picture zoom and position under Additional Options; D97 Google Maps and Waze links from the typed location; D98 Change RSVP default, date pickers from the next minute, Save and Leave, tabs never scroll (segmented on Guests and My Events). Answered without code: demo lifetime; Google address search needs a key (future feature).
+- Bug: RsvpSettingsPage checked a stored picture (`/api/files/…`) with the upload rule, so every save after one with a picture failed in the browser, silently. Only a changed picture is checked now; real-account e2e covers it (e2e/real-rsvp.spec.ts). A non-field failure scrolls its notice into view (shared/FailureNotice.tsx).
+- UnsavedChangesGuard takes onSave; the three form pages' submit became saveChanges(): Promise<boolean>.
+- Server: domain rules maxAttendeesRange/assertMaxAttendeesCoversConfirmed (both copies, used by events.update and the demo); RsvpSettings imageZoom/imagePositionX/imagePositionY (migration 20261015152112_image_framing with range checks, DTO, mappers, IMAGE_FRAMING in both domain copies, back-filled for stored demos); Notification table and module (migration *_notifications; notify() in permissions invite/changeRole/revoke and invitation acceptance, notifyUnknownRsvp() in the public RSVP; routes GET /api/notifications, POST /api/notifications/read); openapi.json regenerated.
+- Frontend: NotificationsService in the contract (API and demo), NotificationBell in the top bar (Popover can now close itself), shared/ltr.ts isolate() for names inside sentences; RsvpCard draws the picture as an image layer (object-position + scale) and the map links (mapLinks.ts); Tabs no longer scroll (shrink and wrap; segmented share a phone's width); phone top bar hides the logo text below 440px so the bell fits.
+- Hebrew review sheet regenerated: 998 texts (new: notifications, picture options, maps, maximum hint, Save and Leave).
+Validation:
+- Backend: typecheck, lint (same 2 warnings), format; unit 515; integration 289 (new: notifications 5, maximum vs confirmed, picture framing kept with a stored picture); build; npm audit 0; migrations applied to the dev and test databases.
+- Frontend: typecheck, lint, format; unit 1139, coverage 96.05% statements / 91.09% branches; test:api 58 passed, 2 skipped; build; test:e2e 403 passed, 25 skipped (new: tabs never overflow in en/he at 360 and 390 px, shown to fail on the old styles; RSVP save with a stored picture plus zoom/position kept and shown to guests; Save and Leave; maximum clamped; bell on a real invitation; axe with the bell open).
+- By hand: screenshots in English and Hebrew at 1280 and 390 px of My Events and Guests tabs, the bell list, RSVP Additional Options and the map links; fixed from them: tabs breaking mid-word on desktop, the bell list running off a phone in Hebrew, English names out of order in Hebrew notices.
+Follow-ups/risks: the demo's access notices have no real date (they show as today); notices are polled every minute, not pushed. Hebrew review still waits for the owner.
+Next: owner review of these changes and the Hebrew sheet; then Phase 18.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
