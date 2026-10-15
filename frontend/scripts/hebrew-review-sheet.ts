@@ -80,7 +80,11 @@ function emailRows(): [string, string, string][] {
     hours: 24,
     minutes: 60,
     inviter: 'Riley',
-    event: 'Garden Party',
+    event: {
+      name: 'Garden Party',
+      startsAt: '2026-10-24T17:00:00.000Z',
+      timeZone: 'Asia/Jerusalem',
+    },
     role: 'ADMIN' as const,
   }
   const kinds = {

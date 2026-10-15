@@ -513,6 +513,7 @@
 - [x] Forgot password by email, with a one-time link that signs the account out everywhere (D88).
 - [x] Invitation emails, with "Resend email" on a pending invitation (D90).
 - [x] Read-only System page for Super Users: email settings and a test email (D91).
+- [x] Email design from `mockups/event_collaboration_email.png` for every email the server sends, in English and Hebrew; Accept Invitation opens sign-up with the address filled in (owner request 2026-10-15, D93).
 - [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew. The owner chose the side-by-side sheet (2026-10-15): `docs/hebrew-review.xlsx` (`npm run hebrew-review` in `frontend/`) is ready; **waiting for the owner's corrections**, then apply them and re-check the Hebrew screenshots.
 
 ### Validation and exit criteria
@@ -1186,6 +1187,17 @@ Follow-ups/risks:
 - Email stays off in the POC until Phase 18 connects SES (new Phase 18 item). While off, whoever signs up with an invited email gets that invitation's access (accepted, D88).
 - `npm run test:e2e` now also needs Mailpit (`npm run db:up` starts it).
 - Branch phase_17_implementation (from chore/ignore-tsbuildinfo, rebased on main); nothing committed.
+Next: owner review of Phase 17 and the Hebrew sheet; then Phase 18.
+
+2026-10-15 — Phase 17 — email design from the owner's new mockup, and a future feature.
+Decisions (owner): emails follow mockups/event_collaboration_email.png, so they are ready when a provider is connected (D93). Future feature: event types, personal or business, with business guests invited by email.
+- backend/src/email/templates.ts: one table-based layout with inline styles for all emails (mark, optional envelope picture, title, greeting, message, Role and Date box for event emails, button with an arrow that follows the reading direction, closing, footer with lock), en/he, plus a plain-text version. The event date is the event's day in its time zone. Typed values are escaped, and isolated in Hebrew. Pictures are PNGs sent as inline attachments (cid), drawn in frontend/scripts/email-images.ts (`npm run email-images`) into backend/src/email/images.ts. SmtpMailer attaches them.
+- Accept Invitation links to /signup?email=…; the sign-up form fills in that address. The access email greets the account by name.
+- Not built from the mockup: the Help, Privacy and Terms footer links (no such pages; FUTURE_FEATURES). Recorded in MOCKUP_NOTES and mockups/README.md.
+- Hebrew review sheet regenerated with the new email texts.
+Validation: backend typecheck, lint (same 2 warnings), format, unit 508 (new: layout, greeting, date in the event's time zone, pictures, arrow direction, inline attachments), integration 283, build; frontend typecheck, lint, unit 1117 (new: sign-up fills in the invited address), coverage 96.1% / 91.3%, build, test:e2e 347 passed / 25 skipped (the email spec now opens Accept Invitation and signs up from it). By hand: invitation, access and reset emails sent over SMTP to Mailpit in English and Hebrew and viewed at 640 and 390 px; they match the mockup.
+Mockups reviewed: mockups/event_collaboration_email.png.
+Follow-ups/risks: email stays off until Phase 18; the Hebrew email texts are part of the Hebrew review.
 Next: owner review of Phase 17 and the Hebrew sheet; then Phase 18.
 ```
 

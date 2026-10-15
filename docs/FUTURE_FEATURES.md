@@ -40,7 +40,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 
 | Feature | Notes | Source |
 |---|---|---|
-| Emailing guests their invitation | Sending a guest the invitation by email, as the WhatsApp send does, with the same counting. The email provider exists since Phase 17 (D88). | Owner decision 2026-10-15 |
+| Emailing guests their invitation | Sending a guest the invitation by email, as the WhatsApp send does, with the same counting; the natural channel for business events (see Event types under Event management). The email provider exists since Phase 17 (D88), and the email design is set (D93). | Owner decision 2026-10-15 |
 | WhatsApp Business API sending | Sending from the system, rather than opening WhatsApp for the organizer to send. | PRD §17 |
 | Bulk sending | Sending to many guests in one action. | PRD §17 |
 | Automated reminders | Scheduled follow-ups to guests who have not responded. | PRD §17 |
@@ -58,6 +58,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Photo Sharing | Sidebar entry shown in two mockups. No requirements written. | Same |
 | Payments and full event-production management | | PRD §17 |
 | Reusable event templates | | PRD §17 |
+| Event types: personal and business | Each event gets a type. Personal events are weddings, birthdays and the like, as today. Business events are run for companies, where guests are usually invited by email rather than WhatsApp (see "Emailing guests their invitation" under Messaging). What the type changes beyond the invitation channel (texts, RSVP fields, defaults, cover) has no requirements yet. | Owner request 2026-10-15 |
 | Duplicating an event with its guest list | In the MVP a duplicate copies the event's details, RSVP settings, message template and tables, without guests. | Owner decision 2026-10-12 |
 | Recoverable event deletion | Restoring a deleted event within a period. In the MVP deletion is permanent. | Owner decision 2026-10-12 |
 
@@ -70,6 +71,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Account settings | Sidebar entry on the homepage mockup. No requirements written. | Mockup `homepage.png`; owner decision 2026-10-12 |
 | "How it works" section | A header link on the landing page mockup with no matching section. | Mockups `landing_page.png`; Phase 4 plan approved 2026-10-13 |
 | Account management | Changing one's name, email or password from the application. No requirements written. (Forgot password by email was built in Phase 17, D88.) | Phase 4 plan approved 2026-10-13 |
+| Help, Privacy and Terms pages | The email mockup's footer links to them; they are left out of the emails until the pages exist (D93). Terms and Privacy are needed before real users. | Mockup `event_collaboration_email.png`; 2026-10-15 |
 | Editable system settings page | Changing the email settings from the System page. The page is read-only by design: settings and secrets stay in the server configuration. | Owner decision 2026-10-15 (D91) |
 | Dedicated tablet layouts | In the MVP only desktop and phone layouts are designed and verified; a tablet gets whichever fits its width. | PRD header and §13; owner decision 2026-10-12 |
 

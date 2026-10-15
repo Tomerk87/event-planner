@@ -2,11 +2,20 @@ import { Logger } from '@nestjs/common'
 import nodemailer, { type Transporter } from 'nodemailer'
 import type { EmailConfig } from '../config.ts'
 
+/** A picture inside an email, shown where the HTML says `cid:<cid>`. */
+export interface EmailImage {
+  cid: string
+  filename: string
+  /** The PNG, in base64. */
+  png: string
+}
+
 export interface EmailMessage {
   to: string
   subject: string
   text: string
   html: string
+  images?: EmailImage[]
   /** What the email is for, as logged; never the address or a link. */
   kind: string
 }
@@ -56,6 +65,13 @@ export class SmtpMailer implements Mailer {
       subject: message.subject,
       text: message.text,
       html: message.html,
+      attachments: (message.images ?? []).map((image) => ({
+        filename: image.filename,
+        content: Buffer.from(image.png, 'base64'),
+        contentType: 'image/png',
+        cid: image.cid,
+        contentDisposition: 'inline' as const,
+      })),
     })
   }
 }

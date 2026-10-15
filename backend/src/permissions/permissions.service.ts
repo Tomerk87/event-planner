@@ -33,6 +33,19 @@ export type InviteResult =
   | { kind: 'member'; member: Member }
   | { kind: 'invitation'; invitation: EventInvitation }
 
+/** What an email about the event tells (D90). */
+function aboutEvent(event: {
+  name: string
+  startsAt: Date
+  timeZone: string
+}): emails.EventInvite['event'] {
+  return {
+    name: event.name,
+    startsAt: event.startsAt.toISOString(),
+    timeZone: event.timeZone,
+  }
+}
+
 const ROLE_ORDER: Record<EventRole, number> = { OWNER: 0, ADMIN: 1, VIEWER: 2 }
 
 function assertRole(role: string): asserts role is EventRole {
@@ -141,17 +154,18 @@ export class PermissionsService {
       return { kind: 'invitation' as const, invitation: toInvitation(created) }
     })
     if (this.email.enabled && this.email.allows('invitation', email)) {
-      const input = { inviter: user.name, event: event.name, role }
+      const input = { inviter: user.name, event: aboutEvent(event), role }
       await this.email.send({
         to: email,
         ...(result.kind === 'member'
           ? emails.accessGranted(language, {
               ...input,
+              name: result.member.user.name,
               url: this.email.link(`/events/${eventId}/dashboard`),
             })
           : emails.invitation(language, {
               ...input,
-              url: this.email.link('/signup'),
+              url: this.email.link('/signup', { email }),
             })),
       })
     }
@@ -186,9 +200,9 @@ export class PermissionsService {
       to: current.email,
       ...emails.invitation(language, {
         inviter: user.name,
-        event: event.name,
+        event: aboutEvent(event),
         role: current.role,
-        url: this.email.link('/signup'),
+        url: this.email.link('/signup', { email: current.email }),
       }),
     })
     if (!sent) {
