@@ -12,6 +12,7 @@ import { EventsModule } from './events/events.module.ts'
 import { GuestsModule } from './guests/guests.module.ts'
 import { HealthController } from './health/health.controller.ts'
 import { MessagesModule } from './messages/messages.module.ts'
+import { NotificationsModule } from './notifications/notifications.module.ts'
 import { PermissionsModule } from './permissions/permissions.module.ts'
 import { PrismaModule } from './prisma/prisma.module.ts'
 import { PublicRsvpController } from './rsvp/rsvp.controller.ts'
@@ -80,6 +81,7 @@ export function createAppModule(config: AppConfig = loadConfig()) {
       RsvpModule,
       TablesModule,
       DashboardModule,
+      NotificationsModule,
     ],
     controllers: [HealthController, SystemController],
     providers: [

@@ -289,9 +289,10 @@
   color: var(--color-text);
 }
 
-/* On a very narrow phone the top bar keeps the logo mark and hides its text
-   from view (not from screen readers), so nothing is pushed off-screen. */
-@media (max-width: 379px) {
+/* On a phone the top bar keeps the logo mark and hides its text from view
+   (not from screen readers), so the demo badge, the bell and the user menu
+   are not pushed off-screen. */
+@media (max-width: 439px) {
   .topbarLogo .logoText {
     position: absolute;
     inline-size: 1px;
@@ -305,9 +306,16 @@
 .topbarEnd {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  /* Tighter on a phone, where the bell and the user menu share the room. */
+  gap: var(--space-2);
   margin-inline-start: auto;
   min-inline-size: 0;
+}
+
+@media (min-width: 1024px) {
+  .topbarEnd {
+    gap: var(--space-4);
+  }
 }
 
 .user {

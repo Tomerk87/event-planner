@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { RsvpSettings } from '../../domain/models.ts'
 import type { Services } from '../../services/contracts/index.ts'
 import { change } from '../../test/controls.ts'
 import { setViewportWidth } from '../../test/matchMedia.ts'
@@ -238,6 +239,58 @@ describe('RSVP Settings', () => {
     expect(saveButton()).toBeEnabled()
   })
 
+  it('zooms and moves the picture from Additional Options, shown in the preview', async () => {
+    const services = createTestServices()
+    const saved = await services.rsvp.getSettings(MAIN)
+    const { eventId: _eventId, ...input } = saved
+    await services.rsvp.updateSettings(MAIN, {
+      ...input,
+      backgroundImage: 'data:image/jpeg;base64,AAAA',
+    })
+    await openSettings(MAIN, services)
+
+    const toggle = screen.getByRole('button', { name: 'Additional Options' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByLabelText('Zoom')).not.toBeInTheDocument()
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+
+    change(screen.getByLabelText('Zoom'), { target: { value: '200' } })
+    change(screen.getByLabelText('Horizontal Position'), {
+      target: { value: '20' },
+    })
+    change(screen.getByLabelText('Vertical Position'), {
+      target: { value: '80' },
+    })
+    const picture = preview().querySelector('img')!
+    expect(picture.style.transform).toBe('scale(2)')
+    expect(picture.style.objectPosition).toBe('20% 80%')
+    await save()
+    expect(await services.rsvp.getSettings(MAIN)).toMatchObject({
+      imageZoom: 200,
+      imagePositionX: 20,
+      imagePositionY: 80,
+    })
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Reset Zoom and Position' }),
+    )
+    expect(screen.getByLabelText('Zoom')).toHaveValue('100')
+    expect(screen.getByLabelText('Horizontal Position')).toHaveValue('50')
+    expect(saveButton()).toBeEnabled()
+  })
+
+  it('keeps zoom and position off until there is a picture', async () => {
+    await openSettings()
+    fireEvent.click(screen.getByRole('button', { name: 'Additional Options' }))
+
+    expect(
+      screen.getByText('Upload an image to zoom and position it.'),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText('Zoom')).toBeDisabled()
+    expect(screen.getByLabelText('Vertical Position')).toBeDisabled()
+  })
+
   it('gives up on a picture that cannot be made small enough', async () => {
     await openSettings()
     vi.stubGlobal('createImageBitmap', () =>
@@ -338,6 +391,85 @@ describe('RSVP Settings', () => {
     expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(field('Declined Message')).toHaveValue('Next time')
     expect(saveButton()).toBeEnabled()
+  })
+
+  it('saves again when the stored picture comes back as its address', async () => {
+    // The server answers with the picture's address, not the upload.
+    const services = createTestServices()
+    const stored = '/api/files/background.jpg'
+    const getSettings = services.rsvp.getSettings
+    let current: RsvpSettings = {
+      ...(await getSettings(MAIN)),
+      backgroundImage: stored,
+    }
+    vi.spyOn(services.rsvp, 'getSettings').mockImplementation(() =>
+      Promise.resolve(current),
+    )
+    const update = vi
+      .spyOn(services.rsvp, 'updateSettings')
+      .mockImplementation((eventId, input) => {
+        current = { ...input, eventId }
+        return Promise.resolve(current)
+      })
+    const { router } = await openSettings(MAIN, services)
+
+    type('Declined Message', 'Next time')
+    await save()
+
+    expect(update).toHaveBeenCalledWith(
+      MAIN,
+      expect.objectContaining({
+        backgroundImage: stored,
+        declinedMessage: 'Next time',
+      }),
+    )
+    expect(saveButton()).toBeDisabled()
+    fireEvent.click(screen.getByRole('link', { name: 'Guests' }))
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(`/events/${MAIN}/guests`),
+    )
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('saves on the way out when asked, and stays when that fails', async () => {
+    const services = createTestServices()
+    const { router } = await openSettings(MAIN, services)
+    type('Declined Message', 'Next time')
+
+    fireEvent.click(screen.getByRole('link', { name: 'Guests' }))
+    fireEvent.click(
+      within(
+        await screen.findByRole('dialog', { name: 'Leave without saving?' }),
+      ).getByRole('button', { name: 'Save and Leave' }),
+    )
+
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(`/events/${MAIN}/guests`),
+    )
+    expect((await services.rsvp.getSettings(MAIN)).declinedMessage).toBe(
+      'Next time',
+    )
+  })
+
+  it('stays on the page when saving on the way out fails', async () => {
+    const services = createTestServices({
+      failOperations: new Set(['rsvp.updateSettings']),
+    })
+    const { router } = await openSettings(MAIN, services)
+    type('Declined Message', 'Next time')
+
+    fireEvent.click(screen.getByRole('link', { name: 'Guests' }))
+    fireEvent.click(
+      within(
+        await screen.findByRole('dialog', { name: 'Leave without saving?' }),
+      ).getByRole('button', { name: 'Save and Leave' }),
+    )
+
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    expect(router.state.location.pathname).toBe(`/events/${MAIN}/rsvp`)
+    expect(field('Declined Message')).toHaveValue('Next time')
   })
 
   it('splits into Settings and Preview tabs on a phone', async () => {

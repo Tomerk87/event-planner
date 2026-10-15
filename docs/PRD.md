@@ -111,7 +111,7 @@ The event navigation is identical on every event-level page and uses this order.
 
 Inside an event, the user's avatar carries an icon for their role in that event, using the same icons as the role badges on the Permissions page: crown for Owner, shield for Admin, people icon for Viewer. A Super User without a membership in the event shows the Owner crown. No role icon is shown outside an event, including the Homepage.
 
-The notification bell and the Profile and Settings entries that appear in the mockups are not part of the MVP; see `docs/FUTURE_FEATURES.md`.
+The Profile and Settings entries that appear in the mockups are not part of the MVP; see `docs/FUTURE_FEATURES.md`. The notification bell is built (D95, 2026-10-15): it lists access given, role changes and removed access, and, for Owners and Admins, unknown RSVP answers waiting for review.
 
 On desktop the side menu can be collapsed to a strip of icons and expanded again; the choice is remembered in the browser.
 
@@ -126,12 +126,12 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Field | Requirement |
 |---|---|
 | Event name | Required |
-| Maximum attendees | Required integer; **minimum 50, default 300, maximum 3000** |
+| Maximum attendees | Required integer; **minimum 50, default 50, maximum 3000**, and not below the attendees already confirmed when changed (D94; default was 300 until 2026-10-15) |
 | Event date and time | Required |
 | Time zone | Required; the event's date and time are expressed in it |
 | RSVP language | The default language of the public RSVP page, English or Hebrew. Chosen when the event is created and changed on RSVP Settings; a guest can switch (section 8) |
 | Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
-| Location | Optional; shown in the event selector and on the public RSVP page. Edited in Event Settings |
+| Location | Optional; shown in the event selector and on the public RSVP page, with Google Maps and Waze links (D97). Edited in Event Settings |
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
 | Event photo | Optional; JPG or PNG up to 5 MB, uploaded in Create Event and Event Settings and removable. Shown on the event card and in the event selector; a duplicate keeps it. Without one, a cover is generated for the event |
 
@@ -277,7 +277,7 @@ The organizer can configure:
 - The public RSVP URL, which every event has from creation: copy it, or show it as a QR code that can be downloaded. The page is active until the event starts and closed afterwards; there is no off switch.
 - RSVP title (optional; the event name is used when empty).
 - Welcome text, Approved, Declined and Not Sure messages, up to 500 characters each. An empty message shows a standard text in the guest's language.
-- RSVP background image (JPG or PNG, up to 5 MB) and a darkening overlay from 0 to 100%.
+- RSVP background image (JPG or PNG, up to 5 MB) and a darkening overlay from 0 to 100%; under Additional Options, the picture's zoom (100–300%) and the point kept in view (D96).
 - Optional Google Calendar action with its own title, date, time and location, starting from the event's values. The entry lasts three hours.
 - Optional YouTube link after approval. Only `https` addresses on `youtube.com` or `youtu.be` are accepted.
 - The default RSVP language.
@@ -382,7 +382,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 ### 12.1 Entry and scope
 
-- Visitors can choose **Try Demo** on the landing page without authenticating. Leaving the demo (Log out) returns to the landing page and keeps the visitor's demo data.
+- Visitors can choose **Try Demo** on the landing page without authenticating. Leaving the demo (Log out) returns to the landing page and keeps the visitor's demo data until the demo ends: 3 days after it started, or after 12 hours without activity, whichever comes first (D99). Then the data is cleared and the next Try Demo starts afresh; a visitor who was in the demo is told why on the landing page.
 - Demo loads a prepopulated fictional event and allows visitors to explore the same pages/components as the real application.
 - Demo visitors can perform simulated guest CRUD, RSVPs, WhatsApp actions, seating changes, and role-aware exploration of Permissions, with restrictions corresponding to the selected demo role.
 - Demo Mode is clearly labeled and can be disabled by deployment configuration.
@@ -400,6 +400,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 
 - During the POC, demo data is stored in each visitor's own browser (`localStorage` or IndexedDB as appropriate).
 - Changes survive ordinary browser refreshes in the same browser profile.
+- A demo ends on its own 3 days after it started, or after 12 hours without activity, whichever comes first; its data is then cleared (D99).
 - Visitors do not share mutable data; other users' demo sessions cannot change a visitor's data.
 - The visitor can use **Reset Demo** to restore the initial generated dataset, after confirmation.
 - Demo datasets should be versioned so future application updates can migrate or reset incompatible browser-stored data safely.

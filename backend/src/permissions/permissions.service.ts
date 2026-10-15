@@ -13,6 +13,7 @@ import {
 } from '../domain/permissions.ts'
 import { EVENT_ROLES, type EventRole } from '../domain/roles.ts'
 import { EmailService } from '../email/email.service.ts'
+import { notify } from '../notifications/notify.ts'
 import * as emails from '../email/templates.ts'
 import type { EmailLanguage } from '../email/templates.ts'
 import { PrismaService } from '../prisma/prisma.service.ts'
@@ -136,6 +137,15 @@ export class PermissionsService {
         await tx.eventMembership.create({
           data: { eventId, userId: account.id, role },
         })
+        await notify(tx, [
+          {
+            userId: account.id,
+            kind: 'ACCESS_GRANTED',
+            event,
+            actorName: user.name,
+            role,
+          },
+        ])
         return {
           kind: 'member' as const,
           member: { user: toUser(account), role, isCurrentUser: false },
@@ -216,7 +226,7 @@ export class PermissionsService {
     role: string,
     user: User,
   ): Promise<Member> {
-    const { actor } = await this.access.authorize(
+    const { actor, event } = await this.access.authorize(
       eventId,
       user,
       'MANAGE_PERMISSIONS',
@@ -237,6 +247,9 @@ export class PermissionsService {
         data: { role },
         include: { user: true },
       })
+      await notify(tx, [
+        { userId, kind: 'ROLE_CHANGED', event, actorName: user.name, role },
+      ])
       return {
         user: toUser(updated.user),
         role: updated.role,
@@ -246,7 +259,7 @@ export class PermissionsService {
   }
 
   async revoke(eventId: string, userId: string, user: User): Promise<void> {
-    const { actor } = await this.access.authorize(
+    const { actor, event } = await this.access.authorize(
       eventId,
       user,
       'MANAGE_PERMISSIONS',
@@ -261,6 +274,12 @@ export class PermissionsService {
       await tx.eventMembership.delete({
         where: { eventId_userId: { eventId, userId } },
       })
+      // Leaving an event oneself needs no notice.
+      if (userId !== user.id) {
+        await notify(tx, [
+          { userId, kind: 'ACCESS_REMOVED', event, actorName: user.name },
+        ])
+      }
     })
   }
 

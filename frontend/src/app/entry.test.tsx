@@ -4,7 +4,9 @@ import { DomainError } from '../domain/errors.ts'
 import { changeLanguage } from '../i18n/i18n.ts'
 import { createFakeAccountBackend } from '../test/fakeAccountBackend.ts'
 import { setViewportWidth } from '../test/matchMedia.ts'
-import { createTestBackend, renderApp } from '../test/renderApp.tsx'
+import { createTestBackend, renderApp, TEST_NOW } from '../test/renderApp.tsx'
+import type { StoredDemoClock } from '../services/mock/demoClock.ts'
+import { createMemoryPersistence } from '../services/mock/persistence.ts'
 import { change } from '../test/controls.ts'
 
 const HEADLINE = 'Plan every guest. Manage every detail.'
@@ -455,6 +457,90 @@ describe('sign up, log out and sign in', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { level: 1, name: 'My Events' }),
+    ).toBeInTheDocument()
+  })
+})
+
+describe('demo time limits (D99)', () => {
+  const HOUR = 60 * 60 * 1000
+
+  function timedDemo(clock?: StoredDemoClock) {
+    let now = TEST_NOW
+    const backend = createTestBackend({
+      now: () => now,
+      clockPersistence: createMemoryPersistence<StoredDemoClock>(
+        ...(clock ? [clock] : []),
+      ),
+    })
+    const later = (ms: number) => {
+      now = new Date(now.getTime() + ms)
+    }
+    // The page checks when it is shown again, and every minute.
+    const showPage = () =>
+      act(() => {
+        document.dispatchEvent(new Event('visibilitychange'))
+      })
+    return { backend, later, showPage }
+  }
+
+  it('returns to the landing page after 12 hours without activity, saying why', async () => {
+    const { backend, later, showPage } = timedDemo()
+    const { router } = renderApp('/events', undefined, { backend })
+    await myEvents()
+
+    later(11 * HOUR)
+    fireEvent.pointerDown(document.body)
+    later(11 * HOUR)
+    showPage()
+    expect(
+      screen.getByRole('heading', { name: 'My Events' }),
+    ).toBeInTheDocument()
+
+    later(1 * HOUR)
+    showPage()
+    await landing()
+    expect(router.state.location.pathname).toBe('/')
+    expect(screen.getByText('Your demo has ended')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'The demo was not used for 12 hours, so its sample data was cleared. Try Demo starts a fresh one.',
+      ),
+    ).toBeInTheDocument()
+
+    // A fresh demo, and the notice goes.
+    const notice = screen.getByText('Your demo has ended').closest('[role]')!
+    fireEvent.click(
+      within(notice as HTMLElement).getByRole('button', { name: /Try Demo/ }),
+    )
+    await myEvents()
+    expect(screen.queryByText('Your demo has ended')).not.toBeInTheDocument()
+  })
+
+  it('says at start-up that a demo older than 3 days ended', async () => {
+    const started = new Date(TEST_NOW.getTime() - 72 * HOUR).toISOString()
+    const { backend } = timedDemo({
+      startedAt: started,
+      lastActiveAt: TEST_NOW.toISOString(),
+    })
+    renderApp('/events', undefined, { backend })
+
+    await landing()
+    expect(
+      screen.getByText(
+        'A demo lasts 3 days, so its sample data was cleared. Try Demo starts a fresh one.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('shows when the demo ends on the demo badge', async () => {
+    const { backend } = timedDemo()
+    renderApp('/events', undefined, { backend })
+    await myEvents()
+
+    expect(
+      await screen.findByTitle(
+        /^The demo ends on .+ at .+, or after 12 hours without activity\.$/,
+      ),
     ).toBeInTheDocument()
   })
 })

@@ -48,10 +48,11 @@ model User {
   emailVerifiedAt DateTime? @db.Timestamptz(3)
   createdAt       DateTime  @default(now()) @db.Timestamptz(3)
 
-  sessions    Session[]
-  emailTokens EmailToken[]
-  memberships EventMembership[]
-  sends       MessageSend[]
+  sessions      Session[]
+  emailTokens   EmailToken[]
+  memberships   EventMembership[]
+  sends         MessageSend[]
+  notifications Notification[]
 }
 
 /// A signed-in browser. Only a hash of the cookie's token is stored.
@@ -87,6 +88,36 @@ model EmailToken {
   @@index([userId, kind])
 }
 
+enum NotificationKind {
+  /// Given access to an event: invited, or an invitation became access.
+  ACCESS_GRANTED
+  ROLE_CHANGED
+  ACCESS_REMOVED
+  /// Answers from phones not on the guest list wait for review.
+  UNKNOWN_RSVP
+}
+
+/// Something that happened to the account, shown under the bell (D95).
+/// The event's name is kept, so a notice stays readable once the event is
+/// gone or out of reach. Kept for 90 days.
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  kind      NotificationKind
+  eventId   String?          @db.Uuid
+  eventName String
+  /// Who did it, when a person did; null for the system.
+  actorName String?
+  role      EventRole?
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  readAt    DateTime?        @db.Timestamptz(3)
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+
 model Event {
   id                      String       @id @default(uuid()) @db.Uuid
   name                    String
@@ -104,14 +135,15 @@ model Event {
   rsvpSlug                String       @unique
   createdAt               DateTime     @default(now()) @db.Timestamptz(3)
 
-  memberships  EventMembership[]
-  invitations  EventInvitation[]
-  guests       Guest[]
-  unknownRsvps UnknownRsvp[]
-  tables       EventTable[]
-  rsvpSettings RsvpSettings?
-  template     MessageTemplate?
-  messageSends MessageSend[]
+  memberships   EventMembership[]
+  invitations   EventInvitation[]
+  guests        Guest[]
+  unknownRsvps  UnknownRsvp[]
+  tables        EventTable[]
+  rsvpSettings  RsvpSettings?
+  template      MessageTemplate?
+  messageSends  MessageSend[]
+  notifications Notification[]
 }
 
 model EventMembership {
@@ -198,6 +230,11 @@ model RsvpSettings {
   /// Key of the background picture in the image storage.
   backgroundImageKey String?
   overlayOpacity     Int
+  /// Zoom of the background picture, 100–300 percent.
+  imageZoom          Int     @default(100)
+  /// The point of the picture kept in view, 0–100 percent from start and top.
+  imagePositionX     Int     @default(50)
+  imagePositionY     Int     @default(50)
   calendarEnabled    Boolean
   calendarTitle      String
   /// YYYY-MM-DD in the event's time zone.

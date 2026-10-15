@@ -8,6 +8,7 @@ import {
   buildSeatingExportTable,
 } from '../../domain/exports.ts'
 import {
+  assertMaxAttendeesCoversConfirmed,
   assertStartsInFuture,
   EVENT_LIMITS,
   validateCoverImage,
@@ -32,6 +33,7 @@ import {
   deriveRecentActivity,
 } from '../../domain/metrics.ts'
 import type {
+  AccountNotification,
   Event,
   EventInvitation,
   EventTable,
@@ -69,6 +71,7 @@ import type {
 } from '../contracts/index.ts'
 import {
   calendarStartOf,
+  DEFAULT_IMAGE_FRAMING,
   validateRsvpSettings,
 } from '../../domain/rsvpSettings.ts'
 import {
@@ -168,7 +171,10 @@ export function createMockServices(options: MockOptions): Services {
           group: guest.group ?? null,
         })),
         // Settings saved before the calendar entry had its own date and time.
-        rsvpSettings: found.rsvpSettings.map((settings) => {
+        // Settings saved before the picture could be zoomed and moved show
+        // it as before: not enlarged, centred.
+        rsvpSettings: found.rsvpSettings.map((stored) => {
+          const settings = { ...DEFAULT_IMAGE_FRAMING, ...stored }
           const event = found.events.find(
             (candidate) => candidate.id === settings.eventId,
           )
@@ -189,6 +195,68 @@ export function createMockServices(options: MockOptions): Services {
   function save(next: DemoState): DemoState {
     persistence.save({ version: dataVersion, state: next })
     return next
+  }
+
+  /**
+   * The demo's notices (D95), worked out from its data: access to each
+   * event the visitor does not own, and answers from unknown phones waiting
+   * on the events they manage. A newer unknown answer makes a new notice.
+   */
+  function demoNotifications(): AccountNotification[] {
+    const userId = currentUserId()
+    const read = new Set(state.readNotifications ?? [])
+    const items: AccountNotification[] = []
+    for (const membership of state.memberships) {
+      const event = state.events.find(
+        (candidate) => candidate.id === membership.eventId,
+      )
+      if (membership.userId !== userId || !event) {
+        continue
+      }
+      if (membership.role !== 'OWNER') {
+        const owner = state.memberships.find(
+          (other) => other.eventId === event.id && other.role === 'OWNER',
+        )
+        const id = `notice-access-${event.id}`
+        // Access came well before the event; the demo has no record of when.
+        const given = Math.min(
+          now().getTime(),
+          new Date(event.startsAt).getTime() - 60 * 24 * 60 * 60 * 1000,
+        )
+        items.push({
+          id,
+          kind: 'ACCESS_GRANTED',
+          eventId: event.id,
+          eventName: event.name,
+          actorName:
+            state.users.find((user) => user.id === owner?.userId)?.name ?? null,
+          role: membership.role,
+          createdAt: new Date(given).toISOString(),
+          read: read.has(id),
+        })
+      }
+      const waiting = state.unknownRsvps
+        .filter(
+          (answer) => answer.eventId === event.id && answer.rejectedAt === null,
+        )
+        .map((answer) => answer.submittedAt)
+        .sort()
+      const latest = waiting.at(-1)
+      if (membership.role !== 'VIEWER' && latest) {
+        const id = `notice-unknown-${event.id}-${latest}`
+        items.push({
+          id,
+          kind: 'UNKNOWN_RSVP',
+          eventId: event.id,
+          eventName: event.name,
+          actorName: null,
+          role: null,
+          createdAt: latest,
+          read: read.has(id),
+        })
+      }
+    }
+    return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }
 
   function commit(next: DemoState): void {
@@ -528,6 +596,12 @@ export function createMockServices(options: MockOptions): Services {
               : validateCoverImage(input.coverImage)
           // A date in the past would lock the event the moment it is saved.
           assertStartsInFuture(fields.startsAt, now())
+          assertMaxAttendeesCoversConfirmed(
+            fields.maxAttendees,
+            event.maxAttendees,
+            computeDashboardMetrics(eventGuests(eventId), [])
+              .confirmedAttendees,
+          )
           const updated: Event = { ...event, ...fields, coverImage }
           commit({
             ...state,
@@ -1244,6 +1318,32 @@ export function createMockServices(options: MockOptions): Services {
         run('system.sendTestEmail', () => notFound('system')),
     },
 
+    notifications: {
+      list: () =>
+        run('notifications.list', () => {
+          const items = demoNotifications()
+          return {
+            items,
+            unread: items.filter((item) => !item.read).length,
+          }
+        }),
+
+      markRead: (id) =>
+        run('notifications.markRead', () => {
+          const items = demoNotifications()
+          if (id !== undefined && !items.some((item) => item.id === id)) {
+            notFound('notification')
+          }
+          const marked = id === undefined ? items.map((item) => item.id) : [id]
+          commit({
+            ...state,
+            readNotifications: [
+              ...new Set([...(state.readNotifications ?? []), ...marked]),
+            ],
+          })
+        }),
+    },
+
     preferences: createPreferencesService(preferencesPersistence),
 
     demo: !demoControls
@@ -1261,6 +1361,9 @@ export function createMockServices(options: MockOptions): Services {
               persistence.clear()
               commit(generateDemoState(now()))
             }),
+
+          // The demo's clock belongs to its backend, which tells this.
+          getEndsAt: () => run('demo.getEndsAt', () => null),
 
           consumeRegeneratedNotice: () => {
             const result = regenerated

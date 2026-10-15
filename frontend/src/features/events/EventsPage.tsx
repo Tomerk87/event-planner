@@ -106,6 +106,7 @@ export function EventsPage() {
       <div className={styles.toolbar}>
         <div className={styles.tabs}>
           <Tabs
+            variant="segmented"
             label={t('events.filter.label')}
             value={filter}
             onChange={(id) => setParam('show', id === 'all' ? null : id)}

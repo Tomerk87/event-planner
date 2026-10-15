@@ -18,6 +18,9 @@ import {
   listTimeZones,
   timeZoneLabel,
   toInteger,
+  clampToRange,
+  earliestStart,
+  isTypedStartPast,
   toStartsAt,
   validateEventForm,
   type EventFormErrors,
@@ -116,7 +119,11 @@ function EventForm({
     }
   }
 
-  const startsAtError = message('startsAt')
+  // A past date and time is pointed out as soon as it is typed.
+  const startsAtError = isTypedStartPast(values)
+    ? t('events.form.errors.startsAtPast')
+    : message('startsAt')
+  const earliest = earliestStart(values.timeZone)
 
   return (
     <form className={styles.form} noValidate onSubmit={handleSubmit}>
@@ -140,6 +147,7 @@ function EventForm({
           type="date"
           required
           value={values.date}
+          min={earliest?.date}
           aria-describedby={startsAtError ? dateErrorId : undefined}
           aria-invalid={startsAtError ? true : undefined}
           onChange={(event) => set('date', event.target.value)}
@@ -149,6 +157,7 @@ function EventForm({
           type="time"
           required
           value={values.time}
+          min={values.date === earliest?.date ? earliest.time : undefined}
           aria-describedby={startsAtError ? dateErrorId : undefined}
           aria-invalid={startsAtError ? true : undefined}
           onChange={(event) => set('time', event.target.value)}
@@ -195,6 +204,12 @@ function EventForm({
               )}
               error={message('maxAttendees')}
               onChange={(event) => set('maxAttendees', event.target.value)}
+              onBlur={() =>
+                set(
+                  'maxAttendees',
+                  clampToRange(values.maxAttendees, EVENT_LIMITS.maxAttendees),
+                )
+              }
             />
             <TextField
               label={t('events.form.defaultAllowedAttendees')}

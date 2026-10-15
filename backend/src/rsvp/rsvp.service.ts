@@ -26,6 +26,7 @@ import { PrismaService } from '../prisma/prisma.service.ts'
 import { rsvpSettingsData, toEvent, toRsvpSettings } from '../prisma/mappers.ts'
 import { ImageStorage, imageUrl } from '../storage/image-storage.ts'
 import { AttemptLimiter } from '../common/attempt-limiter.ts'
+import { notifyUnknownRsvp } from '../notifications/notify.ts'
 
 export type RsvpSettingsInput = Omit<RsvpSettings, 'eventId'>
 
@@ -202,6 +203,7 @@ export class RsvpService {
         },
         update: answer,
       })
+      await notifyUnknownRsvp(tx, event)
       return {
         status: input.status,
         confirmedAttendees: outcome.confirmedAttendees,

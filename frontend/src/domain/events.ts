@@ -3,7 +3,7 @@ import { isValidTimeZone } from './eventTime.ts'
 import type { Event, IsoDateTime, RsvpLanguage } from './models.ts'
 
 export const EVENT_LIMITS = {
-  maxAttendees: { min: 50, max: 3000, default: 300 },
+  maxAttendees: { min: 50, max: 3000, default: 50 },
   allowedAttendees: { min: 1, max: 10, default: 5 },
 } as const
 
@@ -86,5 +86,36 @@ export function validateEventInput(input: EventInput): EventFields {
 export function assertStartsInFuture(startsAt: IsoDateTime, now: Date): void {
   if (!(new Date(startsAt).getTime() > now.getTime())) {
     throw new DomainError('VALIDATION', { field: 'startsAt', reason: 'past' })
+  }
+}
+
+/**
+ * The values Maximum Attendees may take for an event: never fewer than the
+ * attendees who have already confirmed (D94).
+ */
+export function maxAttendeesRange(confirmedAttendees: number): {
+  min: number
+  max: number
+} {
+  const { min, max } = EVENT_LIMITS.maxAttendees
+  return { min: Math.min(Math.max(min, confirmedAttendees), max), max }
+}
+
+/**
+ * A changed maximum must leave room for the attendees who have already
+ * confirmed. An unchanged one is kept even when later answers went past it,
+ * so the rest of the event can still be edited (D94).
+ */
+export function assertMaxAttendeesCoversConfirmed(
+  maxAttendees: number,
+  currentMaxAttendees: number,
+  confirmedAttendees: number,
+): void {
+  if (maxAttendees === currentMaxAttendees) {
+    return
+  }
+  const range = maxAttendeesRange(confirmedAttendees)
+  if (maxAttendees < range.min) {
+    throw new DomainError('VALIDATION', { field: 'maxAttendees', ...range })
   }
 }

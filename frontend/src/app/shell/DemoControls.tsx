@@ -1,4 +1,5 @@
 import { FlaskConical, RotateCcw } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DemoRole } from '../../services/contracts/index.ts'
@@ -8,6 +9,7 @@ import {
   useSetDemoRole,
 } from '../../services/queries.ts'
 import { useServices } from '../../services/servicesContext.ts'
+import { useFormatters } from '../../i18n/format.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Badge } from '../../shared/ui/Badge.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
@@ -32,8 +34,22 @@ function isDemoRole(value: string): value is DemoRole {
 /** Shown on every page while the application runs on demo data. */
 export function DemoBadge() {
   const { t } = useTranslation()
+  const format = useFormatters()
   const { demo } = useServices()
   const { showToast } = useToast()
+
+  const ends = useQuery({
+    queryKey: ['demo', 'endsAt'],
+    queryFn: () => demo?.getEndsAt() ?? null,
+    enabled: demo !== null,
+  })
+  // When the demo ends at the latest (D99), on hover.
+  const endsAt = ends.data
+    ? t('demo.endsAt', {
+        date: format.date(new Date(ends.data)),
+        time: format.time(new Date(ends.data)),
+      })
+    : null
 
   useEffect(() => {
     if (demo?.consumeRegeneratedNotice()) {
@@ -46,9 +62,11 @@ export function DemoBadge() {
   }
 
   return (
-    <Badge tone="warning" icon={<FlaskConical />}>
-      <span className={styles.badgeText}>{t('demo.badge')}</span>
-    </Badge>
+    <span title={endsAt ?? undefined}>
+      <Badge tone="warning" icon={<FlaskConical />}>
+        <span className={styles.badgeText}>{t('demo.badge')}</span>
+      </Badge>
+    </span>
   )
 }
 

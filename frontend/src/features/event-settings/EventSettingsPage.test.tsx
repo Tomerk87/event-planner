@@ -86,9 +86,6 @@ describe('Event Settings', () => {
   })
 
   it.each([
-    ['Maximum Attendees', '49', 'Enter a whole number between 50 and 3000.'],
-    ['Maximum Attendees', '3001', 'Enter a whole number between 50 and 3000.'],
-    ['Maximum Attendees', '120.5', 'Enter a whole number between 50 and 3000.'],
     [
       'Default Maximum Attendees per Guest',
       '0',
@@ -146,16 +143,48 @@ describe('Event Settings', () => {
     ).toBeInTheDocument()
   })
 
-  it('warns, without refusing, when the maximum is set below the confirmed count', async () => {
+  it.each(['49', 'below', '3001', '120.5'])(
+    'refuses Maximum Attendees "%s", never below the attendees already confirmed',
+    async (value) => {
+      const { services } = await openSettings()
+      const before = await savedEvent(services)
+      const confirmed = (await services.dashboard.get(MAIN)).metrics
+        .confirmedAttendees
+      expect(confirmed).toBeGreaterThan(50)
+      expect(
+        await screen.findByText(
+          `Between ${confirmed} and 3000: ${confirmed} attendees have already confirmed.`,
+        ),
+      ).toBeInTheDocument()
+
+      type(
+        'Maximum Attendees',
+        value === 'below' ? String(confirmed - 1) : value,
+      )
+      save()
+
+      expect(
+        await screen.findByText(
+          `Enter a whole number between ${confirmed} and 3000.`,
+        ),
+      ).toBeInTheDocument()
+      expect(await savedEvent(services)).toEqual(before)
+    },
+  )
+
+  it('brings a maximum typed outside its range back within it when the field is left', async () => {
     const { services } = await openSettings()
-    const { metrics } = await services.dashboard.get(MAIN)
-    expect(metrics.confirmedAttendees).toBeGreaterThan(50)
+    const confirmed = (await services.dashboard.get(MAIN)).metrics
+      .confirmedAttendees
+    await screen.findByText(/attendees have already confirmed/)
 
-    type('Maximum Attendees', '50')
-    save()
+    type('Maximum Attendees', '10')
+    fireEvent.blur(field('Maximum Attendees'))
+    expect(field('Maximum Attendees')).toHaveValue(confirmed)
 
-    expect(await screen.findByText('Event over capacity')).toBeInTheDocument()
-    expect((await savedEvent(services)).maxAttendees).toBe(50)
+    type('Maximum Attendees', '5000')
+    fireEvent.blur(field('Maximum Attendees'))
+    expect(field('Maximum Attendees')).toHaveValue(3000)
   })
 
   it('adds an event photo, shown in the event selector, and removes it again', async () => {
@@ -361,7 +390,7 @@ describe('Event Settings', () => {
     expect(
       screen.getByRole('button', { name: 'שמירת שינויים' }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/הטווח המותר: בין 50 ל־3000/)).toBeInTheDocument()
+    expect(screen.getByText(/משתתפים כבר אישרו הגעה/)).toBeInTheDocument()
     await changeLanguage('en')
   })
 })

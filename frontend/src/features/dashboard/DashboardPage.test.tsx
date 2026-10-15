@@ -202,7 +202,18 @@ describe('Dashboard', () => {
   it('warns when confirmed attendees or seats exceed the event maximum', async () => {
     const services = createTestServices()
     const { event } = await services.events.get(MAIN)
-    await services.events.update(MAIN, { ...event, maxAttendees: 50 })
+    // The maximum cannot be set below those who confirmed (D94); a later
+    // answer can still go past it.
+    const before = (await services.dashboard.get(MAIN)).metrics
+    const max = before.confirmedAttendees
+    await services.events.update(MAIN, { ...event, maxAttendees: max })
+    const waiting = (await services.guests.list(MAIN)).find(
+      (guest) => guest.rsvpStatus === 'NO_RESPONSE',
+    )!
+    await services.guests.setRsvp(MAIN, waiting.id, {
+      status: 'APPROVED',
+      attendees: waiting.allowedAttendees,
+    })
     const { metrics } = await services.dashboard.get(MAIN)
 
     await openDashboard(MAIN, services)
@@ -215,7 +226,7 @@ describe('Dashboard', () => {
     ])
     expect(
       within(list).getByText(
-        `Confirmed attendance exceeds the event maximum by ${metrics.confirmedAttendees - 50} (${metrics.confirmedAttendees} / 50).`,
+        `Confirmed attendance exceeds the event maximum by ${metrics.confirmedAttendees - max} (${metrics.confirmedAttendees} / ${max}).`,
       ),
     ).toBeInTheDocument()
     expect(
@@ -231,7 +242,7 @@ describe('Dashboard', () => {
     })
     expect(confirmed).toHaveAttribute(
       'aria-valuetext',
-      `${metrics.confirmedAttendees} / 50`,
+      `${metrics.confirmedAttendees} / ${max}`,
     )
     expect(confirmed).toHaveAttribute(
       'aria-valuemax',

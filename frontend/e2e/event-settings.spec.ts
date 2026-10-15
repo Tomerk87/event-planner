@@ -64,18 +64,22 @@ test('saved changes survive a reload and show on the other pages', async ({
   await expect(page.getByText(/of 450|\/ 450/).first()).toBeVisible()
 })
 
-test('a value outside the allowed range is refused with a message', async ({
+test('the maximum is brought back within its range, never below those who confirmed', async ({
   page,
 }) => {
   await openSettings(page)
+  const field = page.getByLabel('Maximum Attendees').first()
+  const hint = page.getByText(/attendees have already confirmed\.$/)
+  const confirmed = Number(/: (\d+) attendees/.exec(await hint.innerText())![1])
+  expect(confirmed).toBeGreaterThan(50)
 
-  await page.getByLabel('Maximum Attendees').first().fill('3001')
-  await page.getByRole('button', { name: 'Save Changes' }).click()
+  await field.fill('3001')
+  await field.press('Tab')
+  await expect(field).toHaveValue('3000')
+  await field.fill('10')
+  await field.press('Tab')
+  await expect(field).toHaveValue(String(confirmed))
 
-  await expect(
-    page.getByText('Enter a whole number between 50 and 3000.'),
-  ).toBeVisible()
-  await expect(page.getByLabel('Maximum Attendees').first()).toBeFocused()
   await page.reload()
   await expect(page.getByLabel('Maximum Attendees').first()).toHaveValue('300')
 })
@@ -93,8 +97,25 @@ test('leaving with unsaved changes asks first', async ({ page }) => {
 
   nav = await openNavigation(page)
   await nav.getByRole('link', { name: 'Guests' }).click()
-  await prompt.getByRole('button', { name: 'Leave' }).click()
+  await prompt.getByRole('button', { name: 'Leave', exact: true }).click()
   await expect(page).toHaveURL(/\/guests$/)
+})
+
+test('unsaved changes can be saved on the way out', async ({ page }) => {
+  await openSettings(page)
+  await page.getByLabel('Event Name').fill('Saved On The Way')
+
+  const nav = await openNavigation(page)
+  await nav.getByRole('link', { name: 'Guests' }).click()
+  await page
+    .getByRole('dialog', { name: 'Leave without saving?' })
+    .getByRole('button', { name: 'Save and Leave' })
+    .click()
+
+  await expect(page).toHaveURL(/\/guests$/)
+  await expect(page.getByText('Event settings saved.')).toBeVisible()
+  await page.goto(SETTINGS)
+  await expect(page.getByLabel('Event Name')).toHaveValue('Saved On The Way')
 })
 
 test('the event rules open from the Danger Zone', async ({ page }) => {

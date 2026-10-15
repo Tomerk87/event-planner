@@ -19,6 +19,8 @@ export const DEMO_STORAGE_KEY = 'event-planner.demo'
  */
 export const LEGACY_ACCOUNTS_STORAGE_KEY = 'event-planner.accounts'
 export const SESSION_STORAGE_KEY = 'event-planner.session'
+/** When the demo started and was last used, for its time limits (D99). */
+export const DEMO_CLOCK_STORAGE_KEY = 'event-planner.demo-clock'
 /** Display choices of this browser, such as visible table columns. */
 export const PREFERENCES_STORAGE_KEY = 'event-planner.preferences'
 

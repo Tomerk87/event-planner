@@ -7,6 +7,7 @@ import {
 } from '../domain/defaults.ts'
 import { isEventPast } from '../domain/eventTime.ts'
 import {
+  assertMaxAttendeesCoversConfirmed,
   assertStartsInFuture,
   validateCoverImage,
   validateEventInput,
@@ -129,6 +130,17 @@ export class EventsService {
     const fields = validateEventInput(input)
     // A date in the past would lock the event the moment it is saved.
     assertStartsInFuture(fields.startsAt, new Date())
+    if (fields.maxAttendees !== event.maxAttendees) {
+      const confirmed = await this.prisma.guest.aggregate({
+        where: { eventId, rsvpStatus: 'APPROVED', deleted: false },
+        _sum: { confirmedAttendees: true },
+      })
+      assertMaxAttendeesCoversConfirmed(
+        fields.maxAttendees,
+        event.maxAttendees,
+        confirmed._sum.confirmedAttendees ?? 0,
+      )
+    }
     const coverImageKey = await this.nextCover(
       event.coverImageKey,
       input.coverImage,

@@ -177,6 +177,7 @@ export function GuestsPage() {
             ))}
           </KpiGrid>
           <Tabs
+            variant="segmented"
             label={t('guests.tabs.label')}
             value={tab}
             onChange={(id) =>

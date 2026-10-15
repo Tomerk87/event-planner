@@ -146,6 +146,9 @@ export function rsvpSettingsData(
     notSureMessage: settings.notSureMessage,
     backgroundImageKey,
     overlayOpacity: settings.overlayOpacity,
+    imageZoom: settings.imageZoom,
+    imagePositionX: settings.imagePositionX,
+    imagePositionY: settings.imagePositionY,
     calendarEnabled: settings.calendar.enabled,
     calendarTitle: settings.calendar.title,
     calendarDate: settings.calendar.date,
@@ -167,6 +170,9 @@ export function toRsvpSettings(row: RsvpSettingsRow): RsvpSettings {
       ? imageUrl(row.backgroundImageKey)
       : null,
     overlayOpacity: row.overlayOpacity,
+    imageZoom: row.imageZoom,
+    imagePositionX: row.imagePositionX,
+    imagePositionY: row.imagePositionY,
     calendar: {
       enabled: row.calendarEnabled,
       title: row.calendarTitle,

@@ -48,6 +48,17 @@ describe('Public RSVP page', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(settings.welcomeMessage)).toBeInTheDocument()
     expect(screen.getByText(event.location ?? '')).toBeInTheDocument()
+    // The location opens in the guest's maps, in a new tab.
+    const query = encodeURIComponent(event.location ?? '')
+    expect(
+      screen.getByRole('link', { name: 'Open in Google Maps' }),
+    ).toHaveAttribute(
+      'href',
+      `https://www.google.com/maps/search/?api=1&query=${query}`,
+    )
+    expect(
+      screen.getByRole('link', { name: 'Navigate with Waze' }),
+    ).toHaveAttribute('target', '_blank')
     expect(
       screen.getByText(
         'From outside Israel, start with + and your country code.',
@@ -162,7 +173,12 @@ describe('Public RSVP page', () => {
 
     const promised = screen.getByRole('list')
     expect(within(promised).getByText('Add to Calendar')).toBeInTheDocument()
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: 'Add to Calendar' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: 'Watch on YouTube' }),
+    ).not.toBeInTheDocument()
 
     fill('Link Lover', '050-000-9998', '1')
     press("I'll be there!")

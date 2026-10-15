@@ -6,7 +6,12 @@ import {
   makeTable,
 } from '../test/factories.ts'
 import { DomainError, isDomainError, type DomainErrorCode } from './errors.ts'
-import { validateEventInput, type EventInput } from './events.ts'
+import {
+  assertMaxAttendeesCoversConfirmed,
+  maxAttendeesRange,
+  validateEventInput,
+  type EventInput,
+} from './events.ts'
 import {
   fromLocalDateTime,
   isEventPast,
@@ -316,6 +321,30 @@ describe('validateEventInput', () => {
 
     expect(codeOf(run)).toBe('VALIDATION')
     expect(detailsOf(run)).toMatchObject({ field })
+  })
+})
+
+describe('maximum attendees and confirmed attendees (D94)', () => {
+  it('ranges from the confirmed attendees, never below 50 or above 3000', () => {
+    expect(maxAttendeesRange(10)).toEqual({ min: 50, max: 3000 })
+    expect(maxAttendeesRange(230)).toEqual({ min: 230, max: 3000 })
+    expect(maxAttendeesRange(4000)).toEqual({ min: 3000, max: 3000 })
+  })
+
+  it('refuses a changed maximum below the confirmed attendees', () => {
+    const run = () => assertMaxAttendeesCoversConfirmed(229, 300, 230)
+
+    expect(codeOf(run)).toBe('VALIDATION')
+    expect(detailsOf(run)).toEqual({
+      field: 'maxAttendees',
+      min: 230,
+      max: 3000,
+    })
+    expect(() => assertMaxAttendeesCoversConfirmed(230, 300, 230)).not.toThrow()
+  })
+
+  it('keeps an unchanged maximum that answers went past', () => {
+    expect(() => assertMaxAttendeesCoversConfirmed(100, 100, 230)).not.toThrow()
   })
 })
 

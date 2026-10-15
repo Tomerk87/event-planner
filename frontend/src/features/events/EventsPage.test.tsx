@@ -288,7 +288,7 @@ describe('My Events', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create Event' }))
     const dialog = screen.getByRole('dialog', { name: 'Create event' })
 
-    expect(within(dialog).getByLabelText(/Maximum Attendees/)).toHaveValue(300)
+    expect(within(dialog).getByLabelText(/Maximum Attendees/)).toHaveValue(50)
     expect(
       within(dialog).getByLabelText(/Expected Attendees per Guest/),
     ).toHaveValue(5)
@@ -373,6 +373,10 @@ describe('My Events', () => {
     )
 
     fillEventForm(dialog, { name: 'Late', date: '2020-01-01', time: '10:00' })
+    // Said as soon as it is typed, before Create Event is pressed.
+    expect(
+      fields.getByText('Choose a date and time in the future.'),
+    ).toBeInTheDocument()
     fireEvent.click(fields.getByRole('button', { name: 'Create Event' }))
 
     expect(

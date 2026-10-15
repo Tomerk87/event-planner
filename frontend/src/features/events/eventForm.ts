@@ -104,12 +104,57 @@ export function defaultEventFormValues(timeZone: string): EventFormValues {
   }
 }
 
+/**
+ * The earliest date and time an event may start, as the date and time
+ * fields write them, in the event's time zone: the next minute. Null when
+ * the time zone is not known.
+ */
+export function earliestStart(
+  timeZone: string,
+  now: Date = new Date(),
+): { date: string; time: string } | null {
+  if (!isValidTimeZone(timeZone)) {
+    return null
+  }
+  const next = toLocalDateTime(new Date(now.getTime() + 60_000), timeZone)
+  return {
+    date: `${next.year}-${pad(next.month)}-${pad(next.day)}`,
+    time: `${pad(next.hour)}:${pad(next.minute)}`,
+  }
+}
+
+/** Whether the typed date and time are complete and not in the future. */
+export function isTypedStartPast(
+  values: Pick<EventFormValues, 'date' | 'time' | 'timeZone'>,
+  now: Date = new Date(),
+): boolean {
+  const startsAt = toStartsAt(values.date, values.time, values.timeZone)
+  return startsAt !== null && new Date(startsAt).getTime() <= now.getTime()
+}
+
 /** Whole numbers only; anything else fails the range check that follows. */
 export function toInteger(value: string): number {
   return /^\d+$/.test(value.trim()) ? Number(value.trim()) : Number.NaN
 }
 
-function isInRange(value: number, range: { min: number; max: number }) {
+interface Range {
+  min: number
+  max: number
+}
+
+/**
+ * A whole number typed outside its range, brought back to the nearest end
+ * of it, as when the field is left; anything else is kept as typed.
+ */
+export function clampToRange(value: string, range: Range): string {
+  const number = toInteger(value)
+  if (!Number.isInteger(number)) {
+    return value
+  }
+  return String(Math.min(Math.max(number, range.min), range.max))
+}
+
+function isInRange(value: number, range: Range) {
   return Number.isInteger(value) && value >= range.min && value <= range.max
 }
 
@@ -117,6 +162,7 @@ function isInRange(value: number, range: { min: number; max: number }) {
 export function validateEventForm(
   values: EventFormValues,
   startsAt: IsoDateTime | null,
+  maxAttendeesRange: Range = EVENT_LIMITS.maxAttendees,
 ): EventFormErrors {
   const errors: EventFormErrors = {}
   if (values.name.trim() === '') {
@@ -127,7 +173,7 @@ export function validateEventForm(
   } else if (new Date(startsAt).getTime() <= Date.now()) {
     errors.startsAt = 'past'
   }
-  if (!isInRange(toInteger(values.maxAttendees), EVENT_LIMITS.maxAttendees)) {
+  if (!isInRange(toInteger(values.maxAttendees), maxAttendeesRange)) {
     errors.maxAttendees = 'invalid'
   }
   if (
@@ -146,6 +192,7 @@ export function eventFormErrorMessage(
   t: TFunction,
   errors: EventFormErrors,
   field: EventFormField,
+  maxAttendeesRange: Range = EVENT_LIMITS.maxAttendees,
 ): string | undefined {
   const error = errors[field]
   if (error === undefined) {
@@ -159,7 +206,7 @@ export function eventFormErrorMessage(
     )
   }
   if (field === 'maxAttendees') {
-    return t('events.form.errors.maxAttendees', EVENT_LIMITS.maxAttendees)
+    return t('events.form.errors.maxAttendees', { ...maxAttendeesRange })
   }
   if (field === 'defaultAllowedAttendees') {
     return t(

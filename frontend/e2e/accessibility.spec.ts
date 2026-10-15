@@ -57,6 +57,20 @@ for (const language of ['en', 'he'] as const) {
       await expectNoViolations(page)
     })
 
+    test('the open notification list has no detectable accessibility violations', async ({
+      page,
+    }) => {
+      await page.goto('/events')
+      await page
+        .getByRole('button', { name: /^(Notifications|התראות)/ })
+        .click()
+      await expect(
+        page.getByRole('heading', { name: /^(Notifications|התראות)$/ }),
+      ).toBeVisible()
+
+      await expectNoViolations(page)
+    })
+
     test('a page with a menu open has no detectable accessibility violations', async ({
       page,
     }) => {

@@ -29,6 +29,7 @@ const SCREENS: Record<string, string> = {
   nav: 'Menus and navigation',
   language: 'Language switcher',
   roles: 'Role names',
+  notifications: 'Notification bell',
   eventSelector: 'Event switcher',
   user: 'Account menu',
   pages: 'Page titles',

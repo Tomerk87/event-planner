@@ -22,6 +22,7 @@ export interface TestApp {
 
 const TABLES = [
   'EmailToken',
+  'Notification',
   'MessageSend',
   'Guest',
   'EventTable',

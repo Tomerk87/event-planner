@@ -18,6 +18,7 @@ import type { EmailLanguage } from '../email/templates.ts'
 import type { EmailTokenKind } from '../generated/prisma/client.ts'
 import { PrismaService } from '../prisma/prisma.service.ts'
 import { toUser } from '../prisma/mappers.ts'
+import { notify } from '../notifications/notify.ts'
 import { hashSessionToken, newSessionToken } from './session-token.ts'
 
 export interface StartedSession {
@@ -293,7 +294,10 @@ export class AuthService {
     userId: string,
     email: string,
   ): Promise<void> {
-    const invitations = await tx.eventInvitation.findMany({ where: { email } })
+    const invitations = await tx.eventInvitation.findMany({
+      where: { email },
+      include: { event: { select: { id: true, name: true } } },
+    })
     if (invitations.length === 0) {
       return
     }
@@ -302,6 +306,15 @@ export class AuthService {
       skipDuplicates: true,
     })
     await tx.eventInvitation.deleteMany({ where: { email } })
+    await notify(
+      tx,
+      invitations.map(({ event, role }) => ({
+        userId,
+        kind: 'ACCESS_GRANTED' as const,
+        event,
+        role,
+      })),
+    )
   }
 
   private async startSession(user: User): Promise<StartedSession> {

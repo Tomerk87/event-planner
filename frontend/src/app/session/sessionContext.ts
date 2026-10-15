@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react'
 import type { SignInInput, SignUpInput } from '../../domain/accounts.ts'
 import type {
   AccountEmailService,
+  DemoEndReason,
   Session,
 } from '../../services/contracts/index.ts'
 
@@ -10,6 +11,8 @@ export interface SessionContextValue {
   session: Session | null
   /** False when this deployment has the public demo switched off. */
   demoAvailable: boolean
+  /** Why the visitor's demo ended on its own (D99), until they go on. */
+  demoEnded: DemoEndReason | null
   /** Email links of real accounts, which work without a session (D88). */
   accountEmail: AccountEmailService
   signUp: (input: SignUpInput) => Promise<void>

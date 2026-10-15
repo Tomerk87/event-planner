@@ -75,6 +75,18 @@ export class RsvpSettingsInputDto {
   @IsInt()
   overlayOpacity!: number
 
+  /** Zoom of the background picture, 100–300 percent. */
+  @IsInt()
+  imageZoom!: number
+
+  /** The point of the picture kept in view, 0–100 percent from the start. */
+  @IsInt()
+  imagePositionX!: number
+
+  /** The point of the picture kept in view, 0–100 percent from the top. */
+  @IsInt()
+  imagePositionY!: number
+
   @ValidateNested()
   @Type(() => CalendarDto)
   calendar!: CalendarDto

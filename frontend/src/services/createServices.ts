@@ -2,9 +2,11 @@ import { DomainError, isDomainError } from '../domain/errors.ts'
 import type { Language } from '../i18n/languages.ts'
 import { createApiBackend, type ApiBackend } from './api/apiBackend.ts'
 import type { Backend, Session } from './contracts/index.ts'
+import type { StoredDemoClock } from './mock/demoClock.ts'
 import { createDemoBackend, type DemoBackend } from './mock/mockBackend.ts'
 import {
   createBrowserPersistence,
+  DEMO_CLOCK_STORAGE_KEY,
   DEMO_STORAGE_KEY,
   LEGACY_ACCOUNTS_STORAGE_KEY,
   PREFERENCES_STORAGE_KEY,
@@ -112,6 +114,8 @@ export function combineBackends(
       demo ? demo.onExternalChange(listener) : () => undefined,
 
     onSessionEnded: (listener) => api.onSessionEnded(listener),
+
+    demoTime: demo?.time ?? null,
   }
 }
 
@@ -146,6 +150,10 @@ export function createServices(options: {
         sessionPersistence: createBrowserPersistence<Session>(
           storage,
           SESSION_STORAGE_KEY,
+        ),
+        clockPersistence: createBrowserPersistence<StoredDemoClock>(
+          storage,
+          DEMO_CLOCK_STORAGE_KEY,
         ),
         preferencesPersistence,
         delayMs: parseDelay(params.get('demoDelay')),

@@ -28,7 +28,7 @@ How the mockups show it:
 - **Decided (2026-10-12):** the event sidebar is identical on every event-level page: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions. Permissions is hidden for Viewers. This order differs from the mockups, which show Messages before RSVP.
 - `event_layout.png` and `permissions.png` show sidebar entries **Budget, Vendors, Timeline, Photo Sharing**, place Permissions directly after Event Layout, and label the last entry "Settings". The owner confirmed these two sidebars are wrong; the four extra entries are not built and are listed in `docs/FUTURE_FEATURES.md`.
 - The event selector appears in the sidebar (`dashboard.png`, `guests.png`, `whatsapp_message.png`, `rsvp_settings.png`), in the top bar (`event_layout.png`, `permissions.png`), and in both at once (`event_settings.png`). **Decided (2026-10-12):** the selector is in the sidebar only.
-- Every screen shows a **notification bell**, and `homepage.png` shows **Profile** and **Settings** account pages. The PRD defines no notifications, profile or account-settings features. **Decided (2026-10-12):** all three are left out of the MVP and listed in `docs/FUTURE_FEATURES.md`.
+- Every screen shows a **notification bell**, and `homepage.png` shows **Profile** and **Settings** account pages. The PRD defines no notifications, profile or account-settings features. **Decided (2026-10-12):** all three are left out of the MVP and listed in `docs/FUTURE_FEATURES.md`. **Changed (2026-10-15):** the bell is built (D95); its list is not drawn and uses the shared popover. Profile and Settings stay out.
 - A **crown icon** appears beside the user avatar on mobile screens and on `permissions.png`. **Decided (2026-10-12):** it is the user's role in the current event, using the same icons as the Permissions role badges (crown for Owner, shield for Admin, people icon for Viewer). No icon is shown outside an event, so the crown on the homepage mockups is not reproduced. A Super User without a membership shows the crown.
 - The **Try Demo** entry is on the landing page (`landing_page.png`, added 2026-10-13). No mockup shows the Demo Mode indicator, Reset Demo, or the demo role switcher required by PRD §12.
 
@@ -171,6 +171,10 @@ Found while building (Phase 6):
 - **Accept Invitation** opens sign-up with the invited address filled in. There is no separate "accept" step: signing up (and verifying the address when email is on) gives the access (D89).
 - The footer's **Help**, **Privacy** and **Terms** links are not shown, since those pages do not exist.
 - The pictures (mark, envelope, Role and Date icons, lock) are redrawn to match and sent inside the email, since email programs block pictures from the web and do not show SVG.
+
+### Tabs
+
+- The Guests (Guests / Unknown Guests) and My Events (All / Upcoming / Past) tabs are drawn as underlined tabs. They use the segmented buttons of Event Layout instead, so a row of tabs never scrolls sideways on a phone, in Hebrew either (D98).
 
 ## Found while building the design system (Phase 2)
 
