@@ -44,7 +44,7 @@ The first end-to-end run needs a browser: `npx playwright install chromium`. `np
 
 ## Configuration
 
-Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DEMO_ENABLED=false` hides the demo for a deployment. `API_URL` (an environment variable of the development server) changes where `/api` is forwarded.
+Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DEMO_ENABLED=false` hides the demo for a deployment; `VITE_ACCOUNTS_ENABLED=false` makes a demo-only site with no accounts and no server (the Netlify build). `API_URL` (an environment variable of the development server) changes where `/api` is forwarded.
 
 The demo keeps its data in the browser's local storage. To review loading and error states, add `?demoDelay=2000` (milliseconds) or `?demoFail=events.get` (a comma-separated list of operations) to the address when opening the app.
 
@@ -65,7 +65,7 @@ The API listens on http://localhost:3000/api; its documentation is at http://loc
 
 ## Deploy
 
-The production stack (Nginx, the API and PostgreSQL in Docker Compose on one small AWS server) is in `deploy/`. `docs/DEPLOYMENT.md` covers the first-time setup step by step, then deploying, rollback, logs, backups and restore. Try the same stack on this machine with `deploy/scripts/local-test.sh up` (after `ALLOW_DIRTY=1 deploy/scripts/build-images.sh`).
+The production stack (Nginx, the API and PostgreSQL in Docker Compose on one small AWS server) is in `deploy/`. `docs/DEPLOYMENT.md` covers the first-time setup step by step, then deploying, rollback, logs, backups and restore. A demo-only version (no server) can be published free on Netlify from `netlify.toml`; see "Demo-only site" in the same guide. Try the same stack on this machine with `deploy/scripts/local-test.sh up` (after `ALLOW_DIRTY=1 deploy/scripts/build-images.sh`).
 
 ## Documentation
 

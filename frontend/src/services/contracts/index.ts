@@ -432,6 +432,11 @@ export type PublicRsvpService = Pick<RsvpService, 'getPublicEvent' | 'submit'>
 export interface Backend {
   /** Whether this deployment offers the public demo (`VITE_DEMO_ENABLED`). */
   demoAvailable: boolean
+  /**
+   * Whether this deployment has real accounts on the server
+   * (`VITE_ACCOUNTS_ENABLED`); false on a demo-only site (D102).
+   */
+  accountsAvailable: boolean
   auth: AuthService
   accountEmail: AccountEmailService
   /** The data operations available to a session. */

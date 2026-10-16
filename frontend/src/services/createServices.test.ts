@@ -23,7 +23,7 @@ const answer = {
   attendees: 1,
 }
 
-function setUp(options: { demo?: boolean } = {}) {
+function setUp(options: { demo?: boolean; accounts?: boolean } = {}) {
   const sessionPersistence = createMemoryPersistence<Session>()
   const demo = createDemoBackend({
     demoPersistence: createMemoryPersistence(),
@@ -33,7 +33,7 @@ function setUp(options: { demo?: boolean } = {}) {
   const accounts = createFakeAccountBackend({ now: () => NOW })
   const backend = combineBackends(
     options.demo === false ? null : demo,
-    accounts,
+    options.accounts === false ? null : accounts,
   )
   return { backend, accounts, sessionPersistence }
 }
@@ -146,6 +146,34 @@ describe('combined backend', () => {
       backend.publicRsvp.getPublicEvent('anything'),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' })
   })
+
+  it('has only the demo on a demo-only site (D102)', async () => {
+    const { backend } = setUp({ accounts: false })
+
+    expect(backend.accountsAvailable).toBe(false)
+    expect(backend.demoAvailable).toBe(true)
+    expect(await backend.auth.getSession()).toBeNull()
+    await expect(backend.auth.signUp(riley)).rejects.toMatchObject({
+      code: 'UNAVAILABLE',
+    })
+    await expect(backend.auth.signIn(riley)).rejects.toMatchObject({
+      code: 'UNAVAILABLE',
+    })
+    await expect(
+      backend.accountEmail.forgotPassword(riley.email),
+    ).rejects.toMatchObject({ code: 'UNAVAILABLE' })
+    await expect(
+      backend.publicRsvp.submit('server-link', answer),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' })
+
+    const demo = await backend.auth.enterDemo()
+    expect(await backend.servicesFor(demo).events.list()).toHaveLength(6)
+    const slug = (await backend.servicesFor(demo).events.get('evt-1')).event
+      .rsvpSlug
+    await expect(backend.publicRsvp.getPublicEvent(slug)).resolves.toBeDefined()
+    await backend.auth.signOut()
+    expect(await backend.auth.getSession()).toBeNull()
+  })
 })
 
 describe('createServices', () => {
@@ -242,5 +270,38 @@ describe('createServices', () => {
     })
 
     expect(backend.demoAvailable).toBe(false)
+    expect(backend.accountsAvailable).toBe(true)
+  })
+
+  it('sends nothing to the server on a demo-only site (D102)', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const backend = createServices({
+      demoEnabled: true,
+      accountsEnabled: false,
+      location,
+      storage: localStorage,
+    })
+
+    expect(await backend.auth.getSession()).toBeNull()
+    await expect(
+      backend.publicRsvp.getPublicEvent('not-a-demo-link'),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' })
+    await backend.auth.enterDemo()
+    expect(await backend.auth.getSession()).toEqual(DEMO)
+    await backend.auth.signOut()
+
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(backend.accountsAvailable).toBe(false)
+  })
+
+  it('refuses a site with neither the demo nor accounts', () => {
+    expect(() =>
+      createServices({
+        demoEnabled: false,
+        accountsEnabled: false,
+        location,
+        storage: localStorage,
+      }),
+    ).toThrow('cannot both be false')
   })
 })

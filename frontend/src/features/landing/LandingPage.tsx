@@ -35,7 +35,7 @@ const FEATURES = [
 export function LandingPage() {
   const { t } = useTranslation()
   const demo = useEnterDemo()
-  const { demoAvailable, demoEnded } = useSession()
+  const { demoAvailable, accountsAvailable, demoEnded } = useSession()
   useDocumentTitle(t('landing.documentTitle'))
 
   const tryDemo = (size: 'md' | 'lg' = 'md') => (
@@ -66,47 +66,55 @@ export function LandingPage() {
           <div className={styles.language}>
             <LanguageSwitcher tone="light" />
           </div>
-          <div className={styles.headerActions}>
-            <ButtonLink to="/signin" variant="secondary">
-              {t('auth.signIn.action')}
-            </ButtonLink>
-            <ButtonLink to="/signup" variant="soft">
-              {t('auth.signUp.action')}
-            </ButtonLink>
-            {demoAvailable && tryDemo()}
-          </div>
-          <div className={styles.headerMenu}>
-            <Menu
-              label={t('nav.openMenu')}
-              triggerClassName={styles.menuButton}
-              items={[
-                {
-                  id: 'signin',
-                  label: t('auth.signIn.action'),
-                  icon: <LogIn />,
-                  to: '/signin',
-                },
-                {
-                  id: 'signup',
-                  label: t('auth.signUp.action'),
-                  icon: <UserPlus />,
-                  to: '/signup',
-                },
-                ...(demoAvailable
-                  ? [
-                      {
-                        id: 'demo',
-                        label: t('landing.tryDemo'),
-                        icon: <Sparkles />,
-                        onSelect: demo.enter,
-                      },
-                    ]
-                  : []),
-              ]}
-            >
-              <MenuIcon aria-hidden="true" />
-            </Menu>
-          </div>
+          {accountsAvailable ? (
+            <>
+              <div className={styles.headerActions}>
+                <ButtonLink to="/signin" variant="secondary">
+                  {t('auth.signIn.action')}
+                </ButtonLink>
+                <ButtonLink to="/signup" variant="soft">
+                  {t('auth.signUp.action')}
+                </ButtonLink>
+                {demoAvailable && tryDemo()}
+              </div>
+              <div className={styles.headerMenu}>
+                <Menu
+                  label={t('nav.openMenu')}
+                  triggerClassName={styles.menuButton}
+                  items={[
+                    {
+                      id: 'signin',
+                      label: t('auth.signIn.action'),
+                      icon: <LogIn />,
+                      to: '/signin',
+                    },
+                    {
+                      id: 'signup',
+                      label: t('auth.signUp.action'),
+                      icon: <UserPlus />,
+                      to: '/signup',
+                    },
+                    ...(demoAvailable
+                      ? [
+                          {
+                            id: 'demo',
+                            label: t('landing.tryDemo'),
+                            icon: <Sparkles />,
+                            onSelect: demo.enter,
+                          },
+                        ]
+                      : []),
+                  ]}
+                >
+                  <MenuIcon aria-hidden="true" />
+                </Menu>
+              </div>
+            </>
+          ) : (
+            // A demo-only site (D102): Try Demo is the one action; on a
+            // phone the hero's button is just below.
+            <div className={styles.headerActions}>{tryDemo()}</div>
+          )}
         </div>
       </header>
 
@@ -139,14 +147,16 @@ export function LandingPage() {
                   {t('auth.signUp.action')}
                 </ButtonLink>
               )}
-              <ButtonLink to="/signin" variant="secondary" size="lg">
-                {t('auth.signIn.action')}
-              </ButtonLink>
+              {accountsAvailable && (
+                <ButtonLink to="/signin" variant="secondary" size="lg">
+                  {t('auth.signIn.action')}
+                </ButtonLink>
+              )}
             </div>
             {demoAvailable && (
               <p className={styles.note}>
                 <Sparkles aria-hidden="true" />
-                {t('landing.note')}
+                {t(accountsAvailable ? 'landing.note' : 'landing.previewNote')}
               </p>
             )}
           </div>

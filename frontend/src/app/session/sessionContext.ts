@@ -11,6 +11,8 @@ export interface SessionContextValue {
   session: Session | null
   /** False when this deployment has the public demo switched off. */
   demoAvailable: boolean
+  /** False on a demo-only site, which has no Sign In or Sign Up (D102). */
+  accountsAvailable: boolean
   /** Why the visitor's demo ended on its own (D99), until they go on. */
   demoEnded: DemoEndReason | null
   /** Email links of real accounts, which work without a session (D88). */

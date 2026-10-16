@@ -128,6 +128,7 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     return {
       session,
       demoAvailable: backend.demoAvailable,
+      accountsAvailable: backend.accountsAvailable,
       demoEnded,
       accountEmail: backend.accountEmail,
       signUp: async (input) => change(await backend.auth.signUp(input)),

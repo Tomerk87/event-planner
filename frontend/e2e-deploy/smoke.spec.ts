@@ -6,7 +6,11 @@ import { addGuestByApi, createEventByApi } from '../e2e/realApi.ts'
  * The deployed stack end to end, through Nginx: static pages and deep links,
  * the demo, a real account on PostgreSQL, a stored picture, and the public
  * RSVP page in English and Hebrew. See playwright.deploy.config.ts.
+ *
+ * DEPLOY_DEMO_ONLY=1 checks a demo-only site instead (D102, Netlify): only
+ * the demo, no account pages, and not one request to the API.
  */
+const demoOnly = process.env['DEPLOY_DEMO_ONLY'] === '1'
 
 /**
  * Signs the page up. The address is Amazon SES's mailbox simulator, which
@@ -47,10 +51,20 @@ async function choosePicture(page: Page) {
 test('the landing page, the demo and a page opened by its address', async ({
   page,
 }) => {
+  const apiRequests: string[] = []
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) {
+      apiRequests.push(request.url())
+    }
+  })
+
   await page.goto('/')
   await expect(
     page.getByRole('heading', { level: 1, name: /Plan every guest/ }),
   ).toBeVisible()
+  if (demoOnly) {
+    await expect(page.getByRole('link', { name: 'Sign In' })).toHaveCount(0)
+  }
 
   await page
     .getByRole('main')
@@ -66,12 +80,67 @@ test('the landing page, the demo and a page opened by its address', async ({
   await expect(
     page.getByRole('heading', { level: 1, name: 'Guests' }),
   ).toBeVisible()
+
+  if (demoOnly) {
+    expect(apiRequests).toEqual([])
+  }
+})
+
+test('a demo-only site: account pages lead back to the landing page, and a demo RSVP link opens anywhere', async ({
+  page,
+  browser,
+}, testInfo) => {
+  test.skip(!demoOnly, 'only for a demo-only site (DEPLOY_DEMO_ONLY=1)')
+  const apiRequests: string[] = []
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) {
+      apiRequests.push(request.url())
+    }
+  })
+
+  for (const path of ['/signin', '/signup', '/reset-password?token=x']) {
+    await page.goto(path)
+    await expect(page).toHaveURL(/\/$/)
+    await expect(
+      page.getByRole('heading', { level: 1, name: /Plan every guest/ }),
+    ).toBeVisible()
+  }
+  // A link that is not a demo event's is simply not found.
+  await page.goto('/rsvp/not-a-demo-link')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+  // The demo data is the same in every browser, so a guest opening a demo
+  // event's link elsewhere (as from WhatsApp) gets its RSVP page.
+  await page.goto('/')
+  await page
+    .getByRole('main')
+    .getByRole('button', { name: 'Try Demo' })
+    .first()
+    .click()
+  await expect(page).toHaveURL(/\/events$/)
+  await page.goto('/events/evt-1/rsvp')
+  const link = new URL(await page.getByLabel('RSVP link').inputValue())
+  const { baseURL, ...device } = testInfo.project.use
+  const guest = await browser.newContext({ ...device, baseURL })
+  const guestPage = await guest.newPage()
+  guestPage.on('request', (request) => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) {
+      apiRequests.push(request.url())
+    }
+  })
+  await guestPage.goto(link.pathname)
+  await expect(
+    guestPage.getByRole('button', { name: "I'll be there!" }),
+  ).toBeVisible()
+  await guest.close()
+  expect(apiRequests).toEqual([])
 })
 
 test('a real account: guest, stored picture, and public RSVP in English and Hebrew', async ({
   page,
   browser,
 }, testInfo) => {
+  test.skip(demoOnly, 'a demo-only site has no accounts')
   await signUp(page)
   const event = await createEventByApi(page, { name: 'Smoke Party' })
   const hebrew = await createEventByApi(page, {

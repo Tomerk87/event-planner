@@ -12,3 +12,12 @@ export function SignedOutOnly() {
   const { session } = useSession()
   return session ? <Navigate to="/events" replace /> : <Outlet />
 }
+
+/**
+ * Account pages (sign-in, sign-up, email links, System): on a demo-only site,
+ * which has no accounts (D102), back to the landing page.
+ */
+export function AccountsOnly() {
+  const { accountsAvailable } = useSession()
+  return accountsAvailable ? <Outlet /> : <Navigate to="/" replace />
+}

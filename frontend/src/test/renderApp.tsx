@@ -52,7 +52,8 @@ export function createTestBackend(
     services?: Services
     session?: TestSession
     demoAvailable?: boolean
-    accounts?: ReturnType<typeof createFakeAccountBackend>
+    /** Null for a demo-only site, which has no accounts (D102). */
+    accounts?: ReturnType<typeof createFakeAccountBackend> | null
   } & Partial<DemoBackendOptions> = {},
 ): Backend {
   const {
