@@ -39,8 +39,20 @@ export function formatTime(
   }).format(date)
 }
 
+/** Items joined as a sentence would, such as "1, 3 and 7". */
+export function formatList(
+  items: readonly string[],
+  language: Language,
+): string {
+  return new Intl.ListFormat(LOCALES[language], {
+    style: 'long',
+    type: 'conjunction',
+  }).format(items)
+}
+
 export interface Formatters {
   number: (value: number) => string
+  list: (items: readonly string[]) => string
   date: (date: Date, timeZone?: string) => string
   time: (date: Date, timeZone?: string) => string
 }
@@ -53,6 +65,7 @@ export function useFormatters(): Formatters {
   return useMemo(
     () => ({
       number: (value) => formatNumber(value, language),
+      list: (items) => formatList(items, language),
       date: (date, timeZone) => formatDate(date, language, timeZone),
       time: (date, timeZone) => formatTime(date, language, timeZone),
     }),

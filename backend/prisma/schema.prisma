@@ -134,8 +134,22 @@ model Event {
   /// Identifier in the one public RSVP address shared by all guests.
   rsvpSlug                String       @unique
   createdAt               DateTime     @default(now()) @db.Timestamptz(3)
+  /// The floor plan's room, in centimetres (D100).
+  roomWidth               Int          @default(2000)
+  roomDepth               Int          @default(1500)
+  /// Key of the floor picture in the image storage.
+  floorImageKey           String?
+  /// How see-through the floor picture is, 0–90 percent.
+  floorImageTransparency  Int          @default(40)
+  /// Zoom of the floor picture, 25–400 percent.
+  floorImageZoom          Int          @default(100)
+  /// Turn of the floor picture, −180 to 180 degrees.
+  floorImageRotation      Int          @default(0)
+  /// Goes up with every save of the floor plan.
+  layoutVersion           Int          @default(0)
 
   memberships   EventMembership[]
+  venueObjects  VenueObject[]
   invitations   EventInvitation[]
   guests        Guest[]
   unknownRsvps  UnknownRsvp[]
@@ -277,6 +291,12 @@ model EventTable {
   number   Int
   capacity Int
   shape    TableShape
+  /// The table's centre on the floor plan, in centimetres; null while it is
+  /// not placed (D100).
+  x        Int?
+  y        Int?
+  /// Clockwise, 0–359 degrees.
+  rotation Int        @default(0)
 
   event  Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   guests Guest[]
@@ -284,4 +304,34 @@ model EventTable {
   @@unique([eventId, number])
   /// Lets a guest's table be checked against the guest's own event.
   @@unique([id, eventId])
+}
+
+enum VenueObjectKind {
+  WALL
+  STAGE
+  BAR
+  STEPS
+  FOOD_STATION
+  ENTRANCE
+  PLANT
+}
+
+/// Something on the floor plan that is not a table (D100). Its id is chosen
+/// by the page that added it and is unique within the event.
+model VenueObject {
+  eventId  String          @db.Uuid
+  id       String
+  kind     VenueObjectKind
+  x        Int
+  y        Int
+  width    Int
+  height   Int
+  rotation Int
+  label    String?
+  /// Keeps the order in which the objects were saved.
+  position Int
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, id])
 }

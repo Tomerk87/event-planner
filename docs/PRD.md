@@ -368,13 +368,16 @@ A per-table summary export is deferred (`docs/FUTURE_FEATURES.md`).
 
 Exports remain available after an event becomes Past.
 
-### 11.4 Arrangement canvas scope
+### 11.4 Table Arrangement (floor plan)
 
-The visual venue blueprint/Arrangement editor is currently a **post-MVP feature** unless explicitly promoted into POC scope. The planned capability includes View and Edit modes (default View); tables on a canvas; drag/drop; chairs and occupancy; venue objects such as divider/wall, steps, stage, and bar; persistent coordinates and shapes; and overlap/conflict handling. Mobile viewing is required; full editing may be desktop/tablet-oriented.
+Built in Phase 20 (decision D100; owner request 2026-10-16). Event Layout has two tabs, **Tables** and **Table Arrangement**; the chosen tab is kept in the address. The seating figures and Capacity Warnings are shown above both.
 
-The existing Arrangement mockups remain applicable visual guidance even while implementation is deferred.
-
-In the MVP the Event Layout page shows the **Table Arrangement** tab with a "Soon" badge, disabled and not selectable. The Arrangement Preview panel shown in the mockups is not displayed.
+- **The plan:** one room per event, measured in centimetres (default 20 × 15 m, 3–200 m a side). Tables stand by their centre and a turn; their size comes from their shape and chairs, with one chair per seat, seats taken by assigned attendees filled, and a table over capacity drawn in red with "!". Venue objects: Wall, Stage, Bar, Steps, Food Station, Entrance and Plant, each with an optional label. An optional **floor picture** (a plan or map of the venue) lies under everything, with Transparency (0–90%), Zoom (25–400%) and Rotate (−180° to 180°). The plan is drawn left to right in every language.
+- **View mode** (default, every role, desktop and phone): zoom buttons, Ctrl/⌘ with the wheel or a trackpad pinch, two-finger pinch on a phone, drag to pan, Show the whole room, Fullscreen. Clicking a table ticks it in the same selection as the Tables list (D69); with exactly one table ticked, the Selected Table card is shown beside the plan, or below it on a phone.
+- **Edit mode** (Owner, Admin, Super User; never on a past event; not on a phone, which shows "Edit the layout on a larger screen"): tables not on the plan and the objects are dragged in or clicked into the middle of the view; items are moved by dragging (snapping to a 50 cm grid, which can be switched off), turned with a handle, and objects resized with a handle; a panel sets the exact position, turn, size and label, or the room's size and the floor picture. Arrow keys move the chosen item (Shift for 1 m), R turns it 15°, Delete takes it off. The whole plan is saved at once with Save Layout, or dropped with Cancel; leaving with changes asks first. A save made after someone else's is refused with an offer to reload.
+- **Warnings, not blocks:** a table overlapping another table or an object, or anything reaching past the walls, is outlined and listed under "Check the plan"; saving is still allowed.
+- **With the tables:** a new table starts off the plan; a deleted table leaves it; duplicating an event copies its plan and picture.
+- **Arrangement Preview:** on a wide screen (1360px and up) the Tables tab shows a small read-only plan under Capacity Warnings, with Open Arrangement.
 
 ## 12. Public Demo Mode — MVP requirement
 
@@ -482,7 +485,6 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 
 `docs/FUTURE_FEATURES.md` is the maintained list of everything left out of the MVP, including items shown in mockups that are not being built. Unless separately approved for the POC:
 
-- Visual Arrangement canvas editor (the planned post-MVP phase).
 - Automated WhatsApp Business API delivery, bulk sending, reminders, and delivery/read tracking.
 - Guest-specific RSVP URLs, guest-facing languages beyond English and Hebrew, and translation of organizer-written RSVP texts.
 - Individual attendee entities, group splitting, and seat-level assignment.
@@ -498,7 +500,7 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 3. ~~**Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?~~ Resolved 2026-10-12: section 5.3.
 4. ~~**Permission invite flow:** What happens when an organizer grants access to an email not yet registered?~~ Resolved 2026-10-13: a pending invitation that becomes a membership at sign-up (section 3.3).
 5. ~~**Deleted guest restoration:** Which prior RSVP and seating values should be preserved, cleared, or reviewed on restoration?~~ Resolved 2026-10-12: fresh RSVP, no table, invitation counter kept (section 6.2).
-6. ~~**Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?~~ Resolved 2026-10-12: stays deferred. The tab is shown as "Soon" and disabled, with no preview panel (section 11.4).
+6. ~~**Visual Arrangement in POC:** Keep deferred, or explicitly promote to POC scope?~~ Resolved 2026-10-12: stays deferred. Changed 2026-10-16: the owner asked for it, and it is built (section 11.4, D100).
 
 ## 19. Document ownership and change control
 

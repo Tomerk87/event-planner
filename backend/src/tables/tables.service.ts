@@ -31,6 +31,8 @@ export interface SeatingExportRequest {
   headings: Record<SeatingExportColumn, string>
   sheetName: string
   rightToLeft: boolean
+  /** Only these tables; every table when left out. */
+  tableIds?: readonly string[]
 }
 
 /**
@@ -128,7 +130,15 @@ export class TablesService {
     await this.access.authorize(eventId, user, 'EXPORT')
     const [guests, tables] = await Promise.all([
       this.prisma.guest.findMany({ where: { eventId, deleted: false } }),
-      this.prisma.eventTable.findMany({ where: { eventId } }),
+      this.prisma.eventTable.findMany({
+        where: {
+          eventId,
+          // An id that is not one of the event's tables simply matches none.
+          ...(request.tableIds && {
+            id: { in: request.tableIds.filter(isUuid) },
+          }),
+        },
+      }),
     ])
     const table = buildSeatingExportTable(
       buildSeatingDetailRows(guests.map(toGuest), tables.map(toTable)),

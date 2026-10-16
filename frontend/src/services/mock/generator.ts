@@ -1,7 +1,13 @@
 import { fromLocalDateTime, toLocalDateTime } from '../../domain/eventTime.ts'
+import {
+  DEFAULT_FLOOR_IMAGE,
+  DEFAULT_OBJECT_SIZE,
+  tableFootprint,
+} from '../../domain/layout.ts'
 import { renderMessage } from '../../domain/messages.ts'
 import type {
   Event,
+  EventLayout,
   EventMembership,
   EventTable,
   Guest,
@@ -637,6 +643,88 @@ function createEventData(
   return { guests, tables, unknownRsvps, sends }
 }
 
+// Room around the tables: a band for the bar and the food station on each
+// side, the stage at the top and the entrance at the bottom; in centimetres.
+const SIDE_BAND = 300
+const STAGE_BAND = 500
+const ENTRANCE_BAND = 250
+const AISLE = 60
+
+/**
+ * A floor plan in the spirit of the Arrangement mockups (D100): a stage at
+ * the top, a bar and a food station on either side, an entrance at the
+ * bottom, a plant in each corner and the tables in rows between them. The
+ * main event leaves its last table off the plan, to show an unplaced table.
+ * Built without random numbers, so the rest of the dataset is unaffected.
+ */
+function createLayout(
+  event: Event,
+  tables: readonly EventTable[],
+  leaveOneUnplaced: boolean,
+): EventLayout {
+  const placed = leaveOneUnplaced ? tables.slice(0, -1) : tables
+  const cell =
+    Math.max(
+      ...tables.map((table) => {
+        const footprint = tableFootprint(table, { x: 0, y: 0, rotation: 0 })
+        return footprint.kind === 'circle'
+          ? footprint.radius * 2
+          : Math.max(footprint.width, footprint.height)
+      }),
+    ) + AISLE
+  const columns = Math.max(3, Math.ceil(Math.sqrt(placed.length * 1.5)))
+  const rows = Math.max(1, Math.ceil(placed.length / columns))
+  const roomWidth = Math.round(2 * SIDE_BAND + columns * cell)
+  const roomDepth = Math.round(STAGE_BAND + rows * cell + ENTRANCE_BAND)
+  const object = (
+    id: string,
+    kind: EventLayout['objects'][number]['kind'],
+    x: number,
+    y: number,
+    size: Partial<{ width: number; height: number }> = {},
+  ) => ({
+    id,
+    kind,
+    x: Math.round(x),
+    y: Math.round(y),
+    ...DEFAULT_OBJECT_SIZE[kind],
+    ...size,
+    rotation: 0,
+    label: null,
+  })
+  const middle = (rows * cell) / 2 + STAGE_BAND
+  return {
+    eventId: event.id,
+    roomWidth,
+    roomDepth,
+    floorImage: null,
+    ...DEFAULT_FLOOR_IMAGE,
+    placements: placed.map((table, index) => ({
+      tableId: table.id,
+      x: Math.round(SIDE_BAND + ((index % columns) + 0.5) * cell),
+      y: Math.round(STAGE_BAND + (Math.floor(index / columns) + 0.5) * cell),
+      rotation: 0,
+    })),
+    objects: [
+      object('stage', 'STAGE', roomWidth / 2, 200, {
+        width: Math.min(800, columns * cell - 2 * AISLE),
+      }),
+      object('bar', 'BAR', SIDE_BAND / 2, middle, {
+        height: Math.min(600, rows * cell),
+      }),
+      object('food', 'FOOD_STATION', roomWidth - SIDE_BAND / 2, middle, {
+        height: Math.min(600, rows * cell),
+      }),
+      object('entrance', 'ENTRANCE', roomWidth / 2, roomDepth - 20),
+      object('plant-1', 'PLANT', 60, 60),
+      object('plant-2', 'PLANT', roomWidth - 60, 60),
+      object('plant-3', 'PLANT', 60, roomDepth - 60),
+      object('plant-4', 'PLANT', roomWidth - 60, roomDepth - 60),
+    ],
+    version: 1,
+  }
+}
+
 export function generateDemoState(now: Date): DemoState {
   const random = createRandom(SEED)
   const users = createUsers()
@@ -659,6 +747,7 @@ export function generateDemoState(now: Date): DemoState {
     messageTemplates: [],
     messageSends: [],
     tables: [],
+    layouts: [],
   }
 
   EVENT_SPECS.forEach((spec, index) => {
@@ -688,6 +777,7 @@ export function generateDemoState(now: Date): DemoState {
     }
     state.guests.push(...data.guests)
     state.tables.push(...data.tables)
+    state.layouts.push(createLayout(event, data.tables, index === 0))
     state.unknownRsvps.push(...data.unknownRsvps)
     state.messageSends.push(...data.sends)
     state.rsvpSettings.push(defaultRsvpSettings(event))

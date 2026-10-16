@@ -26,6 +26,7 @@ const TABLES = [
   'MessageSend',
   'Guest',
   'EventTable',
+  'VenueObject',
   'UnknownRsvp',
   'RsvpSettings',
   'MessageTemplate',

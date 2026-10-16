@@ -15,6 +15,7 @@
   grid-template-areas:
     'warnings'
     'list'
+    'preview'
     'selected';
   gap: var(--space-4);
   align-items: start;
@@ -32,6 +33,10 @@
   grid-area: list;
 }
 
+.previewArea {
+  grid-area: preview;
+}
+
 .selectedArea {
   grid-area: selected;
 }
@@ -40,9 +45,10 @@
 @media (min-width: 1360px) {
   .columns {
     grid-template-columns: minmax(0, 1fr) clamp(18rem, 26%, 22rem);
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-areas:
       'list warnings'
+      'list preview'
       'list selected';
   }
 }

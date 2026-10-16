@@ -16,6 +16,7 @@ export type DomainErrorCode =
   | 'GUEST_NOT_APPROVED'
   | 'TABLE_FULL'
   | 'DUPLICATE_TABLE_NUMBER'
+  | 'LAYOUT_CHANGED'
   | 'LAST_OWNER'
   | 'SELF_PERMISSION'
   | 'ALREADY_MEMBER'

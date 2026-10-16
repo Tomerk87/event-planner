@@ -5,6 +5,7 @@ import type {
   SeatingExportColumn,
 } from '../../domain/exports.ts'
 import type { GuestInput } from '../../domain/guests.ts'
+import type { LayoutInput } from '../../domain/layout.ts'
 import type { MessageValues } from '../../domain/messages.ts'
 import type {
   ActivityEntry,
@@ -15,6 +16,7 @@ import type {
   AccountNotification,
   Event,
   EventInvitation,
+  EventLayout,
   EventTable,
   Guest,
   Id,
@@ -237,6 +239,17 @@ export interface TablesService {
   remove(eventId: Id, tableId: Id): Promise<void>
 }
 
+/** The event's floor plan (D100). */
+export interface LayoutService {
+  /** An event never laid out has an empty plan, at version 0. */
+  get(eventId: Id): Promise<EventLayout>
+  /**
+   * Saves the whole plan. Refuses with LAYOUT_CHANGED when it was saved
+   * since `input.version`. The floor picture is kept by its own address.
+   */
+  save(eventId: Id, input: LayoutInput): Promise<EventLayout>
+}
+
 export interface Member {
   user: User
   role: EventRole
@@ -392,6 +405,8 @@ export interface GuestExportRequest extends SpreadsheetOptions {
 export interface SeatingExportRequest extends SpreadsheetOptions {
   /** Headings in the person's interface language. */
   headings: Record<SeatingExportColumn, string>
+  /** Only these tables; every table when left out. */
+  tableIds?: readonly Id[]
 }
 
 /**
@@ -464,6 +479,7 @@ export interface Services {
   rsvp: RsvpService
   messages: MessagesService
   tables: TablesService
+  layout: LayoutService
   permissions: PermissionsService
   dashboard: DashboardService
   files: FilesService

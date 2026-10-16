@@ -8,9 +8,10 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 
 | Feature | Notes | Source |
 |---|---|---|
-| Visual Arrangement editor | View and Edit modes (default View); tables on a canvas; drag and drop; chairs and occupancy; venue objects (divider/wall, steps, stage, bar); saved coordinates and shapes; overlap and conflict handling; mobile viewing. Planned as `PLAN.md` Phase 20. In the MVP the Table Arrangement tab is shown with a "Soon" badge and is disabled. | PRD §11.4; mockups `event_layout.png`, `event_layout_arrangement_mobile.png`; owner decision 2026-10-12 |
-| Arrangement Preview panel | The read-only floor-plan preview and "Open Arrangement" button shown beside the tables list, and the mobile read-only floor plan with Fullscreen. | Mockups `event_layout.png`, `event_layout_arrangement_mobile.png`; owner decision 2026-10-12 |
-| Additional venue objects | Food station, entrance, decorative plants. Shown in the Arrangement mockups but not in the PRD's object list. | Mockups |
+| Editing the floor plan on a phone | Phones show the plan in View mode only; moving tables needs a larger screen (D100). | Owner decision 2026-10-16 |
+| Printing or exporting the floor plan | A PDF or picture of the plan for the venue. | Phase 20, 2026-10-16 |
+| Moving the floor picture | The picture stays centred; it has Transparency, Zoom and Rotate only (D100). Left/right and up/down position could be added beside them. | Owner request 2026-10-16 |
+| Undo in the floor-plan editor | Changes are kept until Save Layout or dropped with Cancel; single steps cannot be undone. | Phase 20, 2026-10-16 |
 | Per-seat assignment | Assigning attendees to individual chairs. | PRD §17; `PLAN.md` backlog |
 | Splitting a party across tables | In the MVP a guest's whole party sits at one table. | PRD §11.2, §17 |
 | Venue templates | Reusable venue layouts. | `PLAN.md` backlog |

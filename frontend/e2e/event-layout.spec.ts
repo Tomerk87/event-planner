@@ -222,37 +222,63 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   await expect(page.getByText('Tables over capacity: 3')).toBeVisible()
 })
 
-test('the chosen table is shown beside the list on a wide screen', async ({
+test('ticked tables: one is shown beside the list, several are exported and deleted together', async ({
   page,
   isMobile,
 }) => {
-  test.skip(isMobile, 'a phone opens the table’s guests instead')
+  test.skip(isMobile, 'a phone has no tick boxes, as on Guests')
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(LAYOUT)
   const panel = page
     .locator('section')
     .filter({ has: page.getByRole('heading', { name: 'Selected Table' }) })
+  const bar = page.getByRole('region', { name: 'Selected tables' })
 
-  await expect(panel).toContainText('Table 16')
-  await expect(panel).toContainText('Over Capacity')
+  // Nothing is chosen to begin with.
+  await expect(
+    page.getByRole('heading', { name: 'Arrangement Preview' }),
+  ).toBeVisible()
+  await expect(panel).toHaveCount(0)
   await expectNoSidewaysScroll(page, `${LAYOUT} at 1440px`)
 
-  await page
-    .getByRole('table', { name: 'Tables' })
-    .getByRole('button', { name: '3', exact: true })
-    .click()
-
+  await page.getByRole('checkbox', { name: 'Select Table 3' }).check()
   await expect(panel).toContainText('Table 3')
   await expect(panel).toContainText('Assigned Guest Parties (2)')
-  await expect(page).toHaveURL(/table=tbl-1-03/)
+  await expect(bar).toContainText('1 selected')
+  await page.getByRole('checkbox', { name: 'Select Table 3' }).uncheck()
+  await expect(panel).toHaveCount(0)
+  await expect(bar).toHaveCount(0)
 
-  // Every column of the list is in view beside the panel.
+  // Kept across pages.
+  await page.getByRole('checkbox', { name: 'Select Table 3' }).check()
+  await page.getByRole('button', { name: 'Page 2' }).click()
+  await page.getByRole('checkbox', { name: 'Select Table 12' }).check()
+  await expect(bar).toContainText('2 selected')
+  await expect(panel).toHaveCount(0)
+
+  // Every column of the list is in view beside the other cards.
   const frame = page.getByRole('table', { name: 'Tables' }).locator('..')
   expect(
     await frame.evaluate(
       (element) => element.scrollWidth - element.clientWidth,
     ),
   ).toBe(0)
+
+  const downloading = page.waitForEvent('download')
+  await bar.getByRole('button', { name: 'Export selected' }).click()
+  await page.getByRole('menuitem', { name: 'CSV file (.csv)' }).click()
+  const lines = await csvRows(await downloading)
+  expect(new Set(lines.slice(1).map((line) => line.split(',')[5]))).toEqual(
+    new Set(['3', '12']),
+  )
+
+  await bar.getByRole('button', { name: 'Delete selected' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Delete 2 Tables' })
+  await expect(dialog).toContainText('Tables 3 and 12 will be deleted.')
+  await dialog.getByRole('button', { name: 'Delete 2 Tables' }).click()
+  await expect(page.getByText('2 tables were deleted.')).toBeVisible()
+  await expect(bar).toHaveCount(0)
+  await expect(figure(page, 'Total Tables')).toHaveText('16')
 })
 
 test('the seating list exports to CSV and to Excel, a row per seated party in table order', async ({
@@ -310,20 +336,6 @@ for (const [path, notice] of [
     expect((await csvRows(file)).length).toBeGreaterThan(1)
   })
 }
-
-test('the Table Arrangement view is marked Soon and cannot be opened', async ({
-  page,
-}) => {
-  await page.goto(LAYOUT)
-
-  const tab = page.getByRole('tab', { name: /Table Arrangement/ })
-  await expect(tab).toContainText('Soon')
-  await expect(tab).toBeDisabled()
-  await expect(page.getByRole('tab', { name: 'Tables' })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  )
-})
 
 test('search, shape and sorting are kept in the address', async ({
   page,

@@ -156,8 +156,8 @@ export class EventsService {
   }
 
   /**
-   * Copies the event's details, RSVP settings, message template and tables
-   * (with nobody seated). Guests, responses, sends and other members are not
+   * Copies the event's details, RSVP settings, message template, tables
+   * (with nobody seated) and floor plan (D100). Guests, responses, sends and other members are not
    * copied; the user duplicating becomes the Owner (PRD section 5.3).
    */
   async duplicate(
@@ -176,16 +176,20 @@ export class EventsService {
       startsAt: input.startsAt,
     })
     assertStartsInFuture(fields.startsAt, new Date())
-    const [settings, template, tables] = await Promise.all([
+    const [settings, template, tables, objects] = await Promise.all([
       this.prisma.rsvpSettings.findUnique({ where: { eventId } }),
       this.prisma.messageTemplate.findUnique({ where: { eventId } }),
       this.prisma.eventTable.findMany({ where: { eventId } }),
+      this.prisma.venueObject.findMany({ where: { eventId } }),
     ])
     const coverImageKey = source.coverImageKey
       ? await this.storage.copy(source.coverImageKey)
       : null
     const backgroundImageKey = settings?.backgroundImageKey
       ? await this.storage.copy(settings.backgroundImageKey)
+      : null
+    const floorImageKey = source.floorImageKey
+      ? await this.storage.copy(source.floorImageKey)
       : null
     const row = await this.prisma.$transaction(async (tx) => {
       const created = await tx.event.create({
@@ -195,6 +199,12 @@ export class EventsService {
           coverImageKey,
           rsvpSlug: newRsvpSlug(),
           memberships: { create: { userId: user.id, role: 'OWNER' } },
+          roomWidth: source.roomWidth,
+          roomDepth: source.roomDepth,
+          floorImageKey,
+          floorImageTransparency: source.floorImageTransparency,
+          floorImageZoom: source.floorImageZoom,
+          floorImageRotation: source.floorImageRotation,
         },
       })
       const event = toEvent(created)
@@ -220,11 +230,20 @@ export class EventsService {
         },
       })
       await tx.eventTable.createMany({
-        data: tables.map(({ number, capacity, shape }) => ({
+        data: tables.map(({ number, capacity, shape, x, y, rotation }) => ({
           eventId: created.id,
           number,
           capacity,
           shape,
+          x,
+          y,
+          rotation,
+        })),
+      })
+      await tx.venueObject.createMany({
+        data: objects.map(({ eventId: _source, ...object }) => ({
+          ...object,
+          eventId: created.id,
         })),
       })
       return created
@@ -245,6 +264,7 @@ export class EventsService {
     })
     await this.storage.remove(event.coverImageKey)
     await this.storage.remove(settings?.backgroundImageKey ?? null)
+    await this.storage.remove(event.floorImageKey)
   }
 
   /**

@@ -329,6 +329,22 @@ describe('seating export', () => {
     const rows = await readSheet(xlsx.body as Buffer)
     expect(rows).toHaveLength(3)
     expect(rows[2]).toEqual(['Zoe', 'Test', null, '052-000-0001', 2, 2])
+
+    // Only the selected tables; an id that is not a table matches none.
+    const selected = await owner
+      .post(`${base}/tables/export`)
+      .send({
+        format: 'csv',
+        headings: HEADINGS,
+        sheetName: 'Seating',
+        rightToLeft: false,
+        tableIds: [two, 'not-a-table'],
+      })
+      .expect(200)
+    expect(selected.text.replace(/^﻿/, '').trim().split(/\r?\n/)).toEqual([
+      'First Name,Last Name,Invitation Name,Phone,Confirmed,Table',
+      'Zoe,Test,,052-000-0001,2,2',
+    ])
   })
 
   it('refuses missing headings or an unknown format', async () => {

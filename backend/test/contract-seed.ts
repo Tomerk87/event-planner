@@ -31,6 +31,7 @@ interface DemoState {
   messageTemplates: Row[]
   messageSends: Row[]
   tables: Row[]
+  layouts: Row[]
 }
 
 const TABLES = [
@@ -39,6 +40,7 @@ const TABLES = [
   'MessageSend',
   'Guest',
   'EventTable',
+  'VenueObject',
   'UnknownRsvp',
   'RsvpSettings',
   'MessageTemplate',
@@ -121,14 +123,64 @@ await prisma.eventInvitation.createMany({
     role: invitation['role'] as 'OWNER' | 'ADMIN' | 'VIEWER',
   })),
 })
+const placements = new Map(
+  state.layouts.flatMap((layout) =>
+    (layout['placements'] as Row[]).map((placement) => [
+      placement['tableId'] as string,
+      placement,
+    ]),
+  ),
+)
 await prisma.eventTable.createMany({
-  data: state.tables.map((table) => ({
-    id: id(table['id']),
-    eventId: id(table['eventId']),
-    number: table['number'] as number,
-    capacity: table['capacity'] as number,
-    shape: table['shape'] as 'CIRCLE' | 'RECTANGLE' | 'SQUARE',
-  })),
+  data: state.tables.map((table) => {
+    const placement = placements.get(table['id'] as string)
+    return {
+      id: id(table['id']),
+      eventId: id(table['eventId']),
+      number: table['number'] as number,
+      capacity: table['capacity'] as number,
+      shape: table['shape'] as 'CIRCLE' | 'RECTANGLE' | 'SQUARE',
+      x: (placement?.['x'] as number | undefined) ?? null,
+      y: (placement?.['y'] as number | undefined) ?? null,
+      rotation: (placement?.['rotation'] as number | undefined) ?? 0,
+    }
+  }),
+})
+for (const layout of state.layouts) {
+  await prisma.event.update({
+    where: { id: id(layout['eventId']) },
+    data: {
+      roomWidth: layout['roomWidth'] as number,
+      roomDepth: layout['roomDepth'] as number,
+      floorImageTransparency: layout['floorImageTransparency'] as number,
+      floorImageZoom: layout['floorImageZoom'] as number,
+      floorImageRotation: layout['floorImageRotation'] as number,
+      layoutVersion: layout['version'] as number,
+    },
+  })
+}
+await prisma.venueObject.createMany({
+  data: state.layouts.flatMap((layout) =>
+    (layout['objects'] as Row[]).map((object, position) => ({
+      eventId: id(layout['eventId']),
+      id: object['id'] as string,
+      kind: object['kind'] as
+        | 'WALL'
+        | 'STAGE'
+        | 'BAR'
+        | 'STEPS'
+        | 'FOOD_STATION'
+        | 'ENTRANCE'
+        | 'PLANT',
+      x: object['x'] as number,
+      y: object['y'] as number,
+      width: object['width'] as number,
+      height: object['height'] as number,
+      rotation: object['rotation'] as number,
+      label: (object['label'] as string | null) ?? null,
+      position,
+    })),
+  ),
 })
 await prisma.guest.createMany({
   data: state.guests.map((guest) => ({

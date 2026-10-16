@@ -6,20 +6,13 @@ Rule applied throughout (`AGENTS.md`, owner decision 2026-10-12): the mockups we
 
 ## Visual Arrangement scope
 
-| | MVP | Post-MVP (Phase 20) |
-|---|---|---|
-| Tables: create, edit, delete, number, capacity, shape | Yes | |
-| Assigning Approved guest parties to tables, capacity rules, conflicts | Yes | |
-| Seating exports (CSV, XLSX) | Yes | |
-| Arrangement canvas: placing tables, drag/drop, chairs, venue objects, View/Edit modes, persisted coordinates | | Yes |
+Built in Phase 20 (D100, PRD §11.4). The Arrangement mockups are followed:
 
-How the mockups show it:
-
-- `event_layout.png` labels the second tab "Table Arrangement" with a **Soon** badge, which matches the deferred scope. The same image also shows a working "Arrangement Preview" panel with an "Open Arrangement" button.
-- `event_layout_arrangement_mobile.png` shows a functioning read-only Arrangement tab ("View Mode", "Fullscreen", pinch to zoom) with a Selected Table panel.
-- The mockups include venue objects the PRD does not list (Food Station, Entrance, plants). PRD §11.4 lists divider/wall, steps, stage and bar.
-
-**Decided (2026-10-12):** in the MVP the Table Arrangement tab is shown with the "Soon" badge and is disabled, on desktop and mobile. The Arrangement Preview panel and the mobile read-only floor plan are not built. The Arrangement mockups are kept as guidance for Phase 20, and the deferred pieces are listed in `docs/FUTURE_FEATURES.md`.
+- `event_layout.png`: the Table Arrangement tab without the **Soon** badge, and the **Arrangement Preview** with Open Arrangement, under Capacity Warnings on a wide screen (1360px and up). The preview's Selected Table panel follows D69: it is shown when exactly one table is ticked.
+- `event_layout_arrangement_mobile.png`: the phone's View Mode with its hint, Fullscreen, pinch to zoom, the red "!" on tables over capacity and the Selected Table card below the plan. The phone tab keeps the desktop's name, "Table Arrangement".
+- Food Station, Entrance and plants, drawn in the mockups but not in the old PRD list, are built.
+- Not drawn in any mockup: Edit mode (palette, panel, Save Layout, Cancel), the floor picture (owner, 2026-10-16), the "Check the plan" warnings, and the tick boxes and bulk bar of the Tables list (D69 revised, owner 2026-10-16).
+- Earlier decision, superseded 2026-10-16: the tab was shown with "Soon" and disabled, with no preview (2026-10-12).
 
 ## Differences that affect behavior or scope
 

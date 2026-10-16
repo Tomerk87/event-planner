@@ -1,0 +1,276 @@
+/* The floor plan. Sizes inside the drawing are centimetres of the room;
+   lines keep their width in screen pixels whatever the zoom. */
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  overflow: hidden;
+  inline-size: 100%;
+  min-block-size: 16rem;
+  max-block-size: 75vh;
+}
+
+.compact {
+  min-block-size: 0;
+  max-block-size: 18rem;
+  cursor: pointer;
+}
+
+/* Fills the window where the browser has no fullscreen of its own. */
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  block-size: auto;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-surface);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.svg {
+  flex: 1;
+  inline-size: 100%;
+  min-block-size: 0;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.compact .svg {
+  cursor: pointer;
+}
+
+.svg:active {
+  cursor: grabbing;
+}
+
+.svg * {
+  vector-effect: non-scaling-stroke;
+}
+
+.room {
+  fill: var(--color-surface);
+}
+
+.picture {
+  pointer-events: none;
+}
+
+.grid {
+  pointer-events: none;
+}
+
+.gridLine {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.walls {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+/* Objects */
+.object {
+  outline: none;
+}
+
+.objectShape {
+  stroke-width: 1.5;
+}
+
+.objectIcon {
+  pointer-events: none;
+}
+
+.objectText {
+  fill: currentColor;
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.kindSTAGE {
+  color: var(--color-info);
+}
+
+.kindSTAGE .objectShape {
+  fill: var(--color-info-soft);
+  stroke: var(--color-info-border);
+}
+
+.kindBAR {
+  color: var(--color-primary);
+}
+
+.kindBAR .objectShape {
+  fill: var(--color-primary-soft);
+  stroke: var(--color-primary-border);
+}
+
+.kindFOOD_STATION {
+  color: var(--color-success);
+}
+
+.kindFOOD_STATION .objectShape {
+  fill: var(--color-success-soft);
+  stroke: var(--color-success-border);
+}
+
+.kindWALL,
+.kindSTEPS {
+  color: var(--color-neutral);
+}
+
+.kindWALL .objectShape {
+  fill: var(--color-neutral);
+  stroke: var(--color-neutral);
+}
+
+.kindSTEPS .objectShape {
+  fill: var(--color-neutral-soft);
+  stroke: var(--color-neutral-border);
+}
+
+.kindENTRANCE {
+  color: var(--color-warning);
+}
+
+.kindENTRANCE .objectShape {
+  fill: var(--color-warning-soft);
+  stroke: var(--color-warning-border);
+}
+
+.kindPLANT {
+  color: var(--color-success);
+}
+
+.kindPLANT .objectShape {
+  fill: var(--color-success-soft);
+  stroke: var(--color-success);
+}
+
+/* Tables */
+.table {
+  cursor: pointer;
+  outline: none;
+}
+
+.movable {
+  cursor: move;
+}
+
+.chair {
+  fill: var(--color-surface);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+}
+
+.chair.taken {
+  fill: var(--color-chart-seating);
+  stroke: var(--color-primary);
+}
+
+.top {
+  fill: var(--color-surface);
+  stroke: var(--color-primary-border);
+  stroke-width: 2;
+}
+
+.number {
+  fill: var(--color-text);
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.over .top {
+  fill: var(--color-danger-soft);
+  stroke: var(--color-danger);
+}
+
+.over .chair.taken {
+  fill: var(--color-danger-border);
+  stroke: var(--color-danger);
+}
+
+.over .number {
+  fill: var(--color-danger);
+}
+
+.alert circle {
+  fill: var(--color-danger);
+}
+
+.alert text {
+  fill: var(--color-on-primary);
+  font-size: 36px;
+  font-weight: var(--font-weight-bold, 700);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.selectedTable .top {
+  fill: var(--color-primary-soft);
+  stroke: var(--color-primary);
+  stroke-width: 4;
+}
+
+.table:focus-visible .top,
+.object:focus-visible .objectShape {
+  stroke: var(--color-primary);
+  stroke-width: 4;
+  stroke-dasharray: 6 4;
+}
+
+/* Overlapping, or reaching past a wall */
+.issue .top,
+.issue .objectShape {
+  stroke: var(--color-danger);
+  stroke-width: 3;
+  stroke-dasharray: 8 5;
+}
+
+/* Edit handles */
+.outline {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+.stalk {
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.handle {
+  fill: var(--color-surface);
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  cursor: grab;
+}

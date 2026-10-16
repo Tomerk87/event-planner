@@ -132,6 +132,7 @@
     "GUEST_NOT_APPROVED": "Only guests who approved can be assigned to a table.",
     "TABLE_FULL": "This table has {{available}} seats left, and the party needs {{needed}}.",
     "DUPLICATE_TABLE_NUMBER": "Table number {{number}} is already in use.",
+    "LAYOUT_CHANGED": "Someone else saved this floor plan after you opened it. Reload to see their changes.",
     "LAST_OWNER": "An event must keep at least one Owner.",
     "SELF_PERMISSION": "You cannot change your own permission.",
     "ALREADY_MEMBER": "This person already has access to the event.",
@@ -803,7 +804,9 @@
     },
     "list": {
       "title": "Tables",
-      "caption": "Tables"
+      "caption": "Tables",
+      "selectAll": "Select all tables on this page",
+      "selectRow": "Select {{name}}"
     },
     "columns": {
       "number": "#",
@@ -842,7 +845,6 @@
       "range": "{{from}}–{{to}} of {{total}} tables"
     },
     "row": {
-      "show": "Show {{name}}",
       "manage": "Manage guests of {{name}}",
       "view": "View guests of {{name}}",
       "more": "More actions for {{name}}",
@@ -894,7 +896,12 @@
       "body": "Table {{number}} will be deleted. No guest is deleted.",
       "seated": "Guest parties at this table: {{parties}} (attendees: {{attendees}}). They will be left without a table.",
       "confirm": "Delete Table",
-      "done": "Table {{number}} was deleted."
+      "done": "Table {{number}} was deleted.",
+      "titleMany": "Delete {{count}} Tables",
+      "bodyMany": "Tables {{numbers}} will be deleted. No guest is deleted.",
+      "seatedMany": "Guest parties at these tables: {{parties}} (attendees: {{attendees}}). They will be left without a table.",
+      "confirmMany": "Delete {{count}} Tables",
+      "doneMany": "{{count}} tables were deleted."
     },
     "manage": {
       "title": "Guests of Table {{number}}",
@@ -930,6 +937,90 @@
         "phone": "Phone",
         "confirmedAttendees": "Number of Attendees",
         "tableNumber": "Table Number"
+      }
+    },
+    "bulk": {
+      "label": "Selected tables",
+      "selected": "{{count}} selected",
+      "export": "Export selected",
+      "delete": "Delete selected",
+      "clear": "Clear selection"
+    },
+    "objects": {
+      "WALL": "Wall",
+      "STAGE": "Stage",
+      "BAR": "Bar",
+      "STEPS": "Steps",
+      "FOOD_STATION": "Food Station",
+      "ENTRANCE": "Entrance",
+      "PLANT": "Plant"
+    },
+    "preview": {
+      "title": "Arrangement Preview",
+      "open": "Open Arrangement"
+    },
+    "arrangement": {
+      "title": "Table Arrangement",
+      "planLabel": "Floor plan",
+      "viewMode": "View Mode",
+      "editMode": "Edit Mode",
+      "edit": "Edit Layout",
+      "hint": "Drag to look around; zoom with the buttons or a trackpad pinch. Select a table to see its guests.",
+      "hintTouch": "Pinch to zoom and drag to explore the layout. Tap a table to see its guests.",
+      "editWider": "Edit the layout on a larger screen.",
+      "editHint": "Drag tables and objects onto the plan and move them. Arrow keys move the chosen item, R turns it, Delete takes it off.",
+      "selectHint": "Select a table on the plan to see its guests here.",
+      "unplacedCount": "Tables not on the plan yet: {{formatted}}.",
+      "tableLabel": "{{name}}, {{assigned}} of {{capacity}} seats, {{status}}",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Show the whole room",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit fullscreen",
+      "snap": "Snap to grid",
+      "save": "Save Layout",
+      "saved": "The floor plan was saved.",
+      "reload": "Reload",
+      "issues": {
+        "title": "Check the plan",
+        "overlap": "{{first}} overlaps {{second}}.",
+        "outside": "{{name}} reaches past the walls."
+      },
+      "palette": {
+        "tables": "Tables not on the plan",
+        "allPlaced": "Every table is on the plan.",
+        "objects": "Add to the room",
+        "place": "Place {{name}} on the plan",
+        "add": "Add {{name}}",
+        "placeHint": "Drag onto the plan, or click to put it in the middle of the view."
+      },
+      "inspector": {
+        "x": "From the left (m)",
+        "y": "From the top (m)",
+        "rotation": "Turn (°)",
+        "width": "Width (m)",
+        "height": "Depth (m)",
+        "label": "Label",
+        "labelHint": "Shown instead of the kind, such as Dance floor.",
+        "unplace": "Remove from Plan",
+        "delete": "Delete",
+        "room": "Room and Picture"
+      },
+      "room": {
+        "title": "Room",
+        "roomWidth": "Width (m)",
+        "roomDepth": "Depth (m)"
+      },
+      "picture": {
+        "title": "Floor Picture",
+        "hint": "Optional: a plan or map of the venue, drawn under the tables. JPEG or PNG.",
+        "upload": "Upload Picture",
+        "replace": "Replace Picture",
+        "remove": "Remove Picture",
+        "transparency": "Transparency",
+        "zoom": "Zoom",
+        "rotate": "Rotate",
+        "reset": "Reset Picture"
       }
     }
   },

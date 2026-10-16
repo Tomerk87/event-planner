@@ -23,6 +23,11 @@ import {
 } from '../../domain/guests.ts'
 import { guestFullName } from '../../domain/guestList.ts'
 import {
+  assertLayoutVersion,
+  emptyLayout,
+  validateLayoutInput,
+} from '../../domain/layout.ts'
+import {
   buildWhatsAppUrl,
   renderMessage,
   validateTemplate,
@@ -36,6 +41,7 @@ import type {
   AccountNotification,
   Event,
   EventInvitation,
+  EventLayout,
   EventTable,
   Guest,
   Id,
@@ -377,6 +383,20 @@ export function createMockServices(options: MockOptions): Services {
     return state.tables.filter((table) => table.eventId === eventId)
   }
 
+  /** The stored plan, or an empty one; only tables that still exist. */
+  function layoutOf(eventId: Id): EventLayout {
+    const stored =
+      state.layouts.find((layout) => layout.eventId === eventId) ??
+      emptyLayout(eventId)
+    const tables = new Set(eventTables(eventId).map((table) => table.id))
+    return {
+      ...stored,
+      placements: stored.placements.filter((placement) =>
+        tables.has(placement.tableId),
+      ),
+    }
+  }
+
   function tableOf(eventId: Id, tableId: Id): EventTable {
     return (
       state.tables.find(
@@ -541,6 +561,23 @@ export function createMockServices(options: MockOptions): Services {
             id: newId('tbl'),
             eventId: id,
           }))
+          const sourceLayout = layoutOf(eventId)
+          const copiedId = new Map(
+            eventTables(eventId).map((table, index) => [
+              table.id,
+              tables[index]!.id,
+            ]),
+          )
+          const layout: EventLayout = {
+            ...sourceLayout,
+            eventId: id,
+            placements: sourceLayout.placements.map((placement) => ({
+              ...placement,
+              tableId: copiedId.get(placement.tableId)!,
+            })),
+            objects: sourceLayout.objects.map((object) => ({ ...object })),
+            version: 0,
+          }
           commit({
             ...state,
             events: [...state.events, event],
@@ -563,6 +600,7 @@ export function createMockServices(options: MockOptions): Services {
               { ...template, eventId: id },
             ],
             tables: [...state.tables, ...tables],
+            layouts: [...state.layouts, layout],
           })
           return event
         }),
@@ -583,6 +621,7 @@ export function createMockServices(options: MockOptions): Services {
             messageTemplates: kept(state.messageTemplates),
             messageSends: kept(state.messageSends),
             tables: kept(state.tables),
+            layouts: kept(state.layouts),
           })
         }),
 
@@ -1085,7 +1124,42 @@ export function createMockServices(options: MockOptions): Services {
             guests: state.guests.map((guest) =>
               guest.tableId === tableId ? { ...guest, tableId: null } : guest,
             ),
+            layouts: state.layouts.map((layout) => ({
+              ...layout,
+              placements: layout.placements.filter(
+                (placement) => placement.tableId !== tableId,
+              ),
+            })),
           })
+        }),
+    },
+
+    layout: {
+      get: (eventId) =>
+        run('layout.get', () => {
+          authorize(eventId, 'VIEW')
+          return layoutOf(eventId)
+        }),
+
+      save: (eventId, input) =>
+        run('layout.save', () => {
+          authorize(eventId, 'EDIT')
+          const current = layoutOf(eventId)
+          assertLayoutVersion(input.version, current.version)
+          // The demo keeps the picture itself, so its address is the picture.
+          const saved: EventLayout = {
+            eventId,
+            ...validateLayoutInput(input, eventTables(eventId)),
+            version: current.version + 1,
+          }
+          commit({
+            ...state,
+            layouts: [
+              ...state.layouts.filter((layout) => layout.eventId !== eventId),
+              saved,
+            ],
+          })
+          return saved
         }),
     },
 
@@ -1302,7 +1376,11 @@ export function createMockServices(options: MockOptions): Services {
             buildSeatingExportTable(
               buildSeatingDetailRows(
                 eventGuests(eventId),
-                eventTables(eventId),
+                eventTables(eventId).filter(
+                  (table) =>
+                    request.tableIds === undefined ||
+                    request.tableIds.includes(table.id),
+                ),
               ),
               request.headings,
             ),

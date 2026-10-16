@@ -1,6 +1,7 @@
 import type {
   Event,
   EventInvitation,
+  EventLayout,
   EventMembership,
   EventTable,
   Guest,
@@ -18,7 +19,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 7
+export const DATASET_VERSION = 8
 
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {
@@ -36,6 +37,8 @@ export interface DemoState {
   messageTemplates: MessageTemplate[]
   messageSends: MessageSend[]
   tables: EventTable[]
+  /** Floor plans (D100); an event without one has an empty plan. */
+  layouts: EventLayout[]
   /** Notices the visitor has read (D95); absent in demos saved before. */
   readNotifications?: Id[]
 }
@@ -55,6 +58,7 @@ const COLLECTIONS = [
   'messageTemplates',
   'messageSends',
   'tables',
+  'layouts',
 ] as const satisfies readonly (keyof DemoState)[]
 
 /** A workspace with no data yet (used by the test stand-in for the server). */
@@ -73,6 +77,7 @@ export function createEmptyState(): DemoState {
     messageTemplates: [],
     messageSends: [],
     tables: [],
+    layouts: [],
   }
 }
 

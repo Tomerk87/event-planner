@@ -5,6 +5,7 @@ import {
   CircleCheck,
   Download,
   Ellipsis,
+  Map as MapIcon,
   Pencil,
   Plus,
   Search,
@@ -61,7 +62,10 @@ import { useQueryParams } from '../../shared/useQueryParams.ts'
 import type { FileFormat } from '../guests/guestFiles.ts'
 import { tablesOf, useGuests, useTables } from '../guests/guestQueries.ts'
 import guestStyles from '../guests/Guests.module.css'
+import { ArrangementTab } from './ArrangementTab.tsx'
 import { DeleteTableDialog } from './DeleteTableDialog.tsx'
+import { FloorPlan } from './FloorPlan.tsx'
+import { useLayout } from './layoutQueries.ts'
 import styles from './EventLayout.module.css'
 import { ManageGuestsDialog } from './ManageGuestsDialog.tsx'
 import { AttendeeCount, ShapeLabel, TableStatusBadge } from './TableBits.tsx'
@@ -72,7 +76,9 @@ import { useSeatingExport } from './useSeatingExport.ts'
 const WIDE_QUERY = '(min-width: 1360px)'
 
 type OpenPanel =
-  { kind: 'add' } | { kind: 'edit' | 'delete' | 'guests'; tableId: string }
+  | { kind: 'add' }
+  | { kind: 'edit' | 'guests'; tableId: string }
+  | { kind: 'delete'; tableIds: readonly string[] }
 
 /** The choices of the phone's sort menu; on desktop the headings sort. */
 const PHONE_SORTS: {
@@ -115,7 +121,7 @@ export function EventLayoutPage() {
   const { eventId = '' } = useParams()
   const isPhone = useMediaQuery(PHONE_QUERY)
   const isWide = useMediaQuery(WIDE_QUERY)
-  // Search, filter, sorting, paging and the chosen table live in the address.
+  // Search, filter, sorting and paging live in the address.
   const { params, update: setParam } = useQueryParams()
   const access = useEventAccess()
   const canEdit = access !== null && canEditEvent(access)
@@ -124,7 +130,14 @@ export function EventLayoutPage() {
   const guests = useGuests(eventId)
   const tables = useTables(eventId)
   const [panel, setPanel] = useState<OpenPanel | null>(null)
+  // Ticked tables, as guests are ticked on the Guests page: kept across
+  // pages, sorting and the two tabs, and nothing ticked to begin with.
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
   const exportSeating = useSeatingExport(eventId, info.data?.event.name ?? '')
+  const view = params.get('view') === 'arrangement' ? 'arrangement' : 'tables'
+  // The preview beside the list needs the plan; so does the tab, which
+  // shows its own loading and failure.
+  const layout = useLayout(eventId)
 
   const queries = [guests, tables]
   const failed = queries.find((query) => query.isError)
@@ -202,23 +215,34 @@ export function EventLayoutPage() {
   const assignedAttendees =
     metrics.confirmedAttendees - metrics.unassignedConfirmedAttendees
 
-  // With nothing chosen, the table that most needs a look is shown.
-  const selected =
-    byId.get(params.get('table') ?? '') ??
-    byId.get(warnings?.tablesOverCapacity[0]?.tableId ?? '') ??
-    page.items[0] ??
-    null
+  // A deleted table simply drops out of the selection.
+  const selectedItems = [...selected].flatMap((id) => byId.get(id) ?? [])
+  /** The Selected Table panel is for exactly one ticked table. */
+  const single = selectedItems.length === 1 ? selectedItems[0]! : null
   const panelItem =
-    panel && panel.kind !== 'add' ? (byId.get(panel.tableId) ?? null) : null
+    panel?.kind === 'edit' || panel?.kind === 'guests'
+      ? (byId.get(panel.tableId) ?? null)
+      : null
+  const deleting =
+    panel?.kind === 'delete'
+      ? panel.tableIds.flatMap((id) => byId.get(id) ?? [])
+      : []
   const closePanel = () => setPanel(null)
 
-  /** Without room for the panel beside the list, the guests open instead. */
-  function showTable(tableId: string) {
-    if (!isWide) {
-      setPanel({ kind: 'guests', tableId })
-    } else {
-      setParam({ table: tableId })
-    }
+  function toggleTable(tableId: string, isSelected: boolean) {
+    setSelected((current) => {
+      const next = new Set(current)
+      if (isSelected) {
+        next.add(tableId)
+      } else {
+        next.delete(tableId)
+      }
+      return next
+    })
+  }
+
+  function openGuests(tableId: string) {
+    setPanel({ kind: 'guests', tableId })
   }
 
   /** Edit and Delete, for Owners and Admins of an upcoming event. */
@@ -235,7 +259,7 @@ export function EventLayoutPage() {
         label: t('layout.row.delete'),
         icon: <Trash2 />,
         tone: 'danger' as const,
-        onSelect: () => setPanel({ kind: 'delete', tableId: item.table.id }),
+        onSelect: () => setPanel({ kind: 'delete', tableIds: [item.table.id] }),
       },
     ]
   }
@@ -285,11 +309,10 @@ export function EventLayoutPage() {
         <button
           type="button"
           className={guestStyles.nameButton}
-          title={t('layout.row.show', { name: tableName(item) })}
-          aria-pressed={
-            isWide ? item.table.id === selected?.table.id : undefined
-          }
-          onClick={() => showTable(item.table.id)}
+          title={t(canEdit ? 'layout.row.manage' : 'layout.row.view', {
+            name: tableName(item),
+          })}
+          onClick={() => openGuests(item.table.id)}
         >
           {number(item.table.number)}
         </button>
@@ -409,7 +432,7 @@ export function EventLayoutPage() {
               <button
                 type="button"
                 className={cx(styles.warning, styles.danger)}
-                onClick={() => showTable(conflict.tableId)}
+                onClick={() => openGuests(conflict.tableId)}
               >
                 <TriangleAlert
                   className={styles.warningIcon}
@@ -475,10 +498,8 @@ export function EventLayoutPage() {
     </Card>
   )
 
-  const selectedParties = selected
-    ? partiesAt(selected.table.id, guestList)
-    : []
-  const selectedCard = isWide && selected && (
+  const selectedParties = single ? partiesAt(single.table.id, guestList) : []
+  const selectedCard = (selected: SeatedTable) => (
     <Card title={t('layout.selected.title')} actions={status(selected)}>
       <div className={styles.selected}>
         <p className={styles.selectedName}>{tableName(selected)}</p>
@@ -546,6 +567,30 @@ export function EventLayoutPage() {
           </div>
         )}
       </div>
+    </Card>
+  )
+
+  const previewCard = isWide && layout.data && tableList.length > 0 && (
+    <Card
+      title={t('layout.preview.title')}
+      actions={
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<MapIcon />}
+          onClick={() => setParam({ view: 'arrangement' })}
+        >
+          {t('layout.preview.open')}
+        </Button>
+      }
+    >
+      <FloorPlan
+        compact
+        layout={layout.data}
+        tables={tableList}
+        selected={selected}
+        onTable={(tableId) => toggleTable(tableId, !selected.has(tableId))}
+      />
     </Card>
   )
 
@@ -638,6 +683,62 @@ export function EventLayoutPage() {
               )}
             </div>
           </div>
+          {!isPhone && selectedItems.length > 0 && (
+            <div
+              className={guestStyles.bulkBar}
+              role="region"
+              aria-label={t('layout.bulk.label')}
+            >
+              <p className={guestStyles.bulkCount} role="status">
+                {t('layout.bulk.selected', {
+                  count: number(selectedItems.length),
+                })}
+              </p>
+              <Menu
+                label={t('layout.bulk.export')}
+                align="start"
+                triggerClassName={guestStyles.bulkButton}
+                items={(['csv', 'xlsx'] as const).map((fileFormat) => ({
+                  id: fileFormat,
+                  label: t(
+                    fileFormat === 'csv'
+                      ? 'guests.actions.exportCsv'
+                      : 'guests.actions.exportXlsx',
+                  ),
+                  onSelect: () =>
+                    void exportSeating(
+                      fileFormat,
+                      selectedItems.map((item) => item.table.id),
+                    ),
+                }))}
+              >
+                <Download aria-hidden="true" />
+                <span aria-hidden="true">{t('layout.bulk.export')}</span>
+              </Menu>
+              {canEdit && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  icon={<Trash2 />}
+                  onClick={() =>
+                    setPanel({
+                      kind: 'delete',
+                      tableIds: selectedItems.map((item) => item.table.id),
+                    })
+                  }
+                >
+                  {t('layout.bulk.delete')}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelected(new Set())}
+              >
+                {t('layout.bulk.clear')}
+              </Button>
+            </div>
+          )}
           {matching.length === 0 ? (
             <EmptyState
               icon={<SearchX />}
@@ -652,7 +753,18 @@ export function EventLayoutPage() {
                 rows={page.items}
                 getRowKey={(item) => item.table.id}
                 renderCard={renderCard}
-                activeKey={isWide ? selected?.table.id : null}
+                activeKey={isWide ? single?.table.id : null}
+                selection={{
+                  selected,
+                  allLabel: t('layout.list.selectAll'),
+                  rowLabel: (item) =>
+                    t('layout.list.selectRow', { name: tableName(item) }),
+                  onToggle: toggleTable,
+                  onToggleAll: (isSelected) =>
+                    page.items.forEach((item) =>
+                      toggleTable(item.table.id, isSelected),
+                    ),
+                }}
                 sort={{ columnId: sort.key, direction: sort.direction }}
                 sortLabel={(column) => t('guests.table.sortBy', { column })}
                 onSort={(columnId) =>
@@ -746,15 +858,13 @@ export function EventLayoutPage() {
             <Tabs
               label={t('layout.tabs.label')}
               variant="segmented"
-              value="tables"
+              value={view}
+              onChange={(id) =>
+                setParam({ view: id === 'arrangement' ? id : null })
+              }
               tabs={[
                 { id: 'tables', label: t('layout.tabs.tables') },
-                {
-                  id: 'arrangement',
-                  label: t('layout.tabs.arrangement'),
-                  badge: t('common.soon'),
-                  disabled: true,
-                },
+                { id: 'arrangement', label: t('layout.tabs.arrangement') },
               ]}
             />
           </div>
@@ -769,13 +879,36 @@ export function EventLayoutPage() {
               />
             ))}
           </KpiGrid>
-          <div className={styles.columns}>
-            <div className={styles.warningsArea}>{warningsCard}</div>
-            <div className={styles.listArea}>{tablesCard}</div>
-            {selectedCard && (
-              <div className={styles.selectedArea}>{selectedCard}</div>
-            )}
-          </div>
+          {view === 'arrangement' ? (
+            <>
+              {hasWarnings && warningsCard}
+              <ArrangementTab
+                eventId={eventId}
+                tables={tableList}
+                selected={selected}
+                onToggleTable={(tableId) =>
+                  toggleTable(tableId, !selected.has(tableId))
+                }
+                canEdit={canEdit}
+                isPhone={isPhone}
+                onAddTable={() => setPanel({ kind: 'add' })}
+                selectedCard={single ? selectedCard(single) : null}
+              />
+            </>
+          ) : (
+            <div className={styles.columns}>
+              <div className={styles.warningsArea}>{warningsCard}</div>
+              <div className={styles.listArea}>{tablesCard}</div>
+              {previewCard && (
+                <div className={styles.previewArea}>{previewCard}</div>
+              )}
+              {isWide && single && (
+                <div className={styles.selectedArea}>
+                  {selectedCard(single)}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
       <TableDialog
@@ -786,13 +919,21 @@ export function EventLayoutPage() {
         editing={panel?.kind === 'edit' ? panelItem : null}
       />
       <DeleteTableDialog
-        open={panel?.kind === 'delete' && panelItem !== null}
+        open={deleting.length > 0}
         onClose={closePanel}
-        eventId={eventId}
-        item={panel?.kind === 'delete' ? panelItem : null}
-        parties={
-          panelItem ? partiesAt(panelItem.table.id, guestList).length : 0
+        onDeleted={() =>
+          setSelected((current) => {
+            const next = new Set(current)
+            deleting.forEach((item) => next.delete(item.table.id))
+            return next
+          })
         }
+        eventId={eventId}
+        items={deleting}
+        parties={deleting.reduce(
+          (sum, item) => sum + partiesAt(item.table.id, guestList).length,
+          0,
+        )}
       />
       <ManageGuestsDialog
         open={panel?.kind === 'guests'}
