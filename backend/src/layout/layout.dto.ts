@@ -15,7 +15,7 @@ const KINDS = [
   'WALL',
   'STAGE',
   'BAR',
-  'STEPS',
+  'STAIRS',
   'FOOD_STATION',
   'ENTRANCE',
   'PLANT',

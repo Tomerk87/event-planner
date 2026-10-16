@@ -159,6 +159,11 @@ describe('Table Arrangement (D100)', () => {
     expect(Number(inspectorValue('From the left (m)'))).toBeCloseTo(x + 0.1)
     expect(inspectorValue('Turn (°)')).toBe('15')
 
+    // A new item is drawn above every other.
+    fireEvent.click(screen.getByRole('button', { name: 'Add Stairs' }))
+    expect(plan().getAllByRole('button').at(-1)).toHaveAccessibleName('Stairs')
+    fireEvent.keyDown(plan().getAllByRole('button').at(-1)!, { key: 'Delete' })
+
     fireEvent.click(screen.getByRole('button', { name: 'Add Stage' }))
     change(screen.getByLabelText('Label'), { target: { value: 'Dance floor' } })
     change(screen.getByLabelText('Width (m)'), { target: { value: '4.5' } })

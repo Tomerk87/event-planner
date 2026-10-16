@@ -168,7 +168,7 @@ await prisma.venueObject.createMany({
         | 'WALL'
         | 'STAGE'
         | 'BAR'
-        | 'STEPS'
+        | 'STAIRS'
         | 'FOOD_STATION'
         | 'ENTRANCE'
         | 'PLANT',

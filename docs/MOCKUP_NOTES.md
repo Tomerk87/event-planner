@@ -132,7 +132,7 @@ Found while building (Phase 6):
 - **Manage Guests / View Guests** has nothing drawn behind it; it opens the dialog described in D68.
 - The row **"…"** menu has no drawn contents; it holds Delete Table.
 - **Export Tables** opens a menu of CSV and Excel and writes the seating list (D70).
-- **Capacity Warnings** also shows the two PRD warnings the mockup does not draw: chairs above or below the event maximum, and attendees awaiting a table. On a phone the mockup draws one red banner; each warning is a row of its own in a Capacity Warnings card.
+- **Capacity Warnings** lists the tables over capacity. The seating notice (chairs against confirmed attendees) and attendees awaiting a table, which the mockup does not draw, are cards of their own under the figures, exactly as on the Dashboard, on both tabs (owner, 2026-10-16).
 - The search placeholder says "by number or name"; it searches by number.
 - The phone tab is drawn as "Arrangement" with no badge; it is "Table Arrangement" with the Soon badge, as on desktop.
 - The list shows 10 tables a page with the product's pager, not the 8 and 5 drawn. The phone's ↑↓ button opens a sort menu; on desktop the column headings sort.

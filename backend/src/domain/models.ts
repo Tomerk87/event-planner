@@ -162,7 +162,7 @@ export const VENUE_OBJECT_KINDS = [
   'WALL',
   'STAGE',
   'BAR',
-  'STEPS',
+  'STAIRS',
   'FOOD_STATION',
   'ENTRANCE',
   'PLANT',

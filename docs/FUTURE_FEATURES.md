@@ -9,7 +9,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Feature | Notes | Source |
 |---|---|---|
 | Editing the floor plan on a phone | Phones show the plan in View mode only; moving tables needs a larger screen (D100). | Owner decision 2026-10-16 |
-| Printing or exporting the floor plan | A PDF or picture of the plan for the venue. | Phase 20, 2026-10-16 |
+| Print / Export to PDF | The floor plan, with the tables and the parties seated at each, printed or saved as a PDF for the venue. A first step could be a print layout used through the browser's own "Save as PDF"; a PDF made by the application needs a renderer on the server. | Owner request 2026-10-16 |
 | Moving the floor picture | The picture stays centred; it has Transparency, Zoom and Rotate only (D100). Left/right and up/down position could be added beside them. | Owner request 2026-10-16 |
 | Undo in the floor-plan editor | Changes are kept until Save Layout or dropped with Cancel; single steps cannot be undone. | Phase 20, 2026-10-16 |
 | Per-seat assignment | Assigning attendees to individual chairs. | PRD §17; `PLAN.md` backlog |

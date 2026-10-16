@@ -105,6 +105,12 @@ describe('floor plan (D100)', () => {
           objects: [
             STAGE,
             { ...STAGE, id: 'plant-1', kind: 'PLANT', label: null },
+            {
+              ...STAGE,
+              id: 'stairs-1',
+              kind: 'STAIRS',
+              label: 'To the balcony',
+            },
           ],
           floorImage: PICTURE,
           floorImageTransparency: 60,
@@ -123,6 +129,7 @@ describe('floor plan (D100)', () => {
       objects: [
         { id: 'stage-1', label: 'Main stage' },
         { id: 'plant-1', kind: 'PLANT' },
+        { id: 'stairs-1', kind: 'STAIRS', label: 'To the balcony' },
       ],
       version: 1,
     })
@@ -189,7 +196,7 @@ describe('floor plan (D100)', () => {
     })
   })
 
-  it('refuses a placement outside the room and a kind it does not know', async () => {
+  it('refuses a placement outside the room and a kind it does not know, such as the old Steps', async () => {
     const owner = t.browser()
     await signUp(owner, 'Olive Owner')
     const event = await createEvent(owner)
@@ -205,7 +212,7 @@ describe('floor plan (D100)', () => {
       .expect(400)
     await owner
       .put(`/api/events/${event.id}/layout`)
-      .send(changes(layout, { objects: [{ ...STAGE, kind: 'POOL' }] }))
+      .send(changes(layout, { objects: [{ ...STAGE, kind: 'STEPS' }] }))
       .expect(400)
   })
 

@@ -1,7 +1,7 @@
 import {
   BrickWall,
+  ChartNoAxesColumnIncreasing,
   DoorOpen,
-  Footprints,
   Martini,
   Sprout,
   Theater,
@@ -14,7 +14,7 @@ export const OBJECT_ICONS: Record<VenueObjectKind, LucideIcon> = {
   WALL: BrickWall,
   STAGE: Theater,
   BAR: Martini,
-  STEPS: Footprints,
+  STAIRS: ChartNoAxesColumnIncreasing,
   FOOD_STATION: UtensilsCrossed,
   ENTRANCE: DoorOpen,
   PLANT: Sprout,

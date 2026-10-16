@@ -176,6 +176,15 @@ export function createMockServices(options: MockOptions): Services {
           ...guest,
           group: guest.group ?? null,
         })),
+        // Steps were renamed Stairs: a change of floor level (2026-10-16).
+        layouts: found.layouts.map((layout) => ({
+          ...layout,
+          objects: layout.objects.map((object) =>
+            (object.kind as string) === 'STEPS'
+              ? { ...object, kind: 'STAIRS' as const }
+              : object,
+          ),
+        })),
         // Settings saved before the calendar entry had its own date and time.
         // Settings saved before the picture could be zoomed and moved show
         // it as before: not enlarged, centred.

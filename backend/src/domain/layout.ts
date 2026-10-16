@@ -53,7 +53,7 @@ export const DEFAULT_OBJECT_SIZE: Record<
   WALL: { width: 400, height: 20 },
   STAGE: { width: 600, height: 300 },
   BAR: { width: 120, height: 400 },
-  STEPS: { width: 200, height: 100 },
+  STAIRS: { width: 200, height: 100 },
   FOOD_STATION: { width: 150, height: 400 },
   ENTRANCE: { width: 200, height: 40 },
   PLANT: { width: 60, height: 60 },

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
 import { guestFullName } from '../../domain/guestList.ts'
 import {
@@ -39,6 +39,7 @@ import {
 } from '../../domain/tableList.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
+import { WarningCards, type Warning } from '../dashboard/WarningCards.tsx'
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
@@ -415,19 +416,47 @@ export function EventLayoutPage() {
     warnings && { metrics, warnings },
     event?.maxAttendees ?? 0,
   )
-  const hasWarnings =
-    warnings !== null &&
-    (warnings.tablesOverCapacity.length > 0 ||
-      seating !== null ||
-      warnings.attendeesAwaitingTable > 0)
+  // Seating as a whole, in cards of their own as on the Dashboard.
+  const notices: Warning[] = []
+  if (seating) {
+    notices.push({
+      id: 'seating',
+      tone: seating.tone,
+      icon: seating.tone === 'warning' ? TriangleAlert : CircleCheck,
+      title: seating.title,
+      lines: [seating.body],
+    })
+  }
+  if (warnings && warnings.attendeesAwaitingTable > 0) {
+    notices.push({
+      id: 'awaitingTable',
+      tone: 'info',
+      icon: Armchair,
+      title: t('dashboard.warnings.awaitingTable.title'),
+      lines: [
+        t('dashboard.warnings.awaitingTable.body', {
+          count: number(warnings.attendeesAwaitingTable),
+        }),
+      ],
+      to: `/events/${eventId}/guests?rsvp=APPROVED&table=NONE`,
+    })
+  }
+  const conflicts = warnings?.tablesOverCapacity ?? []
+  // The Dashboard's row also has the guests over the maximum and the tables
+  // over capacity; the cards here are as wide as there.
+  const dashboardCards =
+    notices.length +
+    (warnings && warnings.attendeesOverMaximum > 0 ? 1 : 0) +
+    (conflicts.length > 0 ? 1 : 0)
 
-  const warningsCard = warnings && event && (
+  // Each table over capacity, opening its guests.
+  const warningsCard = (
     <Card title={t('layout.warnings.title')}>
-      {!hasWarnings ? (
+      {conflicts.length === 0 ? (
         <p className={styles.muted}>{t('layout.warnings.none')}</p>
       ) : (
         <ul className={styles.warnings}>
-          {warnings.tablesOverCapacity.map((conflict) => (
+          {conflicts.map((conflict) => (
             <li key={conflict.tableId}>
               <button
                 type="button"
@@ -448,51 +477,6 @@ export function EventLayoutPage() {
               </button>
             </li>
           ))}
-          {seating && (
-            <li>
-              <div
-                className={cx(
-                  styles.warning,
-                  seating.tone === 'warning' ? styles.caution : styles.good,
-                )}
-              >
-                {seating.tone === 'warning' ? (
-                  <TriangleAlert
-                    className={styles.warningIcon}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <CircleCheck
-                    className={styles.warningIcon}
-                    aria-hidden="true"
-                  />
-                )}
-                <span className={styles.warningText}>
-                  <span className={styles.warningTitle}>{seating.title}</span>
-                  {seating.body}
-                </span>
-              </div>
-            </li>
-          )}
-          {warnings.attendeesAwaitingTable > 0 && (
-            <li>
-              <Link
-                className={cx(styles.warning, styles.notice)}
-                to={`/events/${eventId}/guests?rsvp=APPROVED&table=NONE`}
-              >
-                <Armchair className={styles.warningIcon} aria-hidden="true" />
-                <span className={styles.warningText}>
-                  <span className={styles.warningTitle}>
-                    {t('dashboard.warnings.awaitingTable.title')}
-                  </span>
-                  {t('dashboard.warnings.awaitingTable.body', {
-                    count: number(warnings.attendeesAwaitingTable),
-                  })}
-                </span>
-                <ChevronRight className={styles.chevron} aria-hidden="true" />
-              </Link>
-            </li>
-          )}
         </ul>
       )}
     </Card>
@@ -879,9 +863,14 @@ export function EventLayoutPage() {
               />
             ))}
           </KpiGrid>
+          <WarningCards
+            label={t('dashboard.warnings.label')}
+            warnings={notices}
+            slots={dashboardCards}
+          />
           {view === 'arrangement' ? (
             <>
-              {hasWarnings && warningsCard}
+              {conflicts.length > 0 && warningsCard}
               <ArrangementTab
                 eventId={eventId}
                 tables={tableList}

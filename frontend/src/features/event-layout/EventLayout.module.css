@@ -113,10 +113,6 @@ button.warning {
   min-inline-size: 0;
 }
 
-.warningTitle {
-  font-weight: var(--font-weight-semibold);
-}
-
 .chevron {
   flex-shrink: 0;
   align-self: center;
@@ -136,36 +132,6 @@ button.warning {
 
 .danger .warningIcon {
   color: var(--color-danger);
-}
-
-.caution {
-  background: var(--color-warning-soft);
-  border-color: var(--color-warning-border);
-}
-
-.caution .warningIcon,
-.caution .warningTitle {
-  color: var(--color-warning);
-}
-
-.notice {
-  background: var(--color-info-soft);
-  border-color: var(--color-info-border);
-}
-
-.notice .warningIcon,
-.notice .warningTitle {
-  color: var(--color-info);
-}
-
-.good {
-  background: var(--color-success-soft);
-  border-color: var(--color-success-border);
-}
-
-.good .warningIcon,
-.good .warningTitle {
-  color: var(--color-success);
 }
 
 /* A table's figures: in the chosen-table panel and in the guests dialog */

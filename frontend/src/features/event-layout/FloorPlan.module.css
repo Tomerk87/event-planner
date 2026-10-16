@@ -103,6 +103,10 @@
 
 .objectText {
   fill: currentColor;
+  /* A halo, so the label reads over stair treads. */
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  paint-order: stroke;
   font-family: inherit;
   font-weight: var(--font-weight-semibold);
   text-anchor: middle;
@@ -138,7 +142,7 @@
 }
 
 .kindWALL,
-.kindSTEPS {
+.kindSTAIRS {
   color: var(--color-neutral);
 }
 
@@ -147,9 +151,15 @@
   stroke: var(--color-neutral);
 }
 
-.kindSTEPS .objectShape {
+.kindSTAIRS .objectShape {
   fill: var(--color-neutral-soft);
   stroke: var(--color-neutral-border);
+}
+
+.tread {
+  stroke: var(--color-text-subtle);
+  stroke-width: 1;
+  pointer-events: none;
 }
 
 .kindENTRANCE {

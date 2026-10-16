@@ -388,11 +388,11 @@ for (const language of ['en', 'he'] as const) {
       await expectNoViolations(page)
       await page.keyboard.press('Escape')
 
-      // The row menu's first action, Edit Table.
+      // The row menu's first action, Edit Table. The warning cards above
+      // are a labelled list too, so every list is searched.
       await page
         .getByRole('main')
         .locator('table, ul[aria-label]')
-        .first()
         .locator('button[aria-haspopup="menu"]')
         .first()
         .click()

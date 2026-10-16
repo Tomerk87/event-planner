@@ -255,6 +255,62 @@ describe('FloorPlan', () => {
     })
   })
 
+  it('draws tables above the objects, and the chosen item above everything while editing', () => {
+    const order = () =>
+      [...svg().querySelectorAll('[role="button"]')].map((item) =>
+        item.getAttribute('aria-label'),
+      )
+    const { rerender } = render(
+      <FloorPlan
+        layout={layout()}
+        tables={tables}
+        selected={new Set()}
+        editing
+      />,
+    )
+    expect(order()[0]).toBe('Stage')
+
+    rerender(
+      <FloorPlan
+        layout={layout()}
+        tables={tables}
+        selected={new Set()}
+        editing
+        active={{ type: 'object', id: 'stage' }}
+      />,
+    )
+    expect(order().at(-1)).toBe('Stage')
+  })
+
+  it('draws stairs with their treads', () => {
+    const { container } = render(
+      <FloorPlan
+        layout={layout({
+          objects: [
+            {
+              id: 'up',
+              kind: 'STAIRS',
+              x: 300,
+              y: 300,
+              width: 200,
+              height: 100,
+              rotation: 0,
+              label: null,
+            },
+          ],
+        })}
+        tables={tables}
+        selected={new Set()}
+      />,
+    )
+
+    expect(screen.getByRole('img', { name: 'Stairs' })).toBeInTheDocument()
+    // Five treads, besides the lines of the icon.
+    expect(
+      container.querySelectorAll('g[aria-label="Stairs"] > line'),
+    ).toHaveLength(5)
+  })
+
   it('takes a palette item dropped on it, at the point of the room', () => {
     const onDrop = vi.fn()
     render(

@@ -127,6 +127,15 @@ function zoomView(
 
 const itemKey = (item: LayoutItem) => `${item.type}:${item.id}`
 
+/** Where a stair's treads are drawn across it: one every 30 cm. */
+function treads(width: number): number[] {
+  const count = Math.max(1, Math.floor(width / 30) - 1)
+  return Array.from(
+    { length: count },
+    (_, index) => -width / 2 + (width / (count + 1)) * (index + 1),
+  )
+}
+
 const snapTo = (value: number, step: number) =>
   step > 0 ? Math.round(value / step) * step : Math.round(value)
 
@@ -274,7 +283,9 @@ export function FloorPlan({
       startPan(event, item.type === 'table' ? item.id : null)
       return
     }
-    event.currentTarget.setPointerCapture?.(event.pointerId)
+    // The plan holds the pointer: the chosen item moves to the top of the
+    // drawing, and a moved element would lose it.
+    svgRef.current?.setPointerCapture?.(event.pointerId)
     if (item.type === 'table') {
       onTable?.(item.id)
     } else {
@@ -505,7 +516,9 @@ export function FloorPlan({
           aria-hidden="true"
           onPointerDown={(event) => {
             event.stopPropagation()
-            event.currentTarget.setPointerCapture?.(event.pointerId)
+            // The plan holds the pointer: the chosen item moves to the top of the
+            // drawing, and a moved element would lose it.
+            svgRef.current?.setPointerCapture?.(event.pointerId)
             const centre =
               item.type === 'table'
                 ? layout.placements.find((p) => p.tableId === item.id)!
@@ -527,7 +540,9 @@ export function FloorPlan({
             aria-hidden="true"
             onPointerDown={(event) => {
               event.stopPropagation()
-              event.currentTarget.setPointerCapture?.(event.pointerId)
+              // The plan holds the pointer: the chosen item moves to the top of the
+              // drawing, and a moved element would lose it.
+              svgRef.current?.setPointerCapture?.(event.pointerId)
               const object = layout.objects.find((o) => o.id === item.id)
               if (object) {
                 gesture.current = { kind: 'resize', object }
@@ -576,6 +591,17 @@ export function FloorPlan({
             rx={Math.min(12, small / 4)}
           />
         )}
+        {object.kind === 'STAIRS' &&
+          treads(object.width).map((x) => (
+            <line
+              key={x}
+              className={styles.tread}
+              x1={x}
+              y1={-object.height / 2}
+              x2={x}
+              y2={object.height / 2}
+            />
+          ))}
         {small >= 40 && (
           <Icon
             x={-icon / 2}
@@ -690,6 +716,15 @@ export function FloorPlan({
       </g>,
     ]
   })
+
+  // Tables above the room's objects; while editing, the chosen item, such
+  // as one just added or being dragged, above everything.
+  const activeKey = editing && active ? `${active.type}-${active.id}` : null
+  const everything = [...objectsDrawn, ...tablesDrawn]
+  const drawn = [
+    ...everything.filter((element) => element.key !== activeKey),
+    ...everything.filter((element) => element.key === activeKey),
+  ]
 
   // Clipped by its parent: a clip on the turned picture would turn too.
   const picture = layout.floorImage && (
@@ -822,8 +857,7 @@ export function FloorPlan({
           width={layout.roomWidth}
           height={layout.roomDepth}
         />
-        {objectsDrawn}
-        {tablesDrawn}
+        {drawn}
       </svg>
     </div>
   )

@@ -862,7 +862,7 @@
     },
     "warnings": {
       "title": "Capacity Warnings",
-      "none": "No capacity warnings."
+      "none": "No tables over capacity."
     },
     "selected": {
       "title": "Selected Table",
@@ -950,7 +950,7 @@
       "WALL": "Wall",
       "STAGE": "Stage",
       "BAR": "Bar",
-      "STEPS": "Steps",
+      "STAIRS": "Stairs",
       "FOOD_STATION": "Food Station",
       "ENTRANCE": "Entrance",
       "PLANT": "Plant"
@@ -1001,7 +1001,7 @@
         "width": "Width (m)",
         "height": "Depth (m)",
         "label": "Label",
-        "labelHint": "Shown instead of the kind, such as Dance floor.",
+        "labelHint": "Shown instead of the kind, such as Dance floor or Stairs to the balcony.",
         "unplace": "Remove from Plan",
         "delete": "Delete",
         "room": "Room and Picture"

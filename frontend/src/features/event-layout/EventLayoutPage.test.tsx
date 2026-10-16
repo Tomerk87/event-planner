@@ -290,10 +290,9 @@ describe('Event Layout', () => {
     const panel = warningsPanel()
 
     expect(dashboard.warnings.tablesOverCapacity).toHaveLength(2)
-    expect(panel.getByText('Not enough seats')).toBeInTheDocument()
-    expect(
-      panel.getByRole('link', { name: /Confirmed attendees without a table/ }),
-    ).toHaveAttribute('href', `/events/${MAIN}/guests?rsvp=APPROVED&table=NONE`)
+    // Only the tables over capacity; seating as a whole has cards of its own.
+    expect(panel.getAllByRole('button')).toHaveLength(2)
+    expect(panel.queryByText('Not enough seats')).toBeNull()
 
     // Nothing is selected to begin with, even with a table over capacity.
     expect(
@@ -310,6 +309,56 @@ describe('Event Layout', () => {
         name: `Guests of Table ${first!.tableNumber}`,
       }),
     ).toBeInTheDocument()
+  })
+
+  it('shows the seating notices in cards of their own, as on the Dashboard, on both tabs', async () => {
+    const { services } = await openLayout()
+    const { warnings } = await services.dashboard.get(MAIN)
+
+    for (const tab of ['Tables', 'Table Arrangement']) {
+      fireEvent.click(screen.getByRole('tab', { name: tab }))
+      const cards = within(
+        await screen.findByRole('list', { name: 'Warnings' }),
+      )
+      expect(cards.getAllByRole('listitem')).toHaveLength(2)
+      // Seating as a whole only informs: it is this page.
+      expect(cards.getByText('Not enough seats').closest('a')).toBeNull()
+      expect(
+        cards.getByRole('link', {
+          name: /Confirmed attendees without a table/,
+        }),
+      ).toHaveAttribute(
+        'href',
+        `/events/${MAIN}/guests?rsvp=APPROVED&table=NONE`,
+      )
+      expect(
+        cards.getByText(
+          `${warnings.attendeesAwaitingTable} confirmed attendees are not assigned to a table yet.`,
+        ),
+      ).toBeInTheDocument()
+    }
+    // On the Arrangement, the tables over capacity are listed too.
+    expect(warningsPanel().getAllByRole('button')).toHaveLength(2)
+  })
+
+  it('says when no table is over capacity, and the Arrangement then leaves the card out', async () => {
+    const services = createTestServices()
+    for (const conflict of (await services.dashboard.get(MAIN)).warnings
+      .tablesOverCapacity) {
+      const { table } = await tableNumbered(services, conflict.tableNumber)
+      await services.tables.update(MAIN, table.id, {
+        ...table,
+        capacity: table.capacity + conflict.over,
+      })
+    }
+    await openLayout('', services)
+
+    expect(warningsPanel().getByText('No tables over capacity.')).toBeVisible()
+    fireEvent.click(screen.getByRole('tab', { name: 'Table Arrangement' }))
+    await screen.findByRole('group', { name: 'Floor plan' })
+    expect(
+      screen.queryByRole('heading', { name: 'Capacity Warnings' }),
+    ).toBeNull()
   })
 
   it('shows one ticked table with its parties beside the list, and hides it when unticked', async () => {

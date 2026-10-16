@@ -1257,6 +1257,15 @@ Validation:
 - By hand: screenshots at 1440 and 390 px in English and Hebrew of the Tables tab with preview, View mode, a chosen table, Edit mode with a floor picture, and after a reload.
 Follow-ups/risks: no undo inside Edit mode (Cancel drops all changes); a large floor picture in the demo counts toward the browser's storage; phones view only.
 Next: owner review of the Table Arrangement.
+
+2026-10-16 — Phase 20 — owner follow-ups on the Table Arrangement (branch phase_20_event_layout, after commit 505fa5c).
+Owner requests: the seating notice and attendees awaiting a table as cards of their own, as on the Dashboard, at the same place and size on both tabs; a new item on top of the others; Steps renamed Stairs (a change of floor level); Print / Export to PDF as a future feature.
+- Shared `features/dashboard/WarningCards.tsx` (moved from the Dashboard, styles in WarningCards.module.css; a card without a link only informs). Event Layout shows the two cards under the figures on both tabs; their width matches the Dashboard's at every size (the row keeps as many slots as the Dashboard's row has for the event). Capacity Warnings lists only the tables over capacity ("No tables over capacity." when none; the Arrangement leaves it out then).
+- Drawing order: tables above objects; while editing, the chosen item, such as a new one or one being dragged, above everything; the plan, not the item, holds the pointer, since the item's element moves to the top.
+- STAIRS: domain (both copies), Prisma enum with migration 20261016090000_stairs (RENAME VALUE, data kept), DTO, contract seed, demo data saved with STEPS read as STAIRS, icon and treads; labels have a halo so they read over the treads.
+- FUTURE_FEATURES: "Print / Export to PDF" replaces the printing row. Docs: D100, PRD §11.4, MOCKUP_NOTES. Hebrew sheet regenerated (1075 texts).
+Validation: backend format, lint, unit 552, integration 300 (STAIRS saved, old STEPS refused), openapi.json; frontend typecheck, lint, format, unit 1222 (new: cards on both tabs and the empty Capacity Warnings, drawing order, treads, stored STEPS), coverage 95.7% / 90.36%, build, test:api 63 passed / 2 skipped, test:e2e 421 passed / 29 skipped. By hand: card positions and widths compared with the Dashboard at 1920, 1440, 1024 and 390 px; a new stage drawn over tables; stairs with treads and a label.
+Next: owner review.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
