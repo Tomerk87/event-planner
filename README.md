@@ -63,6 +63,10 @@ npm run start:dev
 
 The API listens on http://localhost:3000/api; its documentation is at http://localhost:3000/api/docs and `GET /api/health` reports the database. Email is off by default; `backend/README.md` explains how to turn it on locally with Mailpit, and lists every command.
 
+## Deploy
+
+The production stack (Nginx, the API and PostgreSQL in Docker Compose on one small AWS server) is in `deploy/`. `docs/DEPLOYMENT.md` covers the first-time setup step by step, then deploying, rollback, logs, backups and restore. Try the same stack on this machine with `deploy/scripts/local-test.sh up` (after `ALLOW_DIRTY=1 deploy/scripts/build-images.sh`).
+
 ## Documentation
 
 - `AGENTS.md` — engineering rules
@@ -71,6 +75,7 @@ The API listens on http://localhost:3000/api; its documentation is at http://loc
 - `docs/ARCHITECTURE.md` — technical decisions and repository structure
 - `docs/DOMAIN.md` — glossary and open decisions
 - `docs/DEVELOPMENT.md` — workflow, validation and tooling
+- `docs/DEPLOYMENT.md` — production stack, AWS setup guide and operations
 - `docs/MOCKUP_NOTES.md` — differences between mockups and requirements
 - `docs/FUTURE_FEATURES.md` — features left out of the MVP
 - `mockups/README.md` — page-to-mockup mapping

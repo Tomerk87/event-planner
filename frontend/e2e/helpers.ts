@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 /**
  * Returns the navigation container. On the compact layout the navigation is
@@ -6,6 +6,10 @@ import type { Locator, Page } from '@playwright/test'
  */
 export async function openNavigation(page: Page): Promise<Locator> {
   const menuButton = page.getByRole('button', { name: /Open menu|פתיחת תפריט/ })
+  // The page is loaded on first visit: wait for its menu, of either kind.
+  await expect(
+    menuButton.or(page.getByRole('complementary')).first(),
+  ).toBeVisible()
   if (await menuButton.isVisible()) {
     await menuButton.click()
     return page.getByRole('dialog')

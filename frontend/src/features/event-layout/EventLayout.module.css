@@ -23,7 +23,8 @@
   min-inline-size: 0;
 }
 
-@media (min-width: 1100px) {
+/* From here the list shows every column beside the card. */
+@media (min-width: 1280px) {
   .withSide {
     grid-template-columns: minmax(0, 1fr) clamp(18rem, 26%, 22rem);
   }

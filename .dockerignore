@@ -1,0 +1,14 @@
+# Context of deploy/web/Dockerfile, built from the repository root: only the
+# frontend sources and the Nginx files are sent.
+*
+!frontend
+!deploy/web
+frontend/node_modules
+frontend/dist
+frontend/coverage
+frontend/test-results
+frontend/playwright-report
+frontend/api-test
+frontend/.env*
+!frontend/.env.example
+frontend/**/*.tsbuildinfo

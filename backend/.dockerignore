@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+uploads
+docker
+test
+.env
+.env.*
+*.tsbuildinfo
+src/generated
+openapi.json

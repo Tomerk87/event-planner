@@ -405,7 +405,7 @@
 - [x] Implement User, Event, EventPermission, Guest, Unknown RSVP, RSVP Config, Message Config and Table/Assignment entities.
 - [x] Define constraints: unique permission per user/event, unique normalized phone per event (including soft-delete restoration strategy), unique table number per event.
 - [x] Add validation for attendee bounds, status/count consistency, and role/ownership invariants.
-- [x] Implement environment configuration, error conventions, logging and health endpoint. Logging is Nest's logger, plain text; JSON logs can come with deployment (Phase 18).
+- [x] Implement environment configuration, error conventions, logging and health endpoint. Logging is Nest's logger, plain text; JSON logs can come with deployment (Phase 18). Phase 18 kept plain text, with Docker log rotation (D101).
 - [x] Add upload storage abstraction for RSVP background assets, using local persistent storage initially.
 - [x] Align backend DTOs/contracts with frontend service interfaces; document API schema (e.g., OpenAPI).
 - [x] Add backend test and migration test setup.
@@ -539,23 +539,25 @@
 
 **Goal:** package and deploy the proven application on a small single VM, rather than designing a large cloud architecture.
 
+Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; the domain bought at GoDaddy, which keeps the DNS records; Amazon SES for email. Guide: `docs/DEPLOYMENT.md`.
+
 ### Checklist
-- [ ] Build optimized production frontend static assets outside the target VM where practical.
-- [ ] Build production NestJS container image outside the target VM where practical.
-- [ ] Configure Nginx to serve React static files and reverse-proxy backend/public RSVP routes.
-- [ ] Configure Nginx to fall back to `index.html` for client-side routes (for example `/events/:eventId/guests` and `/rsvp/:rsvpId`) so deep links and refreshes work.
-- [ ] Create Docker Compose stack for Nginx, NestJS and PostgreSQL; no production frontend dev server.
-- [ ] Configure persistent PostgreSQL volume and safe upload storage volume.
-- [ ] Add health checks, startup dependencies, restart policies and conservative resource settings.
-- [ ] Configure deployment-time environment variables/secrets without committing credentials. Set `TRUST_PROXY_HOPS=1` behind Nginx (otherwise every guest shares the proxy's address and the RSVP limit of D2 blocks them together) and `PUBLIC_APP_URL` to the public address used in WhatsApp messages.
-- [ ] Configure domain/DNS and HTTPS if exposing publicly; document TLS renewal approach.
-- [ ] Define and rehearse database backup/restore and uploads backup.
-- [ ] Test full stack locally with fresh volumes/migrations.
+- [x] Build optimized production frontend static assets outside the target VM where practical. (`deploy/web/Dockerfile`, built on the Mac for arm64 by `deploy/scripts/build-images.sh`.)
+- [x] Build production NestJS container image outside the target VM where practical. (`backend/Dockerfile`; images streamed over SSH by `deploy.sh`, no registry.)
+- [x] Configure Nginx to serve React static files and reverse-proxy backend/public RSVP routes.
+- [x] Configure Nginx to fall back to `index.html` for client-side routes (for example `/events/:eventId/guests` and `/rsvp/:rsvpId`) so deep links and refreshes work.
+- [x] Create Docker Compose stack for Nginx, NestJS and PostgreSQL; no production frontend dev server. (`deploy/docker-compose.yml`, migrations applied by a `migrate` service at every start.)
+- [x] Configure persistent PostgreSQL volume and safe upload storage volume.
+- [x] Add health checks, startup dependencies, restart policies and conservative resource settings.
+- [x] Configure deployment-time environment variables/secrets without committing credentials. Set `TRUST_PROXY_HOPS=1` behind Nginx (otherwise every guest shares the proxy's address and the RSVP limit of D2 blocks them together) and `PUBLIC_APP_URL` to the public address used in WhatsApp messages. (`deploy/.env.example`; the real file only on the server. Locally checked: a forged `X-Forwarded-For` does not get past the RSVP limit.)
+- [ ] Configure domain/DNS and HTTPS if exposing publicly; document TLS renewal approach. (Let's Encrypt by webroot with `issue-cert.sh`, renewal by cron with `renew-cert.sh`, documented; the HTTPS config and the HTTP-only start were tested locally. Waits for the domain and the server.)
+- [ ] Define and rehearse database backup/restore and uploads backup. (`backup.sh` and `restore.sh`; backup → wipe → restore rehearsed on the local stack. The S3 copy waits for the server.)
+- [x] Test full stack locally with fresh volumes/migrations. (`deploy/scripts/local-test.sh`; smoke tests `frontend/e2e-deploy/` passed on desktop and phone.)
 - [ ] Deploy to chosen single EC2/VM host; measure idle memory, peak usage, disk and practical POC concurrency.
-- [ ] Verify redeploy/restart does not lose real PostgreSQL or uploaded asset data.
-- [ ] Document deployment, rollback, logs, and low-cost/free-tier billing cautions.
-- [ ] Split the frontend bundle by page (the main file is about 650 kB before compression).
-- [ ] Connect email (D88): buy the domain (Route 53 adds its DNS records), verify it in Amazon SES with DKIM, SPF and DMARC, request production access (leave the SES sandbox), create SES SMTP credentials kept only in the server's environment, set `EMAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`, then send a test email from the System page.
+- [ ] Verify redeploy/restart does not lose real PostgreSQL or uploaded asset data. (Passed locally across down/up and a version change; to repeat on the server with a reboot.)
+- [x] Document deployment, rollback, logs, and low-cost/free-tier billing cautions. (`docs/DEPLOYMENT.md`.)
+- [x] Split the frontend bundle by page (the main file is about 650 kB before compression). (Each page loads on first visit; the main file went from 852 kB to 372 kB, and a tab from an older version reloads itself.)
+- [ ] Connect email (D88): buy the domain (at GoDaddy, D101: its DNS records are added there by hand, `docs/DEPLOYMENT.md` step 12), verify it in Amazon SES with DKIM, SPF and DMARC, request production access (leave the SES sandbox), create SES SMTP credentials kept only in the server's environment, set `EMAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`, then send a test email from the System page.
 
 ### Validation and exit criteria
 - [ ] Entire stack works on chosen small VM within observed resource limits.
@@ -1266,6 +1268,20 @@ Owner requests: the seating notice and attendees awaiting a table as cards of th
 - FUTURE_FEATURES: "Print / Export to PDF" replaces the printing row. Docs: D100, PRD §11.4, MOCKUP_NOTES. Hebrew sheet regenerated (1075 texts).
 Validation: backend format, lint, unit 552, integration 300 (STAIRS saved, old STEPS refused), openapi.json; frontend typecheck, lint, format, unit 1222 (new: cards on both tabs and the empty Capacity Warnings, drawing order, treads, stored STEPS), coverage 95.7% / 90.36%, build, test:api 63 passed / 2 skipped, test:e2e 421 passed / 29 skipped. By hand: card positions and widths compared with the Dashboard at 1920, 1440, 1024 and 390 px; a new stage drawn over tables; stairs with treads and a label.
 Next: owner review.
+
+2026-10-16 — Phase 18 — production packaging, local rehearsal and the owner's AWS guide (branch phase_18_deployment).
+Owner decisions (D101): AWS Free plan, one t4g.small in eu-central-1; domain at GoDaddy with its DNS there (Route 53 registration cannot be paid with Free-plan credits); Amazon SES in this phase. Agent choices: images built on the Mac and streamed over SSH, tagged with the commit, three kept; nightly backups to S3 through an instance role; plain-text logs with rotation; no CSP yet.
+- Bundle split: every page loads lazily (function form of `lazy` in routes.tsx: the object form left the shared route objects emptied for a second router), `HydrateFallback` shows the loading state, `vite:preloadError` reloads a tab from an older version; main file 852 kB → 372 kB. Test helper `openNavigation` waits for the frame; Testing Library's wait raised to 3 s.
+- Images: `backend/Dockerfile` (node:26-slim, non-root, Prisma CLI for migrations; 195 MB compressed), `deploy/web/` (Nginx 1.29: HTTPS with HSTS and headers, `/api` proxy, long caching for `/assets/`, `index.html` never cached, fallback for page addresses, HTTP-only start until a certificate exists; 24 MB).
+- `deploy/docker-compose.yml`, `deploy/.env.example`, `deploy/scripts/` (server-setup, build-images, deploy with rollback, issue-cert, renew-cert, backup, restore, local-test), smoke tests `frontend/e2e-deploy/` with `playwright.deploy.config.ts`.
+- Docs: `docs/DEPLOYMENT.md` (architecture, costs and the Free plan's closing, 14 steps from account to test email, operations), D101, ARCHITECTURE, FUTURE_FEATURES (CSP, CI images, managed services, SES custom MAIL FROM), README.
+Validation:
+- Frontend: typecheck, lint, format; unit 1219; test:e2e 421 passed, 29 skipped; build without the chunk warning.
+- Backend: unit 552, integration 300 (code unchanged).
+- Local production stack (`local-test.sh`, fresh volumes): migrations applied on their own; deploy smoke 4/4 (desktop and phone); missing assets 404, headers, gzip, caching, HTTP → HTTPS; HTTP-only start serves ACME and 503; data and a picture kept across down/up and a version change; backup → wipe → restore; RSVP limit reached at 10 with forged `X-Forwarded-For`; Super User script runs in the container; idle memory web 10 MB, backend 104 MB, postgres 27 MB.
+- `deploy.sh` with stand-in ssh/scp: first send, unchanged image renamed, prune to three, rollback.
+Follow-ups/risks: the Free plan closes the account after 6 months or when the credits end (month-5 decision in the guide); server steps unticked until the owner's AWS setup (steps 1–10).
+Next: owner follows docs/DEPLOYMENT.md steps 1–10; then deploy, certificate, smoke on the domain, measurements, reboot test, S3 restore, SES.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

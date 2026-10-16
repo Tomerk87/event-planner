@@ -1,0 +1,115 @@
+# Production stack for one small server (PLAN.md Phase 18, docs/DEPLOYMENT.md):
+# Nginx with the React build, the NestJS API, and PostgreSQL. Settings come
+# from the .env file next to this one on the server (see .env.example).
+name: event-planner
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '3'
+
+x-database-url: &database-url postgresql://event_planner:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/event_planner
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: event_planner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: event_planner
+    # Sized for a 2 GB machine shared with the API.
+    command: ['postgres', '-c', 'shared_buffers=128MB', '-c', 'max_connections=40']
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U event_planner -d event_planner']
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    mem_limit: 384m
+    logging: *logging
+
+  # Applies new database migrations, then exits; the API starts after it.
+  migrate:
+    image: event-planner-backend:${APP_VERSION:?set APP_VERSION}
+    command: ['./node_modules/.bin/prisma', 'migrate', 'deploy']
+    environment:
+      DATABASE_URL: *database-url
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+    logging: *logging
+
+  backend:
+    image: event-planner-backend:${APP_VERSION:?set APP_VERSION}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: *database-url
+      CORS_ORIGIN: https://${DOMAIN:?set DOMAIN in .env}${PUBLIC_PORT_SUFFIX:-}
+      PUBLIC_APP_URL: https://${DOMAIN}${PUBLIC_PORT_SUFFIX:-}
+      # Nginx is the one proxy in front (RSVP limits per guest, D2).
+      TRUST_PROXY_HOPS: 1
+      UPLOAD_DIR: /data/uploads
+      NODE_OPTIONS: --max-old-space-size=384
+      EMAIL_MODE: ${EMAIL_MODE:-off}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    mem_limit: 512m
+    logging: *logging
+
+  web:
+    image: event-planner-web:${APP_VERSION:?set APP_VERSION}
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
+    volumes:
+      - ${CERTS_DIR:-letsencrypt}:/etc/letsencrypt:ro
+      - acme-webroot:/var/www/acme:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    mem_limit: 64m
+    logging: *logging
+
+  # Run on demand by scripts/issue-cert.sh and the renewal job.
+  certbot:
+    image: certbot/certbot:v5.8.0
+    profiles: [tools]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - acme-webroot:/var/www/acme
+    logging: *logging
+
+volumes:
+  pgdata:
+  uploads:
+  letsencrypt:
+  acme-webroot:
