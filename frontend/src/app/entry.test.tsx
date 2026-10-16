@@ -422,6 +422,43 @@ describe('sign up, log out and sign in', () => {
     ).toBeNull()
   })
 
+  it('has only the demo on a demo-only site, and no account pages (D102)', async () => {
+    const backend = createTestBackend({ session: 'none', accounts: null })
+    const first = renderSignedOut('/', backend)
+    await landing()
+    expect(screen.queryByRole('link', { name: 'Sign In' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Sign Up' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Open menu' })).toBeNull()
+    expect(
+      screen.getByText(
+        'A preview of Event Planner. Everything you see is sample data, kept only in your browser.',
+      ),
+    ).toBeInTheDocument()
+    first.unmount()
+
+    for (const path of [
+      '/signin',
+      '/signup',
+      '/forgot-password',
+      '/verify-email?token=abc',
+      '/reset-password?token=abc',
+    ]) {
+      const { router, unmount } = renderSignedOut(path, backend)
+      await landing()
+      expect(router.state.location.pathname).toBe('/')
+      unmount()
+    }
+
+    const { router } = renderSignedOut('/', backend)
+    await landing()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Try Demo' })[0]!)
+    await myEvents()
+    expect(screen.getByText('Demo Mode')).toBeInTheDocument()
+    // Back to the landing page, which sends a demo visitor to My Events.
+    await act(() => router.navigate('/system'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/events'))
+  })
+
   it('lets a visitor open the demo from either form', async () => {
     renderSignedOut('/signin')
     await screen.findByRole('heading', { level: 1, name: 'Sign in' })

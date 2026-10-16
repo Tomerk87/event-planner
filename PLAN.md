@@ -581,6 +581,8 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [ ] Confirm demo deployment feature flag can hide demo entry when configured without changing real app behavior. (`VITE_DEMO_ENABLED` exists since Phase 16, with unit tests; confirm on the deployed build.)
 - [ ] A real event's RSVP link should not generate the demo dataset in the guest's browser (today the link is looked up in the demo first).
 - [ ] Finalize concise `README.md`, deployment docs, and update `PLAN.md` with deferred tasks.
+- [x] Demo-only build for a free static host (owner request 2026-10-16, D102): `VITE_ACCOUNTS_ENABLED=false` removes Sign In / Sign Up and the account pages and sends no request to the API; `netlify.toml` builds it on Netlify. Checked locally on a demo-only build (smoke tests with `DEPLOY_DEMO_ONLY=1`, desktop and phone, no `/api` request; a demo RSVP link opens in a fresh browser) and with a clean install building as Netlify does.
+- [ ] Demo-only site live on Netlify: the owner connects the repository (`docs/DEPLOYMENT.md`, "Demo-only site"); smoke tests pass against its address; checked on a phone.
 
 ### Validation and exit criteria
 - [ ] Public demo and real app can be demonstrated independently.
@@ -1282,6 +1284,16 @@ Validation:
 - `deploy.sh` with stand-in ssh/scp: first send, unchanged image renamed, prune to three, rollback.
 Follow-ups/risks: the Free plan closes the account after 6 months or when the credits end (month-5 decision in the guide); server steps unticked until the owner's AWS setup (steps 1–10).
 Next: owner follows docs/DEPLOYMENT.md steps 1–10; then deploy, certificate, smoke on the domain, measurements, reboot test, S3 restore, SES.
+
+2026-10-16 — Phase 19 — demo-only site for Netlify (branch phase_19_demo_site, from phase_18_deployment).
+Owner request: a free prototype with only the demo, to show people; no interest form and no visit counting (owner answers).
+- `VITE_ACCOUNTS_ENABLED` (default true; both switches off is refused). Off: `combineBackends` gets no accounts side and uses `noAccountsBackend` (no session, account actions UNAVAILABLE, a non-demo RSVP link NOT_FOUND, no request); `accountsAvailable` on the backend and the session. Landing page: Try Demo only, with a preview note (English and Hebrew); `AccountsOnly` guard sends /signin, /signup, /forgot-password, /verify-email, /reset-password and /system back to the landing page.
+- `netlify.toml`: builds `frontend/` on Node 26 with the switches, page addresses to index.html, a real 404 for a missing asset, one-year caching of /assets/, the same headers as Nginx.
+- Deploy smoke tests: `DEPLOY_DEMO_ONLY=1` checks no /api request, account pages leading back, and a demo RSVP link in a fresh browser; skips the account test.
+- Docs: DEPLOYMENT.md "Demo-only site (Netlify)", D102, ARCHITECTURE, README, `.env.example`; Hebrew sheet regenerated.
+Validation: frontend typecheck, lint, format; unit 1229 (new: switch parsing, demo-only backend and services with no fetch, both-off refused, landing and redirects); test:e2e 421 passed, 29 skipped; demo-only build under `vite preview`: smoke 4 passed / 2 skipped (desktop, phone); full-product smoke on the local production stack still 4 passed; clean install + `npm run build` with the Netlify settings; screenshots of the landing page at 1440 px and on a phone in English and Hebrew.
+Follow-ups/risks: Netlify's redirect and header rules are checked only once live.
+Next: owner connects Netlify; smoke against the live address.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

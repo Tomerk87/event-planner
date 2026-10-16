@@ -1,6 +1,7 @@
 import { DomainError, isDomainError } from '../domain/errors.ts'
 import type { Language } from '../i18n/languages.ts'
 import { createApiBackend, type ApiBackend } from './api/apiBackend.ts'
+import { noAccountsBackend } from './api/noAccountsBackend.ts'
 import type { Backend, Session } from './contracts/index.ts'
 import type { StoredDemoClock } from './mock/demoClock.ts'
 import { createDemoBackend, type DemoBackend } from './mock/mockBackend.ts'
@@ -30,18 +31,22 @@ function parseDelay(value: string | null): number {
 /**
  * One backend for the application, from its two sources: the public demo,
  * kept in this browser, and the real accounts on the server. A session
- * belongs to exactly one of them, so their data never meets.
+ * belongs to exactly one of them, so their data never meets. Either may be
+ * switched off (null): a demo-only site has no accounts (D102).
  */
 export function combineBackends(
   demo: DemoBackend | null,
-  api: ApiBackend,
+  accounts: ApiBackend | null,
 ): Backend {
+  const api = accounts ?? noAccountsBackend
+
   async function demoSession() {
     return demo ? demo.auth.getSession() : null
   }
 
   return {
     demoAvailable: demo !== null,
+    accountsAvailable: accounts !== null,
     auth: {
       getSession: async () => (await demoSession()) ?? api.auth.getSession(),
 
@@ -129,13 +134,27 @@ export function combineBackends(
  */
 export function createServices(options: {
   demoEnabled: boolean
+  /** False for a demo-only site, which makes no request to the API (D102). */
+  accountsEnabled?: boolean
   location: Pick<Location, 'search' | 'origin'>
   storage: Storage
   apiUrl?: string
   /** The interface language, for the emails a request sends (D88). */
   language?: () => Language
 }): Backend {
-  const { demoEnabled, location, storage, apiUrl = '/api', language } = options
+  const {
+    demoEnabled,
+    accountsEnabled = true,
+    location,
+    storage,
+    apiUrl = '/api',
+    language,
+  } = options
+  if (!demoEnabled && !accountsEnabled) {
+    throw new Error(
+      'VITE_DEMO_ENABLED and VITE_ACCOUNTS_ENABLED cannot both be false.',
+    )
+  }
   // Preview accounts from before the backend are discarded (D85).
   createBrowserPersistence(storage, LEGACY_ACCOUNTS_STORAGE_KEY).clear()
 
@@ -163,10 +182,12 @@ export function createServices(options: {
         baseUrl: location.origin,
       })
     : null
-  const api = createApiBackend({
-    baseUrl: apiUrl,
-    preferences: createPreferencesService(preferencesPersistence),
-    language,
-  })
+  const api = accountsEnabled
+    ? createApiBackend({
+        baseUrl: apiUrl,
+        preferences: createPreferencesService(preferencesPersistence),
+        language,
+      })
+    : null
   return combineBackends(demo, api)
 }

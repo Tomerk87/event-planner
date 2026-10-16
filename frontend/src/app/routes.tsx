@@ -5,7 +5,11 @@ import { LoadingState } from '../shared/ui/States.tsx'
 import { EventLayout } from './EventLayout.tsx'
 import { HomeLayout } from './HomeLayout.tsx'
 import { RouteFocus } from './RouteFocus.tsx'
-import { RequireSession, SignedOutOnly } from './session/guards.tsx'
+import {
+  AccountsOnly,
+  RequireSession,
+  SignedOutOnly,
+} from './session/guards.tsx'
 
 // Each page is its own file, downloaded when first opened, so a guest
 // answering an RSVP does not download the organizer's pages.
@@ -27,26 +31,31 @@ export const routes: RouteObject[] = [
             }),
           },
           {
-            path: '/signin',
-            lazy: async () => ({
-              Component: (await import('../features/auth/SignInPage.tsx'))
-                .SignInPage,
-            }),
-          },
-          {
-            path: '/signup',
-            lazy: async () => ({
-              Component: (await import('../features/auth/SignUpPage.tsx'))
-                .SignUpPage,
-            }),
-          },
-          {
-            path: '/forgot-password',
-            lazy: async () => ({
-              Component: (
-                await import('../features/auth/ForgotPasswordPage.tsx')
-              ).ForgotPasswordPage,
-            }),
+            element: <AccountsOnly />,
+            children: [
+              {
+                path: '/signin',
+                lazy: async () => ({
+                  Component: (await import('../features/auth/SignInPage.tsx'))
+                    .SignInPage,
+                }),
+              },
+              {
+                path: '/signup',
+                lazy: async () => ({
+                  Component: (await import('../features/auth/SignUpPage.tsx'))
+                    .SignUpPage,
+                }),
+              },
+              {
+                path: '/forgot-password',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/auth/ForgotPasswordPage.tsx')
+                  ).ForgotPasswordPage,
+                }),
+              },
+            ],
           },
         ],
       },
@@ -64,11 +73,17 @@ export const routes: RouteObject[] = [
                 }),
               },
               {
-                path: '/system',
-                lazy: async () => ({
-                  Component: (await import('../features/system/SystemPage.tsx'))
-                    .SystemPage,
-                }),
+                element: <AccountsOnly />,
+                children: [
+                  {
+                    path: '/system',
+                    lazy: async () => ({
+                      Component: (
+                        await import('../features/system/SystemPage.tsx')
+                      ).SystemPage,
+                    }),
+                  },
+                ],
               },
             ],
           },
@@ -146,18 +161,24 @@ export const routes: RouteObject[] = [
       },
       // Email links work signed in or not, on any device (D88).
       {
-        path: '/verify-email',
-        lazy: async () => ({
-          Component: (await import('../features/auth/VerifyEmailPage.tsx'))
-            .VerifyEmailPage,
-        }),
-      },
-      {
-        path: '/reset-password',
-        lazy: async () => ({
-          Component: (await import('../features/auth/ResetPasswordPage.tsx'))
-            .ResetPasswordPage,
-        }),
+        element: <AccountsOnly />,
+        children: [
+          {
+            path: '/verify-email',
+            lazy: async () => ({
+              Component: (await import('../features/auth/VerifyEmailPage.tsx'))
+                .VerifyEmailPage,
+            }),
+          },
+          {
+            path: '/reset-password',
+            lazy: async () => ({
+              Component: (
+                await import('../features/auth/ResetPasswordPage.tsx')
+              ).ResetPasswordPage,
+            }),
+          },
+        ],
       },
       { path: '*', element: <NotFoundPage /> },
     ],

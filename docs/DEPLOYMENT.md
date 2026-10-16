@@ -476,6 +476,54 @@ deploy/scripts/local-test.sh down                # or wipe, to delete its data
 3. Change the GoDaddy A record to the new address.
 4. Run `issue-cert.sh` on the new server.
 
+## Demo-only site (Netlify, free)
+
+A public prototype with **only the demo** (D102), for showing the product before the AWS server exists, or alongside it. It needs no server:
+- every visitor gets their own demo, kept in their browser and ending on its own after 3 days (D99)
+- a demo event's RSVP link opens on any phone
+- Sign In and Sign Up are not shown
+
+`netlify.toml` at the top of the repository holds every setting. It builds `frontend/` with `VITE_ACCOUNTS_ENABLED=false`, sends page addresses to the application, and adds caching and security headers.
+
+**Cost:** $0 on Netlify's free plan, which needs no credit card. Each deploy uses some of the plan's monthly build allowance; a demo deployed a few times a month stays well inside it.
+
+### Setting it up (about 10 minutes)
+
+1. Go to https://www.netlify.com and choose **Sign up**, then **Sign up with GitHub**. Choose the free plan.
+2. Choose **Add new project → Import an existing project → GitHub**. Allow Netlify to see the repository `Tomerk87/event-planner` (all repositories, or only this one).
+3. Pick `event-planner`.
+   - **Branch to deploy:** `main`. The demo build is on `main` once the branch `phase_19_demo_site` is merged; until then you can pick that branch here.
+   - Leave the other fields empty; Netlify reads them from `netlify.toml`.
+   - Click **Deploy**.
+4. After a minute or two, Netlify shows the address, something like `https://jolly-otter-123abc.netlify.app`. To get a nicer one, go to **Project configuration → Change project name**, for example `event-planner-demo`, giving `https://event-planner-demo.netlify.app`.
+
+**Optional:**
+- **Save build allowance:** under **Project configuration → Build & deploy → Deploy Previews**, choose **Don't deploy pull requests**.
+- **Your own address later:** for example `demo.<your domain>`. In Netlify, open **Domain management → Add a domain**. At GoDaddy, add a **CNAME** with Name `demo` and Value `<name>.netlify.app`. Netlify sets up HTTPS for it on its own.
+
+From then on, every merge to `main` updates the site.
+
+### Checking it
+
+From `frontend/` on the Mac:
+
+```sh
+DEPLOY_URL=https://event-planner-demo.netlify.app DEPLOY_DEMO_ONLY=1 npx playwright test -c playwright.deploy.config.ts
+```
+
+The test does the following, on desktop and phone:
+1. opens the landing page and the demo
+2. opens a page by its address and reloads it
+3. checks that the account pages lead back to the landing page
+4. opens a demo RSVP link in a fresh browser
+5. checks that not one request goes to `/api`
+
+To try the same build on the Mac:
+
+```sh
+VITE_ACCOUNTS_ENABLED=false npx vite build && npx vite preview     # from frontend/, at http://localhost:4173
+```
+
 ## Measurements
 
 - **Locally (arm64 Mac, Docker), idle after start:**
