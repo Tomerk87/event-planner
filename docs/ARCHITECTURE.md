@@ -68,7 +68,7 @@ Update this file when a decision is made or changed. Do not record a choice here
 | Browser storage | Used only inside the demo persistence adapter, never from presentation components | `AGENTS.md` Frontend standards |
 | Authorization | Enforced on the server for every event-scoped operation. Frontend permission checks are UX only | `AGENTS.md` Permissions, Security |
 | Uploads | Stored through an abstraction that supports local storage now and object storage later | `AGENTS.md` Technical direction |
-| Deployment target | One small EC2 instance (or comparable VM) running Docker Compose: Nginx serving the static React build and reverse-proxying NestJS, NestJS, PostgreSQL with a persistent volume. Images are built off-host where practical | `AGENTS.md` Technical direction; `PLAN.md` Phase 18 |
+| Deployment target | Decision D101. One AWS EC2 t4g.small (ARM) on the Free plan, running `deploy/docker-compose.yml`: Nginx (`deploy/web/`: the static React build, HTTPS by Let's Encrypt, `/api` proxied, `index.html` for page addresses), the API (`backend/Dockerfile`), PostgreSQL 17 and a `migrate` service that applies migrations before the API starts; volumes for the database, pictures and certificates. Images are built on the developer's Mac for arm64 and streamed over SSH by `deploy/scripts/deploy.sh`, named by the commit, three kept for rollback. Nightly backups to S3, plain-text logs with rotation. The domain's DNS is at GoDaddy. Procedures: `docs/DEPLOYMENT.md` | `AGENTS.md` Technical direction; owner decision 2026-10-16; adopted in Phase 18 |
 | Excluded infrastructure | No Kubernetes, microservices, Redis, message queues, managed RDS or background workers without a measured need and explicit approval | `AGENTS.md` Technical direction |
 | Local development | The frontend runs without Docker, NestJS or PostgreSQL until the integration phases | `AGENTS.md` Technical direction |
 
@@ -78,7 +78,7 @@ These are implementation choices that the approved documents leave open. Each is
 
 | Choice | Decide in |
 |---|---|
-| Email provider for verification and invitation emails | Decided: Amazon SES through SMTP (D88); connected in Phase 18 with the domain |
+| Email provider for verification and invitation emails | Decided: Amazon SES through SMTP (D88); connected in Phase 18 with the domain (`docs/DEPLOYMENT.md` step 12) |
 
 ## Repository structure
 
@@ -92,20 +92,17 @@ Current:
   docs/              PRD and durable product/architecture documentation
   mockups/           UI reference images and their index (README.md)
   frontend/          React + TypeScript app (Vite)
-  backend/           NestJS + Prisma API (Phase 13)
-```
-
-Added when their phase begins:
-
-```text
-  scripts/           shared helper scripts, if needed
-  docker-compose.yml single-VM stack (Phase 18)
+  backend/           NestJS + Prisma API (Phase 13); Dockerfile for its production image
+  deploy/            production stack (Phase 18): docker-compose.yml, .env.example,
+                     web/ (Nginx image and config), scripts/ (server setup, build,
+                     deploy, certificate, backup, restore, local test)
 ```
 
 Inside `frontend/`:
 
 ```text
   e2e/               Playwright end-to-end tests
+  e2e-deploy/        smoke tests of a deployed site (playwright.deploy.config.ts)
   src/
     app/             router, route table, application-level layout and provider selection
     features/        one folder per page/feature (events, dashboard, guests, messages,

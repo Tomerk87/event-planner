@@ -94,6 +94,18 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Checking that an uploaded picture is a real image | The server accepts a JPEG or PNG data address without reading the file's own signature. It always serves it as an image with `nosniff`, so a browser never runs it; checking the content is hardening for later. | Phase 17 security review |
 | Design-system showcase page | The `/showcase` gallery of shared components was removed from the application. | Owner decision 2026-10-13 (D73) |
 
+## Deployment and operations
+
+| Item | Notes | Source |
+|---|---|---|
+| Content-Security-Policy | Nginx sends HSTS, `nosniff`, `Referrer-Policy` and `X-Frame-Options`, but no CSP: YouTube embeds, pictures as data addresses and the maps links need a policy written and tested with care. | Phase 18 (D101) |
+| Images built by CI with a registry | Images are built on the developer's Mac and streamed to the server over SSH. A CI pipeline building and testing each commit and pushing to a registry (for example GitHub Container Registry or ECR) suits a team or several servers. | Phase 18 (D101) |
+| Managed database and object storage | When one server is no longer enough: RDS (or another managed PostgreSQL) with automatic backups, and S3 for pictures behind the existing `ImageStorage` interface. Excluded from the POC (AGENTS.md). | Phase 18 (D101) |
+| Structured (JSON) logs and monitoring | Logs are plain text with rotation; no alerting beyond the AWS budget emails. JSON logs, a log service and an uptime check come with real traffic. | Phase 18 (D101) |
+| Custom MAIL FROM domain in SES | Emails pass DMARC through DKIM; a `mail.<domain>` MAIL FROM (an MX and an SPF record) would also align SPF. | Phase 18 (D101) |
+| DNS in Route 53 | The domain's records are edited by hand at GoDaddy. Moving the nameservers to a Route 53 hosted zone (about $0.50 a month) would let SES add its records itself. | Phase 18 (D101) |
+| Images for ordinary (x86) servers | The images are built for ARM (t4g). Another server type needs `--platform linux/amd64` or a multi-platform build. | Phase 18 (D101) |
+
 ## Analytics and history
 
 | Feature | Notes | Source |

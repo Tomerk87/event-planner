@@ -23,3 +23,6 @@ test-results/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Local run of the production stack (deploy/scripts/local-test.sh)
+/deploy/.local/
