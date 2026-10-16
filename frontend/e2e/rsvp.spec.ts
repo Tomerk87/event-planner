@@ -149,7 +149,8 @@ test('the public page opens in Hebrew for a Hebrew event and switches to English
   await expectNoViolations(page)
   await expectNoSidewaysScroll(page)
 
-  await page.getByRole('button', { name: 'English' }).click()
+  await page.getByRole('button', { name: 'שפה' }).click()
+  await page.getByRole('menuitem', { name: 'English' }).click()
   await expect(
     page.getByRole('button', { name: "I'll be there!" }),
   ).toBeVisible()

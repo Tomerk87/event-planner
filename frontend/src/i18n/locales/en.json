@@ -26,7 +26,12 @@
   "language": {
     "label": "Language",
     "en": "English",
-    "he": "עברית"
+    "he": "עברית",
+    "pt": "Português (Brasil)"
+  },
+  "countries": {
+    "IL": "Israel",
+    "BR": "Brazil"
   },
   "roles": {
     "OWNER": "Owner",
@@ -347,7 +352,9 @@
         "remove": "Remove Photo",
         "none": "JPG or PNG, up to 5 MB. Without a photo the event keeps its generated cover.",
         "hint": "Shown on the event card and in the event selector."
-      }
+      },
+      "country": "Phone Number Country",
+      "countryHint": "Phone numbers typed without a country code are read as numbers from this country."
     },
     "empty": {
       "title": "No events yet",
@@ -600,7 +607,10 @@
       "firstName": "First Name",
       "lastName": "Last Name",
       "phone": "Phone Number",
-      "phoneHint": "A local number such as 050-123-4567. For a number from another country, start with + and the country code. It must be unique within the event.",
+      "phoneHint": {
+        "IL": "A local number such as 050-123-4567. For a number from another country, start with + and the country code. It must be unique within the event.",
+        "BR": "A Brazilian number with its area code, such as (11) 91234-5678. For a number from another country, start with + and the country code. It must be unique within the event."
+      },
       "allowed": "Expected Attendees",
       "allowedHint": "Between {{min}} and {{max}}.",
       "add": "Add Guest",
@@ -1345,7 +1355,7 @@
     "additional": {
       "title": "Additional Settings",
       "language": "RSVP Language",
-      "languageHint": "The RSVP page opens in this language. Guests can switch between English and Hebrew."
+      "languageHint": "The RSVP page opens in this language. Guests can switch to another language on the page."
     },
     "preview": {
       "title": "RSVP Preview",
@@ -1366,7 +1376,10 @@
   "publicRsvp": {
     "name": "Full Name",
     "phone": "Phone Number",
-    "phoneHint": "From outside Israel, start with + and your country code.",
+    "phoneHint": {
+      "IL": "From outside Israel, start with + and your country code.",
+      "BR": "From outside Brazil, start with + and your country code."
+    },
     "attendees": "Number of Attendees",
     "approve": "I'll be there!",
     "decline": "I won't be able to attend",

@@ -445,6 +445,7 @@ export function GuestsTab({
         onClose={closePanel}
         eventId={eventId}
         defaultAllowedAttendees={event.defaultAllowedAttendees}
+        country={event.country}
         groups={groups}
         tables={tables}
         guest={panel?.kind === 'edit' ? panelGuest : null}

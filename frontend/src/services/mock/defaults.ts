@@ -40,6 +40,19 @@ const MESSAGE_TEMPLATES: Record<RsvpLanguage, string> = {
     '',
     'מחכים לחגוג איתכם!',
   ].join('\n'),
+  pt: [
+    'Olá {{first_name}},',
+    '',
+    'Temos o prazer de convidar você para {{event_name}}!',
+    '',
+    'Data: {{event_date}}',
+    'Horário: {{event_time}}',
+    '',
+    'Confirme sua presença pelo link abaixo:',
+    '{{rsvp_url}}',
+    '',
+    'Mal podemos esperar para celebrar com você!',
+  ].join('\n'),
 }
 
 const RSVP_TEXTS: Record<
@@ -63,6 +76,14 @@ const RSVP_TEXTS: Record<
     approvedMessage: 'תודה שאישרתם! מחכים לחגוג איתכם!',
     declinedMessage: 'תודה שעדכנתם. תחסרו לנו!',
     notSureMessage: 'אין בעיה! נשמח לעדכון אם משהו משתנה.',
+  },
+  pt: {
+    welcomeMessage:
+      'Estamos muito felizes em celebrar com você! Confirme abaixo se você poderá comparecer.',
+    approvedMessage:
+      'Obrigado por confirmar! Mal podemos esperar para celebrar com você!',
+    declinedMessage: 'Obrigado por nos avisar. Vamos sentir sua falta!',
+    notSureMessage: 'Sem problemas! Avise-nos se algo mudar.',
   },
 }
 

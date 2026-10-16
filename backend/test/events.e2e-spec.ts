@@ -30,6 +30,7 @@ describe('events', () => {
     const created = await createEvent(owner, {
       location: ' Hall ',
       rsvpLanguage: 'he',
+      country: 'IL',
     })
 
     const info = await owner.get(`/api/events/${created.id}`).expect(200)
@@ -50,6 +51,42 @@ describe('events', () => {
         })
       ).body,
     ).toContain('{{rsvp_url}}')
+  })
+
+  it('creates a Brazilian event in Portuguese, reading local numbers as Brazil’s (D103)', async () => {
+    const owner = t.browser()
+    await signUp(owner, 'Owner')
+
+    const created = await createEvent(owner, {
+      timeZone: 'America/Sao_Paulo',
+      rsvpLanguage: 'pt',
+      country: 'BR',
+    })
+
+    expect(created).toMatchObject({ rsvpLanguage: 'pt', country: 'BR' })
+    const settings = await t.prisma.rsvpSettings.findUniqueOrThrow({
+      where: { eventId: created.id },
+    })
+    expect(settings.welcomeMessage).toContain('celebrar com você')
+    const guest = await owner
+      .post(`/api/events/${created.id}/guests`)
+      .send({
+        firstName: 'Ana',
+        lastName: 'Souza',
+        phone: '(11) 91234-5678',
+        allowedAttendees: 2,
+      })
+      .expect(201)
+    expect(guest.body).toMatchObject({
+      phone: '+55 11 91234-5678',
+      normalizedPhone: '+5511912345678',
+    })
+
+    const refused = await owner
+      .post('/api/events')
+      .send({ ...NEW_EVENT, country: 'US' })
+      .expect(400)
+    expect(refused.body).toMatchObject({ code: 'VALIDATION' })
   })
 
   it('refuses limits outside the rules, a past start and an unknown time zone', async () => {

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { DomainError, type DomainErrorCode } from '../../domain/errors.ts'
 import type { Session } from '../contracts/index.ts'
 import type { StoredDemoClock } from './demoClock.ts'
+import { generateDemoState } from './generator.ts'
 import { createDemoBackend } from './mockBackend.ts'
 import {
   createBrowserPersistence,
@@ -328,5 +329,83 @@ describe('demo backend: time limits (D99)', () => {
     expect(stores.clockPersistence.load()).toMatchObject({
       startedAt: NOW.toISOString(),
     })
+  })
+})
+
+describe('demo backend: sample events by language (D103)', () => {
+  function withLanguage(language: { current: 'IL' | 'BR' }) {
+    const stores = createStores()
+    const backend = createDemoBackend({
+      ...stores,
+      now: () => NOW,
+      market: () => language.current,
+    })
+    return { backend, stores }
+  }
+
+  const firstEvent = async (backend: ReturnType<typeof create>) =>
+    (await backend.servicesFor(DEMO).events.list())[0]!.event
+
+  it('starts a demo in Portuguese with Brazil’s events, and keeps them when the language changes', async () => {
+    const language = { current: 'BR' as 'IL' | 'BR' }
+    const { backend } = withLanguage(language)
+
+    await backend.auth.enterDemo()
+    expect((await firstEvent(backend)).country).toBe('BR')
+
+    language.current = 'IL'
+    expect((await firstEvent(backend)).country).toBe('BR')
+  })
+
+  it('resets to the events of the current language', async () => {
+    const language = { current: 'IL' as 'IL' | 'BR' }
+    const { backend } = withLanguage(language)
+    await backend.auth.enterDemo()
+    expect((await firstEvent(backend)).country).toBe('IL')
+
+    language.current = 'BR'
+    await backend.servicesFor(DEMO).demo!.reset()
+
+    expect((await firstEvent(backend)).country).toBe('BR')
+  })
+
+  it('opens a link of the other country’s events for a guest with no demo open', async () => {
+    const brazilLink = generateDemoState(NOW, 'BR').events[0]!.rsvpSlug
+    const { backend } = withLanguage({ current: 'IL' })
+
+    const view = await backend.publicRsvp.getPublicEvent(brazilLink)
+
+    expect(view).toMatchObject({ language: 'pt', country: 'BR' })
+    await backend.publicRsvp.submit(brazilLink, {
+      name: 'Convidado Novo',
+      phone: '(11) 98888-7777',
+      status: 'APPROVED',
+      attendees: 2,
+    })
+    // A reload of the page finds the same events.
+    expect(
+      (await backend.publicRsvp.getPublicEvent(brazilLink)).title,
+    ).toBeTruthy()
+  })
+
+  it('never replaces a demo that is open to answer another country’s link', async () => {
+    const brazilLink = generateDemoState(NOW, 'BR').events[0]!.rsvpSlug
+    const { backend } = withLanguage({ current: 'IL' })
+    await backend.auth.enterDemo()
+
+    expect(await codeOf(backend.publicRsvp.getPublicEvent(brazilLink))).toBe(
+      'NOT_FOUND',
+    )
+    expect((await firstEvent(backend)).country).toBe('IL')
+  })
+
+  it('starts a new demo with the current language’s events, even after a guest visit left others', async () => {
+    const brazilLink = generateDemoState(NOW, 'BR').events[0]!.rsvpSlug
+    const { backend } = withLanguage({ current: 'IL' })
+    await backend.publicRsvp.getPublicEvent(brazilLink)
+
+    await backend.auth.enterDemo()
+
+    expect((await firstEvent(backend)).country).toBe('IL')
   })
 })

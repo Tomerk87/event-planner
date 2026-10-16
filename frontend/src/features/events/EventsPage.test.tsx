@@ -331,12 +331,46 @@ describe('My Events', () => {
     expect(stored?.event).toMatchObject({
       startsAt: '2031-01-01T18:00:00.000Z',
       rsvpLanguage: 'he',
+      country: 'IL',
       location: 'The Old Mill',
       defaultAllowedAttendees: 5,
     })
     expect(
       screen.getByRole('tab', { name: tabName('All Events', 7) }),
     ).toBeInTheDocument()
+  })
+
+  it('starts an organizer using Portuguese with an event in Brazil, in Portuguese (D103)', async () => {
+    const { services } = await openEvents()
+    await changeLanguage('pt')
+    fireEvent.click(await screen.findByRole('button', { name: 'Criar evento' }))
+    const dialog = screen.getByRole('dialog', { name: 'Criar evento' })
+
+    expect(
+      within(dialog).getByLabelText(/País dos números de telefone/),
+    ).toHaveValue('BR')
+    expect(within(dialog).getByLabelText(/Idioma padrão do RSVP/)).toHaveValue(
+      'pt',
+    )
+
+    change(within(dialog).getByLabelText(/Nome do evento/), {
+      target: { value: 'Festa de Ano Novo' },
+    })
+    change(within(dialog).getByLabelText(/^Data/), {
+      target: { value: '2031-01-01' },
+    })
+    change(within(dialog).getByLabelText(/^Horário \*/), {
+      target: { value: '20:00' },
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Criar evento' }),
+    )
+
+    expect(await screen.findByText('O evento foi criado.')).toBeInTheDocument()
+    const stored = (await services.events.list()).find(
+      (item) => item.event.name === 'Festa de Ano Novo',
+    )
+    expect(stored?.event).toMatchObject({ rsvpLanguage: 'pt', country: 'BR' })
   })
 
   it('explains every invalid field before creating', async () => {

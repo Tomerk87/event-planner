@@ -1,6 +1,12 @@
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
 import { isValidTimeZone } from './eventTime.ts'
-import type { Event, IsoDateTime, RsvpLanguage } from './models.ts'
+import {
+  isRsvpLanguage,
+  type Event,
+  type IsoDateTime,
+  type RsvpLanguage,
+} from './models.ts'
+import { isCountry, type Country } from './phone.ts'
 
 export const EVENT_LIMITS = {
   maxAttendees: { min: 50, max: 3000, default: 50 },
@@ -14,6 +20,7 @@ export interface EventInput {
   maxAttendees: number
   defaultAllowedAttendees: number
   rsvpLanguage: RsvpLanguage
+  country: Country
   location?: string | null
   rsvpTitle?: string | null
   /** A JPEG or PNG data address; null for the generated cover. Left out, it is unchanged. */
@@ -63,8 +70,11 @@ export function validateEventInput(input: EventInput): EventFields {
   if (!isValidTimeZone(input.timeZone)) {
     throw new DomainError('VALIDATION', { field: 'timeZone' })
   }
-  if (input.rsvpLanguage !== 'en' && input.rsvpLanguage !== 'he') {
+  if (!isRsvpLanguage(input.rsvpLanguage)) {
     throw new DomainError('VALIDATION', { field: 'rsvpLanguage' })
+  }
+  if (!isCountry(input.country)) {
+    throw new DomainError('VALIDATION', { field: 'country' })
   }
 
   return {
@@ -74,6 +84,7 @@ export function validateEventInput(input: EventInput): EventFields {
     maxAttendees: input.maxAttendees,
     defaultAllowedAttendees: input.defaultAllowedAttendees,
     rsvpLanguage: input.rsvpLanguage,
+    country: input.country,
     location: optionalText(input.location),
     rsvpTitle: optionalText(input.rsvpTitle),
   }

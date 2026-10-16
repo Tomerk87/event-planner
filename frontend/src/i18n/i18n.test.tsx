@@ -1,12 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { useTranslation } from 'react-i18next'
 import { describe, expect, it } from 'vitest'
-import { changeLanguage, getCurrentLanguage } from './i18n.ts'
+import { changeLanguage, getCurrentLanguage, isLanguageLoaded } from './i18n.ts'
 import { readStoredLanguage, storeLanguage } from './languageStorage.ts'
-import { getDirection, isLanguage } from './languages.ts'
+import { detectLanguage, getDirection, isLanguage } from './languages.ts'
 import { LocaleScope } from './LocaleScope.tsx'
 import en from './locales/en.json'
 import he from './locales/he.json'
+import pt from './locales/pt.json'
 
 function collectKeys(value: object, prefix = ''): string[] {
   return Object.entries(value).flatMap(([key, child]) =>
@@ -36,6 +37,37 @@ describe('languages', () => {
   it('has the same translation keys in English and Hebrew', () => {
     expect(collectKeys(he).sort()).toEqual(collectKeys(en).sort())
   })
+
+  it('has the same translation keys in Portuguese, plus its own plural forms', () => {
+    const portuguese = collectKeys(pt).filter((key) => !key.endsWith('_many'))
+    expect(portuguese.sort()).toEqual(collectKeys(en).sort())
+  })
+
+  it('keeps every placeholder of the English texts in Portuguese', () => {
+    const texts = (value: object, prefix = ''): [string, string][] =>
+      Object.entries(value).flatMap(([key, child]) =>
+        typeof child === 'object' && child !== null
+          ? texts(child, `${prefix}${key}.`)
+          : [[`${prefix}${key}`, String(child)]],
+      )
+    const portuguese = new Map(texts(pt))
+    const placeholders = (text: string) =>
+      [...text.matchAll(/{{(\w+)}}/g)].map((match) => match[1]).sort()
+    for (const [key, text] of texts(en)) {
+      expect(placeholders(portuguese.get(key) ?? ''), key).toEqual(
+        placeholders(text),
+      )
+    }
+  })
+
+  it('opens a first visit in the browser’s language, or English', () => {
+    expect(detectLanguage(['pt-BR', 'en'])).toBe('pt')
+    expect(detectLanguage(['pt'])).toBe('pt')
+    expect(detectLanguage(['fr-FR', 'he-IL'])).toBe('he')
+    expect(detectLanguage(['iw'])).toBe('he')
+    expect(detectLanguage(['es-AR', 'fr'])).toBe('en')
+    expect(detectLanguage([])).toBe('en')
+  })
 })
 
 describe('interface language', () => {
@@ -54,6 +86,17 @@ describe('interface language', () => {
     expect(await screen.findByText('אורחים')).toBeInTheDocument()
     expect(document.documentElement).toHaveAttribute('lang', 'he')
     expect(document.documentElement).toHaveAttribute('dir', 'rtl')
+  })
+
+  it('switches to Portuguese, left to right, with its texts downloaded', async () => {
+    render(<PageTitle />)
+
+    await changeLanguage('pt')
+
+    expect(await screen.findByText('Convidados')).toBeInTheDocument()
+    expect(isLanguageLoaded('pt')).toBe(true)
+    expect(document.documentElement).toHaveAttribute('lang', 'pt')
+    expect(document.documentElement).toHaveAttribute('dir', 'ltr')
   })
 
   it('remembers the chosen language', async () => {

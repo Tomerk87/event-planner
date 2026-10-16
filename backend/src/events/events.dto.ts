@@ -8,6 +8,8 @@ import {
   MaxLength,
   ValidateIf,
 } from 'class-validator'
+import { RSVP_LANGUAGES, type RsvpLanguage } from '../domain/models.ts'
+import { COUNTRIES, type Country } from '../domain/phone.ts'
 
 /** Shapes only; ranges and rules are applied by src/domain/events.ts. */
 export class EventInputDto {
@@ -28,8 +30,13 @@ export class EventInputDto {
   @IsInt()
   defaultAllowedAttendees!: number
 
-  @IsIn(['en', 'he'])
-  rsvpLanguage!: 'en' | 'he'
+  @ApiProperty({ enum: RSVP_LANGUAGES })
+  @IsIn(RSVP_LANGUAGES)
+  rsvpLanguage!: RsvpLanguage
+
+  @ApiProperty({ enum: COUNTRIES })
+  @IsIn(COUNTRIES)
+  country!: Country
 
   @IsOptional()
   @ValidateIf((_, value) => value !== null)
@@ -72,8 +79,10 @@ export class EventDto {
   timeZone!: string
   maxAttendees!: number
   defaultAllowedAttendees!: number
-  @ApiProperty({ enum: ['en', 'he'] })
-  rsvpLanguage!: 'en' | 'he'
+  @ApiProperty({ enum: RSVP_LANGUAGES })
+  rsvpLanguage!: RsvpLanguage
+  @ApiProperty({ enum: COUNTRIES })
+  country!: Country
   @ApiProperty({ type: String, nullable: true })
   location!: string | null
   @ApiProperty({ type: String, nullable: true })

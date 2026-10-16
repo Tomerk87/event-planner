@@ -117,7 +117,39 @@ describe('normalizePhone', () => {
   it('gives the same result for every way of writing one number', () => {
     const forms = ['050-123-4567', '+972501234567', '972 50 1234567']
 
-    expect(new Set(forms.map(normalizePhone)).size).toBe(1)
+    expect(new Set(forms.map((form) => normalizePhone(form))).size).toBe(1)
+  })
+
+  it.each([
+    ['(11) 91234-5678', '+5511912345678'],
+    ['11 91234-5678', '+5511912345678'],
+    ['11912345678', '+5511912345678'],
+    ['011 91234-5678', '+5511912345678'],
+    ['(21) 3123-4567', '+552131234567'],
+    ['5511912345678', '+5511912345678'],
+    ['+55 11 91234-5678', '+5511912345678'],
+    ['0055 11 91234 5678', '+5511912345678'],
+    ['+55 00 90001-0001', '+5500900010001'],
+    ['+972 50 123 4567', '+972501234567'],
+    ['+1 202-555-0142', '+12025550142'],
+  ])('reads %j in a Brazilian event as %s', (input, expected) => {
+    expect(normalizePhone(input, 'BR')).toBe(expected)
+  })
+
+  it.each([
+    '91234-5678',
+    '050-123-4567',
+    '+55 11 1234-567',
+    '+55 11 912345-67890',
+  ])('rejects %j in a Brazilian event', (input) => {
+    expect(codeOf(() => normalizePhone(input, 'BR'))).toBe('INVALID_PHONE')
+  })
+
+  it('reads a local number by the event’s country', () => {
+    expect(normalizePhone('0501234567', 'IL')).toBe('+972501234567')
+    expect(codeOf(() => normalizePhone('(11) 91234-5678', 'IL'))).toBe(
+      'INVALID_PHONE',
+    )
   })
 
   it.each([
@@ -174,7 +206,6 @@ describe('formatPhone', () => {
     ['+1 212 555 0123', '+1 2125550123'],
     ['0012125550123', '+1 2125550123'],
     ['+44 7911 123456', '+44 7911123456'],
-    ['+55 11 91234-5678', '+55 11912345678'],
     ['+33 6 12 34 56 78', '+33 612345678'],
     ['+351 912 345 678', '+351 912345678'],
     ['+7 912 345 67 89', '+7 9123456789'],
@@ -182,8 +213,21 @@ describe('formatPhone', () => {
     expect(formatPhone(normalizePhone(typed))).toBe(shown)
   })
 
+  it.each([
+    ['(11) 91234-5678', '+55 11 91234-5678'],
+    ['(21) 3123-4567', '+55 21 3123-4567'],
+    ['+55 00 90001-0001', '+55 00 90001-0001'],
+  ])('shows the Brazilian number %j as %s', (typed, shown) => {
+    expect(formatPhone(normalizePhone(typed, 'BR'))).toBe(shown)
+  })
+
   it('reads back to the same number', () => {
-    for (const typed of ['0507308828', '03-1234567', '+1 212 555 0123']) {
+    for (const typed of [
+      '0507308828',
+      '03-1234567',
+      '+1 212 555 0123',
+      '+55 11 91234-5678',
+    ]) {
       const normalized = normalizePhone(typed)
       expect(normalizePhone(formatPhone(normalized))).toBe(normalized)
     }
@@ -260,6 +304,7 @@ describe('validateEventInput', () => {
     maxAttendees: 300,
     defaultAllowedAttendees: 5,
     rsvpLanguage: 'he',
+    country: 'IL',
     location: '  ',
     rsvpTitle: ' Maya & Daniel ',
   }
@@ -272,6 +317,7 @@ describe('validateEventInput', () => {
       maxAttendees: 300,
       defaultAllowedAttendees: 5,
       rsvpLanguage: 'he',
+      country: 'IL',
       location: null,
       rsvpTitle: 'Maya & Daniel',
     })
@@ -518,7 +564,12 @@ describe('guests', () => {
   }
 
   it('creates a guest with no response, no sends and no table', () => {
-    const { guest, restored } = addGuest([], 'evt-1', input, 'g-new')
+    const { guest, restored } = addGuest(
+      [],
+      { id: 'evt-1', country: 'IL' },
+      input,
+      'g-new',
+    )
 
     expect(restored).toBe(false)
     expect(guest).toEqual({
@@ -548,7 +599,7 @@ describe('guests', () => {
       codeOf(() =>
         addGuest(
           [existing],
-          'evt-1',
+          { id: 'evt-1', country: 'IL' },
           { ...input, phone: '+972 50 123 4567' },
           'x',
         ),
@@ -562,7 +613,10 @@ describe('guests', () => {
       normalizedPhone: '+972501234567',
     })
 
-    expect(addGuest([elsewhere], 'evt-1', input, 'g-new').restored).toBe(false)
+    expect(
+      addGuest([elsewhere], { id: 'evt-1', country: 'IL' }, input, 'g-new')
+        .restored,
+    ).toBe(false)
   })
 
   it('restores a soft-deleted guest with a fresh RSVP, no table, and the counter kept', () => {
@@ -578,7 +632,12 @@ describe('guests', () => {
       deleted: true,
     })
 
-    const { guest, restored } = addGuest([deleted], 'evt-1', input, 'g-unused')
+    const { guest, restored } = addGuest(
+      [deleted],
+      { id: 'evt-1', country: 'IL' },
+      input,
+      'g-unused',
+    )
 
     expect(restored).toBe(true)
     expect(guest).toMatchObject({
@@ -605,13 +664,25 @@ describe('guests', () => {
     [{ phone: 'abc' }, 'INVALID_PHONE'],
   ] as const)('rejects %j', (patch, code) => {
     expect(
-      codeOf(() => addGuest([], 'evt-1', { ...input, ...patch }, 'x')),
+      codeOf(() =>
+        addGuest(
+          [],
+          { id: 'evt-1', country: 'IL' },
+          { ...input, ...patch },
+          'x',
+        ),
+      ),
     ).toBe(code)
   })
 
   it('accepts a guest without a last name', () => {
     expect(
-      addGuest([], 'evt-1', { ...input, lastName: '' }, 'x').guest.lastName,
+      addGuest(
+        [],
+        { id: 'evt-1', country: 'IL' },
+        { ...input, lastName: '' },
+        'x',
+      ).guest.lastName,
     ).toBe('')
   })
 
@@ -621,7 +692,7 @@ describe('guests', () => {
       tableId: 't-1',
     })
 
-    const edited = editGuest([guest], guest, input)
+    const edited = editGuest([guest], guest, input, 'IL')
 
     expect(edited).toMatchObject({
       firstName: 'Jordan',
@@ -643,12 +714,16 @@ describe('guests', () => {
     })
     const all = [guest, other, deleted]
 
-    expect(codeOf(() => editGuest(all, guest, input))).toBe('NO_ERROR')
+    expect(codeOf(() => editGuest(all, guest, input, 'IL'))).toBe('NO_ERROR')
     expect(
-      codeOf(() => editGuest(all, guest, { ...input, phone: '052-111-1111' })),
+      codeOf(() =>
+        editGuest(all, guest, { ...input, phone: '052-111-1111' }, 'IL'),
+      ),
     ).toBe('DUPLICATE_PHONE')
     expect(
-      codeOf(() => editGuest(all, guest, { ...input, phone: '053-111-1111' })),
+      codeOf(() =>
+        editGuest(all, guest, { ...input, phone: '053-111-1111' }, 'IL'),
+      ),
     ).toBe('NO_ERROR')
   })
 
@@ -657,12 +732,12 @@ describe('guests', () => {
 
     expect(
       codeOf(() =>
-        editGuest([guest], guest, { ...input, allowedAttendees: 4 }),
+        editGuest([guest], guest, { ...input, allowedAttendees: 4 }, 'IL'),
       ),
     ).toBe('INVALID_ATTENDEE_COUNT')
     expect(
       codeOf(() =>
-        editGuest([guest], guest, { ...input, allowedAttendees: 5 }),
+        editGuest([guest], guest, { ...input, allowedAttendees: 5 }, 'IL'),
       ),
     ).toBe('NO_ERROR')
   })

@@ -76,6 +76,7 @@ describe('event form helpers', () => {
       maxAttendees: '50',
       defaultAllowedAttendees: '5',
       rsvpLanguage: 'en',
+      country: 'IL',
     })
   })
 

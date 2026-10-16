@@ -1,4 +1,5 @@
-import { DomainError } from '../../domain/errors.ts'
+import { DomainError, isDomainError } from '../../domain/errors.ts'
+import type { Country } from '../../domain/phone.ts'
 import type {
   AuthService,
   DemoEndReason,
@@ -8,12 +9,14 @@ import type {
   Session,
 } from '../contracts/index.ts'
 import { createDemoClock, type StoredDemoClock } from './demoClock.ts'
+import { generateDemoState } from './generator.ts'
 import { createMockServices, type MockOptions } from './mockServices.ts'
 import {
   createMemoryPersistence,
   type DemoPersistence,
   type Persistence,
 } from './persistence.ts'
+import { isUsableStoredDemo } from './state.ts'
 
 export interface DemoBackendOptions extends Omit<MockOptions, 'persistence'> {
   demoPersistence: DemoPersistence
@@ -23,6 +26,11 @@ export interface DemoBackendOptions extends Omit<MockOptions, 'persistence'> {
   demoServices?: Services
   /** Where the demo's start and last activity are kept (D99). */
   clockPersistence?: Persistence<StoredDemoClock>
+  /**
+   * Whose sample events a new demo starts with (D103), asked when one is
+   * generated: Brazil's for a visitor using Portuguese. Israel's by default.
+   */
+  market?: () => Country
 }
 
 /** The public demo: open to anyone, with its data kept by each browser. */
@@ -52,6 +60,7 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
     sessionPersistence,
     demoServices,
     clockPersistence = createMemoryPersistence<StoredDemoClock>(),
+    market = () => 'IL',
     ...mockOptions
   } = options
   const {
@@ -62,6 +71,9 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
   const clock = createDemoClock(clockPersistence, now)
 
   let demo: Services | undefined = demoServices
+  // Set when a guest's RSVP link belongs to the other market's sample events.
+  let marketOverride: Country | null = null
+  const marketNow = () => marketOverride ?? market()
   let endedAtStart: DemoEndReason | null = null
   const listeners = new Set<() => void>()
   demoPersistence.onChange?.(() => listeners.forEach((listener) => listener()))
@@ -84,6 +96,7 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
   function services(): Services {
     if (!demo) {
       const created = createMockServices({
+        seed: (at) => generateDemoState(at, marketNow()),
         ...mockOptions,
         persistence: demoPersistence,
       })
@@ -99,7 +112,9 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
       ...created,
       demo: control && {
         ...control,
+        // A reset starts from the sample events of the current language.
         reset: async () => {
+          marketOverride = null
           await control.reset()
           clock.start()
         },
@@ -110,6 +125,65 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
   }
 
   const inDemo = () => isDemoSession(sessionPersistence.load())
+
+  /** Whose sample events are stored in this browser, if any. */
+  function storedMarket(): Country | null {
+    const stored = demoPersistence.load()
+    return isUsableStoredDemo(stored) ? (stored.state.market ?? 'IL') : null
+  }
+
+  /** Forgets the stored sample events, so the next use generates new ones. */
+  function discardData() {
+    demoPersistence.clear()
+    if (!demoServices) {
+      demo = undefined
+    }
+  }
+
+  // The RSVP links of each market's sample events, worked out once each.
+  const slugs = new Map<Country, Set<string>>()
+  function slugsOf(country: Country): Set<string> {
+    let found = slugs.get(country)
+    if (!found) {
+      found = new Set(
+        generateDemoState(now(), country).events.map((event) => event.rsvpSlug),
+      )
+      slugs.set(country, found)
+    }
+    return found
+  }
+
+  /**
+   * Answers a demo RSVP link. The link may come from the other market's
+   * sample events: a guest whose browser is in English opening a link from a
+   * Brazilian demo, as from WhatsApp. With no demo open here, this browser
+   * switches to those sample events, so the guest gets the page; a demo that
+   * is open is never replaced.
+   */
+  async function answerLink<Result>(
+    slug: string,
+    answer: (services: Services) => Promise<Result>,
+  ): Promise<Result> {
+    try {
+      return await answer(services())
+    } catch (error) {
+      const other = (['IL', 'BR'] as const).find(
+        (country) => country !== marketNow() && slugsOf(country).has(slug),
+      )
+      if (
+        !isDomainError(error, 'NOT_FOUND') ||
+        !other ||
+        demoServices ||
+        inDemo() ||
+        clock.state().status === 'running'
+      ) {
+        throw error
+      }
+      marketOverride = other
+      discardData()
+      return answer(services())
+    }
+  }
 
   /**
    * Ends a demo whose time is up (D99): its data, clock and session go, so
@@ -154,6 +228,12 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
         run('auth.enterDemo', () => {
           endIfDue()
           if (clock.state().status !== 'running') {
+            // A new demo has the sample events of the visitor's language.
+            marketOverride = null
+            const stored = storedMarket()
+            if (stored !== null && stored !== market()) {
+              discardData()
+            }
             clock.start()
           }
           const session: Session = { workspace: 'demo' }
@@ -171,8 +251,10 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
 
     // The public operations check no role, so they need no session.
     publicRsvp: {
-      getPublicEvent: (slug) => services().rsvp.getPublicEvent(slug),
-      submit: (slug, input) => services().rsvp.submit(slug, input),
+      getPublicEvent: (slug) =>
+        answerLink(slug, (demo) => demo.rsvp.getPublicEvent(slug)),
+      submit: (slug, input) =>
+        answerLink(slug, (demo) => demo.rsvp.submit(slug, input)),
     },
 
     time: {

@@ -5,6 +5,7 @@ import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
 import { EVENT_LIMITS, maxAttendeesRange } from '../../domain/events.ts'
 import type { Event } from '../../domain/models.ts'
+import { COUNTRIES, isCountry } from '../../domain/phone.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
 import { CoverPhotoField } from '../events/CoverPhotoField.tsx'
@@ -51,6 +52,7 @@ function toFormValues(event: Event): EventFormValues {
     maxAttendees: String(event.maxAttendees),
     defaultAllowedAttendees: String(event.defaultAllowedAttendees),
     rsvpLanguage: event.rsvpLanguage,
+    country: event.country,
     location: event.location ?? '',
     coverImage: event.coverImage,
   }
@@ -194,6 +196,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
           defaultAllowedAttendees: toInteger(values.defaultAllowedAttendees),
           location: values.location,
           coverImage: values.coverImage,
+          country: values.country,
           // Edited on RSVP Settings; sent back as they are.
           rsvpLanguage: event.rsvpLanguage,
           rsvpTitle: event.rsvpTitle,
@@ -414,6 +417,24 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                     set('defaultAllowedAttendees', change.target.value)
                   }
                 />
+                <SelectField
+                  label={t('events.form.country')}
+                  required
+                  disabled={!canEdit}
+                  value={values.country}
+                  hint={t('events.form.countryHint')}
+                  onChange={(change) => {
+                    if (isCountry(change.target.value)) {
+                      set('country', change.target.value)
+                    }
+                  }}
+                >
+                  {COUNTRIES.map((country) => (
+                    <option key={country} value={country}>
+                      {t(`countries.${country}`)}
+                    </option>
+                  ))}
+                </SelectField>
                 <Notice title={t('settings.guestDefaults.overrideTitle')}>
                   {t('settings.guestDefaults.overrideBody')}
                 </Notice>

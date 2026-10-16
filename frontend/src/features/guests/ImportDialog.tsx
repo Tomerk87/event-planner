@@ -139,8 +139,7 @@ function ImportSteps({
           hasHeadings ? rows.slice(1) : rows,
           mapping,
           guests,
-          eventId,
-          event.defaultAllowedAttendees,
+          event,
           hasHeadings ? 2 : 1,
         ),
       })

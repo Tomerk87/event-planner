@@ -27,7 +27,7 @@ async function expectNoViolations(page: Page) {
   expect(summary).toEqual([])
 }
 
-for (const language of ['en', 'he'] as const) {
+for (const language of ['en', 'he', 'pt'] as const) {
   test.describe(`accessibility in ${language}`, () => {
     test.beforeEach(async ({ page }) => {
       await startInDemo(page)
@@ -51,7 +51,9 @@ for (const language of ['en', 'he'] as const) {
       page,
     }) => {
       await page.goto('/events/evt-1/layout')
-      await page.getByRole('button', { name: /Add Table|הוספת שולחן/ }).click()
+      await page
+        .getByRole('button', { name: /Add Table|הוספת שולחן|Adicionar mesa/ })
+        .click()
       await expect(page.getByRole('dialog')).toBeVisible()
 
       await expectNoViolations(page)
@@ -62,10 +64,12 @@ for (const language of ['en', 'he'] as const) {
     }) => {
       await page.goto('/events')
       await page
-        .getByRole('button', { name: /^(Notifications|התראות)/ })
+        .getByRole('button', { name: /^(Notifications|התראות|Notificações)/ })
         .click()
       await expect(
-        page.getByRole('heading', { name: /^(Notifications|התראות)$/ }),
+        page.getByRole('heading', {
+          name: /^(Notifications|התראות|Notificações)$/,
+        }),
       ).toBeVisible()
 
       await expectNoViolations(page)
@@ -76,7 +80,9 @@ for (const language of ['en', 'he'] as const) {
     }) => {
       await page.goto('/events/evt-1/layout')
       await page
-        .getByRole('button', { name: /Export Tables|ייצוא שולחנות/ })
+        .getByRole('button', {
+          name: /Export Tables|ייצוא שולחנות|Exportar mesas/,
+        })
         .click()
       await expect(page.getByRole('menu')).toBeVisible()
 
@@ -88,7 +94,9 @@ for (const language of ['en', 'he'] as const) {
     }) => {
       await page.goto('/events/evt-4/guests')
       await expect(
-        page.getByText(/View-only access|גישה לצפייה בלבד/).first(),
+        page
+          .getByText(/View-only access|גישה לצפייה בלבד|Acesso somente leitura/)
+          .first(),
       ).toBeVisible()
 
       await expectNoViolations(page)
@@ -98,13 +106,17 @@ for (const language of ['en', 'he'] as const) {
       page,
     }) => {
       await page.goto('/events/evt-1/layout')
-      await page.getByRole('button', { name: /Add Table|הוספת שולחן/ }).click()
+      await page
+        .getByRole('button', { name: /Add Table|הוספת שולחן|Adicionar mesa/ })
+        .click()
       await page
         .getByRole('dialog')
-        .getByRole('button', { name: /Add Table|הוספת שולחן/ })
+        .getByRole('button', { name: /Add Table|הוספת שולחן|Adicionar mesa/ })
         .click()
       await expect(
-        page.getByRole('region', { name: /Notifications|התראות/ }).locator('p'),
+        page
+          .getByRole('region', { name: /Notifications|התראות|Notificações/ })
+          .locator('p'),
       ).toBeVisible()
 
       await expectNoViolations(page)
@@ -115,7 +127,9 @@ for (const language of ['en', 'he'] as const) {
     }) => {
       await page.goto('/events/evt-5/dashboard')
       await expect(
-        page.getByText(/This event has ended|האירוע הסתיים/),
+        page.getByText(
+          /This event has ended|האירוע הסתיים|Este evento já terminou/,
+        ),
       ).toBeVisible()
 
       await expectNoViolations(page)
@@ -138,14 +152,18 @@ for (const language of ['en', 'he'] as const) {
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
       if (isMobile) {
         await page
-          .getByRole('button', { name: /Open menu|פתיחת תפריט/ })
+          .getByRole('button', { name: /Open menu|פתיחת תפריט|Abrir menu/ })
           .click()
       }
       await page
-        .getByRole('button', { name: /Reset Demo|איפוס ההדגמה/ })
+        .getByRole('button', {
+          name: /Reset Demo|איפוס ההדגמה|Reiniciar demonstração/,
+        })
         .click()
       await expect(
-        page.getByRole('dialog', { name: /Reset the demo|לאפס את ההדגמה/ }),
+        page.getByRole('dialog', {
+          name: /Reset the demo|לאפס את ההדגמה|Reiniciar a demonstração/,
+        }),
       ).toBeVisible()
 
       await expectNoViolations(page)
@@ -157,7 +175,9 @@ for (const language of ['en', 'he'] as const) {
     }) => {
       test.skip(!isMobile, 'the drawer exists only on the compact layout')
       await page.goto('/events/evt-1/guests')
-      await page.getByRole('button', { name: /Open menu|פתיחת תפריט/ }).click()
+      await page
+        .getByRole('button', { name: /Open menu|פתיחת תפריט|Abrir menu/ })
+        .click()
       await expect(page.getByRole('dialog')).toBeVisible()
 
       await expectNoViolations(page)

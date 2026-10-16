@@ -85,11 +85,11 @@ export class GuestsService {
 
   /** Adds a guest, or restores a soft-deleted one with the same phone. */
   async create(eventId: string, input: GuestInput, user: User): Promise<Guest> {
-    await this.access.authorize(eventId, user, 'EDIT')
+    const { event } = await this.access.authorize(eventId, user, 'EDIT')
     return this.prisma.$transaction(async (tx) => {
       await lockEvent(tx, eventId)
       const guests = await loadGuests(tx, eventId)
-      const { guest, restored } = addGuest(guests, eventId, input, randomUUID())
+      const { guest, restored } = addGuest(guests, event, input, randomUUID())
       return saveGuest(tx, guest, !restored)
     })
   }
@@ -100,11 +100,16 @@ export class GuestsService {
     input: GuestInput,
     user: User,
   ): Promise<Guest> {
-    await this.access.authorize(eventId, user, 'EDIT')
+    const { event } = await this.access.authorize(eventId, user, 'EDIT')
     return this.prisma.$transaction(async (tx) => {
       await lockEvent(tx, eventId)
       const guests = await loadGuests(tx, eventId)
-      const guest = editGuest(guests, activeGuest(guests, guestId), input)
+      const guest = editGuest(
+        guests,
+        activeGuest(guests, guestId),
+        input,
+        event.country,
+      )
       return saveGuest(tx, guest, false)
     })
   }
@@ -207,7 +212,7 @@ export class GuestsService {
     inputs: readonly GuestInput[],
     user: User,
   ): Promise<ImportOutcome> {
-    await this.access.authorize(eventId, user, 'EDIT')
+    const { event } = await this.access.authorize(eventId, user, 'EDIT')
     if (inputs.length > MAX_IMPORT_ROWS) {
       throw new DomainError('VALIDATION', {
         field: 'rows',
@@ -221,7 +226,7 @@ export class GuestsService {
         let created = 0
         let restored = 0
         for (const input of inputs) {
-          const result = addGuest(guests, eventId, input, randomUUID())
+          const result = addGuest(guests, event, input, randomUUID())
           await saveGuest(tx, result.guest, !result.restored)
           if (result.restored) {
             restored += 1

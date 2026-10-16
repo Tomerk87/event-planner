@@ -27,6 +27,13 @@ enum RsvpStatus {
 enum RsvpLanguage {
   en
   he
+  pt
+}
+
+/// Where local phone numbers of an event's guests come from (D103).
+enum Country {
+  IL
+  BR
 }
 
 enum TableShape {
@@ -127,6 +134,8 @@ model Event {
   maxAttendees            Int
   defaultAllowedAttendees Int
   rsvpLanguage            RsvpLanguage
+  /// Numbers typed without a country code are read as this country's.
+  country                 Country      @default(IL)
   location                String?
   rsvpTitle               String?
   /// Key of the event photo in the image storage; null for the generated cover.

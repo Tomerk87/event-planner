@@ -9,6 +9,7 @@ export function makeEvent(overrides: Partial<Event> = {}): Event {
     maxAttendees: 300,
     defaultAllowedAttendees: 5,
     rsvpLanguage: 'en',
+    country: 'IL',
     location: null,
     rsvpTitle: null,
     coverImage: null,

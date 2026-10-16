@@ -226,6 +226,7 @@ export function GuestsPage() {
             onClose={() => setDialog(null)}
             eventId={eventId}
             defaultAllowedAttendees={event.defaultAllowedAttendees}
+            country={event.country}
             groups={listGroups(list)}
             tables={tables.data ?? []}
           />

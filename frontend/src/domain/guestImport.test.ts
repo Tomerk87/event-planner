@@ -22,10 +22,45 @@ function plan(
   existing = [] as ReturnType<typeof makeGuest>[],
   usedMapping = mapping,
 ) {
-  return planGuestImport(rows, usedMapping, existing, 'evt-1', 5)
+  return planGuestImport(rows, usedMapping, existing, {
+    id: 'evt-1',
+    country: 'IL',
+    defaultAllowedAttendees: 5,
+  })
 }
 
 describe('detectMapping', () => {
+  it('recognises Portuguese headings, with or without accents', () => {
+    expect(
+      detectMapping([
+        'Nome',
+        'Sobrenome',
+        'Celular',
+        'Número de pessoas',
+        'Grupo',
+      ]),
+    ).toEqual({
+      firstName: 0,
+      lastName: 1,
+      phone: 2,
+      allowedAttendees: 3,
+      group: 4,
+    })
+    expect(
+      detectMapping([
+        'Primeiro nome',
+        'Último nome',
+        'Telefone',
+        'Numero de pessoas',
+      ]),
+    ).toMatchObject({
+      firstName: 0,
+      lastName: 1,
+      phone: 2,
+      allowedAttendees: 3,
+    })
+  })
+
   it('recognises English headings in any order and style', () => {
     expect(
       detectMapping([
@@ -280,5 +315,44 @@ describe('planGuestImport', () => {
 
     expect(() => plan(rows)).toThrow(DomainError)
     expect(() => plan(rows.slice(1))).not.toThrow()
+  })
+})
+
+describe('importing into a Brazilian event (D103)', () => {
+  const event = {
+    id: 'evt-1',
+    country: 'BR' as const,
+    defaultAllowedAttendees: 5,
+  }
+
+  it('reads local numbers with their area code as Brazilian', () => {
+    const result = planGuestImport(
+      [
+        ['Ana', 'Silva', '(11) 91234-5678', '', ''],
+        ['Bruno', 'Souza', '21 3123-4567', '2', ''],
+        ['Carla', 'Lima', '11912345678', '', ''],
+      ],
+      mapping,
+      [],
+      event,
+    )
+
+    expect(result.rows.map((row) => row.error)).toEqual([
+      null,
+      null,
+      'DUPLICATE_IN_FILE',
+    ])
+    expect(result.rows[0]?.input?.phone).toBe('(11) 91234-5678')
+  })
+
+  it('does not add an Israeli leading zero to a Brazilian number', () => {
+    const result = planGuestImport(
+      [['Ana', '', '512345678', '', '']],
+      mapping,
+      [],
+      event,
+    )
+
+    expect(result.rows[0]?.error).toBe('INVALID_PHONE')
   })
 })

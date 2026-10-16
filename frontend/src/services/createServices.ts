@@ -4,6 +4,7 @@ import { createApiBackend, type ApiBackend } from './api/apiBackend.ts'
 import { noAccountsBackend } from './api/noAccountsBackend.ts'
 import type { Backend, Session } from './contracts/index.ts'
 import type { StoredDemoClock } from './mock/demoClock.ts'
+import { demoMarketFor } from './mock/generator.ts'
 import { createDemoBackend, type DemoBackend } from './mock/mockBackend.ts'
 import {
   createBrowserPersistence,
@@ -180,6 +181,8 @@ export function createServices(options: {
           (params.get('demoFail') ?? '').split(',').filter(Boolean),
         ),
         baseUrl: location.origin,
+        // Brazil's sample events for a visitor using Portuguese (D103).
+        market: () => demoMarketFor(language?.() ?? 'en'),
       })
     : null
   const api = accountsEnabled

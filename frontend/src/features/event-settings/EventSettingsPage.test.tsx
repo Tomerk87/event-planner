@@ -172,6 +172,17 @@ describe('Event Settings', () => {
     },
   )
 
+  it('changes the country by which local phone numbers are read (D103)', async () => {
+    const { services } = await openSettings()
+
+    expect(field('Phone Number Country')).toHaveValue('IL')
+    type('Phone Number Country', 'BR')
+    save()
+
+    expect(await screen.findByText('Event settings saved.')).toBeInTheDocument()
+    expect((await savedEvent(services)).country).toBe('BR')
+  })
+
   it('brings a maximum typed outside its range back within it when the field is left', async () => {
     const { services } = await openSettings()
     const confirmed = (await services.dashboard.get(MAIN)).metrics

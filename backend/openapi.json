@@ -2591,7 +2591,8 @@
           "language": {
             "enum": [
               "en",
-              "he"
+              "he",
+              "pt"
             ],
             "type": "string"
           }
@@ -2615,7 +2616,8 @@
           "language": {
             "enum": [
               "en",
-              "he"
+              "he",
+              "pt"
             ],
             "type": "string"
           },
@@ -2724,7 +2726,8 @@
           "language": {
             "enum": [
               "en",
-              "he"
+              "he",
+              "pt"
             ],
             "type": "string"
           },
@@ -2760,7 +2763,15 @@
           "rsvpLanguage": {
             "enum": [
               "en",
-              "he"
+              "he",
+              "pt"
+            ],
+            "type": "string"
+          },
+          "country": {
+            "enum": [
+              "IL",
+              "BR"
             ],
             "type": "string"
           },
@@ -2800,6 +2811,7 @@
         },
         "required": [
           "rsvpLanguage",
+          "country",
           "location",
           "rsvpTitle",
           "coverImage",
@@ -2867,6 +2879,21 @@
       "EventInputDto": {
         "type": "object",
         "properties": {
+          "rsvpLanguage": {
+            "enum": [
+              "en",
+              "he",
+              "pt"
+            ],
+            "type": "string"
+          },
+          "country": {
+            "enum": [
+              "IL",
+              "BR"
+            ],
+            "type": "string"
+          },
           "coverImage": {
             "type": "string",
             "nullable": true,
@@ -2890,13 +2917,6 @@
           "defaultAllowedAttendees": {
             "type": "number"
           },
-          "rsvpLanguage": {
-            "enum": [
-              "en",
-              "he"
-            ],
-            "type": "string"
-          },
           "location": {
             "type": "string",
             "nullable": true,
@@ -2909,12 +2929,13 @@
           }
         },
         "required": [
+          "rsvpLanguage",
+          "country",
           "name",
           "startsAt",
           "timeZone",
           "maxAttendees",
-          "defaultAllowedAttendees",
-          "rsvpLanguage"
+          "defaultAllowedAttendees"
         ]
       },
       "DuplicateEventDto": {
@@ -3012,7 +3033,8 @@
           "language": {
             "enum": [
               "en",
-              "he"
+              "he",
+              "pt"
             ],
             "type": "string"
           },
@@ -3846,7 +3868,8 @@
           "language": {
             "enum": [
               "en",
-              "he"
+              "he",
+              "pt"
             ],
             "type": "string"
           },

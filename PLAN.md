@@ -613,6 +613,25 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 
 ---
 
+## Phase 21 — Brazil: Brazilian Portuguese, phone country and demo
+
+**Goal:** make the product usable by Brazilian organizers and their guests, on the full product and the demo site (owner request 2026-10-16, D103). Spanish may follow, so each part is a list a further language or country joins.
+
+### Checklist
+- [x] Portuguese (`pt`, `pt-BR` formatting) in the interface: every text, type-checked against English; languages other than English downloaded on first use; a first visit follows the browser's language.
+- [x] Portuguese on the public RSVP page, with a language menu offering every language; default RSVP and WhatsApp texts in Portuguese.
+- [x] Server: `pt` in the RSVP language enum (migration `20261017090000_portuguese_and_country`), request checks, emails in Portuguese, openapi.json.
+- [x] Phone number country per event (Israel, Brazil): Brazilian local numbers on guests, import (Portuguese column names, no Israeli leading zero) and the public RSVP form; chosen in Create Event and Event Settings; defaults by the interface language.
+- [x] Demo sample events per market: Brazil's pack (names, groups, places, São Paulo time, undiallable +55 00 numbers), chosen by the language when a demo starts; a Brazilian demo link opens on another phone.
+- [x] Review sheet for any language (`npm run translation-review -- pt`, `docs/portuguese-review.xlsx`).
+- [ ] Portuguese texts reviewed by a Brazilian the owner knows; corrections applied (D103).
+- [ ] Owner review on the demo site (Netlify preview of the pull request) and merge.
+
+### Validation and exit criteria
+- [ ] A Brazilian organizer and guest can complete every core flow in Portuguese with local numbers, on desktop and phone. (Verified by tests and screenshots; awaits the review above.)
+
+---
+
 ## Deferred / future backlog
 
 `docs/FUTURE_FEATURES.md` is the full, maintained list of features left out of the MVP. The items below are the ones this plan tracks directly.
@@ -1294,6 +1313,20 @@ Owner request: a free prototype with only the demo, to show people; no interest 
 Validation: frontend typecheck, lint, format; unit 1229 (new: switch parsing, demo-only backend and services with no fetch, both-off refused, landing and redirects); test:e2e 421 passed, 29 skipped; demo-only build under `vite preview`: smoke 4 passed / 2 skipped (desktop, phone); full-product smoke on the local production stack still 4 passed; clean install + `npm run build` with the Netlify settings; screenshots of the landing page at 1440 px and on a phone in English and Hebrew.
 Follow-ups/risks: Netlify's redirect and header rules are checked only once live.
 Next: owner connects Netlify; smoke against the live address.
+
+2026-10-16 — Phase 21 — Brazilian Portuguese, a phone country per event and Brazil's demo (branch phase_21_portuguese, from phase_19_demo_site).
+Owner decisions (D103): Portuguese for Brazilian organizers and guests; phone country per event; a Brazilian demo (sample events per market, not per language); review by a Brazilian the owner knows.
+- Frontend: `languages.ts` (LANGUAGES with `pt`, LOCALES, detectLanguage); `i18n.ts` loads non-English texts on demand and `main.tsx` waits for them; `LocaleScope` loads the page's language; `pt.json` (1,059 texts); public RSVP language menu (Menu items take `lang`); Country field in Create Event and Event Settings (Guest Defaults); phone hints per country; RSVP language choices from the list.
+- Domain (both copies): `COUNTRIES`, `normalizePhone(input, country)` with Brazilian rules and display, `Event.country`, `isRsvpLanguage`, guests and import take the event; Portuguese defaults; import headings without accents.
+- Demo: packs per market in generator.ts (Israel unchanged, Brazil new, own seed), `market` on the stored state, dataset version 9; the demo backend chooses by language at Try Demo and Reset, and switches a browser with no demo to the other market for a guest's link.
+- Server: migration (enum value `pt`, `Country` enum, `Event.country` default IL), DTOs, mapper, guests/unknown guests/RSVP read numbers by the event's country (a converted unknown answer uses its international form), public view carries the country, emails restructured per language with Portuguese.
+- Review sheet script generalized (`translation-review-sheet.ts`; `hebrew-review` kept).
+- Docs: D103, PRD (languages, event fields, phones, i18n), ARCHITECTURE, FUTURE_FEATURES (Spanish and more countries; Portuguese review; default country removed as built), README.
+Validation:
+- Frontend: typecheck, lint, format; unit 1267 (new: Brazilian phones, Portuguese headings and Brazilian import, Brazil's demo pack and market choice, language detection and loading, Portuguese key and placeholder parity, Country field and Portuguese defaults, Portuguese public RSVP with a local number); test:api 64 passed, 2 skipped (new contract: a Brazilian event on the real API); test:e2e 516 passed, 30 skipped, 2 timed out while the unit tests ran alongside and passed when run again (new portuguese.spec.ts: first visit in Portuguese, Brazil's demo, a guest added with a local number and answering from an English browser, every page at 360 and 1280 px; accessibility and tab-width checks in Portuguese). By hand: screenshots of the demo-only build in Portuguese at 1440 px and on a phone (landing, My Events, Dashboard, Guests, Tables, Event Settings, public RSVP).
+- Backend: typecheck, lint (same 2 warnings), format, unit 573, integration 301 (new: a Brazilian event in Portuguese, an unknown country refused); migration checked against the schema (empty diff).
+Follow-ups/risks: Portuguese wording unreviewed; demo links from another market do not open in a browser that has a demo open.
+Next: owner shares docs/portuguese-review.xlsx with the reviewer and reviews the Netlify preview.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

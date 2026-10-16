@@ -7,6 +7,8 @@ import {
 } from '../../domain/eventTime.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import type { IsoDateTime, RsvpLanguage } from '../../domain/models.ts'
+import type { Country } from '../../domain/phone.ts'
+import type { Language } from '../../i18n/languages.ts'
 
 /** The form's fields, as typed. */
 export interface EventFormValues {
@@ -17,6 +19,7 @@ export interface EventFormValues {
   maxAttendees: string
   defaultAllowedAttendees: string
   rsvpLanguage: RsvpLanguage
+  country: Country
   location: string
   /** The event's photo, or null for the generated cover. */
   coverImage: string | null
@@ -90,7 +93,16 @@ export function toStartsAt(
   return Number.isNaN(instant.getTime()) ? null : instant.toISOString()
 }
 
-export function defaultEventFormValues(timeZone: string): EventFormValues {
+/**
+ * A new event's fields. An organizer using Portuguese gets an event in
+ * Brazil with its RSVP page in Portuguese (D103); otherwise Israel and
+ * English, as before.
+ */
+export function defaultEventFormValues(
+  timeZone: string,
+  language: Language = 'en',
+): EventFormValues {
+  const brazilian = language === 'pt'
   return {
     name: '',
     date: '',
@@ -98,7 +110,8 @@ export function defaultEventFormValues(timeZone: string): EventFormValues {
     timeZone,
     maxAttendees: String(EVENT_LIMITS.maxAttendees.default),
     defaultAllowedAttendees: String(EVENT_LIMITS.allowedAttendees.default),
-    rsvpLanguage: 'en',
+    rsvpLanguage: brazilian ? 'pt' : 'en',
+    country: brazilian ? 'BR' : 'IL',
     location: '',
     coverImage: null,
   }

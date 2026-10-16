@@ -60,6 +60,7 @@ function eventInput(input: EventInput): EventInput {
     maxAttendees: input.maxAttendees,
     defaultAllowedAttendees: input.defaultAllowedAttendees,
     rsvpLanguage: input.rsvpLanguage,
+    country: input.country,
     location: input.location ?? null,
     rsvpTitle: input.rsvpTitle ?? null,
   }

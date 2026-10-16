@@ -44,6 +44,7 @@ export function toEvent(row: EventRow): Event {
     maxAttendees: row.maxAttendees,
     defaultAllowedAttendees: row.defaultAllowedAttendees,
     rsvpLanguage: row.rsvpLanguage,
+    country: row.country,
     location: row.location,
     rsvpTitle: row.rsvpTitle,
     coverImage: row.coverImageKey ? imageUrl(row.coverImageKey) : null,

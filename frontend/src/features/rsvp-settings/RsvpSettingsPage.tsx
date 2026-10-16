@@ -25,7 +25,12 @@ import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
 import { isDomainError } from '../../domain/errors.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
-import type { Event, RsvpLanguage, RsvpSettings } from '../../domain/models.ts'
+import {
+  isRsvpLanguage,
+  type Event,
+  type RsvpLanguage,
+  type RsvpSettings,
+} from '../../domain/models.ts'
 import {
   BACKGROUND_IMAGE_MAX_LENGTH,
   CALENDAR_TEXT_MAX_LENGTH,
@@ -278,6 +283,7 @@ function RsvpSettingsForm({
                 defaultAllowedAttendees: event.defaultAllowedAttendees,
                 location: event.location,
                 rsvpLanguage: values.language,
+                country: event.country,
                 rsvpTitle: values.rsvpTitle,
               }
             : null,
@@ -347,6 +353,7 @@ function RsvpSettingsForm({
     startsAt: event.startsAt,
     timeZone: event.timeZone,
     location: event.location,
+    country: event.country,
     maxSelectableAttendees: EVENT_LIMITS.allowedAttendees.max,
     settings: toSettings(values),
   }
@@ -775,9 +782,11 @@ function RsvpSettingsForm({
             disabled={!canEdit}
             value={values.language}
             hint={t('rsvpSettings.additional.languageHint')}
-            onChange={(change) =>
-              set('language', change.target.value === 'he' ? 'he' : 'en')
-            }
+            onChange={(change) => {
+              if (isRsvpLanguage(change.target.value)) {
+                set('language', change.target.value)
+              }
+            }}
           >
             {LANGUAGES.map((language) => (
               <option key={language} value={language} lang={language}>

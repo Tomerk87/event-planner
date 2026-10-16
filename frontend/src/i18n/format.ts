@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { DEFAULT_LANGUAGE, isLanguage, type Language } from './languages.ts'
-
-const LOCALES: Record<Language, string> = {
-  en: 'en-US',
-  he: 'he-IL',
-}
+import {
+  DEFAULT_LANGUAGE,
+  isLanguage,
+  LOCALES,
+  type Language,
+} from './languages.ts'
 
 export function formatNumber(value: number, language: Language): string {
   return new Intl.NumberFormat(LOCALES[language]).format(value)

@@ -233,6 +233,7 @@ describe('public RSVP page', () => {
         maxAttendees: 120,
         defaultAllowedAttendees: 4,
         rsvpLanguage: 'he',
+        country: 'IL',
         rsvpTitle: 'Our Garden Party',
         location: 'Tel Aviv',
       })
@@ -246,6 +247,7 @@ describe('public RSVP page', () => {
       timeZone: 'Asia/Jerusalem',
       location: 'Tel Aviv',
       language: 'he',
+      country: 'IL',
       isClosed: false,
       maxSelectableAttendees: 10,
       settings: expect.any(Object),
