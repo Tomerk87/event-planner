@@ -11,6 +11,7 @@ import { EmailModule } from './email/email.module.ts'
 import { EventsModule } from './events/events.module.ts'
 import { GuestsModule } from './guests/guests.module.ts'
 import { HealthController } from './health/health.controller.ts'
+import { LayoutModule } from './layout/layout.module.ts'
 import { MessagesModule } from './messages/messages.module.ts'
 import { NotificationsModule } from './notifications/notifications.module.ts'
 import { PermissionsModule } from './permissions/permissions.module.ts'
@@ -80,6 +81,7 @@ export function createAppModule(config: AppConfig = loadConfig()) {
       MessagesModule,
       RsvpModule,
       TablesModule,
+      LayoutModule,
       DashboardModule,
       NotificationsModule,
     ],

@@ -52,15 +52,14 @@ function rows() {
 
 /** The table numbers listed, in order. */
 function shownNumbers() {
-  return rows().map((row) =>
-    Number(within(row).getAllByRole('button')[0]?.textContent),
-  )
+  return rows().map((row) => Number(row.querySelector('td')?.textContent))
 }
 
 function rowOf(number: number) {
-  const row = within(tablesTable())
-    .getByRole('button', { name: String(number) })
-    .closest('tr')
+  const row = rows().find(
+    (candidate) =>
+      candidate.querySelector('td')?.textContent === String(number),
+  )
   if (!row) {
     throw new Error(`no row for table ${number}`)
   }
@@ -72,6 +71,13 @@ function cells(number: number) {
     .getAllByRole('cell')
     .map((cell) => cell.textContent)
 }
+
+/** Chooses a table by a click on its number. */
+function choose(number: number) {
+  fireEvent.click(rowOf(number).querySelector('td')!)
+}
+
+const LIST_HINT = 'Select a table in the list to see its guests here.'
 
 function kpi(label: string) {
   const figures = screen.getByRole('region', { name: 'Seating figures' })
@@ -86,16 +92,6 @@ function selectedPanel() {
     .closest('section')
   if (!panel) {
     throw new Error('no Selected Table panel')
-  }
-  return within(panel)
-}
-
-function warningsPanel() {
-  const panel = screen
-    .getByRole('heading', { name: 'Capacity Warnings' })
-    .closest('section')
-  if (!panel) {
-    throw new Error('no Capacity Warnings panel')
   }
   return within(panel)
 }
@@ -173,9 +169,7 @@ describe('Event Layout', () => {
       'aria-selected',
       'true',
     )
-    expect(
-      screen.getByRole('tab', { name: /Table Arrangement.*Soon/ }),
-    ).toBeDisabled()
+    expect(screen.getByRole('tab', { name: 'Table Arrangement' })).toBeEnabled()
 
     expect(shownNumbers()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     expect(screen.getByText('1–10 of 18 tables')).toBeInTheDocument()
@@ -269,55 +263,68 @@ describe('Event Layout', () => {
     expect(screen.getByText('11–18 of 18 tables')).toBeInTheDocument()
   })
 
-  it('lists the capacity warnings, and a table warning shows that table', async () => {
+  it('has no Capacity Warnings card or preview; a table over capacity says so in its row', async () => {
     setViewportWidth(1440)
-    const { services } = await openLayout()
+    const { services } = await openLayout('?size=25')
     const dashboard = await services.dashboard.get(MAIN)
-    const [first, second] = dashboard.warnings.tablesOverCapacity
-    const panel = warningsPanel()
+    const [first] = dashboard.warnings.tablesOverCapacity
 
-    expect(dashboard.warnings.tablesOverCapacity).toHaveLength(2)
     expect(
-      panel.getByRole('button', {
-        name: `Table ${first!.tableNumber} is over its capacity by ${first!.over}.`,
-      }),
-    ).toBeInTheDocument()
-    expect(panel.getByText('Not enough seats')).toBeInTheDocument()
+      screen.queryByRole('heading', { name: 'Capacity Warnings' }),
+    ).toBeNull()
     expect(
-      panel.getByRole('link', { name: /Confirmed attendees without a table/ }),
-    ).toHaveAttribute('href', `/events/${MAIN}/guests?rsvp=APPROVED&table=NONE`)
+      screen.queryByRole('heading', { name: 'Arrangement Preview' }),
+    ).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Floor plan' })).toBeNull()
+    expect(cells(first!.tableNumber)[5]).toBe('Over Capacity')
+    // Nothing is chosen to begin with, even with a table over capacity.
+    expect(selectedPanel().getByText(LIST_HINT)).toBeInTheDocument()
+  })
+  it('shows the seating notices in cards of their own, as on the Dashboard, on both tabs', async () => {
+    const { services } = await openLayout()
+    const { warnings } = await services.dashboard.get(MAIN)
 
-    // The first table over capacity is the one shown to begin with.
-    expect(
-      selectedPanel().getByText(`Table ${first!.tableNumber}`),
-    ).toBeInTheDocument()
-
-    fireEvent.click(
-      panel.getByRole('button', {
-        name: `Table ${second!.tableNumber} is over its capacity by ${second!.over}.`,
-      }),
-    )
-
-    await waitFor(() =>
+    for (const tab of ['Tables', 'Table Arrangement']) {
+      fireEvent.click(screen.getByRole('tab', { name: tab }))
+      const cards = within(
+        await screen.findByRole('list', { name: 'Warnings' }),
+      )
+      expect(cards.getAllByRole('listitem')).toHaveLength(2)
+      // Seating as a whole only informs: it is this page.
+      expect(cards.getByText('Not enough seats').closest('a')).toBeNull()
       expect(
-        selectedPanel().getByText(`Table ${second!.tableNumber}`),
-      ).toBeInTheDocument(),
-    )
+        cards.getByRole('link', {
+          name: /Confirmed attendees without a table/,
+        }),
+      ).toHaveAttribute(
+        'href',
+        `/events/${MAIN}/guests?rsvp=APPROVED&table=NONE`,
+      )
+      expect(
+        cards.getByText(
+          `${warnings.attendeesAwaitingTable} confirmed attendees are not assigned to a table yet.`,
+        ),
+      ).toBeInTheDocument()
+    }
+    expect(
+      screen.queryByRole('heading', { name: 'Capacity Warnings' }),
+    ).toBeNull()
   })
 
-  it('shows the chosen table with its parties beside the list', async () => {
+  it('chooses one table by its row, shows it beside the list, and lets go on a second click', async () => {
     setViewportWidth(1440)
     const { services } = await openLayout()
     const guests = await services.guests.list(MAIN)
     const item = await tableNumbered(services, 3)
     const parties = partiesAt(item.table.id, guests)
 
-    fireEvent.click(within(rowOf(3)).getByRole('button', { name: '3' }))
+    expect(screen.queryByRole('checkbox')).toBeNull()
+    expect(within(rowOf(3)).queryByRole('button', { name: '3' })).toBeNull()
+    choose(3)
 
-    await waitFor(() =>
-      expect(selectedPanel().getByText('Table 3')).toBeInTheDocument(),
-    )
     const panel = selectedPanel()
+    expect(panel.getByText('Table 3')).toBeInTheDocument()
+    expect(rowOf(3)).toHaveAttribute('aria-current', 'true')
     expect(
       panel.getByText(`Assigned Guest Parties (${parties.length})`),
     ).toBeInTheDocument()
@@ -326,14 +333,33 @@ describe('Event Layout', () => {
         panel.getByRole('list', { name: 'Guest parties at this table' }),
       ),
     ).toEqual(parties.map(guestFullName))
-    expect(within(rowOf(3)).getByRole('button', { name: '3' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
     expect(panel.getByRole('button', { name: 'Edit Table' })).toBeEnabled()
     expect(panel.getByRole('button', { name: 'Manage Guests' })).toBeEnabled()
-  })
+    // Choosing a table opens nothing.
+    expect(screen.queryByRole('dialog')).toBeNull()
 
+    // One at a time: another row takes its place.
+    fireEvent.keyDown(rowOf(5), { key: 'Enter' })
+    expect(selectedPanel().getByText('Table 5')).toBeInTheDocument()
+    expect(rowOf(3)).not.toHaveAttribute('aria-current')
+
+    choose(5)
+    expect(selectedPanel().getByText(LIST_HINT)).toBeInTheDocument()
+  })
+  it('keeps the chosen table while paging and on the other tab', async () => {
+    await openLayout()
+
+    choose(2)
+    fireEvent.click(screen.getByRole('button', { name: 'Page 2' }))
+    await waitFor(() => expect(shownNumbers()[0]).toBe(11))
+    expect(selectedPanel().getByText('Table 2')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Table Arrangement' }))
+    expect(
+      await screen.findByRole('button', { name: /^Table 2,/ }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(selectedPanel().getByText('Table 2')).toBeInTheDocument()
+  })
   it('adds a table, continuing the numbering, and refuses a number in use', async () => {
     const { services } = await openLayout('?size=25')
 
@@ -405,17 +431,13 @@ describe('Event Layout', () => {
     expect(await screen.findByText('Table 1 was saved.')).toBeInTheDocument()
     await waitFor(() => expect(cells(1)[5]).toBe('Over Capacity'))
     expect(cells(1)[4]).toBe('-2')
-    expect(
-      warningsPanel().getByRole('button', {
-        name: 'Table 1 is over its capacity by 2.',
-      }),
-    ).toBeInTheDocument()
   })
 
   it('deletes a table after confirming, leaving its guests without a table', async () => {
     const { services } = await openLayout()
     const item = await tableNumbered(services, 2)
     const seated = partiesAt(item.table.id, await services.guests.list(MAIN))
+    choose(2)
 
     fireEvent.click(
       within(rowOf(2)).getByRole('button', {
@@ -436,6 +458,8 @@ describe('Event Layout', () => {
 
     expect(await screen.findByText('Table 2 was deleted.')).toBeInTheDocument()
     await waitFor(() => expect(shownNumbers()).not.toContain(2))
+    // The deleted table is no longer chosen.
+    expect(selectedPanel().getByText(LIST_HINT)).toBeInTheDocument()
     const after = await services.guests.list(MAIN)
     for (const guest of seated) {
       expect(after.find((other) => other.id === guest.id)).toMatchObject({
@@ -656,19 +680,15 @@ describe('Event Layout', () => {
     },
   )
 
-  it("opens a table's guests where there is no room for the panel", async () => {
+  it('shows the chosen table below the list on a narrower screen', async () => {
+    setViewportWidth(1024)
     await openLayout()
 
-    expect(
-      screen.queryByRole('heading', { name: 'Selected Table' }),
-    ).not.toBeInTheDocument()
-    fireEvent.click(within(rowOf(3)).getByRole('button', { name: '3' }))
+    choose(3)
 
-    expect(
-      screen.getByRole('dialog', { name: 'Guests of Table 3' }),
-    ).toBeInTheDocument()
+    expect(selectedPanel().getByText('Table 3')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
-
   it('invites adding the first table when the event has none', async () => {
     const services = createTestServices()
     for (const { table } of await services.tables.list(MAIN)) {
@@ -678,9 +698,7 @@ describe('Event Layout', () => {
 
     expect(screen.getByText('No tables yet')).toBeInTheDocument()
     expect(kpi('Total Tables')).toBe('0')
-    expect(
-      screen.queryByRole('heading', { name: 'Selected Table' }),
-    ).not.toBeInTheDocument()
+    expect(selectedPanel().getByText(LIST_HINT)).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Add Table' })).toHaveLength(2)
   })
 
@@ -698,16 +716,14 @@ describe('Event Layout', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows cards on a phone, with the guests and a sort menu instead of a panel', async () => {
+  it('shows cards on a phone, with the guests, a sort menu, and a tapped table below', async () => {
     setViewportWidth(390)
     const { services } = await openLayout()
     const item = await tableNumbered(services, 1)
     const list = screen.getByRole('list', { name: 'Tables' })
 
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('heading', { name: 'Selected Table' }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
     const card = within(list).getByText('Table 1').closest('li')!
     expect(
       within(card).getByRole('button', { name: 'Manage guests of Table 1' }),
@@ -734,15 +750,20 @@ describe('Event Layout', () => {
       ).toHaveTextContent('Table 18'),
     )
 
-    // A warning opens the table's guests, there being no panel to show it in.
+    // A tap on a card chooses its table.
     fireEvent.click(
-      warningsPanel().getAllByRole('button', {
-        name: /is over its capacity/,
-      })[0]!,
+      within(screen.getByRole('list', { name: 'Tables' })).getByText(
+        'Table 18',
+      ),
     )
     expect(
-      screen.getByRole('dialog', { name: /^Guests of Table/ }),
+      selectedPanel().getByText('Assigned Guest Parties', { exact: false }),
     ).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('list', { name: 'Tables' })).getAllByRole(
+        'listitem',
+      )[0],
+    ).toHaveAttribute('aria-current', 'true')
   })
 
   it('is translated to Hebrew', async () => {

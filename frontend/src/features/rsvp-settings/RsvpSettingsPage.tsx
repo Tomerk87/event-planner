@@ -55,6 +55,7 @@ import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { Card } from '../../shared/ui/Card.tsx'
 import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField, TextArea, TextField } from '../../shared/ui/Field.tsx'
+import { RangeField } from '../../shared/ui/RangeField.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { ErrorState, LoadingState } from '../../shared/ui/States.tsx'
@@ -105,52 +106,6 @@ const FRAMING = [
   ['imagePositionX', 'rsvpSettings.background.positionX', 1],
   ['imagePositionY', 'rsvpSettings.background.positionY', 1],
 ] as const
-
-/** A labelled slider showing its value in percent. */
-function RangeField({
-  label,
-  min,
-  max,
-  step,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string
-  min: number
-  max: number
-  step: number
-  value: number
-  disabled: boolean
-  onChange: (value: number) => void
-}) {
-  const id = useId()
-  return (
-    <div className={styles.overlay}>
-      <label htmlFor={id} className={styles.label}>
-        {label}
-      </label>
-      <div className={styles.slider}>
-        {/* Left to right in every language: the picture is not mirrored. */}
-        <input
-          id={id}
-          type="range"
-          dir="ltr"
-          min={min}
-          max={max}
-          step={step}
-          disabled={disabled}
-          value={value}
-          aria-valuetext={`${value}%`}
-          onChange={(change) => onChange(Number(change.target.value))}
-        />
-        <output htmlFor={id} dir="ltr">
-          {value}%
-        </output>
-      </div>
-    </div>
-  )
-}
 
 function toValues(settings: RsvpSettings, event: Event): Values {
   const { eventId: _eventId, ...rest } = settings

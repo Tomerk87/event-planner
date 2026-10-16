@@ -158,6 +158,67 @@ export interface EventTable {
   shape: TableShape
 }
 
+export const VENUE_OBJECT_KINDS = [
+  'WALL',
+  'STAGE',
+  'BAR',
+  'STAIRS',
+  'FOOD_STATION',
+  'ENTRANCE',
+  'PLANT',
+] as const
+
+export type VenueObjectKind = (typeof VENUE_OBJECT_KINDS)[number]
+
+/**
+ * Something in the room that is not a table (D100). Sizes and positions are
+ * in centimetres; x and y are its centre, from the room's top-left corner.
+ */
+export interface VenueObject {
+  id: Id
+  kind: VenueObjectKind
+  x: number
+  y: number
+  width: number
+  height: number
+  /** Clockwise, in degrees: 0–359. */
+  rotation: number
+  /** Shown on the object instead of its kind, such as "Dance floor". */
+  label: string | null
+}
+
+/** Where a table stands in the room: its centre, in centimetres (D100). */
+export interface TablePlacement {
+  tableId: Id
+  x: number
+  y: number
+  /** Clockwise, in degrees: 0–359. */
+  rotation: number
+}
+
+/**
+ * The event's floor plan (D100): one room with tables placed in it, other
+ * objects, and an optional picture of the venue drawn as its floor. A table
+ * without a placement is not on the plan yet.
+ */
+export interface EventLayout {
+  eventId: Id
+  /** The room's size in centimetres. */
+  roomWidth: number
+  roomDepth: number
+  floorImage: string | null
+  /** How see-through the floor picture is, in percent. */
+  floorImageTransparency: number
+  /** How much the floor picture is enlarged, in percent. */
+  floorImageZoom: number
+  /** Clockwise, in degrees: −180 to 180. */
+  floorImageRotation: number
+  placements: TablePlacement[]
+  objects: VenueObject[]
+  /** Goes up with every save, so a save over someone else's is noticed. */
+  version: number
+}
+
 export const NOTIFICATION_KINDS = [
   'ACCESS_GRANTED',
   'ROLE_CHANGED',

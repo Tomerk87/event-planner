@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react'
 import { PHONE_QUERY, useMediaQuery } from '../useMediaQuery.ts'
 import { Checkbox } from './Checkbox.tsx'
 import { cx } from './cx.ts'
@@ -50,6 +50,38 @@ interface DataTableProps<Row> {
   selection?: TableSelection<Row>
   /** The row whose details are shown beside the table; it is highlighted. */
   activeKey?: string | null
+  /**
+   * Makes each row (each card on a phone) choosable by a click, or by Enter
+   * or Space once it has focus. Clicks on its own controls do not count.
+   */
+  onRowClick?: (row: Row) => void
+}
+
+/** Controls inside a row keep their clicks to themselves. */
+const CONTROL =
+  'button, a, input, select, textarea, [role="menu"], [role="menuitem"]'
+
+function rowHandlers<Row>(row: Row, onRowClick?: (row: Row) => void) {
+  if (!onRowClick) {
+    return {}
+  }
+  return {
+    tabIndex: 0,
+    onClick: (event: MouseEvent<HTMLElement>) => {
+      if (!(event.target as Element).closest(CONTROL)) {
+        onRowClick(row)
+      }
+    },
+    onKeyDown: (event: KeyboardEvent<HTMLElement>) => {
+      if (
+        event.target === event.currentTarget &&
+        (event.key === 'Enter' || event.key === ' ')
+      ) {
+        event.preventDefault()
+        onRowClick(row)
+      }
+    },
+  }
 }
 
 export function DataTable<Row>({
@@ -63,17 +95,30 @@ export function DataTable<Row>({
   sortLabel,
   selection,
   activeKey,
+  onRowClick,
 }: DataTableProps<Row>) {
   const isPhone = useMediaQuery(PHONE_QUERY)
 
   if (isPhone) {
     return (
       <ul className={styles.cardView} aria-label={caption}>
-        {rows.map((row) => (
-          <li key={getRowKey(row)} className={styles.card}>
-            {renderCard(row)}
-          </li>
-        ))}
+        {rows.map((row) => {
+          const key = getRowKey(row)
+          return (
+            <li
+              key={key}
+              className={cx(
+                styles.card,
+                onRowClick && styles.clickable,
+                key === activeKey && styles.activeCard,
+              )}
+              aria-current={key === activeKey ? 'true' : undefined}
+              {...rowHandlers(row, onRowClick)}
+            >
+              {renderCard(row)}
+            </li>
+          )
+        })}
       </ul>
     )
   }
@@ -162,7 +207,10 @@ export function DataTable<Row>({
                 key={key}
                 className={cx(
                   (isSelected || key === activeKey) && styles.selectedRow,
+                  onRowClick && styles.clickable,
                 )}
+                aria-current={key === activeKey ? 'true' : undefined}
+                {...rowHandlers(row, onRowClick)}
               >
                 {selection && (
                   <td className={styles.selectCell}>

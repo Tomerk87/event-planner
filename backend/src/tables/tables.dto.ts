@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
+  IsOptional,
   IsIn,
   IsInt,
   IsString,
@@ -79,4 +82,12 @@ export class ExportSeatingDto {
 
   @IsBoolean()
   rightToLeft!: boolean
+
+  /** Only these tables; every table when left out. */
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10_000)
+  @IsString({ each: true })
+  @MaxLength(64, { each: true })
+  tableIds?: string[]
 }

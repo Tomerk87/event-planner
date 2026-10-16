@@ -63,7 +63,9 @@ function entry(page: Page, isMobile: boolean, number: number) {
         .getByRole('table', { name: 'Tables' })
         .getByRole('row')
         .filter({
-          has: page.getByRole('button', { name: String(number), exact: true }),
+          has: page.locator('td:first-child', {
+            hasText: new RegExp(`^${number}$`),
+          }),
         })
 }
 
@@ -193,12 +195,9 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   isMobile,
 }) => {
   await page.goto(LAYOUT)
-  const warnings = page
-    .locator('section')
-    .filter({ has: page.getByRole('heading', { name: 'Capacity Warnings' }) })
   await expect(
-    warnings.getByRole('button', { name: /is over its capacity/ }),
-  ).toHaveCount(2)
+    page.getByRole('heading', { name: 'Capacity Warnings' }),
+  ).toHaveCount(0)
 
   await entry(page, isMobile, 1)
     .getByRole('button', { name: 'More actions for Table 1' })
@@ -212,47 +211,91 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   await dialog.getByRole('button', { name: 'Save Changes' }).click()
 
   await expect(entry(page, isMobile, 1)).toContainText('Over Capacity')
-  await expect(
-    warnings.getByRole('button', {
-      name: 'Table 1 is over its capacity by 3.',
-    }),
-  ).toBeVisible()
 
   await page.goto('/events/evt-1/dashboard')
   await expect(page.getByText('Tables over capacity: 3')).toBeVisible()
 })
 
-test('the chosen table is shown beside the list on a wide screen', async ({
+test('one chosen table is shown beside the list, kept across pages and tabs, and cleared when deleted', async ({
   page,
   isMobile,
 }) => {
-  test.skip(isMobile, 'a phone opens the table’s guests instead')
+  test.skip(isMobile, 'a phone shows the chosen table below the list')
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(LAYOUT)
   const panel = page
     .locator('section')
     .filter({ has: page.getByRole('heading', { name: 'Selected Table' }) })
+  const row = (number: number) => entry(page, false, number)
 
-  await expect(panel).toContainText('Table 16')
-  await expect(panel).toContainText('Over Capacity')
+  // Nothing is chosen to begin with, and there are no tick boxes.
+  await expect(panel).toContainText(
+    'Select a table in the list to see its guests here.',
+  )
+  await expect(page.getByRole('checkbox')).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', { name: 'Arrangement Preview' }),
+  ).toHaveCount(0)
   await expectNoSidewaysScroll(page, `${LAYOUT} at 1440px`)
 
-  await page
-    .getByRole('table', { name: 'Tables' })
-    .getByRole('button', { name: '3', exact: true })
-    .click()
-
+  await row(3).getByRole('cell').first().click()
   await expect(panel).toContainText('Table 3')
   await expect(panel).toContainText('Assigned Guest Parties (2)')
-  await expect(page).toHaveURL(/table=tbl-1-03/)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await row(3).getByRole('cell').first().click()
+  await expect(panel).toContainText(
+    'Select a table in the list to see its guests here.',
+  )
 
-  // Every column of the list is in view beside the panel.
+  // By the keyboard, one at a time.
+  await row(4).focus()
+  await page.keyboard.press('Enter')
+  await expect(panel).toContainText('Table 4')
+  await row(5).focus()
+  await page.keyboard.press(' ')
+  await expect(panel).toContainText('Table 5')
+  await expect(row(4)).not.toHaveAttribute('aria-current')
+
+  // Every column of the list is in view beside the chosen table.
   const frame = page.getByRole('table', { name: 'Tables' }).locator('..')
   expect(
     await frame.evaluate(
       (element) => element.scrollWidth - element.clientWidth,
     ),
   ).toBe(0)
+
+  // Kept across pages and on the plan, at the same place.
+  // Where the card is on the page, whatever the scrolling.
+  const place = () =>
+    panel.evaluate((element) => {
+      const box = element.getBoundingClientRect()
+      return [box.x, box.y + window.scrollY, box.width]
+    })
+  const before = await place()
+  await page.getByRole('button', { name: 'Page 2' }).click()
+  await expect(panel).toContainText('Table 5')
+  await page.getByRole('tab', { name: 'Table Arrangement' }).click()
+  await expect(
+    page
+      .getByRole('group', { name: 'Floor plan' })
+      .getByRole('button', { name: /^Table 5,/ }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await expect(panel).toContainText('Table 5')
+  expect(await place()).toEqual(before)
+
+  await page.getByRole('tab', { name: 'Tables' }).click()
+  await page.getByRole('button', { name: 'Page 1' }).click()
+  await row(5).getByRole('button', { name: 'More actions for Table 5' }).click()
+  await page.getByRole('menuitem', { name: 'Delete Table' }).click()
+  await page
+    .getByRole('dialog', { name: 'Delete Table 5' })
+    .getByRole('button', { name: 'Delete Table' })
+    .click()
+  await expect(page.getByText('Table 5 was deleted.')).toBeVisible()
+  await expect(panel).toContainText(
+    'Select a table in the list to see its guests here.',
+  )
+  await expect(figure(page, 'Total Tables')).toHaveText('17')
 })
 
 test('the seating list exports to CSV and to Excel, a row per seated party in table order', async ({
@@ -311,20 +354,6 @@ for (const [path, notice] of [
   })
 }
 
-test('the Table Arrangement view is marked Soon and cannot be opened', async ({
-  page,
-}) => {
-  await page.goto(LAYOUT)
-
-  const tab = page.getByRole('tab', { name: /Table Arrangement/ })
-  await expect(tab).toContainText('Soon')
-  await expect(tab).toBeDisabled()
-  await expect(page.getByRole('tab', { name: 'Tables' })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  )
-})
-
 test('search, shape and sorting are kept in the address', async ({
   page,
   isMobile,
@@ -376,11 +405,11 @@ for (const language of ['en', 'he'] as const) {
       await expectNoViolations(page)
       await page.keyboard.press('Escape')
 
-      // The row menu's first action, Edit Table.
+      // The row menu's first action, Edit Table. The warning cards above
+      // are a labelled list too, so every list is searched.
       await page
         .getByRole('main')
         .locator('table, ul[aria-label]')
-        .first()
         .locator('button[aria-haspopup="menu"]')
         .first()
         .click()

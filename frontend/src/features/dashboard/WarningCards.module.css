@@ -1,0 +1,119 @@
+/* Notices in cards of their own, as on the Dashboard. */
+.warnings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* As many slots as the Dashboard would fill, so a card is as wide here as
+   there even when fewer cards are shown. */
+.slotted {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      max(
+        min(17rem, 100%),
+        (100% - (var(--slots) - 1) * var(--space-4)) / var(--slots)
+      ),
+      1fr
+    )
+  );
+}
+
+.warnings > li {
+  display: flex;
+}
+
+.warningCard {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width) solid;
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.warningCard:focus-visible {
+  border-radius: var(--radius-lg);
+}
+
+.warningIcon {
+  flex-shrink: 0;
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+}
+
+.warningText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  font-size: var(--font-size-sm);
+}
+
+.warningTitle {
+  font-weight: var(--font-weight-semibold);
+}
+
+.warningLine {
+  color: var(--color-text-muted);
+}
+
+.chevron {
+  flex-shrink: 0;
+  align-self: center;
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  color: var(--color-text-muted);
+}
+
+:global([dir='rtl']) .chevron {
+  transform: scaleX(-1);
+}
+
+.warningCard.danger {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
+}
+
+.warningCard.danger .warningIcon,
+.warningCard.danger .warningTitle {
+  color: var(--color-danger);
+}
+
+.warningCard.warning {
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning-border);
+}
+
+.warningCard.warning .warningIcon,
+.warningCard.warning .warningTitle {
+  color: var(--color-warning);
+}
+
+.warningCard.info {
+  background: var(--color-info-soft);
+  border-color: var(--color-info-border);
+}
+
+.warningCard.info .warningIcon,
+.warningCard.info .warningTitle {
+  color: var(--color-info);
+}
+
+.warningCard.success {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+}
+
+.warningCard.success .warningIcon,
+.warningCard.success .warningTitle {
+  color: var(--color-success);
+}

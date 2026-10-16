@@ -829,6 +829,170 @@ export function describeServicesContract(
       })
     })
 
+    describe('floor plan (D100)', () => {
+      const picture = 'data:image/png;base64,iVBORw0KGgo='
+      const stage = {
+        id: 'contract-stage',
+        kind: 'STAGE' as const,
+        x: 500,
+        y: 300,
+        width: 400,
+        height: 200,
+        rotation: 0,
+        label: ' Stage ',
+      }
+
+      it('has a plan for the dataset’s main event, with its tables placed', async () => {
+        const { services, events } = await setup()
+
+        const layout = await services.layout.get(events.owner)
+        const tables = await services.tables.list(events.owner)
+
+        expect(layout.eventId).toBe(events.owner)
+        expect(layout.objects.length).toBeGreaterThan(0)
+        expect(layout.placements.length).toBeGreaterThan(0)
+        // One table is left off the plan, to be placed.
+        expect(layout.placements.length).toBe(tables.length - 1)
+        const ids = new Set(tables.map(({ table }) => table.id))
+        expect(
+          layout.placements.every((placement) => ids.has(placement.tableId)),
+        ).toBe(true)
+      })
+
+      it('saves the whole plan, picture included, and refuses an older version', async () => {
+        const { services, events } = await setup()
+        const before = await services.layout.get(events.owner)
+        const [table] = await services.tables.list(events.owner)
+
+        const saved = await services.layout.save(events.owner, {
+          ...before,
+          roomWidth: 3000,
+          placements: [
+            { tableId: table!.table.id, x: 700, y: 800, rotation: 90 },
+          ],
+          objects: [stage],
+          floorImage: picture,
+          floorImageTransparency: 20,
+          floorImageZoom: 200,
+          floorImageRotation: -45,
+        })
+
+        expect(saved).toMatchObject({
+          eventId: events.owner,
+          roomWidth: 3000,
+          placements: [
+            { tableId: table!.table.id, x: 700, y: 800, rotation: 90 },
+          ],
+          objects: [{ ...stage, label: 'Stage' }],
+          floorImageTransparency: 20,
+          floorImageZoom: 200,
+          floorImageRotation: -45,
+          version: before.version + 1,
+        })
+        expect(saved.floorImage).not.toBeNull()
+        expect(await services.layout.get(events.owner)).toEqual(saved)
+
+        // Saving again with the picture's own address keeps it.
+        const again = await services.layout.save(events.owner, {
+          ...saved,
+          floorImageZoom: 100,
+        })
+        expect(again.floorImage).toBe(saved.floorImage)
+
+        expect(
+          await codeOf(
+            services.layout.save(events.owner, { ...saved, roomWidth: 900 }),
+          ),
+        ).toBe('LAYOUT_CHANGED')
+        expect(
+          await codeOf(
+            services.layout.save(events.owner, {
+              ...again,
+              roomWidth: 100,
+            }),
+          ),
+        ).toBe('VALIDATION')
+      })
+
+      it('lets a Viewer look but not change it, and nobody change a past event', async () => {
+        const { services, events } = await setup()
+
+        for (const eventId of [events.viewer, events.past]) {
+          const layout = await services.layout.get(eventId)
+          expect(await codeOf(services.layout.save(eventId, layout))).toBe(
+            eventId === events.viewer ? 'FORBIDDEN' : 'EVENT_READ_ONLY',
+          )
+        }
+        expect(await codeOf(services.layout.get('no-such-event'))).toBe(
+          'NOT_FOUND',
+        )
+      })
+
+      it('drops a deleted table from the plan; a new table starts off it', async () => {
+        const { services, events } = await setup()
+        const layout = await services.layout.get(events.owner)
+        const placed = layout.placements[0]!
+
+        await services.tables.remove(events.owner, placed.tableId)
+        const created = await services.tables.create(events.owner, {
+          number: 95,
+          capacity: 8,
+          shape: 'CIRCLE',
+        })
+        const after = await services.layout.get(events.owner)
+
+        expect(after.placements).toHaveLength(layout.placements.length - 1)
+        expect(
+          after.placements.some(
+            (placement) =>
+              placement.tableId === placed.tableId ||
+              placement.tableId === created.id,
+          ),
+        ).toBe(false)
+      })
+
+      it('is copied with the event', async () => {
+        const { services, events } = await setup()
+        const source = await services.layout.get(events.owner)
+
+        const created = await services.events.duplicate(events.owner, {
+          name: 'Plan Copy',
+          startsAt: '2031-03-01T17:00:00.000Z',
+        })
+        const copied = await services.layout.get(created.id)
+        const sourceTables = await services.tables.list(events.owner)
+        const copiedTables = await services.tables.list(created.id)
+        const numberOf = (
+          tables: typeof sourceTables,
+          tableId: string,
+        ): number | undefined =>
+          tables.find(({ table }) => table.id === tableId)?.table.number
+
+        expect(copied).toMatchObject({
+          roomWidth: source.roomWidth,
+          roomDepth: source.roomDepth,
+          objects: source.objects,
+          version: 0,
+        })
+        expect(
+          copied.placements.map((placement) => [
+            numberOf(copiedTables, placement.tableId),
+            placement.x,
+            placement.y,
+          ]),
+        ).toEqual(
+          expect.arrayContaining(
+            source.placements.map((placement) => [
+              numberOf(sourceTables, placement.tableId),
+              placement.x,
+              placement.y,
+            ]),
+          ),
+        )
+        expect(copied.placements).toHaveLength(source.placements.length)
+      })
+    })
+
     describe('messages', () => {
       it('previews the template with one guest’s details', async () => {
         const { services, events } = await setup()

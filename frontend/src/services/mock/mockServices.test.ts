@@ -199,6 +199,33 @@ describe('demo persistence', () => {
     expect(window.localStorage.getItem(DEMO_STORAGE_KEY)).toBeNull()
   })
 
+  it('reads steps saved before the rename as stairs', async () => {
+    const state = generateDemoState(NOW)
+    const [first, ...rest] = state.layouts
+    const stored = {
+      version: DATASET_VERSION,
+      state: {
+        ...state,
+        layouts: [
+          {
+            ...first!,
+            objects: [
+              ...first!.objects,
+              { ...first!.objects[0]!, id: 'old-steps', kind: 'STEPS' },
+            ],
+          },
+          ...rest,
+        ],
+      },
+    }
+    const services = create(createMemoryPersistence(stored))
+
+    const layout = await services.layout.get(EVENTS.owner)
+    expect(
+      layout.objects.find((object) => object.id === 'old-steps')?.kind,
+    ).toBe('STAIRS')
+  })
+
   it('recovers from corrupted browser data', async () => {
     window.localStorage.setItem(DEMO_STORAGE_KEY, '{ not json')
 

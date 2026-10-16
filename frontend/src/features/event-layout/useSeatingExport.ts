@@ -19,7 +19,8 @@ export function useSeatingExport(eventId: string, eventName: string) {
   const { showToast } = useToast()
   const { files } = useServices()
 
-  return async (format: FileFormat) => {
+  /** Every table's seating, or only that of the given tables. */
+  return async (format: FileFormat, tableIds?: readonly string[]) => {
     const headings = Object.fromEntries(
       SEATING_EXPORT_COLUMNS.map((column) => [
         column,
@@ -32,6 +33,7 @@ export function useSeatingExport(eventId: string, eventName: string) {
         headings,
         sheetName: t('layout.export.sheet'),
         rightToLeft: getCurrentLanguage() === 'he',
+        ...(tableIds && { tableIds }),
       })
       downloadBlob(
         blob,

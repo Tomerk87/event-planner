@@ -13,6 +13,8 @@ import { useRemoveTable } from './tableQueries.ts'
 interface DeleteTableDialogProps {
   open: boolean
   onClose: () => void
+  /** After the table was deleted. */
+  onDeleted?: () => void
   eventId: string
   item: SeatedTable | null
   /** How many parties sit at the table. */
@@ -23,6 +25,7 @@ interface DeleteTableDialogProps {
 export function DeleteTableDialog({
   open,
   onClose,
+  onDeleted,
   eventId,
   item,
   parties,
@@ -50,6 +53,7 @@ export function DeleteTableDialog({
           tone: 'success',
           message: t('layout.delete.done', { number }),
         })
+        onDeleted?.()
         close()
       },
       onError: (error) => setFailure(describeError(t, error)),

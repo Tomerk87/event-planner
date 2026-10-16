@@ -1,7 +1,6 @@
 import {
   Armchair,
   ArrowUpDown,
-  ChevronRight,
   CircleCheck,
   Download,
   Ellipsis,
@@ -17,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
 import { guestFullName } from '../../domain/guestList.ts'
 import {
@@ -38,6 +37,7 @@ import {
 } from '../../domain/tableList.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
+import { WarningCards, type Warning } from '../dashboard/WarningCards.tsx'
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
@@ -61,6 +61,7 @@ import { useQueryParams } from '../../shared/useQueryParams.ts'
 import type { FileFormat } from '../guests/guestFiles.ts'
 import { tablesOf, useGuests, useTables } from '../guests/guestQueries.ts'
 import guestStyles from '../guests/Guests.module.css'
+import { ArrangementTab } from './ArrangementTab.tsx'
 import { DeleteTableDialog } from './DeleteTableDialog.tsx'
 import styles from './EventLayout.module.css'
 import { ManageGuestsDialog } from './ManageGuestsDialog.tsx'
@@ -68,11 +69,8 @@ import { AttendeeCount, ShapeLabel, TableStatusBadge } from './TableBits.tsx'
 import { TableDialog } from './TableDialog.tsx'
 import { useSeatingExport } from './useSeatingExport.ts'
 
-/** From this width the chosen table has room beside the list. */
-const WIDE_QUERY = '(min-width: 1360px)'
-
 type OpenPanel =
-  { kind: 'add' } | { kind: 'edit' | 'delete' | 'guests'; tableId: string }
+  { kind: 'add' } | { kind: 'edit' | 'guests' | 'delete'; tableId: string }
 
 /** The choices of the phone's sort menu; on desktop the headings sort. */
 const PHONE_SORTS: {
@@ -114,8 +112,7 @@ export function EventLayoutPage() {
   const format = useFormatters()
   const { eventId = '' } = useParams()
   const isPhone = useMediaQuery(PHONE_QUERY)
-  const isWide = useMediaQuery(WIDE_QUERY)
-  // Search, filter, sorting, paging and the chosen table live in the address.
+  // Search, filter, sorting and paging live in the address.
   const { params, update: setParam } = useQueryParams()
   const access = useEventAccess()
   const canEdit = access !== null && canEditEvent(access)
@@ -124,7 +121,10 @@ export function EventLayoutPage() {
   const guests = useGuests(eventId)
   const tables = useTables(eventId)
   const [panel, setPanel] = useState<OpenPanel | null>(null)
+  // One chosen table, shown in the Selected Table card on both tabs.
+  const [chosenId, setChosenId] = useState<string | null>(null)
   const exportSeating = useSeatingExport(eventId, info.data?.event.name ?? '')
+  const view = params.get('view') === 'arrangement' ? 'arrangement' : 'tables'
 
   const queries = [guests, tables]
   const failed = queries.find((query) => query.isError)
@@ -202,23 +202,15 @@ export function EventLayoutPage() {
   const assignedAttendees =
     metrics.confirmedAttendees - metrics.unassignedConfirmedAttendees
 
-  // With nothing chosen, the table that most needs a look is shown.
-  const selected =
-    byId.get(params.get('table') ?? '') ??
-    byId.get(warnings?.tablesOverCapacity[0]?.tableId ?? '') ??
-    page.items[0] ??
-    null
+  // A deleted table simply drops out of the choice.
+  const chosen = chosenId ? (byId.get(chosenId) ?? null) : null
   const panelItem =
     panel && panel.kind !== 'add' ? (byId.get(panel.tableId) ?? null) : null
   const closePanel = () => setPanel(null)
 
-  /** Without room for the panel beside the list, the guests open instead. */
-  function showTable(tableId: string) {
-    if (!isWide) {
-      setPanel({ kind: 'guests', tableId })
-    } else {
-      setParam({ table: tableId })
-    }
+  /** Chooses a table; choosing the chosen one again clears the choice. */
+  function chooseTable(tableId: string) {
+    setChosenId((current) => (current === tableId ? null : tableId))
   }
 
   /** Edit and Delete, for Owners and Admins of an upcoming event. */
@@ -281,19 +273,7 @@ export function EventLayoutPage() {
       header: t('layout.columns.number'),
       sortable: true,
       align: 'center',
-      cell: (item) => (
-        <button
-          type="button"
-          className={guestStyles.nameButton}
-          title={t('layout.row.show', { name: tableName(item) })}
-          aria-pressed={
-            isWide ? item.table.id === selected?.table.id : undefined
-          }
-          onClick={() => showTable(item.table.id)}
-        >
-          {number(item.table.number)}
-        </button>
-      ),
+      cell: (item) => number(item.table.number),
     },
     {
       id: 'shape',
@@ -392,93 +372,40 @@ export function EventLayoutPage() {
     warnings && { metrics, warnings },
     event?.maxAttendees ?? 0,
   )
-  const hasWarnings =
-    warnings !== null &&
-    (warnings.tablesOverCapacity.length > 0 ||
-      seating !== null ||
-      warnings.attendeesAwaitingTable > 0)
+  // Seating as a whole, in cards of their own as on the Dashboard.
+  const notices: Warning[] = []
+  if (seating) {
+    notices.push({
+      id: 'seating',
+      tone: seating.tone,
+      icon: seating.tone === 'warning' ? TriangleAlert : CircleCheck,
+      title: seating.title,
+      lines: [seating.body],
+    })
+  }
+  if (warnings && warnings.attendeesAwaitingTable > 0) {
+    notices.push({
+      id: 'awaitingTable',
+      tone: 'info',
+      icon: Armchair,
+      title: t('dashboard.warnings.awaitingTable.title'),
+      lines: [
+        t('dashboard.warnings.awaitingTable.body', {
+          count: number(warnings.attendeesAwaitingTable),
+        }),
+      ],
+      to: `/events/${eventId}/guests?rsvp=APPROVED&table=NONE`,
+    })
+  }
+  // The Dashboard's row also has the guests over the maximum and the tables
+  // over capacity; the cards here are as wide as there.
+  const dashboardCards =
+    notices.length +
+    (warnings && warnings.attendeesOverMaximum > 0 ? 1 : 0) +
+    ((warnings?.tablesOverCapacity.length ?? 0) > 0 ? 1 : 0)
 
-  const warningsCard = warnings && event && (
-    <Card title={t('layout.warnings.title')}>
-      {!hasWarnings ? (
-        <p className={styles.muted}>{t('layout.warnings.none')}</p>
-      ) : (
-        <ul className={styles.warnings}>
-          {warnings.tablesOverCapacity.map((conflict) => (
-            <li key={conflict.tableId}>
-              <button
-                type="button"
-                className={cx(styles.warning, styles.danger)}
-                onClick={() => showTable(conflict.tableId)}
-              >
-                <TriangleAlert
-                  className={styles.warningIcon}
-                  aria-hidden="true"
-                />
-                <span className={styles.warningText}>
-                  {t('dashboard.warnings.tables.line', {
-                    table: number(conflict.tableNumber),
-                    over: number(conflict.over),
-                  })}
-                </span>
-                <ChevronRight className={styles.chevron} aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-          {seating && (
-            <li>
-              <div
-                className={cx(
-                  styles.warning,
-                  seating.tone === 'warning' ? styles.caution : styles.good,
-                )}
-              >
-                {seating.tone === 'warning' ? (
-                  <TriangleAlert
-                    className={styles.warningIcon}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <CircleCheck
-                    className={styles.warningIcon}
-                    aria-hidden="true"
-                  />
-                )}
-                <span className={styles.warningText}>
-                  <span className={styles.warningTitle}>{seating.title}</span>
-                  {seating.body}
-                </span>
-              </div>
-            </li>
-          )}
-          {warnings.attendeesAwaitingTable > 0 && (
-            <li>
-              <Link
-                className={cx(styles.warning, styles.notice)}
-                to={`/events/${eventId}/guests?rsvp=APPROVED&table=NONE`}
-              >
-                <Armchair className={styles.warningIcon} aria-hidden="true" />
-                <span className={styles.warningText}>
-                  <span className={styles.warningTitle}>
-                    {t('dashboard.warnings.awaitingTable.title')}
-                  </span>
-                  {t('dashboard.warnings.awaitingTable.body', {
-                    count: number(warnings.attendeesAwaitingTable),
-                  })}
-                </span>
-                <ChevronRight className={styles.chevron} aria-hidden="true" />
-              </Link>
-            </li>
-          )}
-        </ul>
-      )}
-    </Card>
-  )
-
-  const selectedParties = selected
-    ? partiesAt(selected.table.id, guestList)
-    : []
-  const selectedCard = isWide && selected && (
+  const selectedParties = chosen ? partiesAt(chosen.table.id, guestList) : []
+  const selectedCard = (selected: SeatedTable) => (
     <Card title={t('layout.selected.title')} actions={status(selected)}>
       <div className={styles.selected}>
         <p className={styles.selectedName}>{tableName(selected)}</p>
@@ -546,6 +473,21 @@ export function EventLayoutPage() {
           </div>
         )}
       </div>
+    </Card>
+  )
+
+  /** The chosen table, or how to choose one, beside the list or the plan. */
+  const side = chosen ? (
+    selectedCard(chosen)
+  ) : (
+    <Card title={t('layout.selected.title')}>
+      <p className={styles.muted}>
+        {t(
+          view === 'arrangement'
+            ? 'layout.arrangement.selectHint'
+            : 'layout.selected.hintList',
+        )}
+      </p>
     </Card>
   )
 
@@ -652,7 +594,8 @@ export function EventLayoutPage() {
                 rows={page.items}
                 getRowKey={(item) => item.table.id}
                 renderCard={renderCard}
-                activeKey={isWide ? selected?.table.id : null}
+                activeKey={chosenId}
+                onRowClick={(item) => chooseTable(item.table.id)}
                 sort={{ columnId: sort.key, direction: sort.direction }}
                 sortLabel={(column) => t('guests.table.sortBy', { column })}
                 onSort={(columnId) =>
@@ -746,15 +689,13 @@ export function EventLayoutPage() {
             <Tabs
               label={t('layout.tabs.label')}
               variant="segmented"
-              value="tables"
+              value={view}
+              onChange={(id) =>
+                setParam({ view: id === 'arrangement' ? id : null })
+              }
               tabs={[
                 { id: 'tables', label: t('layout.tabs.tables') },
-                {
-                  id: 'arrangement',
-                  label: t('layout.tabs.arrangement'),
-                  badge: t('common.soon'),
-                  disabled: true,
-                },
+                { id: 'arrangement', label: t('layout.tabs.arrangement') },
               ]}
             />
           </div>
@@ -769,13 +710,28 @@ export function EventLayoutPage() {
               />
             ))}
           </KpiGrid>
-          <div className={styles.columns}>
-            <div className={styles.warningsArea}>{warningsCard}</div>
-            <div className={styles.listArea}>{tablesCard}</div>
-            {selectedCard && (
-              <div className={styles.selectedArea}>{selectedCard}</div>
-            )}
-          </div>
+          <WarningCards
+            label={t('dashboard.warnings.label')}
+            warnings={notices}
+            slots={dashboardCards}
+          />
+          {view === 'arrangement' ? (
+            <ArrangementTab
+              eventId={eventId}
+              tables={tableList}
+              chosenId={chosen?.table.id ?? null}
+              onChooseTable={chooseTable}
+              canEdit={canEdit}
+              isPhone={isPhone}
+              onAddTable={() => setPanel({ kind: 'add' })}
+              side={side}
+            />
+          ) : (
+            <div className={styles.withSide}>
+              {tablesCard}
+              {side}
+            </div>
+          )}
         </div>
       )}
       <TableDialog
@@ -786,8 +742,13 @@ export function EventLayoutPage() {
         editing={panel?.kind === 'edit' ? panelItem : null}
       />
       <DeleteTableDialog
-        open={panel?.kind === 'delete' && panelItem !== null}
+        open={panel?.kind === 'delete' && !!panelItem}
         onClose={closePanel}
+        onDeleted={() =>
+          setChosenId((current) =>
+            current === panelItem?.table.id ? null : current,
+          )
+        }
         eventId={eventId}
         item={panel?.kind === 'delete' ? panelItem : null}
         parties={

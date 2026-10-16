@@ -6,20 +6,13 @@ Rule applied throughout (`AGENTS.md`, owner decision 2026-10-12): the mockups we
 
 ## Visual Arrangement scope
 
-| | MVP | Post-MVP (Phase 20) |
-|---|---|---|
-| Tables: create, edit, delete, number, capacity, shape | Yes | |
-| Assigning Approved guest parties to tables, capacity rules, conflicts | Yes | |
-| Seating exports (CSV, XLSX) | Yes | |
-| Arrangement canvas: placing tables, drag/drop, chairs, venue objects, View/Edit modes, persisted coordinates | | Yes |
+Built in Phase 20 (D100, PRD §11.4). The Arrangement mockups are followed:
 
-How the mockups show it:
-
-- `event_layout.png` labels the second tab "Table Arrangement" with a **Soon** badge, which matches the deferred scope. The same image also shows a working "Arrangement Preview" panel with an "Open Arrangement" button.
-- `event_layout_arrangement_mobile.png` shows a functioning read-only Arrangement tab ("View Mode", "Fullscreen", pinch to zoom) with a Selected Table panel.
-- The mockups include venue objects the PRD does not list (Food Station, Entrance, plants). PRD §11.4 lists divider/wall, steps, stage and bar.
-
-**Decided (2026-10-12):** in the MVP the Table Arrangement tab is shown with the "Soon" badge and is disabled, on desktop and mobile. The Arrangement Preview panel and the mobile read-only floor plan are not built. The Arrangement mockups are kept as guidance for Phase 20, and the deferred pieces are listed in `docs/FUTURE_FEATURES.md`.
+- `event_layout.png`: the Table Arrangement tab without the **Soon** badge. The **Arrangement Preview** and **Capacity Warnings** drawn there are not built (owner, 2026-10-16); the Selected Table card is beside the list on both tabs (D69).
+- `event_layout_arrangement_mobile.png`: the phone's View Mode with its hint, Fullscreen, pinch to zoom, the red "!" on tables over capacity and the Selected Table card below the plan. The phone tab keeps the desktop's name, "Table Arrangement".
+- Food Station, Entrance and plants, drawn in the mockups but not in the old PRD list, are built.
+- Not drawn in any mockup: Edit mode (palette, panel, Save Layout, Cancel), the floor picture (owner, 2026-10-16), and the "Check the plan" warnings.
+- Earlier decision, superseded 2026-10-16: the tab was shown with "Soon" and disabled, with no preview (2026-10-12).
 
 ## Differences that affect behavior or scope
 
@@ -135,11 +128,11 @@ Found while building (Phase 6):
 
 - Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decided (2026-10-13, D22):** Over Capacity above the chairs; Full with no seat free, a label the mockup does not draw; Almost Full with 1 or 2 seats free; Ready otherwise.
 - "Assigned Guests" in the KPI row counts attendees (214), not guest parties. It is labelled **Assigned Attendees**.
-- **Selected Table** is drawn under the Arrangement Preview on desktop and only in the Arrangement tab on a phone. It is built beside the list on a wide screen (1360px and up); on narrower screens and phones, choosing a table opens its guests dialog (D69). The panel's subtitle (the table's name) is not shown.
+- **Selected Table** is drawn under the Arrangement Preview on desktop and only in the Arrangement tab on a phone. It is built at the same place on both tabs: beside the list or the plan from 1100px, below it on narrower screens and phones, for the one table chosen by a click on its row or on the plan (D69, revised 2026-10-16). The panel's subtitle (the table's name) is not shown.
 - **Manage Guests / View Guests** has nothing drawn behind it; it opens the dialog described in D68.
 - The row **"…"** menu has no drawn contents; it holds Delete Table.
 - **Export Tables** opens a menu of CSV and Excel and writes the seating list (D70).
-- **Capacity Warnings** also shows the two PRD warnings the mockup does not draw: chairs above or below the event maximum, and attendees awaiting a table. On a phone the mockup draws one red banner; each warning is a row of its own in a Capacity Warnings card.
+- **Capacity Warnings** is not built (owner, 2026-10-16): a table over capacity shows it by its status and on the plan. The seating notice (chairs against confirmed attendees) and attendees awaiting a table, which the mockup does not draw, are cards of their own under the figures, exactly as on the Dashboard, on both tabs (owner, 2026-10-16).
 - The search placeholder says "by number or name"; it searches by number.
 - The phone tab is drawn as "Arrangement" with no badge; it is "Table Arrangement" with the Soon badge, as on desktop.
 - The list shows 10 tables a page with the product's pager, not the 8 and 5 drawn. The phone's ↑↓ button opens a sort menu; on desktop the column headings sort.

@@ -1,9 +1,11 @@
 import type { EventInput } from '../../domain/events.ts'
 import type { GuestInput } from '../../domain/guests.ts'
+import type { LayoutInput } from '../../domain/layout.ts'
 import type { MessageValues } from '../../domain/messages.ts'
 import type {
   Event,
   EventInvitation,
+  EventLayout,
   EventTable,
   Guest,
   MessageTemplate,
@@ -80,6 +82,37 @@ function guestInput(input: Omit<GuestInput, 'phone'> & { phone?: string }) {
 
 function tableInput(input: TableInput): TableInput {
   return { number: input.number, capacity: input.capacity, shape: input.shape }
+}
+
+/** Only the fields the server reads; extra ones are refused. */
+function layoutInput(input: LayoutInput): LayoutInput {
+  return {
+    roomWidth: input.roomWidth,
+    roomDepth: input.roomDepth,
+    floorImage: input.floorImage,
+    floorImageTransparency: input.floorImageTransparency,
+    floorImageZoom: input.floorImageZoom,
+    floorImageRotation: input.floorImageRotation,
+    placements: input.placements.map(({ tableId, x, y, rotation }) => ({
+      tableId,
+      x,
+      y,
+      rotation,
+    })),
+    objects: input.objects.map(
+      ({ id, kind, x, y, width, height, rotation, label }) => ({
+        id,
+        kind,
+        x,
+        y,
+        width,
+        height,
+        rotation,
+        label,
+      }),
+    ),
+    version: input.version,
+  }
 }
 
 function rsvpSettingsInput(input: RsvpSettingsInput): RsvpSettingsInput {
@@ -275,6 +308,12 @@ export function createApiServices(
         http.delete(`${event(eventId)}/tables/${at(tableId)}`),
     },
 
+    layout: {
+      get: (eventId) => http.get<EventLayout>(`${event(eventId)}/layout`),
+      save: (eventId, input) =>
+        http.put<EventLayout>(`${event(eventId)}/layout`, layoutInput(input)),
+    },
+
     permissions: {
       list: (eventId) =>
         http.get<EventAccessList>(`${event(eventId)}/permissions`),
@@ -338,6 +377,7 @@ export function createApiServices(
           headings: request.headings,
           sheetName: request.sheetName,
           rightToLeft: request.rightToLeft,
+          ...(request.tableIds && { tableIds: request.tableIds }),
         }),
     },
 

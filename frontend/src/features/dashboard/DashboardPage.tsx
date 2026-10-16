@@ -53,44 +53,10 @@ import { relativeDay } from './activityTime.ts'
 import styles from './Dashboard.module.css'
 import { useDashboard } from './dashboardQueries.ts'
 import { RsvpDonut } from './RsvpDonut.tsx'
+import { WarningCards, type Warning } from './WarningCards.tsx'
 
 const ACTIVITY_PREVIEW = 5
 const LISTED_TABLE_CONFLICTS = 2
-
-type WarningTone = 'danger' | 'warning' | 'info' | 'success'
-
-interface Warning {
-  id: string
-  tone: WarningTone
-  icon: LucideIcon
-  title: string
-  lines: string[]
-  to: string
-}
-
-function WarningCard({ warning }: { warning: Warning }) {
-  const Icon = warning.icon
-
-  return (
-    <li>
-      <Link
-        to={warning.to}
-        className={cx(styles.warningCard, styles[warning.tone])}
-      >
-        <Icon className={styles.warningIcon} aria-hidden="true" />
-        <span className={styles.warningText}>
-          <span className={styles.warningTitle}>{warning.title}</span>
-          {warning.lines.map((line) => (
-            <span key={line} className={styles.warningLine}>
-              {line}
-            </span>
-          ))}
-        </span>
-        <ChevronRight className={styles.chevron} aria-hidden="true" />
-      </Link>
-    </li>
-  )
-}
 
 const ACTIVITY_STYLE = {
   APPROVED: { icon: CheckCheck, tone: 'success' },
@@ -389,16 +355,7 @@ function DashboardContent({
         ))}
       </KpiGrid>
 
-      {shown.length > 0 && (
-        <ul
-          className={styles.warnings}
-          aria-label={t('dashboard.warnings.label')}
-        >
-          {shown.map((warning) => (
-            <WarningCard key={warning.id} warning={warning} />
-          ))}
-        </ul>
-      )}
+      <WarningCards label={t('dashboard.warnings.label')} warnings={shown} />
 
       <div className={styles.columns}>
         <Card

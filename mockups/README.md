@@ -88,9 +88,9 @@ Notes:
 - The desktop mockup contains the full Event Layout page.
 - Status labels are Ready, Almost Full, Full (added) and Over Capacity. The KPI "Assigned Guests" is labelled "Assigned Attendees".
 - The row's "⋯" menu holds Edit Table and Delete Table; the drawn pencil is not shown (D82).
-- The Selected Table panel is shown beside the list on a wide screen only; elsewhere a table's guests open in a dialog. Details in `docs/MOCKUP_NOTES.md`.
+- The Selected Table card shows the one chosen table at the same place on both tabs, beside the list or the plan on a wide screen and below it otherwise. Details in `docs/MOCKUP_NOTES.md`.
 - The mobile UI separates the Tables and Arrangements views into dedicated tab mockups.
-- In the MVP the Table Arrangement tab is shown with a "Soon" badge and is disabled, and the Arrangement Preview panel is not built. The Arrangement mockups are guidance for the future editor (`docs/FUTURE_FEATURES.md`).
+- The Table Arrangement tab is built (Phase 20, D100); the Arrangement Preview and Capacity Warnings are not (owner, 2026-10-16). `docs/MOCKUP_NOTES.md` lists what the tab adds to the mockups.
 - The desktop mockup's sidebar is not the approved navigation; use the order in `docs/PRD.md` section 4.2.
 
 ## RSVP Settings

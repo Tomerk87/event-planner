@@ -591,19 +591,21 @@
 **Goal:** add the persisted editable blueprint after MVP stability, unless scope is explicitly changed.
 
 ### Checklist
-- [ ] Confirm the editor's scope and review `event_layout.png` and `event_layout_arrangement_mobile.png`.
-- [ ] Design persisted layout schema/coordinate system and scale/rotation conventions.
-- [ ] Support View and Edit modes, defaulting to View.
-- [ ] Add placement of existing tables and table creation synchronized with Tables.
-- [ ] Add walls/lines, steps, stage and bar objects with drag/drop and relevant resizing.
-- [ ] Implement overlap/geometry checks and user feedback.
-- [ ] Render table chairs, assigned/empty status and capacity conflicts.
-- [ ] Persist and reload changes reliably via mock and real providers.
-- [ ] Support mobile viewing; define editing support explicitly for phone/tablet.
-- [ ] Add geometry, persistence, permission and responsive tests.
+- [x] Confirm the editor's scope and review `event_layout.png` and `event_layout_arrangement_mobile.png`. (Owner approved the plan 2026-10-16, adding the floor picture.)
+- [x] Design persisted layout schema/coordinate system and scale/rotation conventions. (D100: centimetres, centre plus 0–359°.)
+- [x] Support View and Edit modes, defaulting to View.
+- [x] Add placement of existing tables and table creation synchronized with Tables.
+- [x] Add walls/lines, steps, stage and bar objects with drag/drop and relevant resizing. (Also food station, entrance and plant.)
+- [x] Implement overlap/geometry checks and user feedback.
+- [x] Render table chairs, assigned/empty status and capacity conflicts.
+- [x] Persist and reload changes reliably via mock and real providers.
+- [x] Support mobile viewing; define editing support explicitly for phone/tablet. (Defined in D100: phones view only.)
+- [x] Optional floor picture under the plan with Transparency, Zoom and Rotate (owner, 2026-10-16).
+- [x] Table selection like Guests: tick boxes kept across pages and tabs, bulk export/delete, Selected Table only for exactly one (D69 revised, owner 2026-10-16).
+- [x] Add geometry, persistence, permission and responsive tests.
 
 ### Validation and exit criteria
-- [ ] Floor plans remain consistent with seating data and survive reloads.
+- [ ] Floor plans remain consistent with seating data and survive reloads. (Verified by tests; awaits owner review.)
 
 ---
 
@@ -1234,6 +1236,36 @@ Decision (owner): D99, a demo ends 3 days after it started or after 12 hours wit
 Validation: frontend typecheck, lint, format; unit tests (new: demoClock 3, demo backend time limits 7, page-level 3), coverage and build, test:e2e (new e2e/demo-time.spec.ts, 4 tests on desktop and phone: idle end with a fresh demo after Try Demo, 3-day end, a demo within its time goes on, Hebrew with axe). Results: unit 1152, coverage 96.13% statements / 91.09% branches; build succeeds; test:e2e 411 passed, 25 skipped. By hand: the landing notice in English and Hebrew at 1280 and 390 px.
 Follow-ups/risks: the limits use the browser's clock; a visitor who changes it can stretch a demo (harmless: the data is their own).
 Next: owner review; then Phase 18.
+
+2026-10-16 — Phase 20 — step 1 of 4: floor-plan data and API (branch phase_20_event_layout).
+Decisions (owner, plan approved): build the Table Arrangement now; D100 floor plan, with an optional floor picture (Transparency, Zoom, Rotate) the owner added to the plan. Recommendations accepted with the plan: phones view only; overlaps warn without blocking; room in centimetres, resizable; Food Station, Entrance and Plant included; no table names; saved whole with Save/Cancel.
+- Domain `layout.ts` (both copies): table sizes and chair positions from shape and seats, footprints with chairs, overlap and outside-the-room checks, validation, version check; error LAYOUT_CHANGED (409).
+- Database: migration 20261015231957_event_layout (room, floor picture and layout version on Event; x, y, rotation on EventTable; VenueObject table; range checks). Module `backend/src/layout` with GET and PUT /api/events/:id/layout; floor picture stored like the RSVP picture; duplicate copies the plan and picture; delete removes the picture. openapi.json regenerated.
+- Frontend: LayoutService in the contract, API and demo; the demo generates a plan for every event (stage, bar, food station, entrance, four plants, tables in rows; the main event leaves one table unplaced); dataset version 8; contract seed loads the plans.
+Validation: backend typecheck, lint (same 2 warnings), format, unit 552, integration 300 (new layout spec 11), npm audit 0; frontend typecheck, lint, format, unit 1192 (new: layout domain 35, contract floor plan 5), coverage 96.22% / 91.27%; test:api 63 passed, 2 skipped. No screen yet.
+Next: step 2, View mode on desktop and phone.
+
+2026-10-16 — Phase 20 — steps 2 and 3: Table Arrangement switched on, and table selection like Guests (branch phase_20_event_layout).
+Owner requests: make the Arrangement active and remove "Soon"; a table was always selected, a second click did not let go, and each list page chose its own; tables should be selected as guests are.
+- Selection (D69 revised): tick boxes on the desktop list, kept across pages, sorting and both tabs; nothing ticked to begin with; bulk bar with Export selected (seating of those tables; `tableIds` added to the seating export in the contract, demo, API and server), Delete selected (one confirmation; DeleteTableDialog takes several tables) and Clear selection; Selected Table only for exactly one ticked table; a table's number and the capacity warnings open its guests dialog at every width. `?table=` and the first-over-capacity default removed.
+- Table Arrangement tab (`?view=arrangement`): FloorPlan.tsx (SVG; chairs per seat, taken seats, red "!" over capacity, objects with icons and labels, floor picture clipped to the room, overlap outlines; zoom buttons, Ctrl/⌘-wheel and pinch, drag to pan, Show the whole room, Fullscreen with a fallback; plain clicks for keyboard and assistive technology, the pointer held only once a press becomes a drag). ArrangementTab.tsx: View mode with the Selected Table card beside or below; Edit mode (not on phones) with palette (unplaced tables, seven objects, Add Table), drag/move/turn/resize with 50 cm snapping, panel for position, turn, size, label, room size and the floor picture (Transparency, Zoom, Rotate, Reset, Replace, Remove), keyboard moves, Save Layout/Cancel, unsaved-changes guard, LAYOUT_CHANGED with Reload. Arrangement Preview with Open Arrangement on the Tables tab at 1360px and up. Shared RangeField (from the RSVP page) and a list formatter.
+- Found by hand and fixed: the plan box was taller than the room (now sized to it); Fit and Fullscreen had the same icon; the overlap notice above the plan pushed it down mid-drag, so a dragged table jumped (moved below the editor); a turned floor picture was clipped with its own turn; a click on a table never reached it in a browser once the plan captured the pointer; nothing led back to the room settings after choosing an item (Room and Picture button).
+- Docs: PRD §11.4 rewritten as built, §17 and question 6 updated; DOMAIN D69 revised, D100 points to the screen; MOCKUP_NOTES Visual Arrangement section; FUTURE_FEATURES (removed the editor, preview, extra objects; added phone editing, printing/exporting the plan, moving the floor picture, undo); ARCHITECTURE floor-plan row; mockups/README; Hebrew sheet 1075 texts.
+Validation:
+- Backend: typecheck, lint (same 2 warnings), format, unit 552, integration 300 (seating export of selected tables), npm audit 0, openapi.json regenerated.
+- Frontend: typecheck, lint, format; unit 1217 (new: ArrangementTab 16, FloorPlan gestures 7, selection and bulk on the page), coverage 95.69% statements / 90.35% branches; build; test:api 63 passed, 2 skipped; test:e2e 421 passed, 29 skipped (new arrangement.spec.ts and real-layout.spec.ts: choose and let go on the plan, pan and zoom, place by dragging from the palette, move with the mouse, add a plant, floor picture saved and reloaded with its opacity and turn, unsaved-changes guard, phone view with fullscreen, axe in en/he on both modes; event-layout.spec.ts: ticking, export and delete of selected tables).
+- By hand: screenshots at 1440 and 390 px in English and Hebrew of the Tables tab with preview, View mode, a chosen table, Edit mode with a floor picture, and after a reload.
+Follow-ups/risks: no undo inside Edit mode (Cancel drops all changes); a large floor picture in the demo counts toward the browser's storage; phones view only.
+Next: owner review of the Table Arrangement.
+
+2026-10-16 — Phase 20 — owner follow-ups on the Table Arrangement (branch phase_20_event_layout, after commit 505fa5c).
+Owner requests: the seating notice and attendees awaiting a table as cards of their own, as on the Dashboard, at the same place and size on both tabs; a new item on top of the others; Steps renamed Stairs (a change of floor level); Print / Export to PDF as a future feature.
+- Shared `features/dashboard/WarningCards.tsx` (moved from the Dashboard, styles in WarningCards.module.css; a card without a link only informs). Event Layout shows the two cards under the figures on both tabs; their width matches the Dashboard's at every size (the row keeps as many slots as the Dashboard's row has for the event). Capacity Warnings lists only the tables over capacity ("No tables over capacity." when none; the Arrangement leaves it out then).
+- Drawing order: tables above objects; while editing, the chosen item, such as a new one or one being dragged, above everything; the plan, not the item, holds the pointer, since the item's element moves to the top.
+- STAIRS: domain (both copies), Prisma enum with migration 20261016090000_stairs (RENAME VALUE, data kept), DTO, contract seed, demo data saved with STEPS read as STAIRS, icon and treads; labels have a halo so they read over the treads.
+- FUTURE_FEATURES: "Print / Export to PDF" replaces the printing row. Docs: D100, PRD §11.4, MOCKUP_NOTES. Hebrew sheet regenerated (1075 texts).
+Validation: backend format, lint, unit 552, integration 300 (STAIRS saved, old STEPS refused), openapi.json; frontend typecheck, lint, format, unit 1222 (new: cards on both tabs and the empty Capacity Warnings, drawing order, treads, stored STEPS), coverage 95.7% / 90.36%, build, test:api 63 passed / 2 skipped, test:e2e 421 passed / 29 skipped. By hand: card positions and widths compared with the Dashboard at 1920, 1440, 1024 and 390 px; a new stage drawn over tables; stairs with treads and a label.
+Next: owner review.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

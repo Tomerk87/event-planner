@@ -2349,6 +2349,85 @@
         ]
       }
     },
+    "/api/events/{eventId}/layout": {
+      "get": {
+        "operationId": "LayoutController_get",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "tags": [
+          "layout"
+        ]
+      },
+      "put": {
+        "operationId": "LayoutController_save",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LayoutInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ep_session": []
+          }
+        ],
+        "summary": "Saves the whole plan; 409 LAYOUT_CHANGED when someone saved meanwhile.",
+        "tags": [
+          "layout"
+        ]
+      }
+    },
     "/api/events/{eventId}/dashboard": {
       "get": {
         "operationId": "DashboardController_get",
@@ -3986,6 +4065,15 @@
           },
           "rightToLeft": {
             "type": "boolean"
+          },
+          "tableIds": {
+            "description": "Only these tables; every table when left out.",
+            "maxItems": 10000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 64
+            }
           }
         },
         "required": [
@@ -3993,6 +4081,206 @@
           "headings",
           "sheetName",
           "rightToLeft"
+        ]
+      },
+      "TablePlacementDto": {
+        "type": "object",
+        "properties": {
+          "tableId": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "x": {
+            "type": "number",
+            "description": "The table's centre, in centimetres from the room's top-left corner."
+          },
+          "y": {
+            "type": "number"
+          },
+          "rotation": {
+            "type": "number",
+            "description": "Clockwise, 0–359 degrees."
+          }
+        },
+        "required": [
+          "tableId",
+          "x",
+          "y",
+          "rotation"
+        ]
+      },
+      "VenueObjectDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "WALL",
+              "STAGE",
+              "BAR",
+              "STAIRS",
+              "FOOD_STATION",
+              "ENTRANCE",
+              "PLANT"
+            ],
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200
+          },
+          "id": {
+            "type": "string",
+            "description": "Chosen by the page that added the object; unique within the plan.",
+            "maxLength": 64
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "rotation": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "id",
+          "x",
+          "y",
+          "width",
+          "height",
+          "rotation"
+        ]
+      },
+      "LayoutDto": {
+        "type": "object",
+        "properties": {
+          "floorImage": {
+            "type": "string",
+            "nullable": true,
+            "description": "A new picture as a `data:image/...;base64,` address, the current\npicture's own address to keep it, or null for none.",
+            "maxLength": 1500000
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "roomWidth": {
+            "type": "number",
+            "description": "The room's size in centimetres."
+          },
+          "roomDepth": {
+            "type": "number"
+          },
+          "floorImageTransparency": {
+            "type": "number",
+            "description": "0–90 percent."
+          },
+          "floorImageZoom": {
+            "type": "number",
+            "description": "25–400 percent."
+          },
+          "floorImageRotation": {
+            "type": "number",
+            "description": "−180 to 180 degrees."
+          },
+          "placements": {
+            "maxItems": 10000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TablePlacementDto"
+            }
+          },
+          "objects": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VenueObjectDto"
+            }
+          },
+          "version": {
+            "type": "number",
+            "description": "The version the changes were made on; a newer one refuses the save."
+          }
+        },
+        "required": [
+          "floorImage",
+          "eventId",
+          "roomWidth",
+          "roomDepth",
+          "floorImageTransparency",
+          "floorImageZoom",
+          "floorImageRotation",
+          "placements",
+          "objects",
+          "version"
+        ]
+      },
+      "LayoutInputDto": {
+        "type": "object",
+        "properties": {
+          "floorImage": {
+            "type": "string",
+            "nullable": true,
+            "description": "A new picture as a `data:image/...;base64,` address, the current\npicture's own address to keep it, or null for none.",
+            "maxLength": 1500000
+          },
+          "roomWidth": {
+            "type": "number",
+            "description": "The room's size in centimetres."
+          },
+          "roomDepth": {
+            "type": "number"
+          },
+          "floorImageTransparency": {
+            "type": "number",
+            "description": "0–90 percent."
+          },
+          "floorImageZoom": {
+            "type": "number",
+            "description": "25–400 percent."
+          },
+          "floorImageRotation": {
+            "type": "number",
+            "description": "−180 to 180 degrees."
+          },
+          "placements": {
+            "maxItems": 10000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TablePlacementDto"
+            }
+          },
+          "objects": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VenueObjectDto"
+            }
+          },
+          "version": {
+            "type": "number",
+            "description": "The version the changes were made on; a newer one refuses the save."
+          }
+        },
+        "required": [
+          "floorImage",
+          "roomWidth",
+          "roomDepth",
+          "floorImageTransparency",
+          "floorImageZoom",
+          "floorImageRotation",
+          "placements",
+          "objects",
+          "version"
         ]
       },
       "DashboardMetricsDto": {

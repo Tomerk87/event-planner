@@ -8,42 +8,24 @@
   font-weight: var(--font-weight-semibold);
 }
 
-/* Warnings above the list on a phone; beside it, over the chosen table, on desktop. */
-.columns {
+/*
+ * The list or the plan, with the chosen table beside it on a wide screen and
+ * below it on a narrower one, at the same place on both tabs.
+ */
+.withSide {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas:
-    'warnings'
-    'list'
-    'selected';
   gap: var(--space-4);
   align-items: start;
 }
 
-.columns > * {
+.withSide > * {
   min-inline-size: 0;
 }
 
-.warningsArea {
-  grid-area: warnings;
-}
-
-.listArea {
-  grid-area: list;
-}
-
-.selectedArea {
-  grid-area: selected;
-}
-
-/* Below this width the list needs the whole row to show every column. */
-@media (min-width: 1360px) {
-  .columns {
+@media (min-width: 1100px) {
+  .withSide {
     grid-template-columns: minmax(0, 1fr) clamp(18rem, 26%, 22rem);
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-      'list warnings'
-      'list selected';
   }
 }
 
@@ -62,104 +44,6 @@
   inline-size: 1.125rem;
   block-size: 1.125rem;
   color: var(--color-primary);
-}
-
-/* Capacity warnings */
-.warnings {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
-  align-items: start;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.warning {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  inline-size: 100%;
-  padding: var(--space-3);
-  border: var(--border-width) solid;
-  border-radius: var(--radius-md);
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
-  text-align: start;
-  text-decoration: none;
-}
-
-button.warning {
-  cursor: pointer;
-}
-
-.warningIcon {
-  flex-shrink: 0;
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
-}
-
-.warningText {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-inline-size: 0;
-}
-
-.warningTitle {
-  font-weight: var(--font-weight-semibold);
-}
-
-.chevron {
-  flex-shrink: 0;
-  align-self: center;
-  inline-size: 1.125rem;
-  block-size: 1.125rem;
-  color: var(--color-text-muted);
-}
-
-:global([dir='rtl']) .chevron {
-  transform: scaleX(-1);
-}
-
-.danger {
-  background: var(--color-danger-soft);
-  border-color: var(--color-danger-border);
-}
-
-.danger .warningIcon {
-  color: var(--color-danger);
-}
-
-.caution {
-  background: var(--color-warning-soft);
-  border-color: var(--color-warning-border);
-}
-
-.caution .warningIcon,
-.caution .warningTitle {
-  color: var(--color-warning);
-}
-
-.notice {
-  background: var(--color-info-soft);
-  border-color: var(--color-info-border);
-}
-
-.notice .warningIcon,
-.notice .warningTitle {
-  color: var(--color-info);
-}
-
-.good {
-  background: var(--color-success-soft);
-  border-color: var(--color-success-border);
-}
-
-.good .warningIcon,
-.good .warningTitle {
-  color: var(--color-success);
 }
 
 /* A table's figures: in the chosen-table panel and in the guests dialog */
