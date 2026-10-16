@@ -1,7 +1,9 @@
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EVENT_LIMITS } from '../../domain/events.ts'
-import type { Event } from '../../domain/models.ts'
+import { isRsvpLanguage, type Event } from '../../domain/models.ts'
+import { COUNTRIES, isCountry } from '../../domain/phone.ts'
+import { getCurrentLanguage } from '../../i18n/i18n.ts'
 import { LANGUAGES } from '../../i18n/languages.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Button } from '../../shared/ui/Button.tsx'
@@ -52,10 +54,10 @@ function EventForm({
   const [values, setValues] = useState<EventFormValues>(() =>
     source
       ? {
-          ...defaultEventFormValues(source.timeZone),
+          ...defaultEventFormValues(source.timeZone, getCurrentLanguage()),
           name: t('events.duplicate.defaultName', { name: source.name }),
         }
-      : defaultEventFormValues(browserTimeZone()),
+      : defaultEventFormValues(browserTimeZone(), getCurrentLanguage()),
   )
   const [timeZones] = useState(() => listTimeZones(values.timeZone))
   const [errors, setErrors] = useState<EventFormErrors>({})
@@ -111,6 +113,7 @@ function EventForm({
           maxAttendees: toInteger(values.maxAttendees),
           defaultAllowedAttendees: toInteger(values.defaultAllowedAttendees),
           rsvpLanguage: values.rsvpLanguage,
+          country: values.country,
           location: values.location,
           coverImage: values.coverImage,
         },
@@ -234,13 +237,32 @@ function EventForm({
             required
             value={values.rsvpLanguage}
             hint={t('events.form.rsvpLanguageHint')}
-            onChange={(event) =>
-              set('rsvpLanguage', event.target.value === 'he' ? 'he' : 'en')
-            }
+            onChange={(event) => {
+              if (isRsvpLanguage(event.target.value)) {
+                set('rsvpLanguage', event.target.value)
+              }
+            }}
           >
             {LANGUAGES.map((language) => (
               <option key={language} value={language} lang={language}>
                 {t(`language.${language}`)}
+              </option>
+            ))}
+          </SelectField>
+          <SelectField
+            label={t('events.form.country')}
+            required
+            value={values.country}
+            hint={t('events.form.countryHint')}
+            onChange={(event) => {
+              if (isCountry(event.target.value)) {
+                set('country', event.target.value)
+              }
+            }}
+          >
+            {COUNTRIES.map((country) => (
+              <option key={country} value={country}>
+                {t(`countries.${country}`)}
               </option>
             ))}
           </SelectField>

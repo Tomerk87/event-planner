@@ -232,6 +232,7 @@ describe('sign up, log out and sign in', () => {
       maxAttendees: 60,
       defaultAllowedAttendees: 2,
       rsvpLanguage: 'en',
+      country: 'IL',
     })
     const { router } = renderApp('/events', undefined, { backend })
     await screen.findByRole('heading', { level: 2, name: 'Housewarming' })

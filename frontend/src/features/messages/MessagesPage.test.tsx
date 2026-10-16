@@ -382,6 +382,7 @@ describe('WhatsApp Messages', () => {
       maxAttendees: 100,
       defaultAllowedAttendees: 2,
       rsvpLanguage: 'en',
+      country: 'IL',
     })
 
     await openMessages(event.id, services)

@@ -82,6 +82,7 @@ describe('combined backend', () => {
       maxAttendees: 80,
       defaultAllowedAttendees: 2,
       rsvpLanguage: 'en',
+      country: 'IL',
     })
 
     const demoEvents = await backend.servicesFor(DEMO).events.list()

@@ -49,6 +49,7 @@ export async function createEventByApi(
         maxAttendees: 120,
         defaultAllowedAttendees: 2,
         rsvpLanguage: 'en',
+        country: 'IL',
         ...overrides,
       },
     }),

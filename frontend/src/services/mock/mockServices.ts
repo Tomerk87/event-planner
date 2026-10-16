@@ -670,19 +670,20 @@ export function createMockServices(options: MockOptions): Services {
 
       create: (eventId, input) =>
         run('guests.create', () => {
-          authorize(eventId, 'EDIT')
-          const { guest } = addGuest(state.guests, eventId, input, newId('gst'))
+          const { event } = authorize(eventId, 'EDIT')
+          const { guest } = addGuest(state.guests, event, input, newId('gst'))
           commit(replaceGuest(guest))
           return guest
         }),
 
       update: (eventId, guestId, input) =>
         run('guests.update', () => {
-          authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT')
           const guest = editGuest(
             state.guests,
             activeGuest(eventId, guestId),
             input,
+            event.country,
           )
           commit(replaceGuest(guest))
           return guest
@@ -749,12 +750,12 @@ export function createMockServices(options: MockOptions): Services {
 
       importMany: (eventId, inputs) =>
         run('guests.importMany', () => {
-          authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT')
           let guests = state.guests
           let created = 0
           let restored = 0
           for (const input of inputs) {
-            const result = addGuest(guests, eventId, input, newId('gst'))
+            const result = addGuest(guests, event, input, newId('gst'))
             if (result.restored) {
               restored += 1
               guests = guests.map((guest) =>
@@ -795,12 +796,13 @@ export function createMockServices(options: MockOptions): Services {
 
       convertToGuest: (eventId, unknownId, input) =>
         run('unknownGuests.convertToGuest', () => {
-          authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT')
           const unknown = pendingUnknown(eventId, unknownId)
+          // The international form reads the same whatever the event's country.
           const { guest } = addGuest(
             state.guests,
-            eventId,
-            { ...input, phone: unknown.phone },
+            event,
+            { ...input, phone: unknown.normalizedPhone },
             newId('gst'),
           )
           const updated: Guest = {
@@ -915,6 +917,7 @@ export function createMockServices(options: MockOptions): Services {
             timeZone: event.timeZone,
             location: event.location,
             language: event.rsvpLanguage,
+            country: event.country,
             isClosed: isEventPast(event, now()),
             maxSelectableAttendees: EVENT_LIMITS.allowedAttendees.max,
             settings,
@@ -930,7 +933,7 @@ export function createMockServices(options: MockOptions): Services {
             throw new DomainError('RSVP_CLOSED')
           }
           const { name } = validatePublicRsvpInput(input)
-          const normalizedPhone = normalizePhone(input.phone)
+          const normalizedPhone = normalizePhone(input.phone, event.country)
           const respondedAt = now().toISOString()
           const guest = state.guests.find(
             (candidate) =>
@@ -1446,7 +1449,7 @@ export function createMockServices(options: MockOptions): Services {
           reset: () =>
             run('demo.reset', () => {
               persistence.clear()
-              commit(generateDemoState(now()))
+              commit(seed(now()))
             }),
 
           // The demo's clock belongs to its backend, which tells this.

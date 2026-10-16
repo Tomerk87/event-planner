@@ -2,8 +2,8 @@
 
 **Version:** 1.1  
 **Status:** Product baseline for POC/MVP development  
-**Primary market:** Israel  
-**Supported languages:** English and Hebrew  
+**Primary market:** Israel; Brazil added 2026-10-16 (D103)  
+**Supported languages:** English, Hebrew and Brazilian Portuguese  
 **Supported devices:** Desktop and mobile browsers (tablets receive the desktop or mobile layout that fits their width; dedicated tablet layouts are deferred)  
 **Implementation reference:** `AGENTS.md` and `PLAN.md`  
 **Visual reference:** `mockups/README.md` and the mapped images in `mockups/`
@@ -21,7 +21,7 @@ The product must also provide a **public, interactive Demo Mode** so visitors ca
 - An organizer can complete the invitation-to-seating workflow within one product.
 - Event and RSVP data produces coherent, trustworthy Dashboard numbers.
 - Business rules remain consistent across different places where an action can occur.
-- All essential MVP workflows work on desktop and mobile, with English/LTR and Hebrew/RTL interfaces.
+- All essential MVP workflows work on desktop and mobile, with English/LTR, Hebrew/RTL and Brazilian Portuguese/LTR interfaces.
 - A visitor can immediately try the product using automatically generated fictional demo data, modify it, and reset it.
 - Past events remain accessible for viewing and export but cannot be modified through normal product workflows.
 - Access is scoped per event and enforced by the backend for authenticated use.
@@ -129,7 +129,8 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Maximum attendees | Required integer; **minimum 50, default 50, maximum 3000**, and not below the attendees already confirmed when changed (D94; default was 300 until 2026-10-15) |
 | Event date and time | Required |
 | Time zone | Required; the event's date and time are expressed in it |
-| RSVP language | The default language of the public RSVP page, English or Hebrew. Chosen when the event is created and changed on RSVP Settings; a guest can switch (section 8) |
+| RSVP language | The default language of the public RSVP page: English, Hebrew or Portuguese. Chosen when the event is created (Portuguese when the organizer uses Portuguese, otherwise English) and changed on RSVP Settings; a guest can switch (section 8) |
+| Phone number country | Israel or Brazil (D103): a phone number typed without a country code, by the organizer, in an import or on the public RSVP page, is read as this country's. Chosen when the event is created (Brazil when the organizer uses Portuguese, otherwise Israel) and changed in Event Settings; numbers already saved keep their country |
 | Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
 | Location | Optional; shown in the event selector and on the public RSVP page, with Google Maps and Waze links (D97). Edited in Event Settings |
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
@@ -181,7 +182,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Group | Optional. The organizer's own grouping of guests (for example "Family"), up to 40 characters; unrelated to seating. A group exists while a guest uses it; a name differing only in capitals joins the existing group |
 | Deleted | Soft-delete marker, default `0` |
 
-A normalized phone number is unique **within each event**. In the MVP a number written without `+` is read as an Israeli number, in any local or `+972` form; a number from another country is entered with `+` and its country code. A number that is local to another country is refused, not read as Israeli. Israeli numbers are shown in local form (`050-730-8828`) everywhere, including exports, however they were entered; foreign numbers are shown with their country code. The same rule applies to imported files and to the public RSVP form.
+A normalized phone number is unique **within each event**. A number written without `+` is read by the event's phone number country (D103): in an Israeli event, any local or `972` form; in a Brazilian event, the area code and number (`(11) 91234-5678`), with or without the trunk `0` or `55`. A number from another country is entered with `+` and its country code; a number local to another country is refused. Israeli numbers are shown in local form (`050-730-8828`) everywhere, including exports, however they were entered; Brazilian numbers as `+55 11 91234-5678`; other foreign numbers with their country code. The same rule applies to imported files and to the public RSVP form.
 
 ### 6.2 Soft deletion and restoration
 
@@ -286,7 +287,7 @@ The organizer can configure:
 
 On the public page the three response buttons send the answer directly. The guest then sees the matching message and can change the answer until the event starts. After an approval the calendar and YouTube actions open the real pages in a new tab. A link that matches no event shows a plain "not available" page.
 
-The public RSVP opens in the event's default RSVP language, English or Hebrew, set on RSVP Settings. A guest can switch the page to the other language. Texts the organizer wrote (the welcome and response messages) are shown as written in either language; translating them is deferred (section 17).
+The public RSVP opens in the event's default RSVP language, English, Hebrew or Portuguese, set on RSVP Settings. A guest can switch the page to another language from its language menu. Texts the organizer wrote (the welcome and response messages) are shown as written in either language; translating them is deferred (section 17).
 
 ## 9. Unknown Guests
 
@@ -422,9 +423,10 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 
 ## 13. Internationalization and mobile requirements
 
-- Admin interface languages: English (`en`) and Hebrew (`he`), with a user-selectable interface language.
-- Hebrew uses a first-class RTL layout; English uses LTR.
-- The event's default guest-facing RSVP language is configured separately, on RSVP Settings; each guest can switch the public RSVP page between the two languages.
+- Admin interface languages: English (`en`), Hebrew (`he`) and Brazilian Portuguese (`pt`, D103), with a user-selectable interface language. A first visit opens in the browser's preferred language when it is one of these, otherwise English.
+- Hebrew uses a first-class RTL layout; English and Portuguese use LTR.
+- The event's default guest-facing RSVP language is configured separately, on RSVP Settings; each guest can switch the public RSVP page between the languages.
+- Demo Mode has sample events per market (D103): a demo started in Portuguese has Brazilian events, names, places and numbers; otherwise the Israeli ones.
 - Translate all user-facing copy, including validation errors, statuses, confirmation dialogs, empty states, and demo controls.
 - Handle phone numbers, URLs, email addresses, dates, and other mixed-direction values intelligibly in Hebrew.
 - All core pages and workflows must work on mobile. Desktop tables should be adapted into usable mobile patterns rather than simply shrunk.
@@ -485,7 +487,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 `docs/FUTURE_FEATURES.md` is the maintained list of everything left out of the MVP, including items shown in mockups that are not being built. Unless separately approved for the POC:
 
 - Automated WhatsApp Business API delivery, bulk sending, reminders, and delivery/read tracking.
-- Guest-specific RSVP URLs, guest-facing languages beyond English and Hebrew, and translation of organizer-written RSVP texts.
+- Guest-specific RSVP URLs, guest-facing languages beyond English, Hebrew and Portuguese, and translation of organizer-written RSVP texts.
 - Individual attendee entities, group splitting, and seat-level assignment.
 - Vendor, budget, payment, and full event-production management.
 - Advanced analytics, audit history, reusable event templates, and configurable early RSVP deadlines.

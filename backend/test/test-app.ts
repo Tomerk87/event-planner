@@ -164,6 +164,7 @@ export const NEW_EVENT = {
   maxAttendees: 120,
   defaultAllowedAttendees: 4,
   rsvpLanguage: 'en',
+  country: 'IL',
 } as const
 
 export async function createEvent(

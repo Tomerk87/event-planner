@@ -34,4 +34,5 @@ export const SAMPLE_GUEST: Record<
 > = {
   en: { firstName: 'Dana', lastName: 'Levi' },
   he: { firstName: 'דנה', lastName: 'לוי' },
+  pt: { firstName: 'Ana', lastName: 'Souza' },
 }

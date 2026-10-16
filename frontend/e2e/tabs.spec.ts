@@ -3,8 +3,8 @@ import { startInDemo } from './helpers.ts'
 
 /**
  * A row of tabs never scrolls sideways (owner request 2026-10-15): on the
- * narrowest phones and in Hebrew, whose labels are longer, every tab stays
- * in view.
+ * narrowest phones and in Hebrew and Portuguese, whose labels are longer,
+ * every tab stays in view.
  */
 
 const pages = [
@@ -37,7 +37,7 @@ async function overflowingTabLists(page: Page) {
   )
 }
 
-for (const language of ['en', 'he'] as const) {
+for (const language of ['en', 'he', 'pt'] as const) {
   for (const width of [360, 390]) {
     test.describe(`tabs in ${language} at ${width}px`, () => {
       test.use({ viewport: { width, height: 800 } })

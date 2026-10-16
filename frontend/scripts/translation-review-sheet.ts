@@ -1,11 +1,12 @@
 /**
- * Writes the Hebrew review sheet (D74): every text of the application in
- * English and Hebrew, side by side and grouped by screen, with an empty
- * column for corrections. Includes the emails the server sends.
+ * Writes a translation review sheet (D74, D103): every text of the
+ * application in English and in one other language, side by side and grouped
+ * by screen, with an empty column for corrections. Includes the emails the
+ * server sends.
  *
- *   node scripts/hebrew-review-sheet.ts [output.xlsx]
+ *   node scripts/translation-review-sheet.ts <he|pt> [output.xlsx]
  *
- * Default output: ../docs/hebrew-review.xlsx.
+ * Default output: ../docs/hebrew-review.xlsx or ../docs/portuguese-review.xlsx.
  */
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -13,6 +14,28 @@ import writeExcelFile from 'write-excel-file/node'
 import * as emails from '../../backend/src/email/templates.ts'
 
 type Texts = { [key: string]: string | Texts }
+
+/** The languages reviewed against English, as the sheet names them. */
+const REVIEWED = {
+  he: {
+    name: 'Hebrew',
+    file: 'hebrew-review.xlsx',
+    timeZone: 'Asia/Jerusalem',
+  },
+  pt: {
+    name: 'Portuguese (Brazil)',
+    file: 'portuguese-review.xlsx',
+    timeZone: 'America/Sao_Paulo',
+  },
+} as const
+
+type Reviewed = keyof typeof REVIEWED
+
+const language = (process.argv[2] ?? 'he') as Reviewed
+if (!(language in REVIEWED)) {
+  throw new Error(`Usage: translation-review-sheet.ts <he|pt> [output.xlsx]`)
+}
+const { name: languageName, file, timeZone } = REVIEWED[language]
 
 const here = import.meta.dirname
 const read = (language: string): Texts =>
@@ -28,6 +51,7 @@ const SCREENS: Record<string, string> = {
   app: 'Everywhere',
   nav: 'Menus and navigation',
   language: 'Language switcher',
+  countries: 'Country names',
   roles: 'Role names',
   notifications: 'Notification bell',
   eventSelector: 'Event switcher',
@@ -66,7 +90,7 @@ function flatten(texts: Texts, prefix = ''): [string, string][] {
 }
 
 const en = new Map(flatten(read('en')))
-const he = new Map(flatten(read('he')))
+const translated = new Map(flatten(read(language)))
 const groups = [...new Set([...en.keys()].map((key) => key.split('.')[0]!))]
 const ordered = [
   ...Object.keys(SCREENS).filter((group) => groups.includes(group)),
@@ -84,26 +108,24 @@ function emailRows(): [string, string, string][] {
     event: {
       name: 'Garden Party',
       startsAt: '2026-10-24T17:00:00.000Z',
-      timeZone: 'Asia/Jerusalem',
+      timeZone,
     },
     role: 'ADMIN' as const,
   }
+  type Language = 'en' | Reviewed
   const kinds = {
-    verifyEmail: (language: 'en' | 'he') =>
-      emails.verifyEmail(language, sample),
-    resetPassword: (language: 'en' | 'he') =>
-      emails.resetPassword(language, sample),
-    invitation: (language: 'en' | 'he') => emails.invitation(language, sample),
-    accessGranted: (language: 'en' | 'he') =>
-      emails.accessGranted(language, sample),
-    testEmail: (language: 'en' | 'he') => emails.testEmail(language, sample),
+    verifyEmail: (into: Language) => emails.verifyEmail(into, sample),
+    resetPassword: (into: Language) => emails.resetPassword(into, sample),
+    invitation: (into: Language) => emails.invitation(into, sample),
+    accessGranted: (into: Language) => emails.accessGranted(into, sample),
+    testEmail: (into: Language) => emails.testEmail(into, sample),
   }
   return Object.entries(kinds).flatMap(([kind, write]) => {
     const english = write('en')
-    const hebrew = write('he')
+    const other = write(language)
     return [
-      [`email.${kind}.subject`, english.subject, hebrew.subject],
-      [`email.${kind}.text`, english.text, hebrew.text],
+      [`email.${kind}.subject`, english.subject, other.subject],
+      [`email.${kind}.text`, english.text, other.text],
     ] as [string, string, string][]
   })
 }
@@ -112,8 +134,8 @@ const header = [
   'Screen',
   'Key',
   'English',
-  'Hebrew (current)',
-  'Hebrew (your correction)',
+  `${languageName} (current)`,
+  `${languageName} (your correction)`,
   'Comment',
 ].map((value) => ({ value, fontWeight: 'bold' as const }))
 
@@ -126,16 +148,16 @@ const rows = [
         { value: SCREENS[group] ?? group },
         { value: key },
         { value: english, wrap: true },
-        { value: he.get(key) ?? '(missing)', wrap: true },
+        { value: translated.get(key) ?? '(missing)', wrap: true },
         null,
         null,
       ]),
   ),
-  ...emailRows().map(([key, english, hebrew]) => [
+  ...emailRows().map(([key, english, other]) => [
     { value: 'Emails the server sends' },
     { value: key },
     { value: english, wrap: true },
-    { value: hebrew, wrap: true },
+    { value: other, wrap: true },
     null,
     null,
   ]),
@@ -145,14 +167,12 @@ const instructions = [
   [{ value: 'How to review', fontWeight: 'bold' as const }],
   [
     {
-      value:
-        'The "Texts" sheet lists every text of Event Planner in English and Hebrew, grouped by the screen where it appears.',
+      value: `The "Texts" sheet lists every text of Event Planner in English and ${languageName}, grouped by the screen where it appears.`,
     },
   ],
   [
     {
-      value:
-        'Write a better Hebrew wording in "Hebrew (your correction)" only where the current one should change; leave the rest empty.',
+      value: `Write a better ${languageName} wording in "${languageName} (your correction)" only where the current one should change; leave the rest empty.`,
     },
   ],
   [
@@ -171,7 +191,7 @@ const instructions = [
 ]
 
 const output = path.resolve(
-  process.argv[2] ?? path.join(here, '../../docs/hebrew-review.xlsx'),
+  process.argv[3] ?? path.join(here, `../../docs/${file}`),
 )
 await writeExcelFile([
   {

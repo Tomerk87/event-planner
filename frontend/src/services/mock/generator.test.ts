@@ -288,3 +288,48 @@ describe('demo dataset generator', () => {
     expect(bytes).toBeLessThan(1_500_000)
   })
 })
+
+describe('Brazil’s sample events (D103)', () => {
+  const brazil = generateDemoState(NOW, 'BR')
+
+  it('are in Portuguese, in Brazil, with Brazilian names and places', () => {
+    expect(brazil.market).toBe('BR')
+    expect(state.market).toBe('IL')
+    expect(brazil.events).toHaveLength(6)
+    for (const event of brazil.events) {
+      expect(event).toMatchObject({
+        rsvpLanguage: 'pt',
+        country: 'BR',
+        timeZone: 'America/Sao_Paulo',
+      })
+    }
+    expect(brazil.events[0]?.name).toBe('Casamento de Mariana & Rafael')
+    expect(brazil.users[0]?.name).toBe('Ana Oliveira')
+    expect(brazil.users[0]?.email).toBe('ana.oliveira@example.com')
+    expect(brazil.guests.some((guest) => guest.group === 'Família')).toBe(true)
+  })
+
+  it('give every guest an undiallable Brazilian number (area code 00)', () => {
+    for (const guest of brazil.guests) {
+      expect(guest.normalizedPhone).toMatch(/^\+5500\d{9}$/)
+      expect(guest.phone).toMatch(/^\+55 00 \d{5}-\d{4}$/)
+    }
+    expect(
+      new Set(brazil.guests.map((guest) => guest.normalizedPhone)).size,
+    ).toBe(brazil.guests.length)
+  })
+
+  it('share no RSVP link with Israel’s, so a link names one set of events', () => {
+    const israel = new Set(state.events.map((event) => event.rsvpSlug))
+    expect(brazil.events.some((event) => israel.has(event.rsvpSlug))).toBe(
+      false,
+    )
+  })
+
+  it('show the same mix of states as Israel’s', () => {
+    expect(brazil.guests.length).toBe(state.guests.length)
+    expect(brazil.tables.length).toBe(state.tables.length)
+    expect(brazil.unknownRsvps.length).toBe(state.unknownRsvps.length)
+    expect(brazil.layouts).toHaveLength(6)
+  })
+})

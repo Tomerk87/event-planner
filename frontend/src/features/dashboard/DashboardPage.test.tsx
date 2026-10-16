@@ -63,6 +63,7 @@ async function newEmptyEvent(services: Services) {
     maxAttendees: 100,
     defaultAllowedAttendees: 2,
     rsvpLanguage: 'en',
+    country: 'IL',
   })
 }
 

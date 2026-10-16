@@ -16,11 +16,14 @@
   box-shadow: none;
 }
 
-.language {
+.languageMenu {
   position: absolute;
   inset-block-start: var(--space-3);
   inset-inline-end: var(--space-3);
   z-index: 1;
+}
+
+.language {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);

@@ -1,8 +1,8 @@
 import { DomainError, isDomainError } from './errors.ts'
 import { EVENT_LIMITS } from './events.ts'
 import { addGuest, GROUP_MAX_LENGTH, type GuestInput } from './guests.ts'
-import type { Guest, Id } from './models.ts'
-import { normalizePhone } from './phone.ts'
+import type { Event, Guest } from './models.ts'
+import { normalizePhone, type Country } from './phone.ts'
 
 export const IMPORT_FIELDS = [
   'firstName',
@@ -25,8 +25,8 @@ export type ColumnMapping = Record<ImportField, number | null>
 
 export const MAX_IMPORT_ROWS = 5000
 
-// Headings recognised automatically, in English and Hebrew, compared without
-// case, spaces or punctuation.
+// Headings recognised automatically, in English, Hebrew and Portuguese,
+// compared without case, accents, spaces or punctuation.
 const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
   firstName: [
     'firstname',
@@ -37,8 +37,22 @@ const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
     'שםפרטי',
     'שם',
     'שםמלא',
+    'primeironome',
+    'nome',
+    'nomecompleto',
+    'nomedoconvidado',
+    'convidado',
   ],
-  lastName: ['lastname', 'last', 'surname', 'familyname', 'שםמשפחה', 'משפחה'],
+  lastName: [
+    'lastname',
+    'last',
+    'surname',
+    'familyname',
+    'שםמשפחה',
+    'משפחה',
+    'sobrenome',
+    'ultimonome',
+  ],
   phone: [
     'phone',
     'phonenumber',
@@ -53,6 +67,13 @@ const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
     'מספרטלפון',
     'טלפוןנייד',
     'פלאפון',
+    'telefone',
+    'celular',
+    'fone',
+    'numerodetelefone',
+    'numerodocelular',
+    'numerodecelular',
+    'zap',
   ],
   allowedAttendees: [
     'allowed',
@@ -70,12 +91,35 @@ const HEADING_ALIASES: Record<ImportField, readonly string[]> = {
     'צפויים',
     'משתתפיםצפויים',
     'כמות',
+    'convidados',
+    'pessoas',
+    'numerodepessoas',
+    'quantidade',
+    'qtd',
+    'participantes',
+    'esperados',
+    'participantesesperados',
   ],
-  group: ['group', 'groupname', 'category', 'side', 'קבוצה', 'שםקבוצה', 'צד'],
+  group: [
+    'group',
+    'groupname',
+    'category',
+    'side',
+    'קבוצה',
+    'שםקבוצה',
+    'צד',
+    'grupo',
+    'categoria',
+    'lado',
+  ],
 }
 
 function simplify(heading: string): string {
-  return heading.toLowerCase().replace(/[\s_\-./#:'"׳״()]/g, '')
+  return heading
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\s_\-./#:'"׳״()]/g, '')
 }
 
 /** Guesses which column holds each field from the file's heading row. */
@@ -112,9 +156,10 @@ export function isMappingComplete(mapping: ColumnMapping): boolean {
 /**
  * A spreadsheet that stores a phone as a number drops its leading zero, so an
  * Israeli mobile arrives as nine digits starting with 5. The zero is put back.
+ * Brazilian numbers start with their area code, which never begins with 0.
  */
-function restoreLeadingZero(phone: string): string {
-  return /^5\d{8}$/.test(phone) ? `0${phone}` : phone
+function restoreLeadingZero(phone: string, country: Country): string {
+  return country === 'IL' && /^5\d{8}$/.test(phone) ? `0${phone}` : phone
 }
 
 export type ImportRowError =
@@ -167,8 +212,7 @@ export function planGuestImport(
   dataRows: readonly (readonly string[])[],
   mapping: ColumnMapping,
   existing: readonly Guest[],
-  eventId: Id,
-  defaultAllowedAttendees: number,
+  event: Pick<Event, 'id' | 'country' | 'defaultAllowedAttendees'>,
   firstRowNumber = 2,
 ): ImportPlan {
   if (dataRows.length > MAX_IMPORT_ROWS) {
@@ -188,7 +232,7 @@ export function planGuestImport(
     const values: Record<ImportField, string> = {
       firstName: read(row, 'firstName'),
       lastName: read(row, 'lastName'),
-      phone: restoreLeadingZero(read(row, 'phone')),
+      phone: restoreLeadingZero(read(row, 'phone'), event.country),
       allowedAttendees: read(row, 'allowedAttendees'),
       group: read(row, 'group'),
     }
@@ -207,7 +251,7 @@ export function planGuestImport(
     }
     const allowedAttendees = parseAllowed(
       values.allowedAttendees,
-      defaultAllowedAttendees,
+      event.defaultAllowedAttendees,
     )
     if (allowedAttendees === null) {
       return fail('INVALID_ALLOWED')
@@ -225,7 +269,7 @@ export function planGuestImport(
     try {
       const { guest, restored } = addGuest(
         guests,
-        eventId,
+        event,
         input,
         `import-${rowNumber}`,
       )
@@ -249,7 +293,7 @@ export function planGuestImport(
       if (isDomainError(error, 'DUPLICATE_PHONE')) {
         // The phone is valid, or it would have failed as invalid above.
         return fail(
-          inFile.has(normalizePhone(values.phone))
+          inFile.has(normalizePhone(values.phone, event.country))
             ? 'DUPLICATE_IN_FILE'
             : 'DUPLICATE_IN_EVENT',
         )

@@ -6,7 +6,11 @@ import type { Event, Guest, RsvpLanguage } from '../domain/models.ts'
  * message is worded the same in the demo and in the real application.
  */
 
-const LOCALES: Record<RsvpLanguage, string> = { en: 'en-US', he: 'he-IL' }
+const LOCALES: Record<RsvpLanguage, string> = {
+  en: 'en-US',
+  he: 'he-IL',
+  pt: 'pt-BR',
+}
 
 export function publicRsvpUrl(baseUrl: string, event: Event): string {
   return `${baseUrl}/rsvp/${event.rsvpSlug}`
@@ -51,4 +55,5 @@ export const SAMPLE_GUEST: Record<
 > = {
   en: { firstName: 'Dana', lastName: 'Levi' },
   he: { firstName: 'דנה', lastName: 'לוי' },
+  pt: { firstName: 'Ana', lastName: 'Souza' },
 }

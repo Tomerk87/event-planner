@@ -1,6 +1,21 @@
 import { DomainError } from './errors.ts'
 
+/**
+ * The countries whose local numbers are understood (D103). Each event has
+ * one: a number typed without a country code is read as that country's.
+ */
+export const COUNTRIES = ['IL', 'BR'] as const
+
+export type Country = (typeof COUNTRIES)[number]
+
+export const DEFAULT_COUNTRY: Country = 'IL'
+
+export function isCountry(value: unknown): value is Country {
+  return (COUNTRIES as readonly unknown[]).includes(value)
+}
+
 const ISRAEL_COUNTRY_CODE = '972'
+const BRAZIL_COUNTRY_CODE = '55'
 const MIN_INTERNATIONAL_DIGITS = 8
 const MAX_INTERNATIONAL_DIGITS = 15
 
@@ -17,13 +32,21 @@ const UNUSED_ISRAELI_FIRST_DIGITS = '16'
  * Converts a phone number as typed into one canonical form, used for
  * uniqueness within an event and for matching RSVP submissions.
  *
- * Accepted: Israeli local numbers ("050-123-4567"), Israeli numbers with the
- * country code ("+972 50 123 4567", "972501234567", "+972 050 1234567"), and
- * any other number written internationally with "+" or "00". A number without
- * a country code is read as Israeli; one from elsewhere needs its code. Only
- * the shape is checked, not whether an operator has assigned the range.
+ * Accepted: any number written internationally with "+" or "00", and local
+ * numbers of the event's country:
+ * - Israel: "050-123-4567", or with the country code and no "+"
+ *   ("972501234567", "+972 050 1234567").
+ * - Brazil: area code and number, "(11) 91234-5678" or "11 3123-4567", with
+ *   or without the trunk "0" ("011 91234-5678"), or with the country code
+ *   and no "+" ("5511912345678").
+ *
+ * A number from elsewhere needs its code. Only the shape is checked, not
+ * whether an operator has assigned the range.
  */
-export function normalizePhone(input: string): string {
+export function normalizePhone(
+  input: string,
+  country: Country = DEFAULT_COUNTRY,
+): string {
   const compact = input.replace(/[\s\-().]/g, '')
   const hasPlus = compact.startsWith('+')
   const digits = hasPlus ? compact.slice(1) : compact
@@ -37,6 +60,8 @@ export function normalizePhone(input: string): string {
     international = digits
   } else if (digits.startsWith('00') && digits.length > 10) {
     international = digits.slice(2)
+  } else if (country === 'BR') {
+    international = BRAZIL_COUNTRY_CODE + brazilianNational(digits)
   } else if (
     digits.startsWith(ISRAEL_COUNTRY_CODE) &&
     digits.length >= 11 &&
@@ -69,6 +94,14 @@ export function normalizePhone(input: string): string {
     return `+${ISRAEL_COUNTRY_CODE}${significant}`
   }
 
+  if (international.startsWith(BRAZIL_COUNTRY_CODE)) {
+    const national = international.slice(BRAZIL_COUNTRY_CODE.length)
+    if (national.length < 10 || national.length > 11) {
+      throw new DomainError('INVALID_PHONE')
+    }
+    return `+${international}`
+  }
+
   if (
     international.length < MIN_INTERNATIONAL_DIGITS ||
     international.length > MAX_INTERNATIONAL_DIGITS
@@ -76,6 +109,30 @@ export function normalizePhone(input: string): string {
     throw new DomainError('INVALID_PHONE')
   }
   return `+${international}`
+}
+
+/**
+ * The national part of a Brazilian number typed without "+": a two-digit
+ * area code and an eight-digit landline or nine-digit mobile number. A
+ * national number has at most 11 digits, so 12 or 13 starting with 55 carry
+ * the country code. The demo's numbers use the area code "00", which does
+ * not exist, so they cannot be dialled; they are always written with "+55".
+ */
+function brazilianNational(digits: string): string {
+  // A leading zero is the trunk prefix; no area code starts with it.
+  if (digits.startsWith('0')) {
+    if (digits.length === 11 || digits.length === 12) {
+      return digits.slice(1)
+    }
+  } else if (digits.length === 10 || digits.length === 11) {
+    return digits
+  } else if (
+    digits.startsWith(BRAZIL_COUNTRY_CODE) &&
+    (digits.length === 12 || digits.length === 13)
+  ) {
+    return digits.slice(BRAZIL_COUNTRY_CODE.length)
+  }
+  throw new DomainError('INVALID_PHONE')
 }
 
 // International calling codes. No code is the start of another, so the code
@@ -98,7 +155,9 @@ const CALLING_CODES = new Set(
 
 /**
  * How a phone number is shown. An Israeli number is written the way it is
- * dialled locally — "050-730-8828", "03-123-4567". Any other number keeps its
+ * dialled locally — "050-730-8828", "03-123-4567". A Brazilian number keeps
+ * its country code, with the area code and number set apart:
+ * "+55 11 91234-5678", "+55 11 3123-4567". Any other number keeps its
  * international form with the country code set apart: "+1 2125550123".
  *
  * Takes the canonical form returned by `normalizePhone`.
@@ -112,6 +171,13 @@ export function formatPhone(normalizedPhone: string): string {
     }
     if (national.length === 8) {
       return `0${national.slice(0, 1)}-${national.slice(1, 4)}-${national.slice(4)}`
+    }
+  }
+  if (digits.startsWith(BRAZIL_COUNTRY_CODE)) {
+    const national = digits.slice(BRAZIL_COUNTRY_CODE.length)
+    if (national.length === 10 || national.length === 11) {
+      const split = national.length - 4
+      return `+55 ${national.slice(0, 2)} ${national.slice(2, split)}-${national.slice(split)}`
     }
   }
   for (const length of [1, 2, 3]) {

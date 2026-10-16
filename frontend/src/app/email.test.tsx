@@ -236,6 +236,7 @@ describe('invitation emails (D90)', () => {
         maxAttendees: 100,
         defaultAllowedAttendees: 2,
         rsvpLanguage: 'en',
+        country: 'IL',
         location: null,
         rsvpTitle: null,
         coverImage: null,

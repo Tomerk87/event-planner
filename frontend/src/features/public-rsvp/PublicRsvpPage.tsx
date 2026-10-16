@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { isDomainError } from '../../domain/errors.ts'
 import type { RsvpResponse } from '../../domain/models.ts'
-import type { Language } from '../../i18n/languages.ts'
+import { LANGUAGES, type Language } from '../../i18n/languages.ts'
 import { LocaleScope } from '../../i18n/LocaleScope.tsx'
 import type {
   PublicRsvpResult,
@@ -15,6 +15,7 @@ import { usePublicRsvp } from '../../services/servicesContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import standalone from '../../shared/StandalonePage.module.css'
 import { Card } from '../../shared/ui/Card.tsx'
+import { Menu } from '../../shared/ui/Menu.tsx'
 import { ErrorState, LoadingState } from '../../shared/ui/States.tsx'
 import { useDocumentTitle } from '../../shared/useDocumentTitle.ts'
 import styles from './PublicRsvp.module.css'
@@ -132,6 +133,34 @@ function Form({
   )
 }
 
+/** The page's language, in the page's language, with the others to choose. */
+function LanguageMenu({
+  language,
+  onChange,
+}: {
+  language: Language
+  onChange: (language: Language) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <div className={styles.languageMenu}>
+      <Menu
+        label={t('language.label')}
+        triggerClassName={styles.language}
+        items={LANGUAGES.filter((other) => other !== language).map((other) => ({
+          id: other,
+          label: t(`language.${other}`),
+          lang: other,
+          onSelect: () => onChange(other),
+        }))}
+      >
+        <Languages aria-hidden="true" />
+        {t(`language.${language}`)}
+      </Menu>
+    </div>
+  )
+}
+
 function PublicRsvp({
   slug,
   view,
@@ -141,23 +170,13 @@ function PublicRsvp({
   view: PublicRsvpView
   onClosed: () => void
 }) {
-  const { t } = useTranslation()
   const [language, setLanguage] = useState<Language>(view.language)
-  const other: Language = language === 'en' ? 'he' : 'en'
   useDocumentTitle(view.title)
 
   return (
     <LocaleScope language={language}>
       <div className={styles.fill}>
-        <button
-          type="button"
-          className={styles.language}
-          lang={other}
-          onClick={() => setLanguage(other)}
-        >
-          <Languages aria-hidden="true" />
-          {t(`language.${other}`)}
-        </button>
+        <LanguageMenu language={language} onChange={setLanguage} />
         <Form slug={slug} view={view} onClosed={onClosed} />
       </div>
     </LocaleScope>

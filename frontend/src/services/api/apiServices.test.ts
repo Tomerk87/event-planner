@@ -59,6 +59,7 @@ const event = {
   maxAttendees: 100,
   defaultAllowedAttendees: 2,
   rsvpLanguage: 'en' as const,
+  country: 'IL' as const,
   location: null,
   rsvpTitle: null,
   coverImage: null,
@@ -243,6 +244,7 @@ describe('API provider', () => {
     } as never)
 
     expect(Object.keys(calls[0]!.body as object).sort()).toEqual([
+      'country',
       'coverImage',
       'defaultAllowedAttendees',
       'location',

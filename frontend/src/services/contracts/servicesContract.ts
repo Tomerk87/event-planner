@@ -128,6 +128,7 @@ export function describeServicesContract(
           maxAttendees: 80,
           defaultAllowedAttendees: 2,
           rsvpLanguage: 'he',
+          country: 'IL',
         })
 
         expect((await services.events.get(created.id)).role).toBe('OWNER')
@@ -338,6 +339,7 @@ export function describeServicesContract(
           maxAttendees: 80,
           defaultAllowedAttendees: 2,
           rsvpLanguage: 'en' as const,
+          country: 'IL' as const,
         }
 
         const created = await services.events.create({
@@ -492,6 +494,66 @@ export function describeServicesContract(
             (unknown) => unknown.name === 'Not Invited',
           )?.phone,
         ).toBe('052-111-2233')
+      })
+
+      it('reads local numbers by the event’s country: a Brazilian event (D103)', async () => {
+        const { services } = await setup()
+        const created = await services.events.create({
+          name: 'Festa no Brasil',
+          startsAt: '2031-01-01T21:00:00.000Z',
+          timeZone: 'America/Sao_Paulo',
+          maxAttendees: 80,
+          defaultAllowedAttendees: 2,
+          rsvpLanguage: 'pt',
+          country: 'BR',
+        })
+        expect(created).toMatchObject({ rsvpLanguage: 'pt', country: 'BR' })
+
+        const guest = await services.guests.create(created.id, {
+          ...newGuest,
+          phone: '(11) 91234-5678',
+        })
+        expect(guest.phone).toBe('+55 11 91234-5678')
+        expect(
+          await codeOf(
+            services.guests.create(created.id, {
+              ...newGuest,
+              phone: '+55 11 91234 5678',
+            }),
+          ),
+        ).toBe('DUPLICATE_PHONE')
+        expect(
+          await codeOf(
+            services.guests.create(created.id, {
+              ...newGuest,
+              phone: '050-730-8828',
+            }),
+          ),
+        ).toBe('INVALID_PHONE')
+
+        const view = await services.rsvp.getPublicEvent(created.rsvpSlug)
+        expect(view).toMatchObject({ language: 'pt', country: 'BR' })
+        await services.rsvp.submit(created.rsvpSlug, {
+          name: 'Digitou Diferente',
+          phone: '011 91234-5678',
+          status: 'APPROVED',
+          attendees: 2,
+        })
+        expect(
+          (await services.guests.list(created.id)).find(
+            (candidate) => candidate.id === guest.id,
+          ),
+        ).toMatchObject({ rsvpStatus: 'APPROVED', confirmedAttendees: 2 })
+
+        // Changing the country keeps the numbers already saved.
+        const moved = await services.events.update(created.id, {
+          ...created,
+          country: 'IL',
+        })
+        expect(moved.country).toBe('IL')
+        expect(
+          (await services.guests.list(created.id)).map((item) => item.phone),
+        ).toEqual(['+55 11 91234-5678'])
       })
 
       it('rejects a duplicate phone but allows it in another event', async () => {

@@ -1,0 +1,1465 @@
+{
+  "app": {
+    "name": "Event Planner"
+  },
+  "nav": {
+    "main": "Navegação principal",
+    "event": "Navegação do evento",
+    "menu": "Menu",
+    "myEvents": "Meus eventos",
+    "dashboard": "Painel",
+    "guests": "Convidados",
+    "rsvp": "RSVP",
+    "messages": "Mensagens",
+    "eventLayout": "Mesas",
+    "eventSettings": "Configurações do evento",
+    "permissions": "Permissões",
+    "backToMyEvents": "Voltar para Meus eventos",
+    "openMenu": "Abrir menu",
+    "collapseMenu": "Recolher menu",
+    "expandMenu": "Expandir menu",
+    "closeMenu": "Fechar menu",
+    "skipToContent": "Ir para o conteúdo",
+    "logOut": "Sair",
+    "system": "Sistema"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "English",
+    "he": "עברית",
+    "pt": "Português (Brasil)"
+  },
+  "countries": {
+    "IL": "Israel",
+    "BR": "Brasil"
+  },
+  "roles": {
+    "OWNER": "Proprietário",
+    "ADMIN": "Administrador",
+    "VIEWER": "Leitor"
+  },
+  "eventSelector": {
+    "label": "Evento atual: {{name}}. Trocar de evento",
+    "list": "Seus eventos"
+  },
+  "user": {
+    "roleInEvent": "Sua função neste evento: {{role}}",
+    "menu": "Menu da conta de {{name}}"
+  },
+  "pages": {
+    "events": "Meus eventos",
+    "dashboard": "Painel",
+    "guests": "Convidados",
+    "messages": "Mensagens de WhatsApp",
+    "rsvpSettings": "Configurações de RSVP",
+    "eventLayout": "Mesas",
+    "eventSettings": "Configurações do evento",
+    "permissions": "Permissões",
+    "publicRsvp": "Confirmação de presença",
+    "system": "Sistema"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "body": "O endereço que você abriu não corresponde a nenhuma página."
+  },
+  "routeError": {
+    "title": "Algo deu errado",
+    "body": "Não foi possível exibir esta página."
+  },
+  "common": {
+    "loading": "Carregando…",
+    "retry": "Tentar novamente",
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "soon": "Em breve",
+    "pageActions": "Ações da página",
+    "characterCount": "{{count}}/{{max}}",
+    "unsaved": {
+      "title": "Sair sem salvar?",
+      "body": "Você tem alterações não salvas. Se sair desta página, elas serão perdidas.",
+      "stay": "Continuar editando",
+      "leave": "Sair",
+      "save": "Salvar e sair"
+    }
+  },
+  "states": {
+    "errorTitle": "Algo deu errado",
+    "errorBody": "Não foi possível carregar isto. Tente novamente."
+  },
+  "access": {
+    "PAST_EVENT": {
+      "title": "Este evento já terminou",
+      "body": "Eventos passados são somente leitura. Você ainda pode ver todos os dados e baixar exportações."
+    },
+    "VIEWER": {
+      "title": "Acesso somente leitura",
+      "body": "Você pode ver este evento e baixar exportações, mas não pode fazer alterações."
+    }
+  },
+  "toast": {
+    "region": "Notificações",
+    "dismiss": "Dispensar"
+  },
+  "demo": {
+    "badge": "Modo demonstração",
+    "toolsLabel": "Controles da demonstração",
+    "roleLabel": "Função simulada",
+    "roleOwn": "Função: a minha",
+    "simulate": {
+      "OWNER": "Simular Proprietário",
+      "ADMIN": "Simular Administrador",
+      "VIEWER": "Simular Leitor",
+      "SUPER_USER": "Simular Superusuário"
+    },
+    "reset": "Reiniciar demonstração",
+    "resetTitle": "Reiniciar a demonstração?",
+    "resetBody": "Todas as alterações que você fez nesta demonstração serão removidas e os dados de exemplo originais serão restaurados. Isso não pode ser desfeito.",
+    "resetDone": "A demonstração voltou aos dados originais.",
+    "regenerated": "A demonstração foi atualizada, então os dados de exemplo foram renovados.",
+    "ended": {
+      "title": "Sua demonstração terminou",
+      "lifetime": "Uma demonstração dura 3 dias, então os dados de exemplo foram apagados. Experimentar demo começa uma nova.",
+      "idle": "A demonstração ficou 12 horas sem uso, então os dados de exemplo foram apagados. Experimentar demo começa uma nova."
+    },
+    "endsAt": "A demonstração termina em {{date}} às {{time}}, ou após 12 horas sem atividade."
+  },
+  "errors": {
+    "UNAUTHENTICATED": "Sua sessão terminou. Entre novamente.",
+    "INVALID_CREDENTIALS": "O e-mail ou a senha estão incorretos.",
+    "TOO_MANY_REQUESTS": "Muitas tentativas. Aguarde um minuto e tente novamente.",
+    "FORBIDDEN": "Você não tem permissão para fazer isso.",
+    "EVENT_READ_ONLY": "Este evento já terminou e não pode mais ser alterado.",
+    "NOT_FOUND": "Este item não foi encontrado.",
+    "VALIDATION": "Alguns dados não são válidos. Verifique-os e tente novamente.",
+    "INVALID_PHONE": "Digite um número de telefone válido.",
+    "DUPLICATE_PHONE": "Outro convidado deste evento já tem este número de telefone.",
+    "INVALID_ATTENDEE_COUNT": "O número de pessoas deve estar entre {{min}} e {{max}}.",
+    "GUEST_NOT_APPROVED": "Só convidados que confirmaram presença podem ser colocados em uma mesa.",
+    "TABLE_FULL": "Esta mesa tem {{available}} lugares livres, e o grupo precisa de {{needed}}.",
+    "DUPLICATE_TABLE_NUMBER": "A mesa número {{number}} já existe.",
+    "LAYOUT_CHANGED": "Outra pessoa salvou este mapa de mesas depois que você o abriu. Recarregue para ver as alterações.",
+    "LAST_OWNER": "Um evento precisa ter pelo menos um Proprietário.",
+    "SELF_PERMISSION": "Você não pode alterar a sua própria permissão.",
+    "ALREADY_MEMBER": "Esta pessoa já tem acesso ao evento.",
+    "ALREADY_INVITED": "Este e-mail já foi convidado para o evento.",
+    "RSVP_CLOSED": "A confirmação de presença está encerrada porque o evento já começou.",
+    "UNAVAILABLE": "O serviço não está disponível agora. Tente novamente.",
+    "UNKNOWN": "Algo deu errado. Tente novamente.",
+    "EMAIL_TAKEN": "Já existe uma conta com este e-mail. Entre com ela.",
+    "ACCOUNT_NOT_FOUND": "Nenhuma conta com este e-mail foi encontrada.",
+    "LINK_EXPIRED": "Este link expirou ou já foi usado."
+  },
+  "unavailable": {
+    "title": "O aplicativo não pode ser iniciado",
+    "body": "O serviço de dados desta instalação ainda não está disponível."
+  },
+  "landing": {
+    "documentTitle": "Planeje cada convidado",
+    "nav": "Página inicial",
+    "tryDemo": "Experimentar demo",
+    "headline": {
+      "first": "Planeje cada convidado.",
+      "second": "Cuide de cada detalhe."
+    },
+    "lead": "Gerencie convidados, confirmações de presença, convites por WhatsApp, mesas e números do evento em um só lugar.",
+    "note": "Sem precisar de conta. Explore eventos de demonstração completos.",
+    "previewNote": "Uma prévia do Event Planner. Tudo o que você vê são dados de exemplo, guardados apenas no seu navegador.",
+    "features": {
+      "link": "Recursos",
+      "title": "Recursos",
+      "guests": {
+        "title": "Gestão de convidados",
+        "body": "Todos os seus convidados em um só lugar, com busca, filtros e importação de planilha."
+      },
+      "rsvp": {
+        "title": "Confirmação de presença",
+        "body": "Um link de confirmação por evento. Veja quem vai, quem ainda não sabe e quem não vai."
+      },
+      "whatsapp": {
+        "title": "Convites por WhatsApp",
+        "body": "Escreva o convite uma vez e abra-o no WhatsApp para cada convidado, pronto para enviar."
+      },
+      "seating": {
+        "title": "Mesas e lugares",
+        "body": "Monte suas mesas e acomode os convidados confirmados, com a capacidade verificada para você."
+      }
+    },
+    "band": {
+      "title": "Explore a demonstração — sem precisar configurar nada.",
+      "body": "Descubra todos os recursos com eventos completos e dados de exemplo fictícios."
+    },
+    "preview": {
+      "event": "Festa no Jardim",
+      "overview": "Resumo das confirmações",
+      "share": "{{percent}}%",
+      "kpi": {
+        "total": "Total de convidados",
+        "approved": "Confirmados",
+        "awaiting": "Aguardando",
+        "declined": "Não vão"
+      },
+      "guests": {
+        "first": "Beatriz Moraes",
+        "second": "Caio Teixeira",
+        "third": "Lívia Andrade",
+        "fourth": "Otávio Campos"
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "action": "Entrar",
+      "title": "Entrar",
+      "subtitle": "Bem-vindo de volta. Entre para gerenciar seus eventos.",
+      "noAccount": "Não tem uma conta?",
+      "forgot": "Esqueceu a senha?",
+      "passwordChanged": "Sua senha foi alterada. Entre com a nova senha."
+    },
+    "signUp": {
+      "action": "Criar conta",
+      "title": "Crie sua conta",
+      "subtitle": "Comece a planejar seu primeiro evento.",
+      "haveAccount": "Já tem uma conta?"
+    },
+    "fields": {
+      "name": "Nome completo",
+      "email": "E-mail",
+      "password": "Senha",
+      "passwordHint": "Pelo menos {{min}} caracteres."
+    },
+    "errors": {
+      "name": "Digite seu nome.",
+      "email": "Digite um endereço de e-mail válido.",
+      "passwordRequired": "Digite sua senha.",
+      "passwordLength": "Use pelo menos {{min}} caracteres."
+    },
+    "tryDemoInstead": "Ou explore a demonstração sem conta",
+    "backToSignIn": "Voltar para entrar",
+    "forgot": {
+      "title": "Redefina sua senha",
+      "subtitle": "Digite o e-mail da sua conta e enviaremos um link para você escolher uma nova senha.",
+      "action": "Enviar link de redefinição",
+      "sentTitle": "Confira sua caixa de entrada",
+      "sentBody": "Se existir uma conta para {{email}}, enviamos para ela um link para redefinir a senha. O link vale por uma hora."
+    },
+    "reset": {
+      "title": "Escolha uma nova senha",
+      "subtitle": "Depois de salvar, você sairá da conta em todos os dispositivos. Depois, entre com a nova senha.",
+      "field": "Nova senha",
+      "action": "Salvar senha",
+      "missing": "Este link está incompleto. Abra novamente o link do e-mail ou peça um novo.",
+      "newLink": "Pedir um novo link"
+    },
+    "verify": {
+      "title": "Confirmação de e-mail",
+      "checking": "Confirmando seu e-mail…",
+      "doneTitle": "Seu e-mail foi confirmado",
+      "doneBody": "Os convites para eventos enviados a este e-mail agora aparecem nos seus eventos.",
+      "toEvents": "Ir para Meus eventos",
+      "failedTitle": "Não foi possível confirmar seu e-mail",
+      "resendHint": "Você pode pedir um novo e-mail de confirmação.",
+      "signInHint": "Entre para pedir um novo e-mail de confirmação.",
+      "resend": "Enviar um novo link"
+    }
+  },
+  "events": {
+    "subtitle": "Gerencie seus eventos, convidados e confirmações em um só lugar.",
+    "listLabel": "Eventos",
+    "filter": {
+      "label": "Filtrar eventos",
+      "all": "Todos os eventos",
+      "upcoming": "Próximos",
+      "past": "Passados"
+    },
+    "search": {
+      "label": "Buscar eventos",
+      "placeholder": "Buscar eventos…",
+      "toggle": "Buscar eventos"
+    },
+    "view": {
+      "label": "Visualização",
+      "grid": "Visualização em grade",
+      "list": "Visualização em lista"
+    },
+    "status": {
+      "upcoming": "Próximo",
+      "past": "Passado"
+    },
+    "card": {
+      "open": "Abrir evento",
+      "view": "Ver evento",
+      "openNamed": "{{action}}: {{name}}",
+      "actions": "Ações de {{name}}",
+      "duplicate": "Duplicar",
+      "delete": "Excluir",
+      "date": "Data:",
+      "time": "Horário:",
+      "role": "Sua função:",
+      "maxAttendees": "Máximo de {{formatted}} pessoas",
+      "confirmed": "{{formatted}} confirmadas",
+      "capacity": "Capacidade de {{formatted}}",
+      "attendance": "Pessoas confirmadas em {{name}}"
+    },
+    "create": {
+      "action": "Criar evento",
+      "title": "Criar evento",
+      "submit": "Criar evento",
+      "done": "O evento foi criado."
+    },
+    "duplicate": {
+      "title": "Duplicar evento",
+      "submit": "Duplicar evento",
+      "done": "O evento foi duplicado.",
+      "defaultName": "Cópia de {{name}}",
+      "noticeTitle": "O que é copiado",
+      "noticeBody": "Os dados do evento, as configurações de RSVP, o modelo de mensagem e as mesas. Convidados, respostas, mensagens enviadas e outros membros não são copiados. Você será o Proprietário do novo evento.",
+      "timeZone": "Fuso horário: {{timeZone}} (o mesmo do evento original)"
+    },
+    "delete": {
+      "title": "Excluir evento",
+      "submit": "Excluir evento",
+      "done": "O evento foi excluído.",
+      "warningTitle": "Excluir “{{name}}” definitivamente?",
+      "warningBody": "O evento e todos os seus convidados, respostas, mensagens, mesas e permissões serão removidos para todos. Isso não pode ser desfeito.",
+      "confirmLabel": "Nome do evento",
+      "confirmHint": "Digite {{name}} para confirmar."
+    },
+    "form": {
+      "name": "Nome do evento",
+      "date": "Data",
+      "time": "Horário",
+      "timeZone": "Fuso horário",
+      "timeZoneNoMatch": "Nenhum fuso horário corresponde",
+      "maxAttendees": "Máximo de pessoas",
+      "maxAttendeesHint": "Entre {{min}} e {{max}}.",
+      "defaultAllowedAttendees": "Pessoas previstas por convidado",
+      "defaultAllowedAttendeesHint": "Padrão para novos convidados, de {{min}} a {{max}}.",
+      "rsvpLanguage": "Idioma padrão do RSVP",
+      "rsvpLanguageHint": "O idioma em que a página pública de confirmação abre. Você pode alterá-lo depois nas Configurações de RSVP.",
+      "location": "Local",
+      "errors": {
+        "name": "Digite o nome do evento.",
+        "startsAt": "Escolha a data e o horário do evento.",
+        "startsAtPast": "Escolha uma data e um horário no futuro.",
+        "timeZone": "Escolha um fuso horário.",
+        "maxAttendees": "Digite um número inteiro entre {{min}} e {{max}}.",
+        "defaultAllowedAttendees": "Digite um número inteiro entre {{min}} e {{max}}."
+      },
+      "photo": {
+        "label": "Foto do evento",
+        "upload": "Enviar foto",
+        "change": "Trocar foto",
+        "remove": "Remover foto",
+        "none": "JPG ou PNG, até 5 MB. Sem foto, o evento mantém a capa gerada.",
+        "hint": "Aparece no cartão do evento e no seletor de eventos."
+      },
+      "country": "País dos números de telefone",
+      "countryHint": "Números de telefone digitados sem o código do país são lidos como números deste país."
+    },
+    "empty": {
+      "title": "Nenhum evento ainda",
+      "body": "Crie seu primeiro evento para começar a adicionar convidados e enviar convites.",
+      "action": "Criar seu primeiro evento"
+    },
+    "noMatch": {
+      "title": "Nenhum evento corresponde",
+      "body": "Tente outra busca ou outro filtro.",
+      "action": "Limpar busca e filtro"
+    }
+  },
+  "dashboard": {
+    "subtitle": "Visão geral dos convidados e das confirmações do seu evento.",
+    "unit": {
+      "invitations": "convites",
+      "people": "pessoas",
+      "chairs": "cadeiras"
+    },
+    "kpis": {
+      "label": "Números principais",
+      "totalGuests": "Total de convidados",
+      "invitationsSent": "Convites enviados",
+      "invitationsNotSent": "Convites não enviados",
+      "awaitingResponse": "Aguardando resposta",
+      "rsvpApproved": "Confirmaram",
+      "rsvpNotSure": "Talvez",
+      "rsvpDeclined": "Não vão",
+      "confirmedAttendees": "Pessoas confirmadas",
+      "seatingCapacity": "Lugares nas mesas",
+      "unassignedConfirmedAttendees": "Confirmados sem mesa"
+    },
+    "warnings": {
+      "label": "Avisos",
+      "overMaximum": {
+        "title": "Evento acima da capacidade",
+        "body": "As presenças confirmadas passam do máximo do evento em {{over}} ({{confirmed}} / {{max}})."
+      },
+      "seatsShort": {
+        "title": "Faltam lugares",
+        "body": "{{confirmed}} pessoas confirmadas e {{seats}} lugares: faltam mais {{short}} lugares."
+      },
+      "seatingBelow": {
+        "title": "Lugares nas mesas abaixo da capacidade do evento",
+        "body": "Há {{seats}} lugares configurados para um máximo de {{max}} pessoas, o suficiente para as {{confirmed}} pessoas confirmadas."
+      },
+      "seatingAbove": {
+        "title": "Lugares nas mesas acima da capacidade do evento",
+        "body": "Há {{seats}} lugares configurados para um máximo de {{max}} pessoas: {{difference}} a mais do que o evento permite."
+      },
+      "tables": {
+        "title": "Mesas acima da capacidade: {{count}}",
+        "line": "A mesa {{table}} passou da capacidade em {{over}}.",
+        "more": "E mais {{count}}."
+      },
+      "awaitingTable": {
+        "title": "Pessoas confirmadas sem mesa",
+        "body": "{{count}} pessoas confirmadas ainda não estão em uma mesa."
+      }
+    },
+    "rsvp": {
+      "title": "Situação do RSVP",
+      "subtitle": "Respostas dos convidados.",
+      "guests": "Convidados",
+      "chartLabel": "Gráfico da situação do RSVP de {{count}} convidados; os números estão na tabela a seguir.",
+      "percent": "{{percent}}%",
+      "columns": {
+        "status": "Situação",
+        "guests": "Convidados",
+        "share": "Parte dos convidados"
+      },
+      "segments": {
+        "approved": "Confirmaram",
+        "declined": "Não vão",
+        "notSure": "Talvez",
+        "awaiting": "Aguardando resposta",
+        "notInvited": "Não enviado"
+      },
+      "emptyTitle": "Nenhum convidado ainda",
+      "emptyBody": "Adicione convidados para ver como eles respondem."
+    },
+    "capacity": {
+      "title": "Presença x capacidade",
+      "subtitle": "Pessoas confirmadas e lugares nas mesas comparados ao máximo do evento.",
+      "confirmed": "Pessoas confirmadas",
+      "seating": "Lugares nas mesas",
+      "ofMaximum": "{{value}} / {{max}}",
+      "note": "A linha tracejada marca o máximo de {{max}} pessoas do evento."
+    },
+    "activity": {
+      "title": "Atividade recente dos convidados",
+      "subtitle": "Últimas respostas e convites enviados.",
+      "viewAll": "Ver tudo",
+      "approved": "Confirmou presença, {{attendees}} pessoas",
+      "declined": "Não vai",
+      "notSure": "Respondeu: talvez",
+      "sent": "Convite enviado pelo WhatsApp",
+      "today": "Hoje, {{time}}",
+      "yesterday": "Ontem, {{time}}",
+      "onDate": "{{date}}, {{time}}",
+      "emptyTitle": "Nenhuma atividade ainda",
+      "emptyBody": "Os convites enviados e as respostas aparecerão aqui."
+    },
+    "actions": {
+      "title": "Ações rápidas",
+      "subtitle": "Tarefas comuns do seu evento.",
+      "guests": {
+        "title": "Gerenciar convidados",
+        "body": "Adicionar, editar ou importar convidados"
+      },
+      "messages": {
+        "title": "Enviar mensagens de WhatsApp",
+        "body": "Abrir o WhatsApp com o seu modelo"
+      },
+      "rsvp": {
+        "title": "Configurações de RSVP",
+        "body": "Copiar o link e personalizar as mensagens"
+      },
+      "tables": {
+        "title": "Gerenciar mesas",
+        "body": "Criar mesas e acomodar convidados"
+      }
+    }
+  },
+  "guests": {
+    "subtitle": "Gerencie sua lista de convidados, envie convites e acompanhe as confirmações.",
+    "actions": {
+      "import": "Importar convidados",
+      "export": "Exportar",
+      "exportCsv": "Arquivo CSV (.csv)",
+      "exportXlsx": "Arquivo do Excel (.xlsx)",
+      "add": "Adicionar convidado"
+    },
+    "kpis": {
+      "label": "Números dos convidados",
+      "total": "Total de convidados",
+      "sent": "Convites enviados",
+      "notSent": "Não enviados",
+      "approved": "Confirmaram",
+      "notSure": "Talvez",
+      "declined": "Não vão",
+      "approvedHint": "pessoas"
+    },
+    "tabs": {
+      "label": "Listas de convidados",
+      "guests": "Convidados",
+      "unknown": "Convidados desconhecidos"
+    },
+    "status": {
+      "NOT_SENT": "Não enviado",
+      "AWAITING": "Aguardando resposta",
+      "APPROVED": "Confirmou",
+      "NOT_SURE": "Talvez",
+      "DECLINED": "Não vai"
+    },
+    "rsvp": {
+      "NO_RESPONSE": "Sem resposta",
+      "APPROVED": "Confirmou",
+      "NOT_SURE": "Talvez",
+      "DECLINED": "Não vai"
+    },
+    "search": {
+      "label": "Buscar convidados",
+      "placeholder": "Buscar por nome, telefone ou nome no convite…"
+    },
+    "filters": {
+      "rsvp": "Situação do RSVP",
+      "rsvpAll": "Todas as situações",
+      "invitation": "Situação do convite",
+      "invitationAll": "Todos os convites",
+      "sent": "Convite enviado",
+      "notSent": "Convite não enviado",
+      "table": "Mesa",
+      "tableAll": "Todas as mesas",
+      "tableOption": "Mesa {{number}}",
+      "clear": "Limpar filtros",
+      "group": "Grupo",
+      "groupAll": "Todos os grupos",
+      "groupNone": "Sem grupo"
+    },
+    "columns": {
+      "button": "Escolher colunas",
+      "selectAll": "Selecionar tudo",
+      "clear": "Limpar",
+      "alwaysShown": "{{column}} (sempre exibida)",
+      "name": "Nome",
+      "invitationName": "Nome no convite",
+      "phone": "Telefone",
+      "allowed": "Pessoas previstas",
+      "confirmed": "Confirmadas",
+      "status": "Situação do RSVP",
+      "sent": "Convites enviados",
+      "table": "Mesa",
+      "actions": "Ações",
+      "group": "Grupo"
+    },
+    "table": {
+      "caption": "Convidados",
+      "sortBy": "Ordenar por {{column}}",
+      "selectAll": "Selecionar todos os convidados desta página",
+      "selectRow": "Selecionar {{name}}",
+      "tableFor": "Mesa de {{name}}",
+      "noTable": "Sem mesa",
+      "tableChosen": "{{number}}",
+      "tableChoice": "{{number}} ({{available}} livres)"
+    },
+    "row": {
+      "whatsapp": "Enviar uma mensagem de WhatsApp para {{name}}",
+      "editGuest": "Editar convidado",
+      "more": "Mais ações para {{name}}",
+      "details": "Ver detalhes de {{name}}",
+      "changeRsvp": "Alterar RSVP",
+      "delete": "Excluir"
+    },
+    "card": {
+      "allowed": "Previstas {{count}}",
+      "confirmed": "Confirmadas {{count}}",
+      "sent": "Enviados {{count}}"
+    },
+    "pagination": {
+      "label": "Páginas de convidados",
+      "rowsPerPage": "Linhas por página",
+      "range": "{{from}}–{{to}} de {{total}} convidados",
+      "previous": "Página anterior",
+      "next": "Próxima página",
+      "page": "Página {{page}}"
+    },
+    "bulk": {
+      "label": "Convidados selecionados",
+      "selected": "{{count}} selecionados",
+      "export": "Exportar selecionados",
+      "delete": "Excluir selecionados",
+      "clear": "Limpar seleção",
+      "group": {
+        "action": "Adicionar ao grupo",
+        "title": "Adicionar ao grupo",
+        "body": "Escolha o grupo dos {{count}} convidados selecionados.",
+        "hint": "Digite para buscar ou criar um grupo. Deixe vazio para tirar os convidados dos seus grupos.",
+        "moving": "{{count}} dos convidados selecionados já estão em um grupo e serão movidos.",
+        "save": "Adicionar ao grupo",
+        "remove": "Tirar dos grupos",
+        "newBody": "O grupo \"{{name}}\" ainda não existe. Criá-lo e colocar nele os {{count}} convidados selecionados?",
+        "done": "{{count}} convidados adicionados a \"{{name}}\"",
+        "cleared": "{{count}} convidados tirados dos seus grupos"
+      }
+    },
+    "form": {
+      "addTitle": "Adicionar convidado",
+      "editTitle": "Editar convidado",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "phone": "Telefone",
+      "phoneHint": {
+        "IL": "Um número local de Israel, como 050-123-4567. Para um número de outro país, comece com + e o código do país. O número deve ser único no evento.",
+        "BR": "Um número brasileiro com DDD, como (11) 91234-5678. Para um número de outro país, comece com + e o código do país. O número deve ser único no evento."
+      },
+      "allowed": "Pessoas previstas",
+      "allowedHint": "Entre {{min}} e {{max}}.",
+      "add": "Adicionar convidado",
+      "save": "Salvar alterações",
+      "added": "O convidado foi adicionado.",
+      "saved": "O convidado foi atualizado.",
+      "errors": {
+        "firstName": "Digite um nome.",
+        "phone": "Digite um número de telefone válido.",
+        "duplicate": "Outro convidado deste evento já tem este número de telefone.",
+        "allowed": "Digite um número inteiro entre {{min}} e {{max}}.",
+        "belowConfirmed": "Este convidado já confirmou {{count}} pessoas, então as pessoas previstas não podem ser menos que isso."
+      },
+      "group": "Grupo",
+      "groupHint": "Opcional. Escolha um grupo ou digite um nome novo para criá-lo.",
+      "table": "Mesa",
+      "tableHint": "Disponível depois que o convidado confirmar presença.",
+      "groupShow": "Mostrar grupos",
+      "groupCreate": "Criar \"{{name}}\"",
+      "newGroup": {
+        "title": "Criar um novo grupo?",
+        "body": "O grupo \"{{name}}\" ainda não existe. Criá-lo e colocar este convidado nele?",
+        "confirm": "Criar grupo"
+      }
+    },
+    "rsvpDialog": {
+      "title": "Alterar RSVP",
+      "for": "Resposta de {{name}}",
+      "attendees": "Pessoas confirmadas",
+      "attendeesHint": "Entre 1 e {{max}}.",
+      "attendeesError": "Digite um número inteiro entre 1 e {{max}}.",
+      "tableNotice": "Este convidado sairá da mesa {{number}}, porque só convidados confirmados têm lugar.",
+      "save": "Salvar RSVP",
+      "saved": "O RSVP foi atualizado."
+    },
+    "delete": {
+      "titleOne": "Excluir convidado",
+      "titleMany": "Excluir convidados",
+      "bodyOne": "Excluir {{name}} deste evento?",
+      "bodyMany": "Excluir os {{count}} convidados selecionados deste evento?",
+      "note": "Os lugares deles nas mesas são liberados. Adicionar o mesmo número de telefone depois traz o convidado de volta.",
+      "confirm": "Excluir",
+      "doneOne": "O convidado foi excluído.",
+      "doneMany": "{{count}} convidados foram excluídos."
+    },
+    "details": {
+      "title": "Detalhes do convidado",
+      "lastSent": "Último convite enviado",
+      "lastResponse": "Última resposta",
+      "never": "Nunca",
+      "edit": "Editar"
+    },
+    "empty": {
+      "title": "Nenhum convidado ainda",
+      "body": "Adicione seu primeiro convidado ou importe uma lista para começar.",
+      "bodyReadOnly": "Este evento não tem convidados.",
+      "noMatchTitle": "Nenhum convidado corresponde",
+      "noMatchBody": "Tente outra busca ou outro filtro."
+    },
+    "export": {
+      "fileName": "{{event}} - convidados",
+      "sheet": "Convidados",
+      "done": "O arquivo foi baixado.",
+      "headings": {
+        "firstName": "Nome",
+        "lastName": "Sobrenome",
+        "invitationName": "Nome no convite",
+        "phone": "Telefone",
+        "allowedAttendees": "Pessoas previstas",
+        "confirmedAttendees": "Pessoas confirmadas",
+        "status": "Situação do RSVP",
+        "invitationSentCount": "Convites enviados",
+        "tableNumber": "Mesa",
+        "group": "Grupo"
+      }
+    },
+    "import": {
+      "title": "Importar convidados",
+      "intro": "Adicione muitos convidados de uma vez a partir de um arquivo CSV ou do Excel (.xlsx). O arquivo é lido no seu navegador.",
+      "ruleRequired": "Cada convidado precisa de um nome e de um número de telefone. Sobrenome, pessoas previstas e grupo são opcionais.",
+      "rulePhones": "Os números podem ser escritos em qualquer formato local do país do evento. Um número de outro país deve começar com + e o código do país.",
+      "ruleDuplicates": "Um número de telefone que um convidado deste evento já tem é ignorado; convidados existentes nunca são alterados.",
+      "ruleLimit": "Até {{max}} linhas e 5 MB.",
+      "choose": "Escolher um arquivo CSV ou do Excel",
+      "template": "Baixar um modelo",
+      "templateName": "modelo de importação de convidados",
+      "hasHeadings": "A primeira linha tem os títulos das colunas",
+      "mapIntro": "{{file}}: {{rows}} linhas. Confira qual coluna tem cada informação.",
+      "columnNumber": "Coluna {{number}}",
+      "notInFile": "Não está no arquivo",
+      "mapRequired": "Escolha as colunas de Nome e Telefone para continuar.",
+      "back": "Voltar",
+      "preview": "Pré-visualizar",
+      "previewCaption": "Linhas do arquivo e o que acontecerá com cada uma",
+      "row": "Linha",
+      "result": "Resultado",
+      "problem": "Problema",
+      "willImport": "{{count}} serão importados",
+      "willSkip": "{{count}} serão ignorados",
+      "previewLimit": "Mostrando as primeiras {{shown}} de {{total}} linhas.",
+      "confirm": "Importar {{count}} convidados",
+      "doneTitle": "Importação concluída",
+      "doneBody": "{{created}} convidados adicionados, {{restored}} restaurados, {{skipped}} linhas ignoradas.",
+      "downloadSkipped": "Baixar as linhas ignoradas",
+      "skippedName": "linhas de convidados ignoradas",
+      "fields": {
+        "firstName": "Nome",
+        "lastName": "Sobrenome",
+        "phone": "Telefone",
+        "allowedAttendees": "Pessoas previstas",
+        "group": "Grupo"
+      },
+      "outcome": {
+        "new": "Novo convidado",
+        "restore": "Restaura um convidado excluído",
+        "error": "Ignorada"
+      },
+      "rowErrors": {
+        "MISSING_FIRST_NAME": "Sem nome",
+        "MISSING_PHONE": "Sem telefone",
+        "INVALID_PHONE": "O telefone não é válido",
+        "INVALID_ALLOWED": "As pessoas previstas devem ser um número inteiro de 1 a 10",
+        "DUPLICATE_IN_FILE": "Mesmo telefone de uma linha anterior",
+        "DUPLICATE_IN_EVENT": "Um convidado já tem este telefone",
+        "INVALID_GROUP": "O nome do grupo passa de 40 caracteres"
+      },
+      "errors": {
+        "fileSize": "O arquivo tem mais de 5 MB.",
+        "fileType": "Escolha um arquivo .csv ou .xlsx.",
+        "fileContent": "Não foi possível ler o arquivo. Verifique se é um arquivo do Excel válido.",
+        "empty": "O arquivo não tem linhas.",
+        "tooManyRows": "O arquivo tem mais de {{max}} linhas."
+      },
+      "finish": "Concluir"
+    },
+    "unknown": {
+      "noticeTitle": "Respostas de números de telefone que não estão na sua lista de convidados",
+      "noticeBody": "Elas não entram nos números dos convidados até você adicioná-las como convidado ou associá-las a um.",
+      "views": "Respostas desconhecidas",
+      "pending": "Aguardando análise",
+      "rejectedView": "Rejeitadas",
+      "emptyPending": "Nenhuma resposta desconhecida para analisar.",
+      "emptyRejected": "Nenhuma resposta rejeitada.",
+      "convert": "Adicionar como convidado",
+      "merge": "Associar a um convidado",
+      "reject": "Rejeitar",
+      "restore": "Restaurar",
+      "converted": "A resposta foi adicionada como convidado.",
+      "merged": "A resposta foi associada ao convidado.",
+      "rejected": "A resposta foi rejeitada. Você pode restaurá-la na lista Rejeitadas.",
+      "restored": "A resposta voltou para análise.",
+      "convertTitle": "Adicionar como convidado",
+      "convertIntro": "Um novo convidado é criado com esta resposta e este número de telefone:",
+      "mergeTitle": "Associar a um convidado",
+      "mergeIntro": "A resposta de {{name}} substitui o RSVP do convidado escolhido, e o nome digitado passa a ser o nome no convite.",
+      "findGuest": "Encontrar um convidado",
+      "chooseGuest": "Escolha o convidado",
+      "noGuestFound": "Nenhum convidado corresponde a esta busca.",
+      "refineSearch": "Mais convidados correspondem. Refine a busca para vê-los.",
+      "mergeOverAllowance": "A resposta é para {{count}} pessoas, mas este convidado pode levar até {{max}}. Aumente primeiro as pessoas previstas do convidado.",
+      "cardAttendees": "Pessoas {{count}}",
+      "columns": {
+        "name": "Nome informado",
+        "response": "Resposta",
+        "attendees": "Pessoas",
+        "submitted": "Enviada",
+        "rejectedAt": "Rejeitada"
+      }
+    }
+  },
+  "layout": {
+    "subtitle": "Gerencie as mesas, os lugares e a disposição do evento.",
+    "tableNumber": "Mesa {{number}}",
+    "attendeesOne": "1 pessoa",
+    "attendeesMany": "{{count}} pessoas",
+    "actions": {
+      "add": "Adicionar mesa",
+      "export": "Exportar mesas"
+    },
+    "tabs": {
+      "label": "Visualizações das mesas",
+      "tables": "Mesas",
+      "arrangement": "Mapa de mesas"
+    },
+    "kpis": {
+      "label": "Números dos lugares",
+      "tables": "Total de mesas",
+      "capacity": "Lugares nas mesas",
+      "assigned": "Pessoas acomodadas",
+      "available": "Lugares livres"
+    },
+    "status": {
+      "OVER_CAPACITY": "Acima da capacidade",
+      "FULL": "Cheia",
+      "ALMOST_FULL": "Quase cheia",
+      "READY": "Pronta"
+    },
+    "shapes": {
+      "CIRCLE": "Redonda",
+      "RECTANGLE": "Retangular",
+      "SQUARE": "Quadrada"
+    },
+    "list": {
+      "title": "Mesas",
+      "caption": "Mesas"
+    },
+    "columns": {
+      "number": "Nº",
+      "shape": "Formato",
+      "capacity": "Capacidade",
+      "assigned": "Acomodadas",
+      "available": "Livres",
+      "status": "Situação",
+      "actions": "Ações"
+    },
+    "search": {
+      "label": "Buscar mesas",
+      "placeholder": "Buscar mesas pelo número…"
+    },
+    "filters": {
+      "shape": "Formato",
+      "shapeAll": "Todos os formatos"
+    },
+    "sort": {
+      "label": "Ordenar mesas",
+      "number": {
+        "asc": "Número da mesa, do menor para o maior",
+        "desc": "Número da mesa, do maior para o menor"
+      },
+      "available": {
+        "asc": "Lugares livres, menos primeiro",
+        "desc": "Lugares livres, mais primeiro"
+      },
+      "capacity": {
+        "asc": "Capacidade, menor primeiro",
+        "desc": "Capacidade, maior primeiro"
+      }
+    },
+    "pagination": {
+      "label": "Páginas de mesas",
+      "range": "{{from}}–{{to}} de {{total}} mesas"
+    },
+    "row": {
+      "manage": "Gerenciar os convidados de {{name}}",
+      "view": "Ver os convidados de {{name}}",
+      "more": "Mais ações para {{name}}",
+      "delete": "Excluir mesa"
+    },
+    "card": {
+      "viewGuests": "Ver convidados ({{count}})"
+    },
+    "empty": {
+      "title": "Nenhuma mesa ainda",
+      "body": "Adicione sua primeira mesa para começar a acomodar os convidados confirmados.",
+      "bodyReadOnly": "Este evento não tem mesas.",
+      "noMatchTitle": "Nenhuma mesa corresponde",
+      "noMatchBody": "Tente outro número ou outro formato."
+    },
+    "selected": {
+      "title": "Mesa selecionada",
+      "parties": "Grupos de convidados acomodados ({{count}})",
+      "edit": "Editar mesa",
+      "manage": "Gerenciar convidados",
+      "hintList": "Selecione uma mesa na lista para ver os convidados dela aqui."
+    },
+    "form": {
+      "addTitle": "Adicionar mesa",
+      "editTitle": "Editar mesa {{number}}",
+      "number": "Número da mesa",
+      "capacity": "Capacidade",
+      "capacityHint": "O número de cadeiras na mesa.",
+      "shape": "Formato",
+      "add": "Adicionar mesa",
+      "save": "Salvar alterações",
+      "added": "A mesa {{number}} foi adicionada.",
+      "saved": "A mesa {{number}} foi salva.",
+      "errors": {
+        "number": "Digite um número inteiro de {{min}} a {{max}}.",
+        "duplicate": "A mesa número {{number}} já existe.",
+        "capacity": "Digite um número inteiro de cadeiras de {{min}} a {{max}}."
+      },
+      "belowSeated": {
+        "title": "Menos cadeiras do que pessoas acomodadas",
+        "body": "{{seated}} pessoas estão acomodadas nesta mesa. Ela ficará acima da capacidade em {{over}} até que os convidados sejam movidos."
+      }
+    },
+    "delete": {
+      "title": "Excluir mesa {{number}}",
+      "body": "A mesa {{number}} será excluída. Nenhum convidado é excluído.",
+      "seated": "Grupos de convidados nesta mesa: {{parties}} (pessoas: {{attendees}}). Eles ficarão sem mesa.",
+      "confirm": "Excluir mesa",
+      "done": "A mesa {{number}} foi excluída."
+    },
+    "manage": {
+      "title": "Convidados da mesa {{number}}",
+      "seated": "Nesta mesa ({{count}})",
+      "seatedLabel": "Grupos de convidados nesta mesa",
+      "noneSeated": "Nenhum convidado está nesta mesa.",
+      "remove": "Tirar",
+      "removeNamed": "Tirar {{name}} desta mesa",
+      "add": "Adicionar convidados",
+      "addHint": "Só convidados que confirmaram presença podem ser acomodados. Um grupo senta junto, na mesma mesa.",
+      "addLabel": "Convidados que podem ser adicionados",
+      "search": "Buscar convidados para adicionar",
+      "searchPlaceholder": "Buscar por nome ou telefone…",
+      "noTable": "Sem mesa",
+      "addHere": "Adicionar",
+      "addNamed": "Adicionar {{name}} a esta mesa",
+      "moveHere": "Mover para cá",
+      "moveNamed": "Mover {{name}} para esta mesa",
+      "noFit": "Não cabe",
+      "noCandidates": "Todos os convidados confirmados já estão nesta mesa.",
+      "noMatch": "Nenhum convidado confirmado corresponde.",
+      "more": "Mostrando {{shown}} de {{total}} convidados. Busque para encontrar os outros.",
+      "done": "Concluir"
+    },
+    "export": {
+      "fileName": "{{event}} - mesas",
+      "sheet": "Mesas",
+      "done": "O arquivo foi baixado.",
+      "headings": {
+        "firstName": "Nome",
+        "lastName": "Sobrenome",
+        "invitationName": "Nome no convite",
+        "phone": "Telefone",
+        "confirmedAttendees": "Número de pessoas",
+        "tableNumber": "Número da mesa"
+      }
+    },
+    "objects": {
+      "WALL": "Parede",
+      "STAGE": "Palco",
+      "BAR": "Bar",
+      "STAIRS": "Escada",
+      "FOOD_STATION": "Ilha de comida",
+      "ENTRANCE": "Entrada",
+      "PLANT": "Planta"
+    },
+    "arrangement": {
+      "title": "Mapa de mesas",
+      "planLabel": "Planta do salão",
+      "viewMode": "Modo de visualização",
+      "editMode": "Modo de edição",
+      "edit": "Editar mapa",
+      "hint": "Arraste para explorar; use os botões ou o gesto de pinça no trackpad para dar zoom. Selecione uma mesa para ver os convidados dela.",
+      "hintTouch": "Faça o gesto de pinça para dar zoom e arraste para explorar o mapa. Toque em uma mesa para ver os convidados dela.",
+      "editWider": "Edite o mapa em uma tela maior.",
+      "editHint": "Arraste mesas e objetos para a planta e mova-os. As setas movem o item escolhido, R o gira e Delete o retira.",
+      "selectHint": "Selecione uma mesa na planta para ver os convidados dela aqui.",
+      "unplacedCount": "Mesas ainda fora da planta: {{formatted}}.",
+      "tableLabel": "{{name}}, {{assigned}} de {{capacity}} lugares, {{status}}",
+      "zoomIn": "Aumentar zoom",
+      "zoomOut": "Diminuir zoom",
+      "fit": "Mostrar o salão inteiro",
+      "fullscreen": "Tela cheia",
+      "exitFullscreen": "Sair da tela cheia",
+      "snap": "Alinhar à grade",
+      "save": "Salvar mapa",
+      "saved": "O mapa de mesas foi salvo.",
+      "reload": "Recarregar",
+      "issues": {
+        "title": "Confira a planta",
+        "overlap": "{{first}} se sobrepõe a {{second}}.",
+        "outside": "{{name}} passa das paredes."
+      },
+      "palette": {
+        "tables": "Mesas fora da planta",
+        "allPlaced": "Todas as mesas estão na planta.",
+        "objects": "Adicionar ao salão",
+        "place": "Colocar {{name}} na planta",
+        "add": "Adicionar {{name}}",
+        "placeHint": "Arraste para a planta ou clique para colocar no meio da visualização."
+      },
+      "inspector": {
+        "x": "Da esquerda (m)",
+        "y": "Do topo (m)",
+        "rotation": "Giro (°)",
+        "width": "Largura (m)",
+        "height": "Profundidade (m)",
+        "label": "Rótulo",
+        "labelHint": "Aparece no lugar do tipo, como Pista de dança ou Escada para o mezanino.",
+        "unplace": "Tirar da planta",
+        "delete": "Excluir",
+        "room": "Salão e imagem"
+      },
+      "room": {
+        "title": "Salão",
+        "roomWidth": "Largura (m)",
+        "roomDepth": "Profundidade (m)"
+      },
+      "picture": {
+        "title": "Imagem da planta",
+        "hint": "Opcional: uma planta ou um mapa do local, desenhado sob as mesas. JPEG ou PNG.",
+        "upload": "Enviar imagem",
+        "replace": "Trocar imagem",
+        "remove": "Remover imagem",
+        "transparency": "Transparência",
+        "zoom": "Zoom",
+        "rotate": "Girar",
+        "reset": "Redefinir imagem"
+      }
+    }
+  },
+  "messages": {
+    "subtitle": "Crie e personalize a sua mensagem de convite no WhatsApp.",
+    "previewSubtitle": "Veja como o seu convite no WhatsApp aparecerá para os convidados.",
+    "tabs": {
+      "label": "Visualizações da mensagem",
+      "editor": "Editor de mensagem",
+      "preview": "Pré-visualização"
+    },
+    "save": "Salvar alterações",
+    "saved": "Mensagem salva.",
+    "test": "Enviar mensagem de teste",
+    "backToEditor": "Voltar ao editor",
+    "testOpened": "O WhatsApp foi aberto. Escolha quem recebe a mensagem de teste.",
+    "template": {
+      "title": "Modelo de mensagem",
+      "subtitle": "Esta mensagem será usada ao enviar convites aos seus convidados pelo WhatsApp.",
+      "label": "Mensagem",
+      "toolbar": "Formatação",
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "strike": "Tachado",
+      "emoji": "Inserir emoji",
+      "emojiChoice": "Inserir {{emoji}}",
+      "reset": "Restaurar padrão",
+      "insertVariable": "Inserir variável",
+      "insert": "Inserir {{variable}}",
+      "available": "Variáveis disponíveis",
+      "errors": {
+        "empty": "Escreva uma mensagem antes de salvar.",
+        "tooLong": "A mensagem pode ter até {{max}} caracteres."
+      },
+      "noLinkTitle": "A mensagem não tem o link de confirmação",
+      "noLinkBody": "Sem {{variable}}, seus convidados não recebem o link para responder.",
+      "unknownTitle": "Não é uma variável",
+      "unknownBody": "Estes serão enviados exatamente como escritos: {{names}}"
+    },
+    "variables": {
+      "first_name": "Nome do convidado",
+      "last_name": "Sobrenome do convidado",
+      "event_name": "Nome do evento",
+      "event_date": "Data do evento",
+      "event_time": "Horário do evento",
+      "rsvp_url": "Link de confirmação (o mesmo para todos)"
+    },
+    "preview": {
+      "title": "Pré-visualização da mensagem",
+      "subtitle": "É assim que a sua mensagem aparecerá no WhatsApp.",
+      "for": "Pré-visualização para",
+      "resolved": "As variáveis são preenchidas com os dados deste convidado.",
+      "sampleNote": "Este evento ainda não tem convidados, então é mostrado um convidado de exemplo.",
+      "online": "online",
+      "phoneLabel": "Pré-visualização do WhatsApp",
+      "empty": "A mensagem está vazia.",
+      "detailsTitle": "Detalhes da pré-visualização",
+      "detailGuest": "As variáveis são substituídas pelos dados do convidado selecionado.",
+      "detailLink": "O link de confirmação é o mesmo para todos os convidados.",
+      "noMatch": "Nenhum convidado corresponde"
+    },
+    "sent": {
+      "title": "Mensagens enviadas recentemente",
+      "subtitle": "Acompanhe os convites enviados.",
+      "columns": {
+        "when": "Data e horário",
+        "guest": "Nome do convidado",
+        "phone": "Telefone",
+        "status": "Situação",
+        "message": "Prévia da mensagem",
+        "actions": "Ações"
+      },
+      "opened": "WhatsApp aberto",
+      "deletedGuest": "Convidado excluído",
+      "more": "Ações da mensagem para {{name}}",
+      "view": "Ver mensagem",
+      "sendAgain": "Enviar de novo",
+      "emptyTitle": "Nenhuma mensagem enviada ainda",
+      "emptyBody": "Envie um convite pela página Convidados e ele aparecerá aqui.",
+      "goToGuests": "Ir para Convidados",
+      "viewTitle": "Mensagem para {{name}}",
+      "sentAt": "{{date}}, {{time}}",
+      "pages": "Páginas de mensagens enviadas"
+    },
+    "send": {
+      "title": "Enviar mensagem de WhatsApp",
+      "to": "Para {{name}}",
+      "body": "O WhatsApp abrirá com esta mensagem pronta. Toque em Enviar lá para entregá-la.",
+      "countNote": "Isto conta como um convite enviado, mesmo que você feche o WhatsApp sem enviar.",
+      "confirm": "Abrir WhatsApp",
+      "done": "WhatsApp aberto para {{name}}.",
+      "emptyTemplate": "O modelo de mensagem está vazio. Escreva-o primeiro na página Mensagens.",
+      "editTemplate": "Editar mensagem"
+    }
+  },
+  "settings": {
+    "subtitle": "Atualize as informações e os padrões do seu evento.",
+    "save": "Salvar alterações",
+    "saved": "Configurações do evento salvas.",
+    "general": {
+      "title": "Informações gerais",
+      "subtitle": "Dados básicos do seu evento.",
+      "name": "Nome do evento",
+      "location": "Local",
+      "locationHint": "Opcional. Aparece para os convidados na página de confirmação, com links para o Google Maps e o Waze; escreva o endereço completo como o Google Maps o mostra.",
+      "maxAttendees": "Máximo de pessoas",
+      "maxAttendeesHint": "Faixa permitida: {{min}} – {{max}} pessoas.",
+      "maxAttendeesConfirmedHint": "Entre {{min}} e {{max}}: {{confirmed}} pessoas já confirmaram.",
+      "date": "Data do evento",
+      "time": "Horário do evento",
+      "timeZone": "Fuso horário",
+      "status": "Situação do evento",
+      "upcomingBody": "Seu evento está ativo e visível para os convidados.",
+      "pastBody": "Este evento já começou. Ele é somente leitura."
+    },
+    "guestDefaults": {
+      "title": "Padrões dos convidados",
+      "subtitle": "Configurações padrão para novos convidados.",
+      "allowed": "Máximo padrão de pessoas por convidado",
+      "allowedHint": "Usado para novos convidados. Faixa permitida: {{min}} – {{max}}.",
+      "overrideTitle": "Cada convidado pode ter outro valor",
+      "overrideBody": "Este é o valor padrão para novos convidados, mas você pode definir um número máximo de pessoas diferente para cada convidado."
+    },
+    "rsvp": {
+      "title": "Configurações de RSVP",
+      "subtitle": "Quando os convidados podem responder.",
+      "openTitle": "A confirmação fica aberta até o início do evento.",
+      "openBody": "Os convidados podem enviar e atualizar a resposta a qualquer momento até {{date}}, {{time}} ({{timeZone}}).",
+      "closedTitle": "A confirmação está encerrada.",
+      "closedBody": "O evento começou em {{date}}, {{time}} ({{timeZone}}). Os convidados não podem mais responder."
+    },
+    "capacity": {
+      "title": "Resumo da capacidade",
+      "subtitle": "Visão geral da capacidade e da presença no evento.",
+      "maxAttendees": "Máximo de pessoas"
+    },
+    "danger": {
+      "title": "Zona de atenção",
+      "subtitle": "Informações importantes sobre alterações e limites do evento.",
+      "lockTitle": "Eventos passados ficam somente leitura",
+      "lockBody": "Depois do horário de início ({{date}}, {{time}}), este evento será bloqueado e ficará somente leitura. Você ainda poderá ver todos os dados, mas não poderá alterar convidados, mesas ou configurações.",
+      "lockedBody": "Este evento começou em {{date}}, {{time}} e está bloqueado. Você ainda pode ver todos os dados e baixar exportações.",
+      "viewRules": "Ver regras do evento"
+    },
+    "rules": {
+      "title": "Regras do evento",
+      "lock": "A partir do horário de início, o evento fica somente leitura: convidados, mensagens, mesas e configurações não podem mais ser alterados.",
+      "rsvp": "Os convidados podem enviar e atualizar a resposta até o início do evento. Depois disso, a página de confirmação fica encerrada.",
+      "exports": "Ver o evento e baixar exportações continuam disponíveis depois do evento.",
+      "maxAttendees": "O máximo de pessoas é um número inteiro de {{min}} a {{max}}.",
+      "allowed": "O padrão de pessoas por convidado é um número inteiro de {{min}} a {{max}}. Ele vale para os convidados adicionados depois e pode ser alterado em cada convidado.",
+      "warnings": "Os avisos de capacidade nunca impedem salvar. Eles aparecem quando as presenças confirmadas passam do máximo, ou quando o número de lugares é diferente dele.",
+      "date": "A data e o horário do evento só podem ser alterados para um momento no futuro.",
+      "roles": "Proprietários e Administradores podem alterar o evento. Leitores podem vê-lo e baixar exportações."
+    }
+  },
+  "permissions": {
+    "subtitle": "Gerencie quem pode acessar este evento e o que cada pessoa pode fazer.",
+    "actions": {
+      "invite": "Convidar usuário"
+    },
+    "about": {
+      "title": "Sobre as funções do evento",
+      "body": "Um Proprietário pode gerenciar tudo no evento. Um Administrador pode gerenciar o evento, mas não pode excluí-lo nem duplicá-lo, nem alterar um Proprietário. Um Leitor pode ver o evento e baixar exportações."
+    },
+    "pastEvent": {
+      "title": "Este evento já terminou",
+      "body": "Só um Proprietário pode alterar as permissões de um evento passado. Você ainda pode ver quem tem acesso."
+    },
+    "simulation": {
+      "title": "Demonstração: {{role}}",
+      "body": "A lista mostra a sua permissão como ela está salva. O que você pode fazer nesta página segue a função simulada."
+    },
+    "noAccess": {
+      "title": "Você não pode abrir esta página",
+      "body": "Só Proprietários e Administradores do evento podem ver as permissões dele."
+    },
+    "kpis": {
+      "label": "Membros por função",
+      "OWNER": "Proprietários",
+      "ADMIN": "Administradores",
+      "VIEWER": "Leitores"
+    },
+    "list": {
+      "title": "Membros do evento",
+      "caption": "Membros do evento"
+    },
+    "search": {
+      "label": "Buscar membros",
+      "placeholder": "Buscar membros por nome ou e-mail..."
+    },
+    "filters": {
+      "role": "Função",
+      "all": "Todas as funções"
+    },
+    "columns": {
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Tipo de permissão",
+      "actions": "Ações"
+    },
+    "pending": "Pendente",
+    "noAccountYet": "Ainda sem conta",
+    "you": "Você",
+    "row": {
+      "change": "Alterar a função de {{name}}",
+      "changeShort": "Alterar função",
+      "remove": {
+        "member": "Remover {{name}}",
+        "invitation": "Cancelar o convite de {{name}}"
+      },
+      "resend": "Enviar o convite para {{name}} por e-mail de novo",
+      "resent": "O convite foi enviado de novo para {{email}}."
+    },
+    "roleHints": {
+      "OWNER": "Controle total, incluindo permissões e a exclusão ou duplicação do evento.",
+      "ADMIN": "Pode alterar o evento e gerenciar Administradores e Leitores.",
+      "VIEWER": "Pode ver o evento e baixar exportações."
+    },
+    "empty": {
+      "title": "Nenhum membro corresponde",
+      "body": "Tente outra busca ou outra função."
+    },
+    "invite": {
+      "title": "Convidar usuário",
+      "email": "E-mail",
+      "emailHint": "Quem já tem conta recebe acesso na hora. As outras pessoas ficam como pendentes e recebem acesso quando criarem uma conta com este e-mail. Nenhum e-mail é enviado.",
+      "submit": "Convidar",
+      "added": "{{name}} agora tem acesso ao evento.",
+      "pending": "{{email}} foi convidado e receberá acesso depois de criar uma conta.",
+      "errors": {
+        "invalid": "Digite um endereço de e-mail válido.",
+        "member": "Esta pessoa já tem acesso ao evento.",
+        "invited": "Este e-mail já foi convidado."
+      },
+      "emailHintSending": "Quem já tem conta recebe acesso na hora e é avisado por e-mail. As outras pessoas recebem um convite por e-mail e ficam como pendentes até criarem uma conta com este e-mail.",
+      "pendingSent": "{{email}} foi convidado por e-mail e receberá acesso depois de criar uma conta."
+    },
+    "change": {
+      "title": "Alterar a função de {{name}}",
+      "submit": "Salvar",
+      "done": "{{name}} agora é {{role}}."
+    },
+    "remove": {
+      "member": {
+        "title": "Remover membro?",
+        "body": "{{name}} não poderá mais abrir este evento.",
+        "confirm": "Remover",
+        "done": "{{name}} não tem mais acesso."
+      },
+      "invitation": {
+        "title": "Cancelar convite?",
+        "body": "{{name}} não receberá acesso a este evento ao criar uma conta.",
+        "confirm": "Cancelar convite",
+        "done": "O convite de {{name}} foi cancelado."
+      }
+    }
+  },
+  "rsvpSettings": {
+    "subtitle": "Configure a experiência de confirmação dos convidados e a página pública do evento.",
+    "save": "Salvar alterações",
+    "saved": "Configurações de RSVP salvas.",
+    "previewPublic": "Pré-visualizar página pública",
+    "openPublic": "Abrir página pública",
+    "backToSettings": "Voltar às configurações",
+    "tabs": {
+      "label": "Visualizações das configurações de RSVP",
+      "settings": "Configurações",
+      "preview": "Pré-visualização"
+    },
+    "link": {
+      "title": "Link de confirmação",
+      "subtitle": "Este é o endereço público da página de confirmação do seu evento. O mesmo link é enviado a todos os convidados.",
+      "label": "Link de confirmação",
+      "copy": "Copiar link",
+      "copied": "Link copiado.",
+      "copyFailed": "Não foi possível copiar o link. Selecione-o e copie você mesmo.",
+      "qr": "Mostrar QR code",
+      "active": "A página de confirmação está ativa",
+      "closed": "A página de confirmação está encerrada"
+    },
+    "qr": {
+      "title": "QR code da confirmação",
+      "body": "Os convidados podem escanear este código para abrir a página de confirmação.",
+      "download": "Baixar",
+      "alt": "QR code do link de confirmação"
+    },
+    "content": {
+      "title": "Conteúdo da confirmação",
+      "subtitle": "Personalize o texto que seus convidados verão na página de confirmação.",
+      "rsvpTitle": "Título da confirmação",
+      "rsvpTitleHint": "Aparece no topo da página de confirmação. Quando vazio, é usado o nome do evento.",
+      "welcome": "Mensagem de boas-vindas",
+      "approved": "Mensagem para quem confirmou",
+      "declined": "Mensagem para quem não vai",
+      "notSure": "Mensagem para quem respondeu talvez",
+      "emptyHint": "Uma mensagem vazia mostra um texto padrão no idioma do convidado."
+    },
+    "background": {
+      "title": "Fundo da página",
+      "subtitle": "Envie uma imagem de fundo para a sua página de confirmação.",
+      "upload": "Enviar imagem",
+      "change": "Trocar imagem",
+      "remove": "Remover imagem",
+      "requirements": "JPG ou PNG, até 5 MB. Tamanho recomendado: 1920 × 1080.",
+      "none": "Sem imagem. É usado um fundo liso.",
+      "overlay": "Escurecimento da imagem",
+      "overlayHint": "Adiciona uma camada escura para facilitar a leitura do texto.",
+      "options": "Mais opções",
+      "framingHint": "Escolha quanto da imagem aparece e qual parte fica à vista.",
+      "framingNeedsImage": "Envie uma imagem para ajustar o zoom e a posição.",
+      "zoom": "Zoom",
+      "positionX": "Posição horizontal",
+      "positionY": "Posição vertical",
+      "resetFraming": "Redefinir zoom e posição",
+      "alt": "Imagem de fundo",
+      "errors": {
+        "type": "Escolha uma imagem JPG ou PNG.",
+        "size": "A imagem tem mais de 5 MB.",
+        "failed": "Não foi possível usar a imagem. Tente outra."
+      }
+    },
+    "actions": {
+      "title": "Ações após a confirmação",
+      "subtitle": "Mostre mais opções aos convidados depois que eles confirmarem presença.",
+      "calendar": "Adicionar ao Google Agenda",
+      "calendarHint": "Permite que os convidados adicionem o evento à agenda.",
+      "calendarTitle": "Título na agenda",
+      "date": "Data",
+      "time": "Horário",
+      "location": "Local",
+      "youtube": "Link do YouTube",
+      "youtubeHint": "Mostra um vídeo ou o link de uma transmissão ao vivo no YouTube depois da confirmação.",
+      "youtubeUrl": "Endereço do YouTube",
+      "errors": {
+        "calendarTitle": "Digite um título para a agenda.",
+        "calendarDate": "Digite uma data válida.",
+        "calendarTime": "Digite um horário válido.",
+        "youtubeUrl": "Digite um endereço do YouTube que comece com https://."
+      }
+    },
+    "additional": {
+      "title": "Outras configurações",
+      "language": "Idioma da confirmação",
+      "languageHint": "A página de confirmação abre neste idioma. Os convidados podem trocar para outro idioma na página."
+    },
+    "preview": {
+      "title": "Pré-visualização da confirmação",
+      "subtitle": "É assim que a sua página de confirmação aparecerá para os convidados.",
+      "states": "Página para pré-visualizar",
+      "welcome": "Boas-vindas",
+      "approved": "Confirmou",
+      "declined": "Não vai",
+      "notSure": "Talvez",
+      "unsavedTitle": "A pré-visualização mostra alterações não salvas",
+      "unsavedBody": "Esta pré-visualização mostra as suas configurações atuais. Lembre-se de salvar as alterações se estiver satisfeito com elas.",
+      "sameLinkTitle": "O mesmo link de confirmação para todos",
+      "sameLinkBody": "O mesmo endereço público é enviado a todos os convidados, seja qual for a resposta.",
+      "fullTitle": "Pré-visualização da página pública",
+      "frame": "Pré-visualização da página pública de confirmação"
+    }
+  },
+  "publicRsvp": {
+    "name": "Nome completo",
+    "phone": "Telefone",
+    "phoneHint": {
+      "IL": "De fora de Israel, comece com + e o código do seu país.",
+      "BR": "De fora do Brasil, comece com + e o código do seu país."
+    },
+    "attendees": "Número de pessoas",
+    "approve": "Eu vou!",
+    "decline": "Não vou poder ir",
+    "notSure": "Ainda não sei",
+    "afterConfirming": "Depois de confirmar, você poderá:",
+    "addToCalendar": "Adicionar à agenda",
+    "maps": {
+      "google": "Abrir no Google Maps",
+      "waze": "Ir com o Waze"
+    },
+    "watchYoutube": "Assistir no YouTube",
+    "errors": {
+      "name": "Digite seu nome.",
+      "phone": "Digite um número de telefone válido.",
+      "attendees": "Escolha o número de pessoas.",
+      "overAllowance": "Seu convite é para até {{max}} pessoas. Para levar mais, fale com quem está organizando.",
+      "failed": "Não foi possível enviar sua resposta. Tente novamente."
+    },
+    "result": {
+      "attendees": "Pessoas confirmadas: {{count}}",
+      "change": "Alterar minha resposta"
+    },
+    "defaults": {
+      "welcome": "Ficaremos muito felizes com a sua presença. Conte para nós se você vai.",
+      "approved": "Obrigado por confirmar! Esperamos por você.",
+      "declined": "Obrigado por nos avisar. Vamos sentir sua falta!",
+      "notSure": "Sem problemas! Avise-nos se algo mudar."
+    },
+    "closed": {
+      "title": "A confirmação está encerrada",
+      "body": "O evento já começou, então as respostas não podem mais ser enviadas nem alteradas."
+    },
+    "unavailable": {
+      "title": "Esta página de confirmação não está disponível",
+      "body": "O link pode estar incompleto, ou o evento pode ter sido removido."
+    }
+  },
+  "email": {
+    "notice": {
+      "title": "Confirme seu e-mail",
+      "body": "Enviamos um link para {{email}}. Os convites para eventos passam a valer depois da confirmação.",
+      "resend": "Reenviar e-mail",
+      "sent": "Enviamos um novo e-mail de confirmação."
+    }
+  },
+  "system": {
+    "subtitle": "Configurações do servidor, para Superusuários. Elas são alteradas na configuração do servidor, não aqui.",
+    "email": {
+      "title": "E-mail",
+      "status": "Situação",
+      "on": "Ligado: os e-mails são enviados",
+      "off": "Desligado: nenhum e-mail é enviado",
+      "server": "Servidor de e-mail",
+      "from": "Remetente",
+      "authenticated": "Faz login no servidor de e-mail",
+      "yes": "Sim",
+      "no": "Não",
+      "none": "Não definido",
+      "offHint": "Enquanto o e-mail estiver desligado, novas contas contam como confirmadas, os convites valem a partir do cadastro e Esqueceu a senha fica oculto. Para enviar e-mails, defina EMAIL_MODE=smtp e as configurações SMTP no servidor e reinicie-o.",
+      "test": "Enviar um e-mail de teste",
+      "testHint": "Envia um e-mail de teste para {{email}}.",
+      "testSent": "Um e-mail de teste foi enviado para {{email}}.",
+      "testOff": "O e-mail está desligado, então nada foi enviado."
+    }
+  },
+  "notifications": {
+    "title": "Notificações",
+    "label": "Notificações",
+    "labelUnread_one": "Notificações, {{count}} não lida",
+    "labelUnread_many": "Notificações, {{count}} não lidas",
+    "labelUnread_other": "Notificações, {{count}} não lidas",
+    "markAll": "Marcar todas como lidas",
+    "empty": "Nenhuma notificação ainda.",
+    "unread": "(não lida)",
+    "kinds": {
+      "accessGranted": "{{actor}} deu a você acesso de {{role}} a {{event}}.",
+      "accessAccepted": "Seu convite foi aceito: você tem acesso de {{role}} a {{event}}.",
+      "roleChanged": "{{actor}} alterou sua função em {{event}} para {{role}}.",
+      "accessRemoved": "{{actor}} removeu seu acesso a {{event}}.",
+      "unknownRsvp": "Novas respostas de telefones que não estão na lista de convidados aguardam análise em {{event}}."
+    }
+  }
+}

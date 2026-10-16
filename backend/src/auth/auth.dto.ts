@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger'
 import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator'
 import type { EmailLanguage } from '../email/templates.ts'
 
-const LANGUAGES = ['en', 'he'] as const
+const LANGUAGES = ['en', 'he', 'pt'] as const
 
 /** The language of the interface, for any email the request sends (D88). */
 export class LanguageDto {

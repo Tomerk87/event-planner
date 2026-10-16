@@ -25,6 +25,7 @@ import type { Response } from 'express'
 import { CurrentUser } from '../auth/current-user.ts'
 import { SESSION_COOKIE } from '../auth/session-token.ts'
 import type { GuestExportLabels } from '../domain/exports.ts'
+import { isRsvpLanguage } from '../domain/models.ts'
 import {
   DEFAULT_GUEST_SORT,
   GUEST_SORT_KEYS,
@@ -136,7 +137,7 @@ export class GuestsController {
         100,
         Number(query['size'] ?? DEFAULT_PAGE_SIZE) || DEFAULT_PAGE_SIZE,
       ),
-      locale: query['locale'] === 'he' ? 'he' : 'en',
+      locale: isRsvpLanguage(query['locale']) ? query['locale'] : 'en',
     })
   }
 

@@ -26,10 +26,10 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Individual attendee records | Names or details for each person in a party. In the MVP attendees are only counted. | PRD §17 |
 | Guest-specific RSVP URLs | One link per guest. The MVP has one shared link per event. | PRD §17 |
 | Translating organizer-written RSVP texts | A guest can switch the public RSVP page between English and Hebrew, but the welcome and response messages are shown as the organizer wrote them. Translating them, or letting the organizer write each in both languages, is not built. | Owner decision 2026-10-13 |
-| More guest-facing languages | Languages beyond English and Hebrew on the public RSVP page. | PRD §17 |
+| More guest-facing languages | Languages beyond English, Hebrew and Brazilian Portuguese, such as Spanish (owner, 2026-10-16). A language needs its texts file, its emails, its import column names and a review sheet; its market may get its own demo sample events and phone rules (D103). | PRD §17; owner 2026-10-16 |
 | Choosing which details the phone guest cards show | On a phone the guest cards always show the same details; the column chooser applies to the desktop table only. | Owner decision 2026-10-13 |
-| Default country per event | Reading and showing phone numbers by the event's country instead of always Israel, so an event held abroad can use local numbers. Needs a phone-number library with each country's rules. | Owner decision 2026-10-13 |
 | Country selector for a phone number | A searchable country list in Add and Edit Guest, in import (per file) and on the public RSVP form, for a guest from a country other than the event's. | Owner decision 2026-10-13 |
+| More phone countries | Each event reads local numbers as Israel's or Brazil's (D103). Another country needs its rules for local numbers and how they are shown; a phone-number library would cover every country at once. | Owner decision 2026-10-16 (D103) |
 | Switching the RSVP page off, or replacing its link | The page is active until the event starts and its link never changes. | Owner decision 2026-10-13 (D64) |
 | Calendar entry that follows the event | The Google Calendar action keeps its own date and time once set; it does not move when the event's date is changed. | Owner decision 2026-10-13 (D60) |
 | Add to Group on a phone | Selecting several guests exists only in the desktop table. | Owner decision 2026-10-13 (D66) |
@@ -91,6 +91,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Item | Notes | Source |
 |---|---|---|
 | Review of the Hebrew texts by a Hebrew speaker | All Hebrew texts were written by the coding agent. The owner chose a side-by-side sheet (2026-10-15): `docs/hebrew-review.xlsx`, written by `npm run hebrew-review` in `frontend/`. Corrections are applied when the owner returns it. Tracked in `PLAN.md` Phase 17. | Owner decisions 2026-10-13 (D74) and 2026-10-15 |
+| Review of the Portuguese texts by a Brazilian | All Portuguese texts, including the emails, were written by the coding agent. A Brazilian the owner knows reviews them in `docs/portuguese-review.xlsx`, written by `npm run translation-review -- pt` in `frontend/`. Corrections are applied when the sheet comes back. Tracked in `PLAN.md` Phase 21. | Owner decision 2026-10-16 (D103) |
 | Checking that an uploaded picture is a real image | The server accepts a JPEG or PNG data address without reading the file's own signature. It always serves it as an image with `nosniff`, so a browser never runs it; checking the content is hardening for later. | Phase 17 security review |
 | Design-system showcase page | The `/showcase` gallery of shared components was removed from the application. | Owner decision 2026-10-13 (D73) |
 

@@ -16,6 +16,8 @@ export interface MenuItem {
   label: string
   icon?: ReactNode
   tone?: 'danger'
+  /** The label's language, when it differs from the page's. */
+  lang?: string
   /** Navigate to an address; otherwise `onSelect` runs. */
   to?: string
   onSelect?: () => void
@@ -166,7 +168,7 @@ export function Menu({
                     {item.icon}
                   </span>
                 )}
-                <span>{item.label}</span>
+                <span lang={item.lang}>{item.label}</span>
               </>
             )
             return item.to === undefined ? (

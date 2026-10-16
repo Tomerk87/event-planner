@@ -13,7 +13,7 @@ import type {
   RsvpSettings,
   User,
 } from '../domain/models.ts'
-import { formatPhone, normalizePhone } from '../domain/phone.ts'
+import { formatPhone, normalizePhone, type Country } from '../domain/phone.ts'
 import {
   applyRsvp,
   resolveRsvp,
@@ -37,6 +37,7 @@ export interface PublicRsvpView {
   timeZone: string
   location: string | null
   language: RsvpLanguage
+  country: Country
   isClosed: boolean
   maxSelectableAttendees: number
   settings: RsvpSettingsInput
@@ -124,6 +125,7 @@ export class RsvpService {
       timeZone: event.timeZone,
       location: event.location,
       language: event.rsvpLanguage,
+      country: event.country,
       isClosed: isEventPast(event, now),
       maxSelectableAttendees: EVENT_LIMITS.allowedAttendees.max,
       settings,
@@ -145,7 +147,7 @@ export class RsvpService {
       throw new DomainError('RSVP_CLOSED')
     }
     const { name } = validatePublicRsvpInput(input)
-    const normalizedPhone = normalizePhone(input.phone)
+    const normalizedPhone = normalizePhone(input.phone, event.country)
     // Only accepted answers count, so a guest correcting a mistake is not
     // locked out; the address limit covers failed attempts.
     const attemptKey = `${event.id}:${normalizedPhone}`

@@ -38,6 +38,7 @@ Run from `frontend/`.
 | `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright): the demo and real accounts on desktop and phone, and the email flows against Mailpit. Starts the built API on the backend's test database (ports 3102 and 3103, the second with email on) and its own development servers (ports 5174 and 5175) |
 | `npm run test:performance` | The 3,000-guest performance check (PLAN.md Phase 17), on its own |
 | `npm run hebrew-review` | Write `docs/hebrew-review.xlsx`, every text in English and Hebrew for review |
+| `npm run translation-review -- pt` | Write `docs/portuguese-review.xlsx`, every text in English and Portuguese for review (`he` writes the Hebrew sheet) |
 | `npm run test:api` | Builds the backend and runs the provider contract suite on the real API, against the test database |
 
 The first end-to-end run needs a browser: `npx playwright install chromium`. `npm run test:e2e` and `npm run test:api` need the development database and Mailpit running (`npm run db:up` in `backend/`).

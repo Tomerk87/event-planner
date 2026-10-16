@@ -33,6 +33,7 @@ export type RsvpCardView = Pick<
   | 'startsAt'
   | 'timeZone'
   | 'location'
+  | 'country'
   | 'maxSelectableAttendees'
   | 'settings'
 >
@@ -303,7 +304,7 @@ export function RsvpCard({
                 maxLength={24}
                 value={values.phone}
                 error={errors.phone}
-                hint={t('publicRsvp.phoneHint')}
+                hint={t(`publicRsvp.phoneHint.${view.country}`)}
                 onChange={(value) => onChange('phone', value)}
               />
               <div className={styles.field}>

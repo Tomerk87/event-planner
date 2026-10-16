@@ -12,6 +12,7 @@ import type {
   UnknownRsvp,
   User,
 } from '../../domain/models.ts'
+import type { Country } from '../../domain/phone.ts'
 import type { DemoRole } from '../contracts/index.ts'
 
 /**
@@ -19,7 +20,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 8
+export const DATASET_VERSION = 9
 
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {
@@ -41,6 +42,11 @@ export interface DemoState {
   layouts: EventLayout[]
   /** Notices the visitor has read (D95); absent in demos saved before. */
   readNotifications?: Id[]
+  /**
+   * Whose sample events these are (D103); absent in a workspace that was not
+   * generated as a demo.
+   */
+  market?: Country
 }
 
 export interface StoredDemo {

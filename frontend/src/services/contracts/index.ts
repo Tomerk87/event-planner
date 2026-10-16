@@ -7,6 +7,7 @@ import type {
 import type { GuestInput } from '../../domain/guests.ts'
 import type { LayoutInput } from '../../domain/layout.ts'
 import type { MessageValues } from '../../domain/messages.ts'
+import type { Country } from '../../domain/phone.ts'
 import type {
   ActivityEntry,
   DashboardMetrics,
@@ -165,6 +166,8 @@ export interface PublicRsvpView {
   timeZone: string
   location: string | null
   language: RsvpLanguage
+  /** How the phone field reads a number without a country code (D103). */
+  country: Country
   isClosed: boolean
   maxSelectableAttendees: number
   settings: RsvpSettingsInput

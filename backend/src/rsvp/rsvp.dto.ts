@@ -9,6 +9,8 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator'
+import { RSVP_LANGUAGES, type RsvpLanguage } from '../domain/models.ts'
+import { COUNTRIES, type Country } from '../domain/phone.ts'
 
 const RESPONSES = ['APPROVED', 'NOT_SURE', 'DECLINED'] as const
 
@@ -106,8 +108,10 @@ export class PublicRsvpViewDto {
   timeZone!: string
   @ApiProperty({ type: String, nullable: true })
   location!: string | null
-  @ApiProperty({ enum: ['en', 'he'] })
-  language!: 'en' | 'he'
+  @ApiProperty({ enum: RSVP_LANGUAGES })
+  language!: RsvpLanguage
+  @ApiProperty({ enum: COUNTRIES })
+  country!: Country
   isClosed!: boolean
   maxSelectableAttendees!: number
   @ApiProperty({ type: RsvpSettingsInputDto })

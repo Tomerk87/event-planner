@@ -24,33 +24,42 @@ const everyone = [family, work, nobody]
 describe('a guest’s group', () => {
   it('is optional: missing, empty or blank means no group', () => {
     for (const group of [undefined, null, '', '   ']) {
-      expect(addGuest([], 'evt-1', { ...input, group }, 'g').guest.group).toBe(
-        null,
-      )
+      expect(
+        addGuest([], { id: 'evt-1', country: 'IL' }, { ...input, group }, 'g')
+          .guest.group,
+      ).toBe(null)
     }
   })
 
   it('is trimmed and kept as typed when it is new', () => {
     expect(
-      addGuest(everyone, 'evt-1', { ...input, group: '  Neighbours ' }, 'g')
-        .guest.group,
+      addGuest(
+        everyone,
+        { id: 'evt-1', country: 'IL' },
+        { ...input, group: '  Neighbours ' },
+        'g',
+      ).guest.group,
     ).toBe('Neighbours')
   })
 
   it('joins an existing group typed with different capitals', () => {
     expect(
-      addGuest(everyone, 'evt-1', { ...input, group: 'FAMILY' }, 'g').guest
-        .group,
+      addGuest(
+        everyone,
+        { id: 'evt-1', country: 'IL' },
+        { ...input, group: 'FAMILY' },
+        'g',
+      ).guest.group,
     ).toBe('Family')
     expect(
-      editGuest(everyone, nobody, { ...nobody, group: 'work' }).group,
+      editGuest(everyone, nobody, { ...nobody, group: 'work' }, 'IL').group,
     ).toBe('Work')
   })
 
   it('lets the only member of a group respell it', () => {
-    expect(editGuest(everyone, work, { ...work, group: 'WORK' }).group).toBe(
-      'WORK',
-    )
+    expect(
+      editGuest(everyone, work, { ...work, group: 'WORK' }, 'IL').group,
+    ).toBe('WORK')
   })
 
   it('does not borrow the spelling of another event or of a deleted guest', () => {
@@ -59,11 +68,20 @@ describe('a guest’s group', () => {
     const others = [elsewhere, removed]
 
     expect(
-      addGuest(others, 'evt-1', { ...input, group: 'cousins' }, 'g').guest
-        .group,
+      addGuest(
+        others,
+        { id: 'evt-1', country: 'IL' },
+        { ...input, group: 'cousins' },
+        'g',
+      ).guest.group,
     ).toBe('cousins')
     expect(
-      addGuest(others, 'evt-1', { ...input, group: 'choir' }, 'g').guest.group,
+      addGuest(
+        others,
+        { id: 'evt-1', country: 'IL' },
+        { ...input, group: 'choir' },
+        'g',
+      ).guest.group,
     ).toBe('choir')
   })
 
@@ -71,15 +89,24 @@ describe('a guest’s group', () => {
     const tooLong = 'x'.repeat(GROUP_MAX_LENGTH + 1)
     let error: unknown
     try {
-      addGuest([], 'evt-1', { ...input, group: tooLong }, 'g')
+      addGuest(
+        [],
+        { id: 'evt-1', country: 'IL' },
+        { ...input, group: tooLong },
+        'g',
+      )
     } catch (caught) {
       error = caught
     }
 
     expect(isDomainError(error, 'VALIDATION')).toBe(true)
     expect(
-      addGuest([], 'evt-1', { ...input, group: tooLong.slice(1) }, 'g').guest
-        .group,
+      addGuest(
+        [],
+        { id: 'evt-1', country: 'IL' },
+        { ...input, group: tooLong.slice(1) },
+        'g',
+      ).guest.group,
     ).toHaveLength(GROUP_MAX_LENGTH)
   })
 
@@ -92,7 +119,7 @@ describe('a guest’s group', () => {
 
     const { guest, restored } = addGuest(
       [removed],
-      'evt-1',
+      { id: 'evt-1', country: 'IL' },
       { ...input, group: 'Work' },
       'g',
     )
@@ -172,8 +199,7 @@ describe('importing groups', () => {
       ],
       mapping,
       [family],
-      'evt-1',
-      5,
+      { id: 'evt-1', country: 'IL', defaultAllowedAttendees: 5 },
     )
 
     expect(plan.rows.map((row) => row.error)).toEqual([
@@ -185,7 +211,12 @@ describe('importing groups', () => {
     expect(plan.valid).toBe(2)
     // Saving the planned rows applies the existing spelling.
     expect(
-      addGuest([family], 'evt-1', plan.rows[0]!.input!, 'g').guest.group,
+      addGuest(
+        [family],
+        { id: 'evt-1', country: 'IL' },
+        plan.rows[0]!.input!,
+        'g',
+      ).guest.group,
     ).toBe('Family')
   })
 })

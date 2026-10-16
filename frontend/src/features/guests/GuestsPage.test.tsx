@@ -146,6 +146,7 @@ describe('deleting the last guest', () => {
       maxAttendees: 100,
       defaultAllowedAttendees: 2,
       rsvpLanguage: 'en',
+      country: 'IL',
       location: null,
       rsvpTitle: null,
       coverImage: null,
@@ -1633,6 +1634,7 @@ describe('Guests page states', () => {
       maxAttendees: 100,
       defaultAllowedAttendees: 2,
       rsvpLanguage: 'en',
+      country: 'IL',
     })
     await openGuests('', services, event.id)
 

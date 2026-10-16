@@ -1,3 +1,4 @@
+import type { Country } from './phone.ts'
 import type { EventRole } from './roles.ts'
 
 export type Id = string
@@ -5,7 +6,14 @@ export type Id = string
 /** An instant in time as an ISO 8601 string in UTC. */
 export type IsoDateTime = string
 
-export type RsvpLanguage = 'en' | 'he'
+/** The languages of the guest-facing pages and messages (D103). */
+export const RSVP_LANGUAGES = ['en', 'he', 'pt'] as const
+
+export type RsvpLanguage = (typeof RSVP_LANGUAGES)[number]
+
+export function isRsvpLanguage(value: unknown): value is RsvpLanguage {
+  return (RSVP_LANGUAGES as readonly unknown[]).includes(value)
+}
 
 export const RSVP_STATUSES = [
   'NO_RESPONSE',
@@ -40,6 +48,8 @@ export interface Event {
   maxAttendees: number
   defaultAllowedAttendees: number
   rsvpLanguage: RsvpLanguage
+  /** Where local phone numbers of this event's guests come from (D103). */
+  country: Country
   location: string | null
   /** Short title shown on the public RSVP page; falls back to the name. */
   rsvpTitle: string | null

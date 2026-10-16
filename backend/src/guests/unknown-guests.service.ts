@@ -50,14 +50,15 @@ export class UnknownGuestsService {
     input: Omit<GuestInput, 'phone'>,
     user: User,
   ): Promise<Guest> {
-    await this.access.authorize(eventId, user, 'EDIT')
+    const { event } = await this.access.authorize(eventId, user, 'EDIT')
     return this.prisma.$transaction(async (tx) => {
       await lockEvent(tx, eventId)
       const unknown = await this.pending(tx, eventId, unknownId)
+      // The international form reads the same whatever the event's country.
       const { guest, restored } = addGuest(
         await loadGuests(tx, eventId),
-        eventId,
-        { ...input, phone: unknown.phone },
+        event,
+        { ...input, phone: unknown.normalizedPhone },
         randomUUID(),
       )
       const saved = await saveGuest(

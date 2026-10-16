@@ -502,6 +502,7 @@ describe('dashboard', () => {
         maxAttendees: 50,
         defaultAllowedAttendees: 6,
         rsvpLanguage: 'en',
+        country: 'IL',
       })
       .expect(200)
     await addTable(owner, base, 1, 4)

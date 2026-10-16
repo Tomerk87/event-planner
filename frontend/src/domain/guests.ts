@@ -1,7 +1,7 @@
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
 import { EVENT_LIMITS } from './events.ts'
-import type { Guest, Id, IsoDateTime } from './models.ts'
-import { formatPhone, normalizePhone } from './phone.ts'
+import type { Event, Guest, Id, IsoDateTime } from './models.ts'
+import { formatPhone, normalizePhone, type Country } from './phone.ts'
 
 export interface GuestInput {
   firstName: string
@@ -27,7 +27,7 @@ function validateGroup(value: string | null | undefined): string | null {
   return group === '' ? null : group
 }
 
-function validateGuestInput(input: GuestInput): GuestFields {
+function validateGuestInput(input: GuestInput, country: Country): GuestFields {
   const firstName = assertNonEmpty(input.firstName, 'firstName')
   assertIntegerInRange(
     input.allowedAttendees,
@@ -35,7 +35,7 @@ function validateGuestInput(input: GuestInput): GuestFields {
     EVENT_LIMITS.allowedAttendees.max,
     'allowedAttendees',
   )
-  const normalizedPhone = normalizePhone(input.phone)
+  const normalizedPhone = normalizePhone(input.phone, country)
   return {
     firstName,
     lastName: input.lastName.trim(),
@@ -105,11 +105,12 @@ export interface AddGuestResult {
  */
 export function addGuest(
   guests: readonly Guest[],
-  eventId: Id,
+  event: Pick<Event, 'id' | 'country'>,
   input: GuestInput,
   newId: Id,
 ): AddGuestResult {
-  const fields = validateGuestInput(input)
+  const eventId = event.id
+  const fields = validateGuestInput(input, event.country)
   fields.group = existingSpelling(guests, eventId, fields.group)
   const existing = findByPhone(guests, eventId, fields.normalizedPhone)
 
@@ -160,8 +161,9 @@ export function editGuest(
   guests: readonly Guest[],
   guest: Guest,
   input: GuestInput,
+  country: Country,
 ): Guest {
-  const fields = validateGuestInput(input)
+  const fields = validateGuestInput(input, country)
   const others = guests.filter((candidate) => candidate.id !== guest.id)
   fields.group = existingSpelling(others, guest.eventId, fields.group)
   const other = findByPhone(others, guest.eventId, fields.normalizedPhone)

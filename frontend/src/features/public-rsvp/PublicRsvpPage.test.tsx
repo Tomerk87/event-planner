@@ -205,12 +205,63 @@ describe('Public RSVP page', () => {
       screen.getByRole('button', { name: 'אגיע!' }).closest('[dir]'),
     ).toHaveAttribute('dir', 'rtl')
 
-    press('English')
+    fireEvent.click(screen.getByRole('button', { name: 'שפה' }))
+    expect(
+      screen.getAllByRole('menuitem').map((item) => item.textContent),
+    ).toEqual(['English', 'Português (Brasil)'])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'English' }))
 
     expect(
       screen.getByRole('button', { name: "I'll be there!" }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'עברית' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Language' })).toHaveTextContent(
+      'English',
+    )
+  })
+
+  it('opens a Brazilian event in Portuguese and reads a local Brazilian number (D103)', async () => {
+    const services = createTestServices()
+    const created = await services.events.create({
+      name: 'Festa Junina',
+      startsAt: '2031-06-20T22:00:00.000Z',
+      timeZone: 'America/Sao_Paulo',
+      maxAttendees: 80,
+      defaultAllowedAttendees: 4,
+      rsvpLanguage: 'pt',
+      country: 'BR',
+    })
+    const guest = await services.guests.create(created.id, {
+      firstName: 'Ana',
+      lastName: 'Souza',
+      phone: '(11) 91234-5678',
+      allowedAttendees: 4,
+    })
+    await openPublic(created.id, services)
+
+    expect(
+      screen.getByText(
+        'De fora do Brasil, comece com + e o código do seu país.',
+      ),
+    ).toBeInTheDocument()
+    change(screen.getByRole('textbox', { name: 'Nome completo' }), {
+      target: { value: 'Ana Souza' },
+    })
+    change(screen.getByRole('textbox', { name: 'Telefone' }), {
+      target: { value: '11 91234-5678' },
+    })
+    change(screen.getByRole('combobox', { name: 'Número de pessoas' }), {
+      target: { value: '3' },
+    })
+    press('Eu vou!')
+
+    expect(
+      await screen.findByText('Pessoas confirmadas: 3'),
+    ).toBeInTheDocument()
+    expect(
+      (await services.guests.list(created.id)).find(
+        (item) => item.id === guest.id,
+      ),
+    ).toMatchObject({ rsvpStatus: 'APPROVED', confirmedAttendees: 3 })
   })
 
   it('is closed once the event has started', async () => {

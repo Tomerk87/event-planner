@@ -19,7 +19,11 @@ import type {
   UnknownRsvp,
   User,
 } from '../../domain/models.ts'
-import { formatPhone, normalizePhone } from '../../domain/phone.ts'
+import {
+  formatPhone,
+  normalizePhone,
+  type Country,
+} from '../../domain/phone.ts'
 import type { EventRole } from '../../domain/roles.ts'
 import { tableOccupancy } from '../../domain/seating.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
@@ -29,16 +33,15 @@ import type { DemoState } from './state.ts'
 /**
  * Generates the demo dataset. Everything in it is fictional: names are drawn
  * from generic lists, email addresses use example.com, and phone numbers use
- * an Israeli-looking range that no operator can assign (+972 00-…), so they
- * cannot reach a real person.
+ * ranges that no operator can assign (Israel +972 00-…, Brazil area code
+ * 00), so they cannot reach a real person.
  *
- * The same seed always gives the same data. Dates are placed relative to
- * `now`, so upcoming events are upcoming and past events are past whenever a
- * visitor first opens the demo.
+ * There is one set of sample events per market (D103): Israel's, in English
+ * and Hebrew, and Brazil's, in Portuguese. The same market always gives the
+ * same data. Dates are placed relative to `now`, so upcoming events are
+ * upcoming and past events are past whenever a visitor first opens the demo.
  */
 
-const SEED = 20261012
-const TIME_ZONE = 'Asia/Jerusalem'
 const DAY_MS = 86_400_000
 const HOUR_MS = 3_600_000
 
@@ -183,12 +186,67 @@ const NAMES: Record<RsvpLanguage, { first: string[]; last: string[] }> = {
       'שחר',
     ],
   },
+  pt: {
+    first: [
+      'Ana',
+      'Bruno',
+      'Carla',
+      'Daniel',
+      'Eduarda',
+      'Felipe',
+      'Gabriela',
+      'Henrique',
+      'Isabela',
+      'João',
+      'Larissa',
+      'Lucas',
+      'Mariana',
+      'Mateus',
+      'Natália',
+      'Pedro',
+      'Rafaela',
+      'Rodrigo',
+      'Sofia',
+      'Thiago',
+      'Vitória',
+      'Gustavo',
+      'Camila',
+      'Leonardo',
+    ],
+    last: [
+      'Silva',
+      'Santos',
+      'Oliveira',
+      'Souza',
+      'Rodrigues',
+      'Ferreira',
+      'Alves',
+      'Pereira',
+      'Lima',
+      'Gomes',
+      'Costa',
+      'Ribeiro',
+      'Martins',
+      'Carvalho',
+      'Almeida',
+      'Lopes',
+      'Soares',
+      'Fernandes',
+      'Vieira',
+      'Barbosa',
+      'Rocha',
+      'Dias',
+      'Nascimento',
+      'Moreira',
+    ],
+  },
 }
 
 // Guest groups, dealt out in turn; every fifth guest is in none.
 const GUEST_GROUPS: Record<RsvpLanguage, (string | null)[]> = {
   en: ['Family', 'Friends', 'Work', 'Neighbours', null],
   he: ['משפחה', 'חברים', 'עבודה', 'שכנים', null],
+  pt: ['Família', 'Amigos', 'Trabalho', 'Vizinhos', null],
 }
 
 const TABLE_CAPACITIES = [10, 12, 8, 10, 12, 14, 10, 8, 12, 10]
@@ -215,7 +273,22 @@ interface EventSpec {
   roles: [EventRole, ...EventRole[]]
 }
 
-const EVENT_SPECS: EventSpec[] = [
+/** One market's sample events and people (D103). */
+interface DemoPack {
+  seed: number
+  timeZone: string
+  /** The demo user first, then the other members. */
+  users: string[]
+  /** Invited to the main event before having an account. */
+  invitedEmail: string
+  events: EventSpec[]
+  /** The range of the guests' undiallable numbers, by event and guest. */
+  guestPhone: (eventNumber: number, guestNumber: number) => string
+  /** The same for responses from numbers that matched no guest. */
+  unknownPhone: (eventNumber: number, responseNumber: number) => string
+}
+
+const ISRAEL_EVENTS: EventSpec[] = [
   {
     name: 'Maya & Daniel’s Wedding',
     language: 'en',
@@ -314,31 +387,170 @@ const EVENT_SPECS: EventSpec[] = [
   },
 ]
 
-const USER_NAMES = [
-  'Alex Morgan',
-  'Jordan Hale',
-  'Sam Keller',
-  'Riley Nash',
-  'Casey Owens',
-  'Taylor Price',
-  'Jamie Rhodes',
-  'Avery Shaw',
+// The same mix as Israel's: a large wedding with every edge case, a smaller
+// family party, upcoming and past events, and each role of the demo user.
+const BRAZIL_EVENTS: EventSpec[] = [
+  {
+    name: 'Casamento de Mariana & Rafael',
+    language: 'pt',
+    daysFromNow: 60,
+    hour: 18,
+    minute: 30,
+    maxAttendees: 300,
+    location: 'Espaço Jardim, São Paulo',
+    rsvpTitle: 'Mariana & Rafael',
+    guests: 164,
+    tables: 18,
+    unknownRsvps: 8,
+    deletedGuests: 5,
+    overCapacityTables: 2,
+    roles: ['OWNER', 'ADMIN', 'ADMIN', 'VIEWER', 'VIEWER', 'VIEWER'],
+  },
+  {
+    name: 'Festa de 15 anos da Júlia',
+    language: 'pt',
+    daysFromNow: 30,
+    hour: 20,
+    minute: 0,
+    maxAttendees: 120,
+    location: 'Salão Primavera, Belo Horizonte',
+    rsvpTitle: null,
+    guests: 36,
+    tables: 5,
+    unknownRsvps: 2,
+    deletedGuests: 1,
+    overCapacityTables: 0,
+    roles: ['OWNER', 'VIEWER'],
+  },
+  {
+    name: 'Aniversário da Família Oliveira',
+    language: 'pt',
+    daysFromNow: 120,
+    hour: 19,
+    minute: 0,
+    maxAttendees: 150,
+    location: 'Terraço Jardim, Curitiba',
+    rsvpTitle: null,
+    guests: 42,
+    tables: 6,
+    unknownRsvps: 1,
+    deletedGuests: 0,
+    overCapacityTables: 1,
+    roles: ['ADMIN', 'OWNER', 'VIEWER'],
+  },
+  {
+    name: 'Lançamento de Produto',
+    language: 'pt',
+    daysFromNow: 200,
+    hour: 9,
+    minute: 0,
+    maxAttendees: 500,
+    location: 'Centro de Convenções, Rio de Janeiro',
+    rsvpTitle: null,
+    guests: 58,
+    tables: 8,
+    unknownRsvps: 0,
+    deletedGuests: 2,
+    overCapacityTables: 0,
+    roles: ['VIEWER', 'OWNER', 'ADMIN'],
+  },
+  {
+    name: 'Festa Junina no Sítio',
+    language: 'pt',
+    daysFromNow: -200,
+    hour: 18,
+    minute: 0,
+    maxAttendees: 120,
+    location: 'Sítio Recanto, Campinas',
+    rsvpTitle: null,
+    guests: 44,
+    tables: 6,
+    unknownRsvps: 1,
+    deletedGuests: 0,
+    overCapacityTables: 0,
+    roles: ['OWNER', 'ADMIN'],
+  },
+  {
+    name: 'Confraternização Anual da Empresa',
+    language: 'pt',
+    daysFromNow: -500,
+    hour: 19,
+    minute: 0,
+    maxAttendees: 300,
+    location: 'Grande Salão, São Paulo',
+    rsvpTitle: null,
+    guests: 80,
+    tables: 10,
+    unknownRsvps: 0,
+    deletedGuests: 3,
+    overCapacityTables: 0,
+    roles: ['ADMIN', 'OWNER', 'OWNER', 'VIEWER'],
+  },
 ]
 
 function pad(value: number, length: number): string {
   return String(value).padStart(length, '0')
 }
 
-function createUsers(): User[] {
-  return USER_NAMES.map((name, index) => ({
+const PACKS: Record<Country, DemoPack> = {
+  IL: {
+    seed: 20261012,
+    timeZone: 'Asia/Jerusalem',
+    users: [
+      'Alex Morgan',
+      'Jordan Hale',
+      'Sam Keller',
+      'Riley Nash',
+      'Casey Owens',
+      'Taylor Price',
+      'Jamie Rhodes',
+      'Avery Shaw',
+    ],
+    invitedEmail: 'morgan.reed@example.com',
+    events: ISRAEL_EVENTS,
+    guestPhone: (event, guest) => `+972 00-${pad(event, 3)}-${pad(guest, 4)}`,
+    unknownPhone: (event, response) =>
+      `+972 00-9${pad(event, 2)}-${pad(response, 4)}`,
+  },
+  BR: {
+    // Another seed, so no RSVP link is the same as one of Israel's.
+    seed: 20261017,
+    timeZone: 'America/Sao_Paulo',
+    users: [
+      'Ana Oliveira',
+      'Bruno Santos',
+      'Carla Souza',
+      'Diego Lima',
+      'Eduarda Costa',
+      'Felipe Rocha',
+      'Gabriela Alves',
+      'Henrique Martins',
+    ],
+    invitedEmail: 'marina.reis@example.com',
+    events: BRAZIL_EVENTS,
+    // Area code 00 does not exist in Brazil.
+    guestPhone: (event, guest) => `+55 00 9${pad(event, 4)}-${pad(guest, 4)}`,
+    unknownPhone: (event, response) =>
+      `+55 00 8${pad(event, 4)}-${pad(response, 4)}`,
+  },
+}
+
+function createUsers(pack: DemoPack): User[] {
+  return pack.users.map((name, index) => ({
     id: `usr-${index + 1}`,
     name,
-    email: `${name.toLowerCase().replace(' ', '.')}@example.com`,
+    email: `${name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(' ', '.')}@example.com`,
     isSuperUser: false,
   }))
 }
 
 function createEvent(
+  pack: DemoPack,
+  country: Country,
   spec: EventSpec,
   index: number,
   now: Date,
@@ -346,20 +558,21 @@ function createEvent(
 ): Event {
   const day = toLocalDateTime(
     new Date(now.getTime() + spec.daysFromNow * DAY_MS),
-    TIME_ZONE,
+    pack.timeZone,
   )
   const startsAt = fromLocalDateTime(
     { ...day, hour: spec.hour, minute: spec.minute },
-    TIME_ZONE,
+    pack.timeZone,
   )
   return {
     id: `evt-${index + 1}`,
     name: spec.name,
     startsAt: startsAt.toISOString(),
-    timeZone: TIME_ZONE,
+    timeZone: pack.timeZone,
     maxAttendees: spec.maxAttendees,
     defaultAllowedAttendees: 5,
     rsvpLanguage: spec.language,
+    country,
     location: spec.location,
     rsvpTitle: spec.rsvpTitle,
     coverImage: null,
@@ -383,7 +596,13 @@ function invitationNameFor(
   if (roll < 0.75) {
     return `${firstName} & ${pick(random, names.first)}`
   }
-  return language === 'he' ? `משפחת ${lastName}` : `The ${lastName} Family`
+  return FAMILY[language](lastName)
+}
+
+const FAMILY: Record<RsvpLanguage, (lastName: string) => string> = {
+  en: (lastName) => `The ${lastName} Family`,
+  he: (lastName) => `משפחת ${lastName}`,
+  pt: (lastName) => `Família ${lastName}`,
 }
 
 /**
@@ -419,8 +638,8 @@ function uniqueName(
 }
 
 /**
- * A demo phone as the application shows it. The numbers are in a range no
- * Israeli number uses ("00…"), so they can never reach a real person.
+ * A demo phone as the application shows it. The numbers are in ranges no
+ * operator assigns, so they can never reach a real person.
  */
 function demoPhone(international: string): string {
   return formatPhone(normalizePhone(international))
@@ -448,6 +667,7 @@ interface EventData {
 }
 
 function createEventData(
+  pack: DemoPack,
   spec: EventSpec,
   event: Event,
   eventIndex: number,
@@ -474,9 +694,7 @@ function createEventData(
       names,
       usedNames,
     )
-    const phone = demoPhone(
-      `+972 00-${pad(eventIndex + 1, 3)}-${pad(index + 1, 4)}`,
-    )
+    const phone = demoPhone(pack.guestPhone(eventIndex + 1, index + 1))
     const allowedAttendees = random() < 0.75 ? 5 : intBetween(random, 1, 10)
 
     const sendRoll = random()
@@ -601,9 +819,7 @@ function createEventData(
     { length: spec.unknownRsvps },
     (_, index) => {
       const status = responses[index % responses.length] ?? 'APPROVED'
-      const phone = demoPhone(
-        `+972 00-9${pad(eventIndex + 1, 2)}-${pad(index + 1, 4)}`,
-      )
+      const phone = demoPhone(pack.unknownPhone(eventIndex + 1, index + 1))
       return {
         id: `unk-${eventIndex + 1}-${pad(index + 1, 3)}`,
         eventId: event.id,
@@ -626,7 +842,7 @@ function createEventData(
   // not empty in the main event. Built from fixed values, without drawing
   // random numbers, so the rest of the dataset is unaffected.
   if (eventIndex === 0) {
-    const phone = demoPhone(`+972 00-9${pad(eventIndex + 1, 2)}-9001`)
+    const phone = demoPhone(pack.unknownPhone(eventIndex + 1, 9001))
     unknownRsvps.push({
       id: `unk-${eventIndex + 1}-rejected`,
       eventId: event.id,
@@ -725,9 +941,18 @@ function createLayout(
   }
 }
 
-export function generateDemoState(now: Date): DemoState {
-  const random = createRandom(SEED)
-  const users = createUsers()
+/** The market whose sample events a visitor gets (D103): by language. */
+export function demoMarketFor(language: string): Country {
+  return language === 'pt' ? 'BR' : 'IL'
+}
+
+export function generateDemoState(
+  now: Date,
+  market: Country = 'IL',
+): DemoState {
+  const pack = PACKS[market]
+  const random = createRandom(pack.seed)
+  const users = createUsers(pack)
   const [currentUser, ...others] = users
   if (!currentUser) {
     throw new Error('the demo needs a current user')
@@ -748,11 +973,12 @@ export function generateDemoState(now: Date): DemoState {
     messageSends: [],
     tables: [],
     layouts: [],
+    market,
   }
 
-  EVENT_SPECS.forEach((spec, index) => {
-    const event = createEvent(spec, index, now, random)
-    const data = createEventData(spec, event, index, now, random)
+  pack.events.forEach((spec, index) => {
+    const event = createEvent(pack, market, spec, index, now, random)
+    const data = createEventData(pack, spec, event, index, now, random)
     const memberships: EventMembership[] = spec.roles.map((role, position) => {
       const user =
         position === 0
@@ -771,7 +997,7 @@ export function generateDemoState(now: Date): DemoState {
       state.invitations.push({
         id: 'inv-1',
         eventId: event.id,
-        email: 'morgan.reed@example.com',
+        email: pack.invitedEmail,
         role: 'VIEWER',
       })
     }

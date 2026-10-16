@@ -20,6 +20,7 @@ import {
   useUpdateGuest,
 } from './guestQueries.ts'
 import { useTableOptions } from './TableOptions.tsx'
+import type { Country } from '../../domain/phone.ts'
 
 const NO_TABLE = 'NONE'
 
@@ -33,6 +34,8 @@ interface GuestFormDialogProps {
   onClose: () => void
   eventId: string
   defaultAllowedAttendees: number
+  /** How a number without a country code is read (D103). */
+  country: Country
   /** The groups already used in the event, offered as suggestions. */
   groups: readonly string[]
   tables: readonly TableWithOccupancy[]
@@ -43,6 +46,7 @@ interface GuestFormDialogProps {
 function GuestForm({
   eventId,
   defaultAllowedAttendees,
+  country,
   groups,
   tables,
   guest,
@@ -199,7 +203,7 @@ function GuestForm({
         maxLength={24}
         autoComplete="off"
         value={phone}
-        hint={t('guests.form.phoneHint')}
+        hint={t(`guests.form.phoneHint.${country}`)}
         error={
           fieldError?.field === 'phone'
             ? t(
