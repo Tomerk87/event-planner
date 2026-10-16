@@ -49,8 +49,6 @@ interface FloorPlanProps {
   selected: ReadonlySet<string>
   /** The item being edited, drawn with its handles. */
   active?: LayoutItem | null
-  /** A small picture beside the list: no controls, no panning. */
-  compact?: boolean
   editing?: boolean
   /** Snapping step for moves, in centimetres; 0 for none. */
   snap?: number
@@ -151,7 +149,6 @@ export function FloorPlan({
   tables,
   selected,
   active = null,
-  compact = false,
   editing = false,
   snap = 0,
   onTable,
@@ -212,7 +209,7 @@ export function FloorPlan({
   // zooms; the wheel alone keeps scrolling the page.
   useEffect(() => {
     const svg = svgRef.current
-    if (!svg || compact) {
+    if (!svg) {
       return
     }
     const onWheel = (event: WheelEvent) => {
@@ -227,7 +224,7 @@ export function FloorPlan({
     }
     svg.addEventListener('wheel', onWheel, { passive: false })
     return () => svg.removeEventListener('wheel', onWheel)
-  }, [compact, layout, toRoom])
+  }, [layout, toRoom])
 
   useEffect(() => {
     const onChangeFullscreen = () => {
@@ -300,9 +297,6 @@ export function FloorPlan({
   }
 
   function startPan(event: PointerEvent, tableId: string | null = null) {
-    if (compact) {
-      return
-    }
     dragged.current = false
     pointers.current.set(event.pointerId, {
       x: event.clientX,
@@ -661,7 +655,7 @@ export function FloorPlan({
         )}
         transform={`translate(${placement.x} ${placement.y}) rotate(${placement.rotation})`}
         role="button"
-        tabIndex={compact ? -1 : 0}
+        tabIndex={0}
         aria-label={label}
         aria-pressed={editing ? isActive(item) : isSelected}
         onPointerDown={(event) => startItem(event, item, placement)}
@@ -746,11 +740,7 @@ export function FloorPlan({
   return (
     <div
       ref={frameRef}
-      className={cx(
-        styles.frame,
-        compact && styles.compact,
-        fullscreen && styles.fullscreen,
-      )}
+      className={cx(styles.frame, fullscreen && styles.fullscreen)}
       dir="ltr"
       // As tall as the room is deep, for the width there is.
       style={
@@ -761,43 +751,41 @@ export function FloorPlan({
             }
       }
     >
-      {!compact && (
-        <div className={styles.toolbar}>
-          <IconButton
-            label={t('layout.arrangement.zoomIn')}
-            variant="ghost"
-            onClick={() => zoom(ZOOM_STEP)}
-          >
-            <ZoomIn />
-          </IconButton>
-          <IconButton
-            label={t('layout.arrangement.zoomOut')}
-            variant="ghost"
-            onClick={() => zoom(1 / ZOOM_STEP)}
-          >
-            <ZoomOut />
-          </IconButton>
-          <IconButton
-            label={t('layout.arrangement.fit')}
-            variant="ghost"
-            onClick={() => setView(fitView(layout))}
-          >
-            <Scan />
-          </IconButton>
-          <IconButton
-            label={t(
-              fullscreen
-                ? 'layout.arrangement.exitFullscreen'
-                : 'layout.arrangement.fullscreen',
-            )}
-            variant="ghost"
-            onClick={() => void toggleFullscreen()}
-          >
-            {fullscreen ? <Shrink /> : <Expand />}
-          </IconButton>
-          {toolbarEnd}
-        </div>
-      )}
+      <div className={styles.toolbar}>
+        <IconButton
+          label={t('layout.arrangement.zoomIn')}
+          variant="ghost"
+          onClick={() => zoom(ZOOM_STEP)}
+        >
+          <ZoomIn />
+        </IconButton>
+        <IconButton
+          label={t('layout.arrangement.zoomOut')}
+          variant="ghost"
+          onClick={() => zoom(1 / ZOOM_STEP)}
+        >
+          <ZoomOut />
+        </IconButton>
+        <IconButton
+          label={t('layout.arrangement.fit')}
+          variant="ghost"
+          onClick={() => setView(fitView(layout))}
+        >
+          <Scan />
+        </IconButton>
+        <IconButton
+          label={t(
+            fullscreen
+              ? 'layout.arrangement.exitFullscreen'
+              : 'layout.arrangement.fullscreen',
+          )}
+          variant="ghost"
+          onClick={() => void toggleFullscreen()}
+        >
+          {fullscreen ? <Shrink /> : <Expand />}
+        </IconButton>
+        {toolbarEnd}
+      </div>
       <svg
         ref={svgRef}
         className={styles.svg}

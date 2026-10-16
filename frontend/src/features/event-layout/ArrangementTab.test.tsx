@@ -82,7 +82,7 @@ describe('Table Arrangement (D100)', () => {
     expect(screen.queryByText('Edit Mode')).toBeNull()
   })
 
-  it('ticks a table on the plan in the same selection as the list', async () => {
+  it('chooses one table on the plan, the same one as in the list', async () => {
     setViewportWidth(1440)
     await openArrangement()
 
@@ -91,52 +91,33 @@ describe('Table Arrangement (D100)', () => {
     ).toBeInTheDocument()
     fireEvent.click(tableOnPlan(3))
     expect(tableOnPlan(3)).toHaveAttribute('aria-pressed', 'true')
-    const card = screen
-      .getByRole('heading', { name: 'Selected Table' })
-      .closest('section')!
-    expect(within(card).getByText('Table 3')).toBeInTheDocument()
+    const card = () =>
+      within(
+        screen
+          .getByRole('heading', { name: 'Selected Table' })
+          .closest('section')!,
+      )
+    expect(card().getByText('Table 3')).toBeInTheDocument()
+
+    // Another table takes its place; one is chosen at a time.
+    fireEvent.click(tableOnPlan(4))
+    expect(tableOnPlan(3)).toHaveAttribute('aria-pressed', 'false')
+    expect(card().getByText('Table 4')).toBeInTheDocument()
 
     // A second click lets go.
-    fireEvent.click(tableOnPlan(3))
-    expect(tableOnPlan(3)).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(tableOnPlan(4))
+    expect(tableOnPlan(4)).toHaveAttribute('aria-pressed', 'false')
     expect(
       screen.getByText('Select a table on the plan to see its guests here.'),
     ).toBeInTheDocument()
 
     fireEvent.keyDown(tableOnPlan(5), { key: 'Enter' })
     fireEvent.click(screen.getByRole('tab', { name: 'Tables' }))
-    const row = (
-      await screen.findByRole('checkbox', { name: 'Select Table 5' })
-    ).closest('tr')!
-    expect(within(row).getByRole('checkbox')).toBeChecked()
+    await screen.findByRole('table', { name: 'Tables' })
+    expect(card().getByText('Table 5')).toBeInTheDocument()
     expect(
-      within(screen.getByRole('region', { name: 'Selected tables' })).getByText(
-        '1 selected',
-      ),
-    ).toBeInTheDocument()
-  })
-
-  it('shows a small preview beside the list that opens the tab', async () => {
-    setViewportWidth(1440)
-    renderApp(`/events/${MAIN}/layout`, createTestServices())
-    const preview = (
-      await screen.findByRole('heading', { name: 'Arrangement Preview' })
-    ).closest('section')!
-
-    fireEvent.click(within(preview).getByRole('button', { name: /^Table 2,/ }))
-    expect(
-      screen.getByRole('checkbox', { name: 'Select Table 2' }),
-    ).toBeChecked()
-
-    fireEvent.click(
-      within(preview).getByRole('button', { name: 'Open Arrangement' }),
-    )
-    expect(
-      await screen.findByRole('tab', {
-        name: 'Table Arrangement',
-        selected: true,
-      }),
-    ).toBeInTheDocument()
+      screen.queryByRole('heading', { name: 'Arrangement Preview' }),
+    ).toBeNull()
   })
 
   it('places a table, moves and turns it with the keyboard, adds a stage and saves', async () => {

@@ -85,6 +85,20 @@
   background: var(--color-primary-soft);
 }
 
+/* Rows and cards that choose what is shown beside the table. */
+.clickable {
+  cursor: pointer;
+}
+
+.table tbody tr.clickable:hover:not(.selectedRow) {
+  background: var(--color-surface-muted);
+}
+
+.activeCard {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+}
+
 .sortButton {
   display: inline-flex;
   align-items: center;

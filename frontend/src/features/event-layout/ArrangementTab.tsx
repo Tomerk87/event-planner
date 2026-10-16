@@ -53,6 +53,7 @@ import { Switch } from '../../shared/ui/Switch.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import { UnsavedChangesGuard } from '../../shared/UnsavedChangesGuard.tsx'
 import styles from './Arrangement.module.css'
+import pageStyles from './EventLayout.module.css'
 import {
   FloorPlan,
   type FloorPlanHandle,
@@ -77,14 +78,15 @@ const PICTURE_CONTROLS = [
 interface ArrangementTabProps {
   eventId: string
   tables: readonly SeatedTable[]
-  /** The tables ticked on this page, shared with the Tables tab. */
-  selected: ReadonlySet<string>
-  onToggleTable: (tableId: string) => void
+  /** The chosen table, shared with the Tables tab. */
+  chosenId: string | null
+  /** Chooses a table, or clears the choice when it is the chosen one. */
+  onChooseTable: (tableId: string) => void
   canEdit: boolean
   isPhone: boolean
   onAddTable: () => void
-  /** The Selected Table card, when exactly one table is ticked. */
-  selectedCard: ReactNode
+  /** The Selected Table card, or its hint; beside the plan in View mode. */
+  side: ReactNode
 }
 
 function toInput(layout: EventLayout): LayoutInput {
@@ -101,19 +103,19 @@ const metres = (centimetres: number) => String(Math.round(centimetres) / 100)
 
 /**
  * The Table Arrangement tab (D100). It opens in View mode: the plan, to
- * explore and to tick tables in. Owners and Admins of an upcoming event
+ * explore and to choose a table in. Owners and Admins of an upcoming event
  * change it in Edit mode, on a screen wider than a phone, and save the
  * whole plan at once.
  */
 export function ArrangementTab({
   eventId,
   tables,
-  selected,
-  onToggleTable,
+  chosenId,
+  onChooseTable,
   canEdit,
   isPhone,
   onAddTable,
-  selectedCard,
+  side,
 }: ArrangementTabProps) {
   const { t } = useTranslation()
   const format = useFormatters()
@@ -458,14 +460,14 @@ export function ArrangementTab({
       ref={planRef}
       layout={plan}
       tables={tables}
-      selected={editing ? new Set() : selected}
+      selected={new Set(!editing && chosenId ? [chosenId] : [])}
       active={editing ? active : null}
       editing={editing}
       snap={snapOn ? SNAP : 0}
       onTable={(tableId) =>
         editing
           ? setActive({ type: 'table', id: tableId })
-          : onToggleTable(tableId)
+          : onChooseTable(tableId)
       }
       onObject={(objectId) => setActive({ type: 'object', id: objectId })}
       onBackground={() => setActive(null)}
@@ -477,7 +479,7 @@ export function ArrangementTab({
 
   if (!editing) {
     return (
-      <div className={styles.view}>
+      <div className={pageStyles.withSide}>
         <Card
           title={t('layout.arrangement.title')}
           actions={
@@ -516,15 +518,7 @@ export function ArrangementTab({
             {floorPlan}
           </div>
         </Card>
-        <div className={styles.side}>
-          {selectedCard ?? (
-            <Card title={t('layout.selected.title')}>
-              <p className={styles.muted}>
-                {t('layout.arrangement.selectHint')}
-              </p>
-            </Card>
-          )}
-        </div>
+        {side}
       </div>
     )
   }

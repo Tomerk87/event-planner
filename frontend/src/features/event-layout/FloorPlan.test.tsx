@@ -360,22 +360,4 @@ describe('FloorPlan', () => {
       'true',
     )
   })
-
-  it('as a small preview has no controls, and a click chooses a table', () => {
-    const onTable = vi.fn()
-    render(
-      <FloorPlan
-        compact
-        layout={layout()}
-        tables={tables}
-        selected={new Set()}
-        onTable={onTable}
-      />,
-    )
-
-    expect(screen.queryByRole('button', { name: 'Zoom in' })).toBeNull()
-    fireEvent.pointerDown(svg(), at(10, 10))
-    fireEvent.click(screen.getByRole('button', { name: /^Table 2,/ }))
-    expect(onTable).toHaveBeenCalledWith('t-2')
-  })
 })

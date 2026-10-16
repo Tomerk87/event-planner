@@ -63,7 +63,9 @@ function entry(page: Page, isMobile: boolean, number: number) {
         .getByRole('table', { name: 'Tables' })
         .getByRole('row')
         .filter({
-          has: page.getByRole('button', { name: String(number), exact: true }),
+          has: page.locator('td:first-child', {
+            hasText: new RegExp(`^${number}$`),
+          }),
         })
 }
 
@@ -193,12 +195,9 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   isMobile,
 }) => {
   await page.goto(LAYOUT)
-  const warnings = page
-    .locator('section')
-    .filter({ has: page.getByRole('heading', { name: 'Capacity Warnings' }) })
   await expect(
-    warnings.getByRole('button', { name: /is over its capacity/ }),
-  ).toHaveCount(2)
+    page.getByRole('heading', { name: 'Capacity Warnings' }),
+  ).toHaveCount(0)
 
   await entry(page, isMobile, 1)
     .getByRole('button', { name: 'More actions for Table 1' })
@@ -212,51 +211,52 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   await dialog.getByRole('button', { name: 'Save Changes' }).click()
 
   await expect(entry(page, isMobile, 1)).toContainText('Over Capacity')
-  await expect(
-    warnings.getByRole('button', {
-      name: 'Table 1 is over its capacity by 3.',
-    }),
-  ).toBeVisible()
 
   await page.goto('/events/evt-1/dashboard')
   await expect(page.getByText('Tables over capacity: 3')).toBeVisible()
 })
 
-test('ticked tables: one is shown beside the list, several are exported and deleted together', async ({
+test('one chosen table is shown beside the list, kept across pages and tabs, and cleared when deleted', async ({
   page,
   isMobile,
 }) => {
-  test.skip(isMobile, 'a phone has no tick boxes, as on Guests')
+  test.skip(isMobile, 'a phone shows the chosen table below the list')
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(LAYOUT)
   const panel = page
     .locator('section')
     .filter({ has: page.getByRole('heading', { name: 'Selected Table' }) })
-  const bar = page.getByRole('region', { name: 'Selected tables' })
+  const row = (number: number) => entry(page, false, number)
 
-  // Nothing is chosen to begin with.
+  // Nothing is chosen to begin with, and there are no tick boxes.
+  await expect(panel).toContainText(
+    'Select a table in the list to see its guests here.',
+  )
+  await expect(page.getByRole('checkbox')).toHaveCount(0)
   await expect(
     page.getByRole('heading', { name: 'Arrangement Preview' }),
-  ).toBeVisible()
-  await expect(panel).toHaveCount(0)
+  ).toHaveCount(0)
   await expectNoSidewaysScroll(page, `${LAYOUT} at 1440px`)
 
-  await page.getByRole('checkbox', { name: 'Select Table 3' }).check()
+  await row(3).getByRole('cell').first().click()
   await expect(panel).toContainText('Table 3')
   await expect(panel).toContainText('Assigned Guest Parties (2)')
-  await expect(bar).toContainText('1 selected')
-  await page.getByRole('checkbox', { name: 'Select Table 3' }).uncheck()
-  await expect(panel).toHaveCount(0)
-  await expect(bar).toHaveCount(0)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await row(3).getByRole('cell').first().click()
+  await expect(panel).toContainText(
+    'Select a table in the list to see its guests here.',
+  )
 
-  // Kept across pages.
-  await page.getByRole('checkbox', { name: 'Select Table 3' }).check()
-  await page.getByRole('button', { name: 'Page 2' }).click()
-  await page.getByRole('checkbox', { name: 'Select Table 12' }).check()
-  await expect(bar).toContainText('2 selected')
-  await expect(panel).toHaveCount(0)
+  // By the keyboard, one at a time.
+  await row(4).focus()
+  await page.keyboard.press('Enter')
+  await expect(panel).toContainText('Table 4')
+  await row(5).focus()
+  await page.keyboard.press(' ')
+  await expect(panel).toContainText('Table 5')
+  await expect(row(4)).not.toHaveAttribute('aria-current')
 
-  // Every column of the list is in view beside the other cards.
+  // Every column of the list is in view beside the chosen table.
   const frame = page.getByRole('table', { name: 'Tables' }).locator('..')
   expect(
     await frame.evaluate(
@@ -264,21 +264,38 @@ test('ticked tables: one is shown beside the list, several are exported and dele
     ),
   ).toBe(0)
 
-  const downloading = page.waitForEvent('download')
-  await bar.getByRole('button', { name: 'Export selected' }).click()
-  await page.getByRole('menuitem', { name: 'CSV file (.csv)' }).click()
-  const lines = await csvRows(await downloading)
-  expect(new Set(lines.slice(1).map((line) => line.split(',')[5]))).toEqual(
-    new Set(['3', '12']),
-  )
+  // Kept across pages and on the plan, at the same place.
+  // Where the card is on the page, whatever the scrolling.
+  const place = () =>
+    panel.evaluate((element) => {
+      const box = element.getBoundingClientRect()
+      return [box.x, box.y + window.scrollY, box.width]
+    })
+  const before = await place()
+  await page.getByRole('button', { name: 'Page 2' }).click()
+  await expect(panel).toContainText('Table 5')
+  await page.getByRole('tab', { name: 'Table Arrangement' }).click()
+  await expect(
+    page
+      .getByRole('group', { name: 'Floor plan' })
+      .getByRole('button', { name: /^Table 5,/ }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await expect(panel).toContainText('Table 5')
+  expect(await place()).toEqual(before)
 
-  await bar.getByRole('button', { name: 'Delete selected' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Delete 2 Tables' })
-  await expect(dialog).toContainText('Tables 3 and 12 will be deleted.')
-  await dialog.getByRole('button', { name: 'Delete 2 Tables' }).click()
-  await expect(page.getByText('2 tables were deleted.')).toBeVisible()
-  await expect(bar).toHaveCount(0)
-  await expect(figure(page, 'Total Tables')).toHaveText('16')
+  await page.getByRole('tab', { name: 'Tables' }).click()
+  await page.getByRole('button', { name: 'Page 1' }).click()
+  await row(5).getByRole('button', { name: 'More actions for Table 5' }).click()
+  await page.getByRole('menuitem', { name: 'Delete Table' }).click()
+  await page
+    .getByRole('dialog', { name: 'Delete Table 5' })
+    .getByRole('button', { name: 'Delete Table' })
+    .click()
+  await expect(page.getByText('Table 5 was deleted.')).toBeVisible()
+  await expect(panel).toContainText(
+    'Select a table in the list to see its guests here.',
+  )
+  await expect(figure(page, 'Total Tables')).toHaveText('17')
 })
 
 test('the seating list exports to CSV and to Excel, a row per seated party in table order', async ({

@@ -512,6 +512,51 @@ describe('DataTable', () => {
     act(() => setViewportWidth(768))
     expect(screen.getByRole('table')).toBeInTheDocument()
   })
+
+  it('chooses a row by a click or a key, but not by its own controls', () => {
+    const onRowClick = vi.fn()
+    const choosable = (
+      <DataTable
+        caption="Guests"
+        columns={[
+          { id: 'name', header: 'Name', cell: (row) => row.name },
+          {
+            id: 'actions',
+            header: 'Actions',
+            cell: (row) => <button type="button">{`Edit ${row.name}`}</button>,
+          },
+        ]}
+        rows={rows}
+        getRowKey={(row) => row.id}
+        renderCard={(row) => <p>{`Card ${row.name}`}</p>}
+        activeKey="b"
+        onRowClick={onRowClick}
+      />
+    )
+    const { rerender } = render(choosable)
+    const row = screen.getByRole('cell', { name: 'Jordan Reed' }).closest('tr')!
+
+    fireEvent.click(screen.getByRole('cell', { name: 'Jordan Reed' }))
+    expect(onRowClick).toHaveBeenLastCalledWith(rows[0])
+    fireEvent.keyDown(row, { key: 'Enter' })
+    fireEvent.keyDown(row, { key: ' ' })
+    expect(onRowClick).toHaveBeenCalledTimes(3)
+    fireEvent.click(screen.getByRole('button', { name: 'Edit Jordan Reed' }))
+    expect(onRowClick).toHaveBeenCalledTimes(3)
+    expect(
+      screen.getByRole('cell', { name: 'Sam Carter' }).closest('tr'),
+    ).toHaveAttribute('aria-current', 'true')
+    expect(row).not.toHaveAttribute('aria-current')
+
+    act(() => setViewportWidth(400))
+    rerender(choosable)
+    fireEvent.click(screen.getByText('Card Jordan Reed'))
+    expect(onRowClick).toHaveBeenCalledTimes(4)
+    expect(screen.getByText('Card Sam Carter').closest('li')).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
+  })
 })
 
 describe('state components', () => {

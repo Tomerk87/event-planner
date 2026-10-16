@@ -22,24 +22,6 @@
   padding-inline-start: var(--space-5);
 }
 
-/* View mode: the plan, and the chosen table beside it on a wide screen. */
-.view {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-4);
-  align-items: start;
-}
-
-.view > * {
-  min-inline-size: 0;
-}
-
-@media (min-width: 1100px) {
-  .view {
-    grid-template-columns: minmax(0, 1fr) clamp(18rem, 26%, 22rem);
-  }
-}
-
 /* Edit mode */
 .editBar {
   display: flex;

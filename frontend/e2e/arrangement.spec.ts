@@ -95,6 +95,7 @@ test('the plan is dragged around and zoomed', async ({ page }) => {
   expect(zoomed).not.toBe(whole)
 
   // A drag that starts on the floor moves the view, not a table.
+  await svg.scrollIntoViewIfNeeded()
   const box = (await svg.boundingBox())!
   await page.mouse.move(box.x + 12, box.y + 12)
   await page.mouse.down()

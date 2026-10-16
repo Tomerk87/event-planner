@@ -14,12 +14,6 @@
   max-block-size: 75vh;
 }
 
-.compact {
-  min-block-size: 0;
-  max-block-size: 18rem;
-  cursor: pointer;
-}
-
 /* Fills the window where the browser has no fullscreen of its own. */
 .fullscreen {
   position: fixed;
@@ -49,10 +43,6 @@
   touch-action: none;
   user-select: none;
   cursor: grab;
-}
-
-.compact .svg {
-  cursor: pointer;
 }
 
 .svg:active {

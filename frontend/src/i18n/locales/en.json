@@ -804,9 +804,7 @@
     },
     "list": {
       "title": "Tables",
-      "caption": "Tables",
-      "selectAll": "Select all tables on this page",
-      "selectRow": "Select {{name}}"
+      "caption": "Tables"
     },
     "columns": {
       "number": "#",
@@ -860,15 +858,12 @@
       "noMatchTitle": "No tables match",
       "noMatchBody": "Try a different number or shape."
     },
-    "warnings": {
-      "title": "Capacity Warnings",
-      "none": "No tables over capacity."
-    },
     "selected": {
       "title": "Selected Table",
       "parties": "Assigned Guest Parties ({{count}})",
       "edit": "Edit Table",
-      "manage": "Manage Guests"
+      "manage": "Manage Guests",
+      "hintList": "Select a table in the list to see its guests here."
     },
     "form": {
       "addTitle": "Add Table",
@@ -896,12 +891,7 @@
       "body": "Table {{number}} will be deleted. No guest is deleted.",
       "seated": "Guest parties at this table: {{parties}} (attendees: {{attendees}}). They will be left without a table.",
       "confirm": "Delete Table",
-      "done": "Table {{number}} was deleted.",
-      "titleMany": "Delete {{count}} Tables",
-      "bodyMany": "Tables {{numbers}} will be deleted. No guest is deleted.",
-      "seatedMany": "Guest parties at these tables: {{parties}} (attendees: {{attendees}}). They will be left without a table.",
-      "confirmMany": "Delete {{count}} Tables",
-      "doneMany": "{{count}} tables were deleted."
+      "done": "Table {{number}} was deleted."
     },
     "manage": {
       "title": "Guests of Table {{number}}",
@@ -939,13 +929,6 @@
         "tableNumber": "Table Number"
       }
     },
-    "bulk": {
-      "label": "Selected tables",
-      "selected": "{{count}} selected",
-      "export": "Export selected",
-      "delete": "Delete selected",
-      "clear": "Clear selection"
-    },
     "objects": {
       "WALL": "Wall",
       "STAGE": "Stage",
@@ -954,10 +937,6 @@
       "FOOD_STATION": "Food Station",
       "ENTRANCE": "Entrance",
       "PLANT": "Plant"
-    },
-    "preview": {
-      "title": "Arrangement Preview",
-      "open": "Open Arrangement"
     },
     "arrangement": {
       "title": "Table Arrangement",
