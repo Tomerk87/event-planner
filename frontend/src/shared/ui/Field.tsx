@@ -13,7 +13,7 @@ import { cx } from './cx.ts'
 import styles from './Field.module.css'
 import { Select, type SelectOption } from './Select.tsx'
 
-interface FieldCommonProps {
+export interface FieldCommonProps {
   label: string
   hint?: string
   error?: string
@@ -32,7 +32,7 @@ interface FieldShellProps extends FieldCommonProps {
   children: (aria: ControlAria) => ReactNode
 }
 
-function FieldShell({
+export function FieldShell({
   label,
   hint,
   error,
@@ -204,6 +204,9 @@ function toOptions(children: ReactNode): SelectOption[] {
         label,
         disabled: child.props.disabled,
         lang: child.props.lang,
+        keywords: (child.props as { 'data-keywords'?: string })[
+          'data-keywords'
+        ],
       },
     ]
   })

@@ -6,6 +6,7 @@ import { canEditEvent } from '../../domain/access.ts'
 import { EVENT_LIMITS, maxAttendeesRange } from '../../domain/events.ts'
 import type { Event } from '../../domain/models.ts'
 import { COUNTRIES, isCountry } from '../../domain/phone.ts'
+import { getCurrentLanguage } from '../../i18n/i18n.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
 import { CoverPhotoField } from '../events/CoverPhotoField.tsx'
@@ -19,16 +20,18 @@ import { UnsavedChangesGuard } from '../../shared/UnsavedChangesGuard.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
 import { Card, KpiCard } from '../../shared/ui/Card.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
+import { PlaceField } from '../../shared/ui/PlaceField.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { ErrorState, LoadingState } from '../../shared/ui/States.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import { useDashboard } from '../dashboard/dashboardQueries.ts'
 import {
+  clearEventFormError,
   eventFormErrorMessage,
   fieldErrorOf,
   listTimeZones,
-  timeZoneLabel,
+  timeZoneChoice,
   toDateAndTime,
   toInteger,
   clampToRange,
@@ -154,18 +157,23 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
   const maxChanged = values.maxAttendees !== String(event.maxAttendees)
   const checkedMax = maxChanged ? allowedMax : EVENT_LIMITS.maxAttendees
 
-  // A rejected save moves focus to the first field that needs attention.
+  // A rejected save moves focus to the first field that needs attention;
+  // clearing a message while typing moves nothing.
+  const [refusals, setRefusals] = useState(0)
   useEffect(() => {
-    formRef.current
-      ?.querySelector<HTMLElement>('[aria-invalid="true"]')
-      ?.focus()
-  }, [errors])
+    if (refusals > 0) {
+      formRef.current
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus()
+    }
+  }, [refusals])
 
   function set<Field extends keyof EventFormValues>(
     field: Field,
     value: EventFormValues[Field],
   ) {
     setValues((current) => ({ ...current, [field]: value }))
+    setErrors((current) => clearEventFormError(current, field))
   }
 
   const message = (field: EventFormField) =>
@@ -181,6 +189,9 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
     const startsAt = toStartsAt(values.date, values.time, values.timeZone)
     const found = validateEventForm(values, startsAt, checkedMax)
     setErrors(found)
+    if (Object.keys(found).length > 0) {
+      setRefusals((count) => count + 1)
+    }
     setFailure(null)
     if (Object.keys(found).length > 0 || startsAt === null) {
       return Promise.resolve(false)
@@ -211,6 +222,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
             const fieldError = fieldErrorOf(error)
             if (fieldError) {
               setErrors(fieldError)
+              setRefusals((count) => count + 1)
             } else {
               setFailure(describeError(t, error))
             }
@@ -285,13 +297,14 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   error={message('name')}
                   onChange={(change) => set('name', change.target.value)}
                 />
-                <TextField
+                <PlaceField
                   label={t('settings.general.location')}
                   maxLength={120}
                   disabled={!canEdit}
                   value={values.location}
+                  country={values.country}
                   hint={t('settings.general.locationHint')}
-                  onChange={(change) => set('location', change.target.value)}
+                  onChange={(location) => set('location', location)}
                 />
                 <CoverPhotoField
                   eventId={event.id}
@@ -370,11 +383,21 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   emptyLabel={t('events.form.timeZoneNoMatch')}
                   onChange={(change) => set('timeZone', change.target.value)}
                 >
-                  {timeZones.map((timeZone) => (
-                    <option key={timeZone} value={timeZone}>
-                      {timeZoneLabel(timeZone)}
-                    </option>
-                  ))}
+                  {timeZones.map((timeZone) => {
+                    const choice = timeZoneChoice(
+                      timeZone,
+                      getCurrentLanguage(),
+                    )
+                    return (
+                      <option
+                        key={timeZone}
+                        value={timeZone}
+                        data-keywords={choice.keywords}
+                      >
+                        {choice.label}
+                      </option>
+                    )
+                  })}
                 </SelectField>
                 <div>
                   <p className={styles.label}>{t('settings.general.status')}</p>

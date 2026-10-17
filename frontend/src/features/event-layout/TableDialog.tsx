@@ -131,7 +131,12 @@ function TableForm({
                 : t('layout.form.errors.number', TABLE_LIMITS.number)
               : undefined
           }
-          onChange={(event) => setNumber(event.target.value)}
+          onChange={(event) => {
+            setNumber(event.target.value)
+            setFieldError((current) =>
+              current?.field === 'number' ? null : current,
+            )
+          }}
         />
         <TextField
           label={t('layout.form.capacity')}
@@ -147,7 +152,12 @@ function TableForm({
               ? t('layout.form.errors.capacity', TABLE_LIMITS.capacity)
               : undefined
           }
-          onChange={(event) => setCapacity(event.target.value)}
+          onChange={(event) => {
+            setCapacity(event.target.value)
+            setFieldError((current) =>
+              current?.field === 'capacity' ? null : current,
+            )
+          }}
         />
       </div>
       <SelectField

@@ -332,8 +332,8 @@
       "timeZoneNoMatch": "No time zone matches",
       "maxAttendees": "Maximum Attendees",
       "maxAttendeesHint": "Between {{min}} and {{max}}.",
-      "defaultAllowedAttendees": "Expected Attendees per Guest",
-      "defaultAllowedAttendeesHint": "Default for new guests, {{min}} to {{max}}.",
+      "defaultAllowedAttendees": "Maximum Attendees per Guest",
+      "defaultAllowedAttendeesHint": "The most people a guest can confirm for one invitation, {{min}} to {{max}}. New guests start with this as their Expected Attendees.",
       "rsvpLanguage": "Default RSVP Language",
       "rsvpLanguageHint": "The language the public RSVP page opens in. You can change it later in RSVP Settings.",
       "location": "Location",
@@ -612,7 +612,7 @@
         "BR": "A Brazilian number with its area code, such as (11) 91234-5678. For a number from another country, start with + and the country code. It must be unique within the event."
       },
       "allowed": "Expected Attendees",
-      "allowedHint": "Between {{min}} and {{max}}.",
+      "allowedHint": "For your planning, {{min}} to {{max}}. It does not limit what the guest confirms.",
       "add": "Add Guest",
       "save": "Save Changes",
       "added": "The guest was added.",
@@ -621,8 +621,7 @@
         "firstName": "Enter a first name.",
         "phone": "Enter a valid phone number.",
         "duplicate": "Another guest in this event already has this phone number.",
-        "allowed": "Enter a whole number between {{min}} and {{max}}.",
-        "belowConfirmed": "This guest already confirmed {{count}} attendees, so the expected attendees cannot be lower."
+        "allowed": "Enter a whole number between {{min}} and {{max}}."
       },
       "group": "Group",
       "groupHint": "Optional. Choose a group, or type a new name to create one.",
@@ -640,8 +639,8 @@
       "title": "Change RSVP",
       "for": "Response of {{name}}",
       "attendees": "Confirmed Attendees",
-      "attendeesHint": "Between 1 and {{max}}.",
-      "attendeesError": "Enter a whole number between 1 and {{max}}.",
+      "attendeesHint": "Up to {{max}} per invitation (Maximum Attendees per Guest in Event Settings).",
+      "attendeesError": "Enter a whole number from 1 to {{max}}.",
       "tableNotice": "This guest will be removed from table {{number}}, because only approved guests are seated.",
       "save": "Save RSVP",
       "saved": "The RSVP was updated."
@@ -770,7 +769,6 @@
       "chooseGuest": "Choose the guest",
       "noGuestFound": "No guest matches this search.",
       "refineSearch": "More guests match. Refine the search to see them.",
-      "mergeOverAllowance": "The response is for {{count}} attendees but this guest is expected to bring up to {{max}}. Raise the guest's expected attendees first.",
       "cardAttendees": "Attendees {{count}}",
       "columns": {
         "name": "Name Given",
@@ -1127,12 +1125,12 @@
       "pastBody": "This event has started. It is read-only."
     },
     "guestDefaults": {
-      "title": "Guest Defaults",
-      "subtitle": "Default settings for newly added guests.",
-      "allowed": "Default Maximum Attendees per Guest",
-      "allowedHint": "Used for newly created guests. Allowed range: {{min}} – {{max}}.",
-      "overrideTitle": "Guests can override this value",
-      "overrideBody": "This is the default value for new guests, but you can set a different maximum number of attendees for each guest individually."
+      "title": "Guests",
+      "subtitle": "How many people a guest can confirm.",
+      "allowed": "Maximum Attendees per Guest",
+      "allowedHint": "The most people a guest can confirm for one invitation. Allowed range: {{min}} – {{max}}.",
+      "overrideTitle": "Expected Attendees is for your planning",
+      "overrideBody": "New guests start with this number as their Expected Attendees, which you can change for each guest. It does not limit what a guest confirms; this maximum does. Lowering it keeps answers already given."
     },
     "rsvp": {
       "title": "RSVP Settings",
@@ -1161,7 +1159,7 @@
       "rsvp": "Guests can submit and update their RSVP until the event starts. After that the RSVP page is closed.",
       "exports": "Viewing the event and downloading exports stay available after the event.",
       "maxAttendees": "Maximum attendees is a whole number from {{min}} to {{max}}.",
-      "allowed": "The default attendees per guest is a whole number from {{min}} to {{max}}. It applies to guests added afterwards and can be changed for each guest.",
+      "allowed": "The maximum attendees per guest is a whole number from {{min}} to {{max}}. It limits what every guest can confirm, and new guests start with it as their Expected Attendees. Lowering it keeps answers already given.",
       "warnings": "Capacity warnings never block saving. They appear when confirmed attendance exceeds the maximum, or when the number of seats differs from it.",
       "date": "The event's date and time can be changed only to a time in the future.",
       "roles": "Owners and Admins can change the event. Viewers can view it and download exports."
@@ -1395,7 +1393,7 @@
       "name": "Enter your name.",
       "phone": "Enter a valid phone number.",
       "attendees": "Choose the number of attendees.",
-      "overAllowance": "Your invitation is for up to {{max}} attendees. To bring more, please contact the organizer.",
+      "overMaximum": "This invitation is for up to {{max}} people.",
       "failed": "Your response could not be sent. Please try again."
     },
     "result": {

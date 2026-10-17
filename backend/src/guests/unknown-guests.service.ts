@@ -4,7 +4,7 @@ import { EventAccessService } from '../access/event-access.service.ts'
 import { DomainError } from '../domain/errors.ts'
 import { addGuest, type GuestInput } from '../domain/guests.ts'
 import type { Guest, UnknownRsvp, User } from '../domain/models.ts'
-import { applyRsvp, resolveRsvp } from '../domain/rsvp.ts'
+import { answeredLimit, applyRsvp, resolveRsvp } from '../domain/rsvp.ts'
 import { PrismaService } from '../prisma/prisma.service.ts'
 import { toUnknown } from '../prisma/mappers.ts'
 import {
@@ -63,7 +63,7 @@ export class UnknownGuestsService {
       )
       const saved = await saveGuest(
         tx,
-        this.answered(guest, unknown),
+        this.answered(event, guest, unknown),
         !restored,
       )
       await tx.unknownRsvp.delete({ where: { id: unknown.id } })
@@ -78,12 +78,16 @@ export class UnknownGuestsService {
     guestId: string,
     user: User,
   ): Promise<Guest> {
-    await this.access.authorize(eventId, user, 'EDIT')
+    const { event } = await this.access.authorize(eventId, user, 'EDIT')
     return this.prisma.$transaction(async (tx) => {
       await lockEvent(tx, eventId)
       const unknown = await this.pending(tx, eventId, unknownId)
       const guest = activeGuest(await loadGuests(tx, eventId), guestId)
-      const saved = await saveGuest(tx, this.answered(guest, unknown), false)
+      const saved = await saveGuest(
+        tx,
+        this.answered(event, guest, unknown),
+        false,
+      )
       await tx.unknownRsvp.delete({ where: { id: unknown.id } })
       return saved
     })
@@ -118,15 +122,22 @@ export class UnknownGuestsService {
     return toUnknown(restored)
   }
 
-  /** The guest with the response applied, and the name the responder typed. */
-  private answered(guest: Guest, unknown: UnknownRsvp): Guest {
+  /**
+   * The guest with the response applied, and the name the responder typed.
+   * The answer was already given, so a maximum lowered since does not undo it.
+   */
+  private answered(
+    event: { defaultAllowedAttendees: number },
+    guest: Guest,
+    unknown: UnknownRsvp,
+  ): Guest {
     return {
       ...applyRsvp(
         guest,
         resolveRsvp(
           unknown.rsvpStatus,
           unknown.confirmedAttendees,
-          guest.allowedAttendees,
+          answeredLimit(event, unknown.confirmedAttendees),
         ),
         unknown.submittedAt,
       ),

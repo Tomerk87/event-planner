@@ -154,8 +154,8 @@ export function addGuest(
 
 /**
  * Edits the organizer-controlled fields of a guest. The phone must stay
- * unique among the event's active guests, and the allowance cannot drop below
- * an attendee count the guest has already confirmed.
+ * unique among the event's active guests. Expected Attendees is the
+ * organizer's planning note, independent of what the guest confirmed (D104).
  */
 export function editGuest(
   guests: readonly Guest[],
@@ -169,15 +169,6 @@ export function editGuest(
   const other = findByPhone(others, guest.eventId, fields.normalizedPhone)
   if (other && !other.deleted) {
     throw new DomainError('DUPLICATE_PHONE')
-  }
-  if (
-    guest.rsvpStatus === 'APPROVED' &&
-    (guest.confirmedAttendees ?? 0) > fields.allowedAttendees
-  ) {
-    throw new DomainError('INVALID_ATTENDEE_COUNT', {
-      min: guest.confirmedAttendees ?? 1,
-      max: EVENT_LIMITS.allowedAttendees.max,
-    })
   }
   return { ...guest, ...fields }
 }

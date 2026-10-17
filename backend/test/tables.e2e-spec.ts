@@ -28,7 +28,8 @@ function code(response: { body: unknown }): string {
 async function setUp() {
   const owner = t.browser()
   await signUp(owner, 'Owner')
-  const event = await createEvent(owner)
+  // Parties of up to 6 confirm here: the maximum per guest allows them (D104).
+  const event = await createEvent(owner, { defaultAllowedAttendees: 6 })
   return { owner, event, base: `/api/events/${event.id}` }
 }
 

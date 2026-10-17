@@ -655,7 +655,7 @@ describe('Changing guests', () => {
     )
   })
 
-  it('edits a guest, and refuses an allowance below what they confirmed', async () => {
+  it('edits a guest, with Expected Attendees free of what they confirmed, and clears an error once the field is edited (D104)', async () => {
     const services = createTestServices()
     const guest = await find(
       services,
@@ -668,19 +668,29 @@ describe('Changing guests', () => {
     const dialog = screen.getByRole('dialog', { name: 'Edit Guest' })
     expect(
       within(dialog).getByLabelText(/^Expected Attendees/),
-    ).toHaveAttribute('min', String(guest.confirmedAttendees))
-    fillGuestForm(dialog, { allowed: '1' })
+    ).toHaveAttribute('min', '1')
+    fillGuestForm(dialog, { phone: '12' })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Save Changes' }),
     )
-
     expect(
-      await within(dialog).findByText(
-        `This guest already confirmed ${guest.confirmedAttendees} attendees, so the expected attendees cannot be lower.`,
-      ),
+      await within(dialog).findByText('Enter a valid phone number.'),
     ).toBeInTheDocument()
+    expect(within(dialog).getByLabelText(/^Phone Number/)).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    )
 
-    fillGuestForm(dialog, { lastName: 'Renamed', allowed: '9' })
+    // Typing in the field takes the message away at once.
+    fillGuestForm(dialog, { phone: guest.phone })
+    expect(
+      within(dialog).queryByText('Enter a valid phone number.'),
+    ).not.toBeInTheDocument()
+    expect(within(dialog).getByLabelText(/^Phone Number/)).not.toHaveAttribute(
+      'aria-invalid',
+    )
+
+    fillGuestForm(dialog, { lastName: 'Renamed', allowed: '1' })
     fireEvent.click(
       within(dialog).getByRole('button', { name: 'Save Changes' }),
     )
@@ -693,7 +703,11 @@ describe('Changing guests', () => {
     )
     expect(
       (await services.guests.list(MAIN)).find((item) => item.id === guest.id),
-    ).toMatchObject({ lastName: 'Renamed', allowedAttendees: 9 })
+    ).toMatchObject({
+      lastName: 'Renamed',
+      allowedAttendees: 1,
+      confirmedAttendees: guest.confirmedAttendees,
+    })
   })
 
   it('deletes a guest after confirmation, and restores them when the phone is added again', async () => {
@@ -740,11 +754,13 @@ describe('Changing guests', () => {
     })
   })
 
-  it('changes an RSVP by hand, with the same attendee limits as the public form', async () => {
+  it('changes an RSVP by hand, limited by the event’s Maximum Attendees per Guest (D104)', async () => {
     const services = createTestServices()
     const guest = await find(
       services,
-      (candidate) => candidate.rsvpStatus === 'NO_RESPONSE',
+      (candidate) =>
+        candidate.rsvpStatus === 'NO_RESPONSE' &&
+        candidate.allowedAttendees < 5,
     )
     const name = guestFullName(guest)
     await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
@@ -760,22 +776,24 @@ describe('Changing guests', () => {
 
     fireEvent.click(within(dialog).getByRole('radio', { name: 'Approved' }))
     // Approving starts from the guest's Expected Attendees.
-    expect(within(dialog).getByLabelText(/Confirmed Attendees/)).toHaveValue(
-      guest.allowedAttendees,
-    )
-    change(within(dialog).getByLabelText(/Confirmed Attendees/), {
-      target: { value: String(guest.allowedAttendees + 1) },
-    })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
+    const attendees = () => within(dialog).getByLabelText(/Confirmed Attendees/)
+    expect(attendees()).toHaveValue(guest.allowedAttendees)
     expect(
       within(dialog).getByText(
-        `Enter a whole number between 1 and ${guest.allowedAttendees}.`,
+        'Up to 5 per invitation (Maximum Attendees per Guest in Event Settings).',
       ),
     ).toBeInTheDocument()
+    change(attendees(), { target: { value: '6' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
+    expect(
+      within(dialog).getByText('Enter a whole number from 1 to 5.'),
+    ).toBeInTheDocument()
 
-    change(within(dialog).getByLabelText(/Confirmed Attendees/), {
-      target: { value: '1' },
-    })
+    // More than the guest's Expected Attendees, within the event's maximum.
+    change(attendees(), { target: { value: '5' } })
+    expect(
+      within(dialog).queryByText('Enter a whole number from 1 to 5.'),
+    ).not.toBeInTheDocument()
     fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
 
     expect(await screen.findByText('The RSVP was updated.')).toBeInTheDocument()
@@ -783,8 +801,8 @@ describe('Changing guests', () => {
       expect(within(rowOf(name)).getByText('Approved')).toBeInTheDocument(),
     )
     expect(
-      within(rowOf(name)).getByRole('combobox', { name: `Table for ${name}` }),
-    ).toHaveValue('NONE')
+      (await services.guests.list(MAIN)).find((item) => item.id === guest.id),
+    ).toMatchObject({ confirmedAttendees: 5 })
   })
 
   it('keeps an approved guest’s confirmed count when the RSVP dialog opens', async () => {
@@ -1460,7 +1478,7 @@ describe('Unknown Guests', () => {
     )
   })
 
-  it('explains when a response is for more people than the guest is allowed', async () => {
+  it('matches a response for more people than the guest’s Expected Attendees (D104)', async () => {
     const services = createTestServices()
     const unknown = (await services.unknownGuests.list(MAIN)).find(
       (item) => (item.confirmedAttendees ?? 0) >= 2,
@@ -1492,9 +1510,15 @@ describe('Unknown Guests', () => {
       within(dialog).getByRole('button', { name: 'Match to a guest' }),
     )
 
-    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
-      `The response is for ${unknown.confirmedAttendees} attendees but this guest is expected to bring up to 1. Raise the guest's expected attendees first.`,
-    )
+    expect(
+      await screen.findByText('The response was matched to the guest.'),
+    ).toBeInTheDocument()
+    expect(
+      (await services.guests.list(MAIN)).find((item) => item.id === guest.id),
+    ).toMatchObject({
+      allowedAttendees: 1,
+      confirmedAttendees: unknown.confirmedAttendees,
+    })
   })
 
   it('rejects a response into the Rejected list, from which it can be restored', async () => {

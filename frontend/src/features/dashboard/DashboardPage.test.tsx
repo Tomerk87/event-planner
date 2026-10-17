@@ -61,7 +61,7 @@ async function newEmptyEvent(services: Services) {
     startsAt: '2031-01-01T18:00:00.000Z',
     timeZone: 'Asia/Jerusalem',
     maxAttendees: 100,
-    defaultAllowedAttendees: 2,
+    defaultAllowedAttendees: 4,
     rsvpLanguage: 'en',
     country: 'IL',
   })

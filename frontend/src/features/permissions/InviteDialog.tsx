@@ -102,7 +102,10 @@ function InviteForm({
         error={
           emailError ? t(`permissions.invite.errors.${emailError}`) : undefined
         }
-        onChange={(event) => setEmail(event.target.value)}
+        onChange={(event) => {
+          setEmail(event.target.value)
+          setEmailError(null)
+        }}
       />
       <SelectField
         label={t('permissions.columns.role')}

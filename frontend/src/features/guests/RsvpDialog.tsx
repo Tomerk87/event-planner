@@ -21,6 +21,8 @@ interface RsvpDialogProps {
   onClose: () => void
   eventId: string
   guest: Guest | null
+  /** The event's Maximum Attendees per Guest, which limits the answer (D104). */
+  maxPerGuest: number
   /** Number of the table the guest is seated at, if any. */
   tableNumber: number | null
 }
@@ -28,11 +30,13 @@ interface RsvpDialogProps {
 function RsvpForm({
   eventId,
   guest,
+  maxPerGuest,
   tableNumber,
   onClose,
 }: {
   eventId: string
   guest: Guest
+  maxPerGuest: number
   tableNumber: number | null
   onClose: () => void
 }) {
@@ -41,11 +45,11 @@ function RsvpForm({
   const setRsvp = useSetGuestRsvp(eventId)
   const [status, setStatus] = useState<RsvpStatus>(guest.rsvpStatus)
   // An approved guest keeps their count; otherwise approving starts from
-  // the guest's Expected Attendees.
+  // the guest's Expected Attendees, within the event's maximum.
   const [attendees, setAttendees] = useState(
     String(
       (guest.rsvpStatus === 'APPROVED' && guest.confirmedAttendees) ||
-        guest.allowedAttendees ||
+        Math.min(guest.allowedAttendees, maxPerGuest) ||
         1,
     ),
   )
@@ -58,7 +62,7 @@ function RsvpForm({
     const count = toInteger(attendees)
     if (
       status === 'APPROVED' &&
-      (!Number.isInteger(count) || count < 1 || count > guest.allowedAttendees)
+      (!Number.isInteger(count) || count < 1 || count > maxPerGuest)
     ) {
       return setAttendeesInvalid(true)
     }
@@ -105,19 +109,19 @@ function RsvpForm({
           inputMode="numeric"
           required
           min={1}
-          max={guest.allowedAttendees}
+          max={maxPerGuest}
           value={attendees}
-          hint={t('guests.rsvpDialog.attendeesHint', {
-            max: guest.allowedAttendees,
-          })}
+          hint={t('guests.rsvpDialog.attendeesHint', { max: maxPerGuest })}
           error={
             attendeesInvalid
-              ? t('guests.rsvpDialog.attendeesError', {
-                  max: guest.allowedAttendees,
-                })
+              ? t('guests.rsvpDialog.attendeesError', { max: maxPerGuest })
               : undefined
           }
-          onChange={(event) => setAttendees(event.target.value)}
+          onChange={(event) => {
+            setAttendees(event.target.value)
+            // Editing clears the message (D104); Save checks again.
+            setAttendeesInvalid(false)
+          }}
         />
       )}
       {status !== 'APPROVED' && tableNumber !== null && (
@@ -144,6 +148,7 @@ export function RsvpDialog({
   onClose,
   eventId,
   guest,
+  maxPerGuest,
   tableNumber,
 }: RsvpDialogProps) {
   const { t } = useTranslation()
@@ -154,6 +159,7 @@ export function RsvpDialog({
         <RsvpForm
           eventId={eventId}
           guest={guest}
+          maxPerGuest={maxPerGuest}
           tableNumber={tableNumber}
           onClose={onClose}
         />

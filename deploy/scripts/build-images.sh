@@ -20,6 +20,7 @@ fi
 docker build --platform linux/arm64 -t "event-planner-backend:$version" backend
 docker build --platform linux/arm64 -f deploy/web/Dockerfile \
   --build-arg VITE_DEMO_ENABLED="${VITE_DEMO_ENABLED:-true}" \
+  --build-arg VITE_GOOGLE_MAPS_KEY="${VITE_GOOGLE_MAPS_KEY:-}" \
   -t "event-planner-web:$version" .
 
 echo "Built version $version"

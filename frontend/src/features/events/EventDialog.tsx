@@ -9,16 +9,18 @@ import { describeError } from '../../shared/errorMessage.ts'
 import { Button } from '../../shared/ui/Button.tsx'
 import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
+import { PlaceField } from '../../shared/ui/PlaceField.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import styles from './EventDialog.module.css'
 import {
   browserTimeZone,
+  clearEventFormError,
   defaultEventFormValues,
   eventFormErrorMessage,
   fieldErrorOf,
   listTimeZones,
-  timeZoneLabel,
+  timeZoneChoice,
   toInteger,
   clampToRange,
   earliestStart,
@@ -69,6 +71,7 @@ function EventForm({
     value: EventFormValues[Field],
   ) {
     setValues((current) => ({ ...current, [field]: value }))
+    setErrors((current) => clearEventFormError(current, field))
   }
 
   const message = (field: EventFormField) =>
@@ -186,11 +189,18 @@ function EventForm({
             emptyLabel={t('events.form.timeZoneNoMatch')}
             onChange={(event) => set('timeZone', event.target.value)}
           >
-            {timeZones.map((timeZone) => (
-              <option key={timeZone} value={timeZone}>
-                {timeZoneLabel(timeZone)}
-              </option>
-            ))}
+            {timeZones.map((timeZone) => {
+              const choice = timeZoneChoice(timeZone, getCurrentLanguage())
+              return (
+                <option
+                  key={timeZone}
+                  value={timeZone}
+                  data-keywords={choice.keywords}
+                >
+                  {choice.label}
+                </option>
+              )
+            })}
           </SelectField>
           <div className={styles.row}>
             <TextField
@@ -266,11 +276,12 @@ function EventForm({
               </option>
             ))}
           </SelectField>
-          <TextField
+          <PlaceField
             label={t('events.form.location')}
             maxLength={120}
             value={values.location}
-            onChange={(event) => set('location', event.target.value)}
+            country={values.country}
+            onChange={(location) => set('location', location)}
           />
           <CoverPhotoField
             value={values.coverImage}

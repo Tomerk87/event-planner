@@ -249,7 +249,8 @@ describe('public RSVP page', () => {
       language: 'he',
       country: 'IL',
       isClosed: false,
-      maxSelectableAttendees: 10,
+      // The event's Maximum Attendees per Guest (D104).
+      maxSelectableAttendees: 4,
       settings: expect.any(Object),
     })
     const { eventId: _eventId, ...organizerSettings } = (
@@ -334,21 +335,25 @@ describe('public RSVP page', () => {
     }
   })
 
-  it('checks the attendee count: the guest’s allowance, or the event default for an unknown phone', async () => {
+  it('checks the attendee count against the event’s maximum per guest, for a guest and an unknown phone alike (D104)', async () => {
     const { owner, event, guest, publicUrl } = await setUp()
     await owner
       .put(`/api/events/${event.id}/guests/${guest.id}`)
       .send({ ...DANA, allowedAttendees: 2 })
       .expect(200)
 
+    // Above the guest's Expected Attendees (2), within the maximum (4).
+    const four = await answer(t.browser(), publicUrl, { attendees: 4 }).expect(
+      200,
+    )
+    expect(four.body).toEqual({ status: 'APPROVED', confirmedAttendees: 4 })
     const tooMany = await answer(t.browser(), publicUrl, {
-      attendees: 3,
+      attendees: 5,
     }).expect(400)
     expect(tooMany.body).toEqual({
       code: 'INVALID_ATTENDEE_COUNT',
-      details: { min: 1, max: 2 },
+      details: { min: 1, max: 4 },
     })
-    // The event default is 4.
     await answer(t.browser(), publicUrl, {
       phone: '054-999-0001',
       attendees: 4,

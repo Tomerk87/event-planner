@@ -8,7 +8,9 @@ import {
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import type { IsoDateTime, RsvpLanguage } from '../../domain/models.ts'
 import type { Country } from '../../domain/phone.ts'
-import type { Language } from '../../i18n/languages.ts'
+import { LOCALES, type Language } from '../../i18n/languages.ts'
+import { TIME_ZONE_COUNTRIES } from '../../shared/timeZoneCountries.ts'
+import { withoutError } from '../../shared/formErrors.ts'
 
 /** The form's fields, as typed. */
 export interface EventFormValues {
@@ -32,6 +34,28 @@ export type EventFormErrors = Partial<
   Record<EventFormField, 'invalid' | 'past'>
 >
 
+/** The error each form field shows; the date and time share one. */
+const ERROR_OF: Partial<Record<keyof EventFormValues, EventFormField>> = {
+  name: 'name',
+  date: 'startsAt',
+  time: 'startsAt',
+  timeZone: 'timeZone',
+  maxAttendees: 'maxAttendees',
+  defaultAllowedAttendees: 'defaultAllowedAttendees',
+}
+
+/**
+ * The errors once a field has been edited: its message goes (D104), and
+ * saving checks it again.
+ */
+export function clearEventFormError(
+  errors: EventFormErrors,
+  field: keyof EventFormValues,
+): EventFormErrors {
+  const shown = ERROR_OF[field]
+  return shown ? withoutError(errors, shown) : errors
+}
+
 const FALLBACK_TIME_ZONE = 'UTC'
 
 export function browserTimeZone(): string {
@@ -41,6 +65,36 @@ export function browserTimeZone(): string {
 
 /** Every time zone the browser knows, always including the given one. */
 /** A time zone as people read it: "America/New_York" as "America/New York". */
+/**
+ * A time zone's choice in a list: its name with its country in the
+ * interface language ("America/Sao Paulo · Brazil"), and the country's
+ * English name as extra search words, so it is found by country in any
+ * language (D104).
+ */
+export function timeZoneChoice(
+  timeZone: string,
+  language: Language,
+): { label: string; keywords: string } {
+  const label = timeZoneLabel(timeZone)
+  const code = TIME_ZONE_COUNTRIES[timeZone]
+  if (!code) {
+    return { label, keywords: '' }
+  }
+  const country = countryName(code, LOCALES[language])
+  return {
+    label: country ? `${label} · ${country}` : label,
+    keywords: countryName(code, 'en-US') ?? '',
+  }
+}
+
+function countryName(code: string, locale: string): string | undefined {
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(code)
+  } catch {
+    return undefined
+  }
+}
+
 export function timeZoneLabel(timeZone: string): string {
   return timeZone.replaceAll('_', ' ')
 }

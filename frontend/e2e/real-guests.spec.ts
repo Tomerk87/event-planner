@@ -224,11 +224,15 @@ test('the public page takes known and unknown answers within the allowance', asy
   await expect(
     guest.getByText('Thank you for letting us know. We will miss you!'),
   ).toBeVisible()
-  // More than the invitation allows is refused, by the page and the server.
-  await answer('Gal', '0523333333', "I'll be there!", '5')
-  await expect(
-    guest.getByText(/Your invitation is for up to 2 attendees/),
-  ).toBeVisible()
+  // The page offers up to the event's Maximum Attendees per Guest (2), and
+  // the server refuses more (D104).
+  await guest.goto(`/rsvp/${event.rsvpSlug}`)
+  await guest.getByRole('combobox', { name: 'Number of Attendees' }).click()
+  await expect(guest.getByRole('option', { name: /^\d+$/ })).toHaveText([
+    '1',
+    '2',
+  ])
+  await guest.keyboard.press('Escape')
   const over = await answerRsvpByApi(guest, event.rsvpSlug, {
     name: 'Gal',
     phone: '0523333333',
@@ -272,7 +276,8 @@ test('only approved guests are seated, a full table refuses more, and a changed 
   page,
 }) => {
   await signUpByApi(page, 'Olive Owner')
-  const event = await createEventByApi(page)
+  // A party grows to 3 below: the maximum per guest allows it (D104).
+  const event = await createEventByApi(page, { defaultAllowedAttendees: 3 })
   const api = (path: string) => `/api/events/${event.id}${path}`
   const table = (await (
     await page.request.post(api('/tables'), {

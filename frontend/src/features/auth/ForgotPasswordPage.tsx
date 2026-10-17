@@ -94,7 +94,10 @@ export function ForgotPasswordPage() {
         required
         value={email}
         error={invalid ? t('auth.errors.email') : undefined}
-        onChange={(change) => setEmail(change.target.value)}
+        onChange={(change) => {
+          setEmail(change.target.value)
+          setInvalid(false)
+        }}
       />
       <Button type="submit" fullWidth loading={isPending}>
         {t('auth.forgot.action')}

@@ -288,9 +288,11 @@ describe('My Events', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create Event' }))
     const dialog = screen.getByRole('dialog', { name: 'Create event' })
 
-    expect(within(dialog).getByLabelText(/Maximum Attendees/)).toHaveValue(50)
     expect(
-      within(dialog).getByLabelText(/Expected Attendees per Guest/),
+      within(dialog).getByLabelText(/^Maximum Attendees \*?$/),
+    ).toHaveValue(50)
+    expect(
+      within(dialog).getByLabelText(/Maximum Attendees per Guest/),
     ).toHaveValue(5)
 
     fillEventForm(dialog, {
@@ -301,7 +303,7 @@ describe('My Events', () => {
     change(within(dialog).getByLabelText(/Time Zone/), {
       target: { value: 'Asia/Jerusalem' },
     })
-    change(within(dialog).getByLabelText(/Maximum Attendees/), {
+    change(within(dialog).getByLabelText(/^Maximum Attendees \*?$/), {
       target: { value: '80' },
     })
     change(within(dialog).getByLabelText(/RSVP Language/), {
@@ -379,10 +381,10 @@ describe('My Events', () => {
     const dialog = screen.getByRole('dialog', { name: 'Create event' })
     const fields = within(dialog)
 
-    change(fields.getByLabelText(/Maximum Attendees/), {
+    change(fields.getByLabelText(/^Maximum Attendees \*?$/), {
       target: { value: '49' },
     })
-    change(fields.getByLabelText(/Expected Attendees per Guest/), {
+    change(fields.getByLabelText(/Maximum Attendees per Guest/), {
       target: { value: '2.5' },
     })
     fireEvent.click(fields.getByRole('button', { name: 'Create Event' }))

@@ -131,14 +131,14 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | Time zone | Required; the event's date and time are expressed in it |
 | RSVP language | The default language of the public RSVP page: English, Hebrew or Portuguese. Chosen when the event is created (Portuguese when the organizer uses Portuguese, otherwise English) and changed on RSVP Settings; a guest can switch (section 8) |
 | Phone number country | Israel or Brazil (D103): a phone number typed without a country code, by the organizer, in an import or on the public RSVP page, is read as this country's. Chosen when the event is created (Brazil when the organizer uses Portuguese, otherwise Israel) and changed in Event Settings; numbers already saved keep their country |
-| Default allowed attendees per guest | Default 5; event-configurable integer from 1 to 10 |
+| Maximum attendees per guest | Default 5; event-configurable integer from 1 to 10. The most people any guest can confirm for one invitation (D104), and the starting Expected Attendees of a new guest. Lowering it keeps answers already given |
 | Location | Optional; shown in the event selector and on the public RSVP page, with Google Maps and Waze links (D97). Edited in Event Settings |
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
 | Event photo | Optional; JPG or PNG up to 5 MB, uploaded in Create Event and Event Settings and removable. Shown on the event card and in the event selector; a duplicate keeps it. Without one, a cover is generated for the event |
 
 The event creator becomes an Owner. A new event must start in the future, and an existing event's date and time can only be changed to a time in the future. Changing the time zone keeps the date and time as typed. Changing the default allowed attendees affects only guests added afterwards. The application UI language can differ from the event's default guest-facing RSVP language.
 
-Event Settings edits the name, location, maximum attendees, date, time, time zone and default allowed attendees. It shows a capacity summary with the Dashboard's figures and warnings, and a **View Event Rules** dialog listing the rules in this section. Leaving the page with unsaved changes asks for confirmation.
+Event Settings edits the name, location, maximum attendees, date, time, time zone, maximum attendees per guest and phone number country. A time zone can be found by its city or its country's name, in any interface language. The location (and the calendar location on RSVP Settings) suggests places from Google Maps as it is typed when the deployment has a Google key (D104); anything typed is kept as written. It shows a capacity summary with the Dashboard's figures and warnings, and a **View Event Rules** dialog listing the rules in this section. Leaving the page with unsaved changes asks for confirmation.
 
 ### 5.2 Past events
 
@@ -173,7 +173,7 @@ A Guest represents an invitation/party and may stand for multiple actual attende
 | Invitation name | Guest-entered name on the RSVP form; may differ from the organizer's name |
 | Phone number | Required; guest identifier within the event |
 | Normalized phone | Internal matching and uniqueness value |
-| Allowed attendees | Maximum attendees the invitation may approve. Shown to organizers as **Expected attendees** |
+| Allowed attendees | Shown to organizers as **Expected attendees**: the organizer's planning note of how many people the invitation is for, 1 to 10. It does not limit what the guest confirms (D104) |
 | Confirmed attendees | Actual approved count; see RSVP rules |
 | RSVP status | `NO_RESPONSE`, `APPROVED`, `NOT_SURE`, `DECLINED` |
 | Invitation sent count | Nonnegative, starts at `0`, increases on each system-initiated WhatsApp action |
@@ -251,7 +251,7 @@ Since this is a public form, phone matching is identification for the product wo
 Abuse safeguards (decision D2):
 
 - At most **10 submissions per 10 minutes from one IP address**, and **3 accepted submissions per 10 minutes for one phone number** of an event. A refused submission saves nothing and asks the guest to try again in a few minutes. A submission refused for another reason does not count towards the phone's limit. Both values are server settings.
-- The response to a submission is the same whether or not the phone belongs to a guest, and the page never shows stored guest details. The one difference a guest can see is the attendee limit when the count is too high: a guest's own allowance, or the event default for an unknown phone.
+- The response to a submission is the same whether or not the phone belongs to a guest, and the page never shows stored guest details. The attendee choice offers 1 to the event's Maximum Attendees per Guest, the same for every phone (D104).
 - There is no CAPTCHA and no phone verification. Someone who knows a guest's phone number can answer for that guest; the organizer sees the latest answer and can correct it.
 
 ### 8.3 Status and attendee rules
@@ -263,13 +263,12 @@ Abuse safeguards (decision D2):
 | `DECLINED` | `0` | Show Declined message; remove any seating assignment |
 | `NOT_SURE` | `null` | Show Not Sure message; remove any seating assignment |
 
-- Approved attendee counts cannot be zero, negative, fractional, or above that guest's allowance.
-- The event default per-invitation allowance is 5 and configurable from 1 to 10; individual known guests can have an override within supported limits.
-- Display a message advising guests who need more than their allowed count to contact the organizer / use another invitation as appropriate. Do not silently add guest records.
+- Approved attendee counts cannot be zero, negative, fractional, or above the event's Maximum Attendees per Guest (D104), whoever answers: the guest on the public page, the organizer in Change RSVP, or a response added or matched from Unknown Guests. A guest's Expected Attendees does not limit it.
+- Maximum Attendees per Guest is 5 by default and configurable from 1 to 10. Lowering it keeps answers already given; new answers, including a guest changing theirs, follow the new maximum. A count over a maximum lowered while the page was open is refused with "This invitation is for up to N people." Do not silently add guest records.
 - Not Sure guests are **not** counted toward confirmed/expected attendance. The organizer may contact them and manually change their status.
 - Guests may update responses until the event starts; the latest valid response is authoritative.
 - If an Approved guest increases attendance and their existing table becomes over capacity, **accept the RSVP** and report a seating conflict rather than rejecting the response.
-- An unknown responder may approve up to the event's default allowed attendees. A second submission from the same unknown phone replaces the first.
+- An unknown responder may approve up to the event's Maximum Attendees per Guest. A second submission from the same unknown phone replaces the first.
 
 ### 8.4 RSVP Settings page
 

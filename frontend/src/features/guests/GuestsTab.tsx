@@ -454,6 +454,7 @@ export function GuestsTab({
         open={panel?.kind === 'rsvp' && panelGuest !== null}
         onClose={closePanel}
         eventId={eventId}
+        maxPerGuest={event.defaultAllowedAttendees}
         guest={panel?.kind === 'rsvp' ? panelGuest : null}
         tableNumber={panelGuest ? tableNumber(panelGuest) : null}
       />
