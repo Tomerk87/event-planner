@@ -660,6 +660,14 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] Change RSVP removed (Guest Details button and the dialog); on phones a tap on the card's status or confirmed count edits it; editable values show the hand cursor.
 - [x] Status opens with one click as the product's dropdown, like the filters (the closed field shows the badge).
 
+## iPhone fix — 2026-10-17
+
+**Goal:** a tapped option is chosen on an iPhone. The owner found that tapping a Timezone result on an iPhone 16 chose nothing (a Galaxy S22 Ultra worked): Safari blurs the text box before the tap's click, and the blur closed the list.
+
+### Checklist
+- [x] Timezone (searchable Select), Group (Combobox) and Location (PlaceField) keep their list open through a tap (`shared/ui/useListPress.ts`: `mousedown` stopped as well as `pointerdown`; a blur during a press in the list is ignored).
+- [ ] Owner retest on the iPhone 16 (Netlify preview): Timezone, Group, and Location once the Google key is set.
+
 ---
 
 ## Deferred / future backlog
@@ -1382,6 +1390,12 @@ Then (owner, same day): the Status choice reads Not Sent / Awaiting Response for
 Then (owner, same day): hand cursor on editable values; Change RSVP removed from Guest Details and deleted (RsvpDialog.tsx, its texts and tests; nothing else opened it); phone cards edit Status and Confirmed by a tap (StatusCell/ConfirmedCell `trigger="tap"`), with a 24px tap target. Validation: typecheck, lint, format; unit 1277 (Change RSVP dialog tests removed; new phone card test: tap to change status and count, no Change RSVP in the details); test:e2e 522 passed, 32 skipped (new phone card spec); phone accessibility checks rerun after the tap-target change (74 passed); screenshots of a phone card.
 Then: Status is the shared Select (new `renderValue` option shows the badge) opened by one click on desktop and phone; Confirmed keeps double-click on desktop with the text cursor; smaller arrow keeps the table within 1440px. Validation: typecheck, lint, format; unit 1277; test:e2e 522 passed, 32 skipped; screenshot of the open Status dropdown at 1440px.
 Next: owner review on the Netlify preview.
+
+2026-10-17 — iPhone fix, branch phase_24_ios_fix from main (Lists round merged).
+Owner report: on an iPhone 16 a tapped Timezone result is not chosen; fine on a Galaxy S22 Ultra. Cause: the options stopped only `pointerdown` to keep focus in the text box; iOS Safari still blurs it (relatedTarget null) before the click, and the field's `onBlur` closed the list, so the click found no option. The group picker and Google location field had the same pattern.
+- New `shared/ui/useListPress.ts`, used on the list of Select, Combobox and PlaceField: stops `pointerdown` and `mousedown`, and `pressing()` lets `onBlur` ignore a blur during a press in the list.
+Validation: frontend typecheck, lint, format; unit 1280 (new: Select, Combobox and PlaceField choose a tapped option when the text box blurs first, and still close on a plain blur; each fails without the fix); test:e2e 522 passed, 32 skipped (the time zone test now taps the option and checks it is chosen). No server change. Not run on a real iPhone here.
+Next: owner retest on the iPhone 16.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

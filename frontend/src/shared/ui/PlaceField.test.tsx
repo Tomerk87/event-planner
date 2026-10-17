@@ -81,6 +81,29 @@ describe('PlaceField (D104)', () => {
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 
+  it('chooses a tapped place on an iPhone, where the tap blurs the text box first', async () => {
+    render(<Location suggester={stubSuggester()} />)
+    const field = screen.getByRole('combobox', { name: 'Location' })
+
+    fireEvent.change(field, { target: { value: 'Rose' } })
+    const garden = await screen.findByRole('option', { name: /Rose Garden/ })
+    fireEvent.pointerDown(garden)
+    fireEvent.mouseDown(garden)
+    fireEvent.blur(field, { relatedTarget: null })
+    fireEvent.click(garden)
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Rose Garden, Haifa, Israel',
+    )
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+
+    // Leaving the field without pressing the list still closes it.
+    fireEvent.change(field, { target: { value: 'Rosemary' } })
+    await screen.findByRole('listbox')
+    fireEvent.blur(field, { relatedTarget: null })
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
   it('keeps what was typed when nothing is chosen, and closes on Escape', async () => {
     render(<Location suggester={stubSuggester()} />)
     const field = screen.getByRole('combobox', { name: 'Location' })

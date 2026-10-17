@@ -11,6 +11,7 @@ import fieldStyles from './Field.module.css'
 import { FieldShell, TextField, type FieldCommonProps } from './Field.tsx'
 import listStyles from './Listbox.module.css'
 import styles from './PlaceField.module.css'
+import { useListPress } from './useListPress.ts'
 
 const MIN_LETTERS = 3
 const PAUSE_MS = 300
@@ -65,6 +66,8 @@ function SuggestingField({
   const containerRef = useRef<HTMLDivElement>(null)
   const session = useRef<object | null>(null)
   const asked = useRef(0)
+  // Keeps focus in the text box, so choosing does not blur it.
+  const { listProps, pressing } = useListPress()
   const [typed, setTyped] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([])
   const [activeIndex, setActiveIndex] = useState(-1)
@@ -170,14 +173,17 @@ function SuggestingField({
             }}
             onKeyDown={handleKeyDown}
             onBlur={(event) => {
-              if (!containerRef.current?.contains(event.relatedTarget)) {
+              if (
+                !pressing() &&
+                !containerRef.current?.contains(event.relatedTarget)
+              ) {
                 close()
               }
             }}
           />
           {open && (
             <div className={styles.popup}>
-              <ul id={listId} role="listbox" aria-label={label}>
+              <ul id={listId} role="listbox" aria-label={label} {...listProps}>
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={`${suggestion.text}-${index}`}
@@ -188,8 +194,6 @@ function SuggestingField({
                       listStyles.option,
                       index === activeIndex && listStyles.active,
                     )}
-                    // Keeps focus in the text box, so choosing does not blur it.
-                    onPointerDown={(event) => event.preventDefault()}
                     onClick={() => choose(suggestion)}
                   >
                     <span className={listStyles.optionLabel}>

@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import styles from './Listbox.module.css'
 import { cx } from './cx.ts'
 import fieldStyles from './Field.module.css'
+import { useListPress } from './useListPress.ts'
 
 interface ComboboxProps {
   label: string
@@ -52,6 +53,8 @@ export function Combobox({
   const hintId = `${id}-hint`
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // Keeps focus in the text box, so choosing does not blur it.
+  const { listProps, pressing } = useListPress()
   const [open, setOpen] = useState(false)
   // What was typed since the list opened; null shows every choice.
   const [query, setQuery] = useState<string | null>(null)
@@ -167,7 +170,10 @@ export function Combobox({
           onClick={() => (open ? undefined : show())}
           onKeyDown={handleKeyDown}
           onBlur={(event) => {
-            if (!containerRef.current?.contains(event.relatedTarget)) {
+            if (
+              !pressing() &&
+              !containerRef.current?.contains(event.relatedTarget)
+            ) {
               close()
             }
           }}
@@ -194,6 +200,7 @@ export function Combobox({
             role="listbox"
             aria-label={label}
             className={cx(styles.list, openUp && styles.up)}
+            {...listProps}
           >
             {rows.map((row, index) => (
               <li
@@ -206,8 +213,6 @@ export function Combobox({
                   index === activeIndex && styles.active,
                   row.kind !== 'option' && styles.special,
                 )}
-                // Keeps focus in the text box, so choosing does not blur it.
-                onPointerDown={(event) => event.preventDefault()}
                 onClick={() => choose(row)}
               >
                 {row.kind === 'create' && <Plus aria-hidden="true" />}

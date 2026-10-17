@@ -12,6 +12,7 @@ import { cx } from './cx.ts'
 import listStyles from './Listbox.module.css'
 import styles from './Select.module.css'
 import { useFloatingPosition } from './useFloatingPosition.ts'
+import { useListPress } from './useListPress.ts'
 
 export interface SelectOption {
   value: string
@@ -82,6 +83,8 @@ export function Select({
   const buttonRef = useRef<HTMLButtonElement & HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
   const typed = useRef({ text: '', at: 0 })
+  // Keeps focus on the field, so the keyboard keeps working.
+  const { listProps, pressing } = useListPress()
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
   // What was typed into a searchable field since it opened; null shows all.
@@ -296,7 +299,10 @@ export function Select({
               }
             }}
             onBlur={(event) => {
-              if (!listRef.current?.contains(event.relatedTarget)) {
+              if (
+                !pressing() &&
+                !listRef.current?.contains(event.relatedTarget)
+              ) {
                 close()
               }
             }}
@@ -330,6 +336,7 @@ export function Select({
           aria-labelledby={id}
           className={cx(listStyles.list, styles.list)}
           style={position}
+          {...listProps}
         >
           {options.map((option, index) => (
             <li
@@ -345,8 +352,6 @@ export function Select({
                 listStyles.option,
                 index === activeIndex && listStyles.active,
               )}
-              // Keeps focus on the button, so the keyboard keeps working.
-              onPointerDown={(event) => event.preventDefault()}
               onClick={() => choose(index)}
             >
               <span className={styles.optionLabel}>{option.label}</span>
