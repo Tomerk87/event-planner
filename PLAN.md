@@ -657,6 +657,8 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] Guest rows: Edit button in place of the ⋯ menu; Delete Guest in Edit Guest; Change RSVP in the details.
 - [x] Tables rows: Edit button in place of the ⋯ menu; Delete Table on the Selected Table card and in Edit Table.
 - [x] The Status choice names no answer as the badge does: Not Sent, or Awaiting Response once sent.
+- [x] Change RSVP removed (Guest Details button and the dialog); on phones a tap on the card's status or confirmed count edits it; editable values show the hand cursor.
+- [x] Status opens with one click as the product's dropdown, like the filters (the closed field shows the badge).
 
 ---
 
@@ -1377,6 +1379,8 @@ Owner requests: Status column name; Status and Confirmed editable by double-clic
 - Docs: D105 (revises D81, D82), PRD 6.3 and 11.4, MOCKUP_NOTES.
 Validation: frontend typecheck, lint, format; unit 1278 (new: inline Status with Approved, inline Confirmed with a refused and an accepted count, seat-freed toast, Escape and Viewer; Edit, Delete Guest and Selected Table delete through the updated tests); test:e2e 523 passed, 31 skipped (forms.spec inline cells; guests, event-layout, shell and real-guests updated for Edit and the cards). No server change. By hand: screenshots of the guest table with an open Confirmed editor (en) and Event Layout with the Edit buttons and Selected Table (he).
 Then (owner, same day): the Status choice reads Not Sent / Awaiting Response for no answer, as the badges; Edit Table has Delete Table. Validation: unit tests for both (guests and event-layout suites 115 passed).
+Then (owner, same day): hand cursor on editable values; Change RSVP removed from Guest Details and deleted (RsvpDialog.tsx, its texts and tests; nothing else opened it); phone cards edit Status and Confirmed by a tap (StatusCell/ConfirmedCell `trigger="tap"`), with a 24px tap target. Validation: typecheck, lint, format; unit 1277 (Change RSVP dialog tests removed; new phone card test: tap to change status and count, no Change RSVP in the details); test:e2e 522 passed, 32 skipped (new phone card spec); phone accessibility checks rerun after the tap-target change (74 passed); screenshots of a phone card.
+Then: Status is the shared Select (new `renderValue` option shows the badge) opened by one click on desktop and phone; Confirmed keeps double-click on desktop with the text cursor; smaller arrow keeps the table within 1440px. Validation: typecheck, lint, format; unit 1277; test:e2e 522 passed, 32 skipped; screenshot of the open Status dropdown at 1440px.
 Next: owner review on the Netlify preview.
 ```
 

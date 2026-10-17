@@ -564,7 +564,6 @@
     "row": {
       "whatsapp": "Send a WhatsApp message to {{name}}",
       "details": "View details of {{name}}",
-      "changeRsvp": "Change RSVP",
       "edit": "Edit",
       "editNamed": "Edit {{name}}"
     },
@@ -634,16 +633,6 @@
         "confirm": "Create Group"
       },
       "delete": "Delete Guest"
-    },
-    "rsvpDialog": {
-      "title": "Change RSVP",
-      "for": "Response of {{name}}",
-      "attendees": "Confirmed Attendees",
-      "attendeesHint": "Up to {{max}} per invitation (Maximum Attendees per Guest in Event Settings).",
-      "attendeesError": "Enter a whole number from 1 to {{max}}.",
-      "tableNotice": "This guest will be removed from table {{number}}, because only approved guests are seated.",
-      "save": "Save RSVP",
-      "saved": "The RSVP was updated."
     },
     "delete": {
       "titleOne": "Delete Guest",
@@ -780,12 +769,14 @@
     },
     "inline": {
       "hint": "Double-click to change",
-      "status": "Status of {{name}}: {{status}}. Double-click or press Enter to change.",
-      "statusEditor": "New status of {{name}}",
+      "status": "Status of {{name}}: {{status}}",
       "confirmed": "Confirmed attendees of {{name}}: {{count}}. Double-click or press Enter to change.",
       "confirmedEditor": "Confirmed attendees of {{name}}",
       "confirmedError": "1 to {{max}}",
-      "unseated": "The RSVP was updated. {{name}} was removed from table {{number}}, because only approved guests are seated."
+      "unseated": "The RSVP was updated. {{name}} was removed from table {{number}}, because only approved guests are seated.",
+      "saved": "The RSVP was updated.",
+      "hintTap": "Tap to change",
+      "confirmedTap": "Confirmed attendees of {{name}}: {{count}}. Tap to change."
     }
   },
   "layout": {

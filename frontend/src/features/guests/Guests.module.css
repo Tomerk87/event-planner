@@ -537,7 +537,7 @@
   border-radius: var(--radius-sm);
   color: inherit;
   font: inherit;
-  cursor: cell;
+  cursor: pointer;
 }
 
 .editableCell:hover {
@@ -573,4 +573,42 @@ input.cellEditor {
   color: var(--color-danger);
   font-size: var(--font-size-xs);
   white-space: nowrap;
+}
+
+/* On a phone card the value reads in line with the other facts, and its
+   dashed outline shows it can be tapped, since there is no hover. */
+.cardFacts .editableCell {
+  /* Large enough for a finger (WCAG target size, 24px). */
+  min-block-size: 1.5rem;
+  min-inline-size: 1.5rem;
+  padding: 0 var(--space-1);
+  border-color: var(--color-border);
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+/* The Status dropdown in a cell or card: the badge with a small arrow,
+   without the field's frame until it is pointed at (D105). */
+button.statusTrigger {
+  inline-size: auto;
+  min-inline-size: 0;
+  min-block-size: var(--control-height-sm);
+  padding-inline: 2px;
+  gap: 2px;
+  background: transparent;
+  border-color: transparent;
+}
+
+button.statusTrigger:disabled {
+  background: transparent;
+}
+
+/* A smaller arrow, so the column stays as narrow as the badge allows. */
+button.statusTrigger > svg {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+}
+
+.typeToEdit {
+  cursor: text;
 }

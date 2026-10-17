@@ -17,7 +17,6 @@ interface GuestDetailsDrawerProps {
   tableLabel: string | null
   canEdit: boolean
   onEdit: () => void
-  onChangeRsvp: () => void
 }
 
 const NONE = '—'
@@ -29,7 +28,6 @@ export function GuestDetailsDrawer({
   tableLabel,
   canEdit,
   onEdit,
-  onChangeRsvp,
 }: GuestDetailsDrawerProps) {
   const { t } = useTranslation()
   const format = useFormatters()
@@ -74,14 +72,7 @@ export function GuestDetailsDrawer({
       onClose={onClose}
       title={t('guests.details.title')}
       footer={
-        canEdit && (
-          <>
-            <Button variant="secondary" onClick={onChangeRsvp}>
-              {t('guests.row.changeRsvp')}
-            </Button>
-            <Button onClick={onEdit}>{t('guests.details.edit')}</Button>
-          </>
-        )
+        canEdit && <Button onClick={onEdit}>{t('guests.details.edit')}</Button>
       }
     >
       <dl className={styles.details}>

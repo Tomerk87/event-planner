@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { guestFullName } from '../../domain/guestList.ts'
 import { guestDisplayStatus } from '../../domain/guestStatus.ts'
@@ -10,12 +10,19 @@ import {
 import { useFormatters } from '../../i18n/format.ts'
 import { cx } from '../../shared/ui/cx.ts'
 import fieldStyles from '../../shared/ui/Field.module.css'
+import { Select } from '../../shared/ui/Select.tsx'
 import { toInteger } from '../events/eventForm.ts'
 import styles from './Guests.module.css'
 import { GuestStatusBadge } from './GuestStatusBadge.tsx'
 
 /** What a cell asks to save: the guest's new answer (D105). */
 export type RsvpChange = { status: RsvpStatus; attendees: number | null }
+
+/**
+ * How editing starts: a double-click in the desktop table, a tap on a phone
+ * card (touch screens have no double-click). Enter and F2 work in both.
+ */
+export type EditTrigger = 'doubleClick' | 'tap'
 
 const NONE = '—'
 
@@ -31,18 +38,28 @@ function choiceLabel(guest: Guest, status: RsvpStatus) {
   return guest.invitationSentCount === 0 ? 'NOT_SENT' : 'AWAITING'
 }
 
-/** Double-click, Enter or F2 on a cell starts editing it, as in a spreadsheet. */
-function startKeys(event: KeyboardEvent, start: () => void) {
-  if (event.key === 'Enter' || event.key === 'F2') {
-    event.preventDefault()
-    start()
+/**
+ * What starts editing a cell: a double-click (or a tap on a phone card), or
+ * Enter or F2, as in a spreadsheet.
+ */
+function startHandlers(trigger: EditTrigger, start: () => void) {
+  return {
+    ...(trigger === 'tap' ? { onClick: start } : { onDoubleClick: start }),
+    onKeyDown: (event: KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === 'F2') {
+        event.preventDefault()
+        start()
+      }
+    },
   }
 }
 
 /**
- * The guest's status in the table. An organizer who may edit changes it by
- * double-clicking (or Enter or F2) and choosing an RSVP answer; it saves at
- * once, and Escape or leaving the choice cancels.
+ * The guest's status in the table and on phone cards. An organizer who may
+ * edit opens the product's dropdown, as the filters do, by a click or tap (or
+ * Enter, Space or an arrow key) and chooses an RSVP answer; it saves at once,
+ * and Escape or a click elsewhere closes it. It is the one place an answer
+ * is changed by hand (D105).
  */
 export function StatusCell({
   guest,
@@ -58,53 +75,18 @@ export function StatusCell({
   onSave: (change: RsvpChange) => void
 }) {
   const { t } = useTranslation()
-  const [editing, setEditing] = useState(false)
-  const selectRef = useRef<HTMLSelectElement>(null)
   const badge = <GuestStatusBadge status={guestDisplayStatus(guest)} />
-
-  useEffect(() => {
-    if (!editing) {
-      return
-    }
-    const select = selectRef.current
-    select?.focus()
-    // Opens the list at once where the browser allows it.
-    try {
-      select?.showPicker?.()
-    } catch {
-      // Needs a user gesture in some browsers; the focused field is enough.
-    }
-  }, [editing])
 
   if (!canEdit) {
     return badge
   }
-  if (!editing) {
-    return (
-      <button
-        type="button"
-        className={styles.editableCell}
-        aria-label={t('guests.inline.status', {
-          name: guestFullName(guest),
-          status: t(`guests.status.${guestDisplayStatus(guest)}`),
-        })}
-        title={t('guests.inline.hint')}
-        disabled={saving}
-        onDoubleClick={() => setEditing(true)}
-        onKeyDown={(event) => startKeys(event, () => setEditing(true))}
-      >
-        {badge}
-      </button>
-    )
-  }
 
   function choose(status: RsvpStatus) {
-    setEditing(false)
     if (status === guest.rsvpStatus) {
       return
     }
     // Approving starts from the guest's Expected Attendees, within the
-    // event's maximum, as in Change RSVP.
+    // event's maximum (D104, D98).
     onSave({
       status,
       attendees:
@@ -115,29 +97,21 @@ export function StatusCell({
   }
 
   return (
-    <select
-      ref={selectRef}
-      className={cx(fieldStyles.input, styles.cellEditor)}
-      aria-label={t('guests.inline.statusEditor', {
+    <Select
+      className={styles.statusTrigger}
+      aria-label={t('guests.inline.status', {
         name: guestFullName(guest),
+        status: t(`guests.status.${guestDisplayStatus(guest)}`),
       })}
       value={guest.rsvpStatus}
-      onChange={(event) => choose(event.target.value as RsvpStatus)}
-      onBlur={() => setEditing(false)}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
-          // Cancels the edit only, not a dialog around the table.
-          event.stopPropagation()
-          setEditing(false)
-        }
-      }}
-    >
-      {RSVP_STATUSES.map((status) => (
-        <option key={status} value={status}>
-          {t(`guests.status.${choiceLabel(guest, status)}`)}
-        </option>
-      ))}
-    </select>
+      disabled={saving}
+      options={RSVP_STATUSES.map((status) => ({
+        value: status,
+        label: t(`guests.status.${choiceLabel(guest, status)}`),
+      }))}
+      renderValue={() => badge}
+      onChange={(status) => choose(status as RsvpStatus)}
+    />
   )
 }
 
@@ -152,12 +126,14 @@ export function ConfirmedCell({
   maxPerGuest,
   saving,
   onSave,
+  trigger = 'doubleClick',
 }: {
   guest: Guest
   canEdit: boolean
   maxPerGuest: number
   saving: boolean
   onSave: (change: RsvpChange) => void
+  trigger?: EditTrigger
 }) {
   const { t } = useTranslation()
   const format = useFormatters()
@@ -179,15 +155,22 @@ export function ConfirmedCell({
     return (
       <button
         type="button"
-        className={styles.editableCell}
-        aria-label={t('guests.inline.confirmed', {
-          name: guestFullName(guest),
-          count: shown,
-        })}
-        title={t('guests.inline.hint')}
+        // A double-click to type in shows the text cursor; a tap, the hand.
+        className={cx(
+          styles.editableCell,
+          trigger === 'doubleClick' && styles.typeToEdit,
+        )}
+        aria-label={t(
+          trigger === 'tap'
+            ? 'guests.inline.confirmedTap'
+            : 'guests.inline.confirmed',
+          { name: guestFullName(guest), count: shown },
+        )}
+        title={t(
+          trigger === 'tap' ? 'guests.inline.hintTap' : 'guests.inline.hint',
+        )}
         disabled={saving}
-        onDoubleClick={start}
-        onKeyDown={(event) => startKeys(event, start)}
+        {...startHandlers(trigger, start)}
       >
         {shown}
       </button>

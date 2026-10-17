@@ -564,7 +564,6 @@
     "row": {
       "whatsapp": "Enviar uma mensagem de WhatsApp para {{name}}",
       "details": "Ver detalhes de {{name}}",
-      "changeRsvp": "Alterar RSVP",
       "edit": "Editar",
       "editNamed": "Editar {{name}}"
     },
@@ -634,16 +633,6 @@
         "confirm": "Criar grupo"
       },
       "delete": "Excluir convidado"
-    },
-    "rsvpDialog": {
-      "title": "Alterar RSVP",
-      "for": "Resposta de {{name}}",
-      "attendees": "Pessoas confirmadas",
-      "attendeesHint": "Até {{max}} por convite (máximo de pessoas por convidado, nas Configurações do evento).",
-      "attendeesError": "Digite um número inteiro de 1 a {{max}}.",
-      "tableNotice": "Este convidado sairá da mesa {{number}}, porque só convidados confirmados têm lugar.",
-      "save": "Salvar RSVP",
-      "saved": "O RSVP foi atualizado."
     },
     "delete": {
       "titleOne": "Excluir convidado",
@@ -780,12 +769,14 @@
     },
     "inline": {
       "hint": "Clique duas vezes para alterar",
-      "status": "Situação de {{name}}: {{status}}. Clique duas vezes ou pressione Enter para alterar.",
-      "statusEditor": "Nova situação de {{name}}",
+      "status": "Situação de {{name}}: {{status}}",
       "confirmed": "Pessoas confirmadas de {{name}}: {{count}}. Clique duas vezes ou pressione Enter para alterar.",
       "confirmedEditor": "Pessoas confirmadas de {{name}}",
       "confirmedError": "De 1 a {{max}}",
-      "unseated": "O RSVP foi atualizado. {{name}} saiu da mesa {{number}}, porque só convidados confirmados têm lugar."
+      "unseated": "O RSVP foi atualizado. {{name}} saiu da mesa {{number}}, porque só convidados confirmados têm lugar.",
+      "saved": "O RSVP foi atualizado.",
+      "hintTap": "Toque para alterar",
+      "confirmedTap": "Pessoas confirmadas de {{name}}: {{count}}. Toque para alterar."
     }
   },
   "layout": {
