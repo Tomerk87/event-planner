@@ -79,10 +79,10 @@ test('guests are added, refused as duplicates, deleted, restored by import and e
 
   // Deleted guests leave the list...
   await page
-    .getByRole('button', { name: 'More actions for Zohar' })
+    .getByRole('button', { name: /^Edit Zohar/ })
     .first()
     .click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Delete Guest' }).click()
   await page
     .getByRole('dialog', { name: 'Delete Guest' })
     .getByRole('button', { name: 'Delete' })

@@ -111,19 +111,25 @@ test('a table can be added, edited and deleted, and the change survives a reload
   await expect(entry(page, isMobile, 30)).toBeVisible()
 
   await entry(page, isMobile, 30)
-    .getByRole('button', { name: 'More actions for Table 30' })
+    .getByRole('button', { name: 'Edit Table 30' })
     .click()
-  await page.getByRole('menuitem', { name: 'Edit Table' }).click()
   const edit = page.getByRole('dialog', { name: 'Edit Table 30' })
   await edit.getByLabel(/Capacity/).fill('2')
   await edit.getByRole('button', { name: 'Save Changes' }).click()
   await expect(page.getByText('Table 30 was saved.')).toBeVisible()
   await expect(entry(page, isMobile, 30)).toContainText('Almost Full')
 
-  await entry(page, isMobile, 30)
-    .getByRole('button', { name: 'More actions for Table 30' })
+  // Deleting is offered on the chosen table's card (D105).
+  if (isMobile) {
+    await entry(page, isMobile, 30).getByText('Table 30').first().click()
+  } else {
+    await entry(page, isMobile, 30).getByRole('cell').first().click()
+  }
+  await page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: 'Selected Table' }) })
+    .getByRole('button', { name: 'Delete Table' })
     .click()
-  await page.getByRole('menuitem', { name: 'Delete Table' }).click()
   await page
     .getByRole('dialog', { name: 'Delete Table 30' })
     .getByRole('button', { name: 'Delete Table' })
@@ -200,9 +206,8 @@ test('lowering a table’s chairs below its guests is saved and shown as over ca
   ).toHaveCount(0)
 
   await entry(page, isMobile, 1)
-    .getByRole('button', { name: 'More actions for Table 1' })
+    .getByRole('button', { name: 'Edit Table 1' })
     .click()
-  await page.getByRole('menuitem', { name: 'Edit Table' }).click()
   const dialog = page.getByRole('dialog', { name: 'Edit Table 1' })
   await dialog.getByLabel(/Capacity/).fill('7')
   await expect(
@@ -285,8 +290,7 @@ test('one chosen table is shown beside the list, kept across pages and tabs, and
 
   await page.getByRole('tab', { name: 'Tables' }).click()
   await page.getByRole('button', { name: 'Page 1' }).click()
-  await row(5).getByRole('button', { name: 'More actions for Table 5' }).click()
-  await page.getByRole('menuitem', { name: 'Delete Table' }).click()
+  await panel.getByRole('button', { name: 'Delete Table' }).click()
   await page
     .getByRole('dialog', { name: 'Delete Table 5' })
     .getByRole('button', { name: 'Delete Table' })
@@ -339,7 +343,7 @@ for (const [path, notice] of [
     await expect(page.getByRole('button', { name: 'Add Table' })).toHaveCount(0)
     await expect(page.getByRole('button', { name: /^Edit / })).toHaveCount(0)
     await expect(
-      page.getByRole('button', { name: /^More actions for/ }),
+      page.getByRole('button', { name: 'Delete Table' }),
     ).toHaveCount(0)
 
     await page.getByRole('button', { name: 'View guests of Table 1' }).click()
@@ -405,26 +409,22 @@ for (const language of ['en', 'he'] as const) {
       await expectNoViolations(page)
       await page.keyboard.press('Escape')
 
-      // The row menu's first action, Edit Table. The warning cards above
-      // are a labelled list too, so every list is searched.
+      // The row's Edit, which opens Edit Table (D105).
       await page
         .getByRole('main')
-        .locator('table, ul[aria-label]')
-        .locator('button[aria-haspopup="menu"]')
+        .getByRole('button', { name: /^(Edit|עריכת|Editar) / })
         .first()
         .click()
-      await expect(page.getByRole('menu')).toBeVisible()
-      await page.getByRole('menuitem').first().click()
       await expect(page.getByRole('dialog')).toBeVisible()
       await expectNoViolations(page)
       await page.keyboard.press('Escape')
 
+      // The row's guests button.
       await page
-        .locator(
-          isMobile
-            ? 'ul[aria-label] li button[aria-label]:not([aria-haspopup])'
-            : 'tbody tr:first-child td:last-child button:not([aria-haspopup])',
-        )
+        .getByRole('main')
+        .getByRole('button', {
+          name: /^(Manage guests of|ניהול האורחים של|Gerenciar os convidados de) /,
+        })
         .first()
         .click()
       await expect(

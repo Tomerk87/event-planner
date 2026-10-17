@@ -407,18 +407,14 @@ describe('Event Layout', () => {
     const { services } = await openLayout()
     const before = await tableNumbered(services, 1)
 
+    // The row offers Edit in place of a ⋯ menu (D105).
     fireEvent.click(
-      within(rowOf(1)).getByRole('button', {
-        name: 'More actions for Table 1',
-      }),
+      within(rowOf(1)).getByRole('button', { name: 'Edit Table 1' }),
     )
-    const items = screen.getAllByRole('menuitem')
-    expect(items.map((item) => item.textContent)).toEqual([
-      'Edit Table',
-      'Delete Table',
-    ])
-    fireEvent.click(items[0]!)
     const dialog = screen.getByRole('dialog', { name: 'Edit Table 1' })
+    expect(
+      within(dialog).getByRole('button', { name: 'Delete Table' }),
+    ).toBeInTheDocument()
     fillTableForm(dialog, { capacity: String(before.assigned - 2) })
 
     expect(
@@ -433,18 +429,36 @@ describe('Event Layout', () => {
     expect(cells(1)[4]).toBe('-2')
   })
 
+  it('offers Delete Table in Edit Table, opening the same confirmation (D105)', async () => {
+    await openLayout()
+
+    fireEvent.click(
+      within(rowOf(3)).getByRole('button', { name: 'Edit Table 3' }),
+    )
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: 'Edit Table 3' })).getByRole(
+        'button',
+        { name: 'Delete Table' },
+      ),
+    )
+    const dialog = screen.getByRole('dialog', { name: 'Delete Table 3' })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Delete Table' }),
+    )
+
+    expect(await screen.findByText('Table 3 was deleted.')).toBeInTheDocument()
+  })
+
   it('deletes a table after confirming, leaving its guests without a table', async () => {
     const { services } = await openLayout()
     const item = await tableNumbered(services, 2)
     const seated = partiesAt(item.table.id, await services.guests.list(MAIN))
     choose(2)
 
+    // Deleting is offered on the Selected Table card (D105).
     fireEvent.click(
-      within(rowOf(2)).getByRole('button', {
-        name: 'More actions for Table 2',
-      }),
+      selectedPanel().getByRole('button', { name: 'Delete Table' }),
     )
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete Table' }))
     const dialog = screen.getByRole('dialog', { name: 'Delete Table 2' })
     expect(
       within(dialog).getByText(
@@ -658,7 +672,10 @@ describe('Event Layout', () => {
         screen.queryByRole('button', { name: 'Add Table' }),
       ).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: `More actions for ${name}` }),
+        screen.queryByRole('button', { name: `Edit ${name}` }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Delete Table' }),
       ).not.toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Manage Guests' }),

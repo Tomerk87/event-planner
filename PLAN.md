@@ -646,6 +646,20 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 
 ---
 
+## Lists round — 2026-10-17 (D105)
+
+**Goal:** the owner's second set of 2026-10-17 requests for the Guests and Event Layout lists. (Item 1, Google location search, was already built in D104 and waits for the key.)
+
+### Checklist
+- [x] Guest table column "RSVP Status" named Status.
+- [x] Status editable by double-click, Enter or F2 (RSVP answers, saved at once; seat-freed notice).
+- [x] Confirmed editable the same way for approved guests (1 to the event's maximum; message clears on typing).
+- [x] Guest rows: Edit button in place of the ⋯ menu; Delete Guest in Edit Guest; Change RSVP in the details.
+- [x] Tables rows: Edit button in place of the ⋯ menu; Delete Table on the Selected Table card and in Edit Table.
+- [x] The Status choice names no answer as the badge does: Not Sent, or Awaiting Response once sent.
+
+---
+
 ## Deferred / future backlog
 
 `docs/FUTURE_FEATURES.md` is the full, maintained list of features left out of the MVP. The items below are the ones this plan tracks directly.
@@ -1356,6 +1370,14 @@ Validation:
 - By hand: screenshots of Change RSVP and Event Settings in en, he and pt.
 Follow-ups/risks: Google suggestions not yet tried with a real key (none available here); the stub-based tests cover the field.
 Next: owner creates the Google key; review on the Netlify preview.
+
+2026-10-17 — Lists round (D105), branch phase_23_lists from main (feedback round merged).
+Owner requests: Status column name; Status and Confirmed editable by double-click; Edit in place of the ⋯ menus on guest and table rows; Delete Guest in Edit Guest; Delete Table on Selected Table. (Location search: already built in D104; needs the Google key.)
+- `features/guests/InlineRsvpCells.tsx` (StatusCell, ConfirmedCell: double-click, Enter or F2; native choice and number field; Escape cancels); GuestsTab saves through `guests.setRsvp` with a seat-freed toast; Edit button; GuestFormDialog Delete Guest; EventLayoutPage Edit button and Selected Table Delete Table. Unused texts removed; new texts in en, he and pt; review sheets regenerated.
+- Docs: D105 (revises D81, D82), PRD 6.3 and 11.4, MOCKUP_NOTES.
+Validation: frontend typecheck, lint, format; unit 1278 (new: inline Status with Approved, inline Confirmed with a refused and an accepted count, seat-freed toast, Escape and Viewer; Edit, Delete Guest and Selected Table delete through the updated tests); test:e2e 523 passed, 31 skipped (forms.spec inline cells; guests, event-layout, shell and real-guests updated for Edit and the cards). No server change. By hand: screenshots of the guest table with an open Confirmed editor (en) and Event Layout with the Edit buttons and Selected Table (he).
+Then (owner, same day): the Status choice reads Not Sent / Awaiting Response for no answer, as the badges; Edit Table has Delete Table. Validation: unit tests for both (guests and event-layout suites 115 passed).
+Next: owner review on the Netlify preview.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

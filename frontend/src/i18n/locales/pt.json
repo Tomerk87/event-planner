@@ -545,7 +545,7 @@
       "phone": "Telefone",
       "allowed": "Pessoas previstas",
       "confirmed": "Confirmadas",
-      "status": "Situação do RSVP",
+      "status": "Situação",
       "sent": "Convites enviados",
       "table": "Mesa",
       "actions": "Ações",
@@ -563,11 +563,10 @@
     },
     "row": {
       "whatsapp": "Enviar uma mensagem de WhatsApp para {{name}}",
-      "editGuest": "Editar convidado",
-      "more": "Mais ações para {{name}}",
       "details": "Ver detalhes de {{name}}",
       "changeRsvp": "Alterar RSVP",
-      "delete": "Excluir"
+      "edit": "Editar",
+      "editNamed": "Editar {{name}}"
     },
     "card": {
       "allowed": "Previstas {{count}}",
@@ -633,7 +632,8 @@
         "title": "Criar um novo grupo?",
         "body": "O grupo \"{{name}}\" ainda não existe. Criá-lo e colocar este convidado nele?",
         "confirm": "Criar grupo"
-      }
+      },
+      "delete": "Excluir convidado"
     },
     "rsvpDialog": {
       "title": "Alterar RSVP",
@@ -777,6 +777,15 @@
         "submitted": "Enviada",
         "rejectedAt": "Rejeitada"
       }
+    },
+    "inline": {
+      "hint": "Clique duas vezes para alterar",
+      "status": "Situação de {{name}}: {{status}}. Clique duas vezes ou pressione Enter para alterar.",
+      "statusEditor": "Nova situação de {{name}}",
+      "confirmed": "Pessoas confirmadas de {{name}}: {{count}}. Clique duas vezes ou pressione Enter para alterar.",
+      "confirmedEditor": "Pessoas confirmadas de {{name}}",
+      "confirmedError": "De 1 a {{max}}",
+      "unseated": "O RSVP foi atualizado. {{name}} saiu da mesa {{number}}, porque só convidados confirmados têm lugar."
     }
   },
   "layout": {
@@ -854,8 +863,8 @@
     "row": {
       "manage": "Gerenciar os convidados de {{name}}",
       "view": "Ver os convidados de {{name}}",
-      "more": "Mais ações para {{name}}",
-      "delete": "Excluir mesa"
+      "edit": "Editar",
+      "editNamed": "Editar {{name}}"
     },
     "card": {
       "viewGuests": "Ver convidados ({{count}})"
@@ -872,7 +881,8 @@
       "parties": "Grupos de convidados acomodados ({{count}})",
       "edit": "Editar mesa",
       "manage": "Gerenciar convidados",
-      "hintList": "Selecione uma mesa na lista para ver os convidados dela aqui."
+      "hintList": "Selecione uma mesa na lista para ver os convidados dela aqui.",
+      "delete": "Excluir mesa"
     },
     "form": {
       "addTitle": "Adicionar mesa",

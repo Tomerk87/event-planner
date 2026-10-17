@@ -321,6 +321,11 @@
   margin-block-start: var(--space-2);
 }
 
+/* A destructive action set apart at the start of the row (Delete Guest). */
+.formStartAction {
+  margin-inline-end: auto;
+}
+
 .choices {
   display: flex;
   flex-direction: column;
@@ -517,4 +522,55 @@
   .formActions > * {
     flex: 1;
   }
+}
+
+/* A table cell that changes by double-click, Enter or F2 (D105). */
+.editableCell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--control-height-sm);
+  min-inline-size: 2.5rem;
+  padding: var(--space-1);
+  background: none;
+  border: var(--border-width) dashed transparent;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font: inherit;
+  cursor: cell;
+}
+
+.editableCell:hover {
+  border-color: var(--color-border);
+}
+
+.editableCell:focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-primary));
+  outline-offset: 1px;
+}
+
+.cellEditor {
+  inline-size: auto;
+  min-inline-size: 5rem;
+  min-block-size: var(--control-height-sm);
+  padding-block: 0;
+}
+
+input.cellEditor {
+  inline-size: 4.5rem;
+  min-inline-size: 0;
+  text-align: center;
+}
+
+.cellEditorWrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cellError {
+  color: var(--color-danger);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
 }

@@ -85,7 +85,7 @@ Decided 2026-10-13 unless noted.
 - Column headings are centred (the mockup starts them at the edge); number columns are centred as drawn.
 - The column and field the mockup calls "Allowed" is named **Expected attendees**.
 - The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
-- The **"⋯" menu** holds Change RSVP and Delete. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel.
+- The **"⋯" menu** held Change RSVP and Delete until 2026-10-17; each row now offers **Edit** instead, Delete is in Edit Guest, and Status and Confirmed change in the table by double-click (D105). The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel, which offers Change RSVP.
 - The **WhatsApp button** on each row is shown disabled with a "Soon" hint until Phase 8.
 - The **Export** dropdown offers CSV and Excel.
 - The KPI strip and the RSVP Status / Invitation Status / Table filters are not in the PRD; treated as presentation of existing data.
@@ -98,7 +98,7 @@ Found while building (Phase 6):
 - The Actions column stays pinned at the end of the table while the other columns scroll, so it is reachable in a narrow window.
 - The table selector lists each table as "number (seats free)".
 - Import has no mockup; it is a four-step dialog.
-- **Edit Guest** is the first item of the "⋯" menu; the pencil drawn in `guests.png` is not shown (owner, 2026-10-14, D81).
+- **Edit Guest** was the first item of the "⋯" menu (owner, 2026-10-14, D81); since 2026-10-17 it is an **Edit** button on the row, close to the pencil drawn in `guests.png` (D105).
 
 ### WhatsApp Messages
 
@@ -137,7 +137,7 @@ Found while building (Phase 6):
 - The phone tab is drawn as "Arrangement" with no badge; it is "Table Arrangement" with the Soon badge, as on desktop.
 - The list shows 10 tables a page with the product's pager, not the 8 and 5 drawn. The phone's ↑↓ button opens a sort menu; on desktop the column headings sort.
 - Add Table and Edit Table have no mockup; they are a dialog with Table Number, Capacity and Shape.
-- **Edit Table** is the first item of the row's "⋯" menu; the pencil drawn in `event_layout.png` is not shown (owner, 2026-10-14, D82).
+- **Edit Table** was the first item of the row's "⋯" menu (owner, 2026-10-14, D82); since 2026-10-17 it is an **Edit** button on the row, and Delete Table is on the Selected Table card (D105).
 - The seating card is amber only when confirmed attendees outnumber the chairs; chairs below the event maximum with everyone seated is shown in green (D77).
 
 ### Event Settings

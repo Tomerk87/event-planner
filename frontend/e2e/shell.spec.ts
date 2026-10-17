@@ -212,11 +212,12 @@ test('a page opened from another page starts at its top', async ({ page }) => {
   }
 })
 
-for (const [where, path, list] of [
-  ['Guests', '/events/evt-1/guests', 'Guests'],
-  ['Event Layout', '/events/evt-1/layout', 'Tables'],
+for (const [where, path, list, dialog] of [
+  ['Guests', '/events/evt-1/guests', 'Guests', 'Edit Guest'],
+  ['Event Layout', '/events/evt-1/layout', 'Tables', /^Edit Table/],
 ] as const) {
-  test(`the menu of the last line on ${where} floats above the page`, async ({
+  // Each line offers Edit in place of a ⋯ menu (D105).
+  test(`the last line on ${where} opens its edit form`, async ({
     page,
     isMobile,
   }) => {
@@ -227,26 +228,9 @@ for (const [where, path, list] of [
       : page.getByRole('table', { name: list }).getByRole('row')
     const last = lines.last()
     await last.scrollIntoViewIfNeeded()
-    const scrollSizes = () =>
-      page.evaluate(() =>
-        Array.from(document.querySelectorAll('*'))
-          .filter((element) => element.scrollHeight > element.clientHeight)
-          .map((element) => element.scrollHeight),
-      )
-    const before = await scrollSizes()
 
-    await last.getByRole('button', { name: /^More actions for/ }).click()
-    const menu = page.getByRole('menu')
-    await expect(menu).toBeVisible()
-    const box = await menu.boundingBox()
-    const viewport = page.viewportSize()
+    await last.getByRole('button', { name: /^Edit / }).click()
 
-    expect(box && viewport).toBeTruthy()
-    expect(box!.y).toBeGreaterThanOrEqual(0)
-    expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height)
-    // Opening it made nothing taller or scrollable.
-    expect(await scrollSizes()).toEqual(before)
-    await expect(menu.getByRole('menuitem').first()).toHaveText(/^Edit/)
-    await expect(menu.getByRole('menuitem').first()).toBeFocused()
+    await expect(page.getByRole('dialog', { name: dialog })).toBeVisible()
   })
 }
