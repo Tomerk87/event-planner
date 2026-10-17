@@ -85,7 +85,7 @@ Decided 2026-10-13 unless noted.
 - Column headings are centred (the mockup starts them at the edge); number columns are centred as drawn.
 - The column and field the mockup calls "Allowed" is named **Expected attendees**.
 - The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
-- The **"⋯" menu** held Change RSVP and Delete until 2026-10-17; each row now offers **Edit** instead, Delete is in Edit Guest, and Status and Confirmed change in the table by double-click (D105). The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel, which offers Change RSVP.
+- The **"⋯" menu** held Change RSVP and Delete until 2026-10-17; each row now offers **Edit** instead, Delete is in Edit Guest, and Status and Confirmed change in the table by double-click (D105). The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel, which offers Edit. The Change RSVP dialog was removed (2026-10-17): Status and Confirmed change in the table, or by a tap on a phone card.
 - The **WhatsApp button** on each row is shown disabled with a "Soon" hint until Phase 8.
 - The **Export** dropdown offers CSV and Excel.
 - The KPI strip and the RSVP Status / Invitation Status / Table filters are not in the PRD; treated as presentation of existing data.

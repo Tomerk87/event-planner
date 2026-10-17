@@ -48,6 +48,11 @@ interface SelectProps {
   searchable?: boolean
   /** Shown in the list when nothing matches what was typed. */
   emptyLabel?: string
+  /**
+   * What the closed field shows in place of the chosen option's label, such
+   * as a status badge in a table cell.
+   */
+  renderValue?: (selected: SelectOption | undefined) => ReactNode
   'aria-label'?: string
   'aria-describedby'?: string
   'aria-invalid'?: true
@@ -70,6 +75,7 @@ export function Select({
   icon,
   searchable = false,
   emptyLabel,
+  renderValue,
   ...aria
 }: SelectProps) {
   const listId = useId()
@@ -311,7 +317,7 @@ export function Select({
             </span>
           )}
           <span className={styles.value} lang={selected?.lang}>
-            {selected?.label ?? ''}
+            {renderValue ? renderValue(selected) : (selected?.label ?? '')}
           </span>
           <ChevronDown className={styles.chevron} aria-hidden="true" />
         </button>

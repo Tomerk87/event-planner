@@ -51,10 +51,9 @@ test('Status and Confirmed change in the table, within the event’s maximum per
     .first()
 
   const name = await row.locator('button[title^="View details"]').textContent()
-  await row.getByRole('button', { name: /^Status of / }).dblclick()
-  await row
-    .getByRole('combobox', { name: /^New status of / })
-    .selectOption('APPROVED')
+  // One click opens the Status dropdown, as the filters open.
+  await row.getByRole('combobox', { name: /^Status of / }).click()
+  await page.getByRole('option', { name: 'Approved' }).click()
   await expect(page.getByText('The RSVP was updated.')).toBeVisible()
 
   // The guest is now approved, so the list (filtered on No response) drops

@@ -413,28 +413,28 @@ test('a Viewer can view and export but sees no way to change guests', async ({
   expect((await csvRows(file)).length).toBeGreaterThan(1)
 })
 
-test('a guest’s details offer Change RSVP, on desktop and phone', async ({
+test('a phone card’s status changes from its dropdown, and the details offer no Change RSVP (D105)', async ({
   page,
   isMobile,
 }) => {
+  test.skip(!isMobile, 'cards are the phone presentation')
+  await page.goto(`${GUESTS}?rsvp=NO_RESPONSE`)
+  const card = guestList(page, isMobile).locator(':scope > li').first()
+
+  await card.getByRole('combobox', { name: /^Status of / }).click()
+  await page.getByRole('option', { name: 'Declined' }).click()
+  await expect(page.getByText('The RSVP was updated.')).toBeVisible()
+
   await page.goto(GUESTS)
-  const list = guestList(page, isMobile)
-
-  if (isMobile) {
-    await list
-      .getByRole('button', { name: /^View details of/ })
-      .first()
-      .click()
-  } else {
-    await list
-      .locator('tbody tr')
-      .first()
-      .locator('button[title^="View details"]')
-      .click()
-  }
-  await page.getByRole('button', { name: 'Change RSVP' }).click()
-
-  await expect(page.getByRole('dialog', { name: 'Change RSVP' })).toBeVisible()
+  await guestList(page, isMobile)
+    .getByRole('button', { name: /^View details of/ })
+    .first()
+    .click()
+  const details = page.getByRole('dialog', { name: 'Guest Details' })
+  await expect(details.getByRole('button', { name: 'Edit' })).toBeVisible()
+  await expect(
+    details.getByRole('button', { name: 'Change RSVP' }),
+  ).toHaveCount(0)
 })
 
 test('the import preview shows each row’s result without scrolling sideways on desktop', async ({
@@ -473,14 +473,14 @@ test('the table can be used from the keyboard', async ({ page, isMobile }) => {
   await page.keyboard.press('Space')
   await expect(page.getByText('1 selected')).toBeVisible()
 
-  // A Status cell opens its choice with Enter, and Escape returns (D105).
-  const status = table.getByRole('button', { name: /^Status of / }).first()
+  // A Status dropdown opens with Enter, and Escape closes it (D105).
+  const status = table.getByRole('combobox', { name: /^Status of / }).first()
   await status.focus()
   await page.keyboard.press('Enter')
-  const choice = table.getByRole('combobox', { name: /^New status of / })
-  await expect(choice).toBeFocused()
+  await expect(page.getByRole('listbox')).toBeVisible()
   await page.keyboard.press('Escape')
-  await expect(choice).toBeHidden()
+  await expect(page.getByRole('listbox')).toBeHidden()
+  await expect(status).toBeFocused()
 
   const edit = table.getByRole('button', { name: /^Edit / }).first()
   await edit.focus()

@@ -122,19 +122,11 @@ function openEditGuest(row: HTMLElement, name: string) {
   fireEvent.click(within(row).getByRole('button', { name: `Edit ${name}` }))
 }
 
-/**
- * What the row's ⋯ menu offered before D105: Delete is now in Edit Guest,
- * and Change RSVP in the guest's details.
- */
-function openRowMenu(name: string, item: 'Delete' | 'Change RSVP') {
-  if (item === 'Delete') {
-    openEditGuest(rowOf(name), name)
-    fireEvent.click(screen.getByRole('button', { name: 'Delete Guest' }))
-    return
-  }
-  // The name opens the guest's details, which offer Change RSVP.
-  fireEvent.click(within(rowOf(name)).getByRole('button', { name }))
-  fireEvent.click(screen.getByRole('button', { name: 'Change RSVP' }))
+/** Delete, offered in Edit Guest since D105. */
+function openRowMenu(name: string, item: 'Delete') {
+  expect(item).toBe('Delete')
+  openEditGuest(rowOf(name), name)
+  fireEvent.click(screen.getByRole('button', { name: 'Delete Guest' }))
 }
 
 describe('deleting the last guest', () => {
@@ -521,8 +513,18 @@ describe('Guests list', () => {
   })
 })
 
+/** Opens a guest's Status dropdown with a click, as the filters open (D105). */
+function openStatus(name: string, scope: HTMLElement = rowOf(name)) {
+  fireEvent.click(
+    within(scope).getByRole('combobox', {
+      name: new RegExp(`^Status of ${name}`),
+    }),
+  )
+  return screen.getByRole('listbox')
+}
+
 describe('Status and Confirmed in the table (D105)', () => {
-  it('changes the status by double-click, approving with the guest’s Expected Attendees', async () => {
+  it('opens the Status dropdown with a click, and approving starts from the guest’s Expected Attendees', async () => {
     const services = createTestServices()
     const guest = await find(
       services,
@@ -536,15 +538,10 @@ describe('Status and Confirmed in the table (D105)', () => {
       screen.getByRole('columnheader', { name: /^Status/ }),
     ).toBeInTheDocument()
 
-    fireEvent.doubleClick(
-      within(rowOf(name)).getByRole('button', { name: /^Status of / }),
-    )
-    const choice = within(rowOf(name)).getByRole('combobox', {
-      name: `New status of ${name}`,
-    })
+    const list = openStatus(name)
     // No answer reads as the badge does: Not Sent, or Awaiting Response.
     expect(
-      within(choice)
+      within(list)
         .getAllByRole('option')
         .map((option) => option.textContent),
     ).toEqual([
@@ -553,7 +550,7 @@ describe('Status and Confirmed in the table (D105)', () => {
       'Not Sure',
       'Declined',
     ])
-    change(choice, { target: { value: 'APPROVED' } })
+    fireEvent.click(within(list).getByRole('option', { name: 'Approved' }))
 
     expect(await screen.findByText('The RSVP was updated.')).toBeInTheDocument()
     expect(
@@ -611,14 +608,8 @@ describe('Status and Confirmed in the table (D105)', () => {
     const name = guestFullName(guest)
     await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
 
-    fireEvent.doubleClick(
-      within(rowOf(name)).getByRole('button', { name: /^Status of / }),
-    )
-    change(
-      within(rowOf(name)).getByRole('combobox', {
-        name: `New status of ${name}`,
-      }),
-      { target: { value: 'DECLINED' } },
+    fireEvent.click(
+      within(openStatus(name)).getByRole('option', { name: 'Declined' }),
     )
 
     expect(
@@ -628,7 +619,7 @@ describe('Status and Confirmed in the table (D105)', () => {
     ).toBeInTheDocument()
   })
 
-  it('cancels with Escape, and offers no editing to a Viewer', async () => {
+  it('closes with Escape without a change, and offers no editing to a Viewer', async () => {
     const services = createTestServices()
     const guest = await find(
       services,
@@ -639,27 +630,72 @@ describe('Status and Confirmed in the table (D105)', () => {
       `?q=${encodeURIComponent(guest.phone)}`,
       services,
     )
-    fireEvent.doubleClick(
-      within(rowOf(name)).getByRole('button', { name: /^Status of / }),
-    )
+    openStatus(name)
     fireEvent.keyDown(
-      within(rowOf(name)).getByRole('combobox', {
-        name: `New status of ${name}`,
-      }),
+      within(rowOf(name)).getByRole('combobox', { name: /^Status of / }),
       { key: 'Escape' },
     )
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
     expect(
-      within(rowOf(name)).getByRole('button', { name: /^Status of / }),
-    ).toBeInTheDocument()
+      (await services.guests.list(MAIN)).find((item) => item.id === guest.id),
+    ).toMatchObject({ rsvpStatus: 'APPROVED' })
     unmount()
 
     await openGuests('', createTestServices(), DEMO_EVENTS.viewer)
     expect(
-      screen.queryByRole('button', { name: /^Status of / }),
+      screen.queryByRole('combobox', { name: /^Status of / }),
     ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /^Edit / }),
     ).not.toBeInTheDocument()
+  })
+})
+
+describe('Status and Confirmed on a phone card (D105)', () => {
+  it('changes by a tap, and Guest Details offers no Change RSVP', async () => {
+    setViewportWidth(390)
+    const services = createTestServices()
+    const guest = await find(
+      services,
+      (candidate) =>
+        candidate.rsvpStatus === 'NO_RESPONSE' &&
+        candidate.allowedAttendees < 5,
+    )
+    const name = guestFullName(guest)
+    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
+
+    fireEvent.click(
+      screen.getByRole('combobox', { name: new RegExp(`^Status of ${name}`) }),
+    )
+    fireEvent.click(screen.getByRole('option', { name: 'Approved' }))
+    expect(await screen.findByText('The RSVP was updated.')).toBeInTheDocument()
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /^Confirmed attendees of .*Tap/,
+      }),
+    )
+    const field = screen.getByRole('spinbutton', {
+      name: `Confirmed attendees of ${name}`,
+    })
+    change(field, { target: { value: '5' } })
+    fireEvent.keyDown(field, { key: 'Enter' })
+    await waitFor(async () =>
+      expect(
+        (await services.guests.list(MAIN)).find((item) => item.id === guest.id),
+      ).toMatchObject({ rsvpStatus: 'APPROVED', confirmedAttendees: 5 }),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', { name: `View details of ${name}` }),
+    )
+    const details = await screen.findByRole('dialog', { name: 'Guest Details' })
+    expect(
+      within(details).queryByRole('button', { name: 'Change RSVP' }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(details).getByRole('button', { name: 'Edit' }),
+    ).toBeInTheDocument()
   })
 })
 
@@ -893,103 +929,6 @@ describe('Changing guests', () => {
       tableId: null,
       invitationSentCount: guest.invitationSentCount,
     })
-  })
-
-  it('changes an RSVP by hand, limited by the event’s Maximum Attendees per Guest (D104)', async () => {
-    const services = createTestServices()
-    const guest = await find(
-      services,
-      (candidate) =>
-        candidate.rsvpStatus === 'NO_RESPONSE' &&
-        candidate.allowedAttendees < 5,
-    )
-    const name = guestFullName(guest)
-    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
-
-    openRowMenu(name, 'Change RSVP')
-    const dialog = screen.getByRole('dialog', { name: 'Change RSVP' })
-    expect(
-      within(dialog).getByRole('radio', { name: 'No response' }),
-    ).toBeChecked()
-    expect(
-      within(dialog).queryByLabelText(/Confirmed Attendees/),
-    ).not.toBeInTheDocument()
-
-    fireEvent.click(within(dialog).getByRole('radio', { name: 'Approved' }))
-    // Approving starts from the guest's Expected Attendees.
-    const attendees = () => within(dialog).getByLabelText(/Confirmed Attendees/)
-    expect(attendees()).toHaveValue(guest.allowedAttendees)
-    expect(
-      within(dialog).getByText(
-        'Up to 5 per invitation (Maximum Attendees per Guest in Event Settings).',
-      ),
-    ).toBeInTheDocument()
-    change(attendees(), { target: { value: '6' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
-    expect(
-      within(dialog).getByText('Enter a whole number from 1 to 5.'),
-    ).toBeInTheDocument()
-
-    // More than the guest's Expected Attendees, within the event's maximum.
-    change(attendees(), { target: { value: '5' } })
-    expect(
-      within(dialog).queryByText('Enter a whole number from 1 to 5.'),
-    ).not.toBeInTheDocument()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
-
-    expect(await screen.findByText('The RSVP was updated.')).toBeInTheDocument()
-    await waitFor(() =>
-      expect(within(rowOf(name)).getByText('Approved')).toBeInTheDocument(),
-    )
-    expect(
-      (await services.guests.list(MAIN)).find((item) => item.id === guest.id),
-    ).toMatchObject({ confirmedAttendees: 5 })
-  })
-
-  it('keeps an approved guest’s confirmed count when the RSVP dialog opens', async () => {
-    const services = createTestServices()
-    const guest = await find(
-      services,
-      (candidate) =>
-        candidate.rsvpStatus === 'APPROVED' &&
-        (candidate.confirmedAttendees ?? 0) < candidate.allowedAttendees,
-    )
-    const name = guestFullName(guest)
-    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
-
-    openRowMenu(name, 'Change RSVP')
-    const dialog = screen.getByRole('dialog', { name: 'Change RSVP' })
-    expect(within(dialog).getByLabelText(/Confirmed Attendees/)).toHaveValue(
-      guest.confirmedAttendees,
-    )
-  })
-
-  it('warns that a seated guest loses their table when they stop being approved', async () => {
-    const services = createTestServices()
-    const guest = await find(
-      services,
-      (candidate) => candidate.tableId !== null,
-    )
-    const name = guestFullName(guest)
-    await openGuests(`?q=${encodeURIComponent(guest.phone)}`, services)
-
-    openRowMenu(name, 'Change RSVP')
-    const dialog = screen.getByRole('dialog', { name: 'Change RSVP' })
-    expect(within(dialog).queryByText(/will be removed from table/)).toBeNull()
-    fireEvent.click(within(dialog).getByRole('radio', { name: 'Declined' }))
-    expect(
-      within(dialog).getByText(/^This guest will be removed from table \d+,/),
-    ).toBeInTheDocument()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Save RSVP' }))
-
-    await waitFor(() =>
-      expect(within(rowOf(name)).getByText('Declined')).toBeInTheDocument(),
-    )
-    expect(within(rowOf(name)).queryByRole('combobox')).not.toBeInTheDocument()
-    expect(
-      (await services.guests.list(MAIN)).find((item) => item.id === guest.id)
-        ?.tableId,
-    ).toBeNull()
   })
 
   it('assigns an approved guest to a table, and refuses a table without room', async () => {
