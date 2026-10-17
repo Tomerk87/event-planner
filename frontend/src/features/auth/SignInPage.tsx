@@ -85,7 +85,10 @@ export function SignInPage() {
         required
         value={email}
         error={fieldError === 'email' ? t('auth.errors.email') : undefined}
-        onChange={(change) => setEmail(change.target.value)}
+        onChange={(change) => {
+          setEmail(change.target.value)
+          setFieldError((current) => (current === 'email' ? null : current))
+        }}
       />
       <TextField
         label={t('auth.fields.password')}
@@ -98,7 +101,10 @@ export function SignInPage() {
             ? t('auth.errors.passwordRequired')
             : undefined
         }
-        onChange={(change) => setPassword(change.target.value)}
+        onChange={(change) => {
+          setPassword(change.target.value)
+          setFieldError((current) => (current === 'password' ? null : current))
+        }}
       />
       {features.data?.email && (
         <Link to="/forgot-password" className={styles.forgotLink}>

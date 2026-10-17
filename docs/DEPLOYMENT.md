@@ -476,6 +476,42 @@ deploy/scripts/local-test.sh down                # or wipe, to delete its data
 3. Change the GoDaddy A record to the new address.
 4. Run `issue-cert.sh` on the new server.
 
+## Google location suggestions (optional)
+
+The Location fields can suggest places from Google Maps as the organizer types (D104). This covers Create Event, Event Settings and the calendar location on RSVP Settings. Without a key, the fields stay plain text boxes and everything else works.
+
+**Cost:** Google charges per use and gives a free monthly allowance, about 10,000 suggestion requests at the time of writing; check Google's Maps Platform pricing page.
+- A pause in typing sends one request; choosing a place sends nothing more.
+- Above the allowance, it is about $3 per 1,000 requests.
+- The daily cap below keeps a month inside the free allowance. A budget alert covers the rest.
+
+### Step by step (about 15 minutes)
+
+1. **Open Google Cloud.** Go to https://console.cloud.google.com and sign in with your Google account.
+   - Accept the terms.
+   - At the top, choose **Select a project → New project**, name it `event-planner` and create it.
+2. **Billing.** Open **Billing** in the menu, then **Link a billing account**, and enter a card. Google requires one even for free use.
+3. **Turn on the two services.** Open **APIs & Services → Library**, search for each of these and click **Enable**:
+   - **Maps JavaScript API**
+   - **Places API (New)**
+4. **Create the key.** Open **APIs & Services → Credentials → Create credentials → API key**, then open the new key and set:
+   - **Name:** `event-planner-web`
+   - **Application restrictions:** **Websites**. Add one per line:
+     - `http://localhost:5173/*`
+     - `https://<your-netlify-name>.netlify.app/*`
+     - `https://deploy-preview-*--<your-netlify-name>.netlify.app/*`
+     - and later `https://<your domain>/*`
+   - **API restrictions:** **Restrict key**, ticking **Maps JavaScript API** and **Places API (New)** only.
+   - Save.
+   - The restrictions are what protect the key. It is meant to be visible in the page, and only your sites can use it.
+5. **Daily cap.** Open **APIs & Services → Places API (New) → Quotas**. Find the requests-per-day limit and set it to **300**. When it's reached, suggestions pause until the next day and the field keeps working as plain text.
+6. **Budget alert.** Open **Billing → Budgets & alerts → Create budget**, with amount **$1** and email alerts at 50%, 90% and 100%.
+7. **Use the key:**
+   - **Netlify (demo site):** **Site configuration → Environment variables → Add a variable**. Key `VITE_GOOGLE_MAPS_KEY`, value the key. Then **Deploys → Trigger deploy**.
+   - **AWS server:** build with the key set, by running `VITE_GOOGLE_MAPS_KEY=<the key> deploy/scripts/build-images.sh` on the Mac.
+   - **On the Mac for development:** put `VITE_GOOGLE_MAPS_KEY=<the key>` in `frontend/.env.local`. That file is not committed.
+8. **Check it.** Open Create Event and type a venue in **Location**: suggestions appear with "Google Maps" under them.
+
 ## Demo-only site (Netlify, free)
 
 A public prototype with **only the demo** (D102), for showing the product before the AWS server exists, or alongside it. It needs no server:

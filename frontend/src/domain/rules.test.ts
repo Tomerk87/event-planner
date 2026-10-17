@@ -727,19 +727,17 @@ describe('guests', () => {
     ).toBe('NO_ERROR')
   })
 
-  it('refuses to lower the allowance below an already confirmed count', () => {
+  it('lets Expected Attendees go below a confirmed count: it is a planning note (D104)', () => {
     const guest = makeApprovedGuest(5, { normalizedPhone: '+972501234567' })
 
-    expect(
-      codeOf(() =>
-        editGuest([guest], guest, { ...input, allowedAttendees: 4 }, 'IL'),
-      ),
-    ).toBe('INVALID_ATTENDEE_COUNT')
-    expect(
-      codeOf(() =>
-        editGuest([guest], guest, { ...input, allowedAttendees: 5 }, 'IL'),
-      ),
-    ).toBe('NO_ERROR')
+    const edited = editGuest(
+      [guest],
+      guest,
+      { ...input, allowedAttendees: 2 },
+      'IL',
+    )
+
+    expect(edited).toMatchObject({ allowedAttendees: 2, confirmedAttendees: 5 })
   })
 
   it('soft-deletes a guest and frees their seats', () => {

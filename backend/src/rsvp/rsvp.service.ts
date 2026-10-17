@@ -5,7 +5,6 @@ import { APP_CONFIG, type AppConfig } from '../config.ts'
 import { defaultRsvpSettings } from '../domain/defaults.ts'
 import { DomainError } from '../domain/errors.ts'
 import { isEventPast } from '../domain/eventTime.ts'
-import { EVENT_LIMITS } from '../domain/events.ts'
 import type {
   Event,
   RsvpLanguage,
@@ -127,7 +126,7 @@ export class RsvpService {
       language: event.rsvpLanguage,
       country: event.country,
       isClosed: isEventPast(event, now),
-      maxSelectableAttendees: EVENT_LIMITS.allowedAttendees.max,
+      maxSelectableAttendees: event.defaultAllowedAttendees,
       settings,
     }
   }
@@ -166,7 +165,7 @@ export class RsvpService {
         const outcome = resolveRsvp(
           input.status,
           input.attendees,
-          guest.allowedAttendees,
+          event.defaultAllowedAttendees,
         )
         await saveGuest(
           tx,

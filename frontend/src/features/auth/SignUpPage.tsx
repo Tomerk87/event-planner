@@ -23,6 +23,9 @@ export function SignUpPage() {
   const [email, setEmail] = useState(() => params.get('email') ?? '')
   const [password, setPassword] = useState('')
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
+  // Editing a field clears its message (D104); signing up checks it again.
+  const clearError = (field: Field) =>
+    setFieldError((current) => (current?.field === field ? null : current))
   const [failure, setFailure] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
@@ -97,7 +100,10 @@ export function SignUpPage() {
         maxLength={80}
         value={name}
         error={errorFor('name')}
-        onChange={(change) => setName(change.target.value)}
+        onChange={(change) => {
+          setName(change.target.value)
+          clearError('name')
+        }}
       />
       <TextField
         label={t('auth.fields.email')}
@@ -106,7 +112,10 @@ export function SignUpPage() {
         required
         value={email}
         error={errorFor('email')}
-        onChange={(change) => setEmail(change.target.value)}
+        onChange={(change) => {
+          setEmail(change.target.value)
+          clearError('email')
+        }}
       />
       <TextField
         label={t('auth.fields.password')}
@@ -116,7 +125,10 @@ export function SignUpPage() {
         value={password}
         hint={t('auth.fields.passwordHint', { min: PASSWORD_MIN_LENGTH })}
         error={errorFor('password')}
-        onChange={(change) => setPassword(change.target.value)}
+        onChange={(change) => {
+          setPassword(change.target.value)
+          clearError('password')
+        }}
       />
       <Button type="submit" fullWidth loading={isPending}>
         {t('auth.signUp.action')}

@@ -527,7 +527,11 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
                     })
                   : undefined
               }
-              onChange={(change) => setDraft(change.target.value)}
+              onChange={(change) => {
+                setDraft(change.target.value)
+                // Editing clears the message (D104); saving checks again.
+                setError(null)
+              }}
             />
           </div>
         </div>

@@ -1,7 +1,6 @@
 import { CircleHelp, GitMerge, RotateCcw, UserPlus, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isDomainError } from '../../domain/errors.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import { guestFullName, matchesGuestQuery } from '../../domain/guestList.ts'
 import type { Event, Guest, UnknownRsvp } from '../../domain/models.ts'
@@ -74,8 +73,7 @@ function ConvertForm({
     }
     if (
       !Number.isInteger(allowedAttendees) ||
-      allowedAttendees <
-        Math.max(limits.min, unknown.confirmedAttendees ?? 0) ||
+      allowedAttendees < limits.min ||
       allowedAttendees > limits.max
     ) {
       return setError('allowed')
@@ -113,7 +111,10 @@ function ConvertForm({
               ? t('guests.form.errors.firstName')
               : undefined
           }
-          onChange={(change) => setFirstName(change.target.value)}
+          onChange={(change) => {
+            setFirstName(change.target.value)
+            setError((current) => (current === 'firstName' ? null : current))
+          }}
         />
         <TextField
           label={t('guests.form.lastName')}
@@ -127,19 +128,19 @@ function ConvertForm({
         type="number"
         inputMode="numeric"
         required
-        min={Math.max(limits.min, unknown.confirmedAttendees ?? 0)}
+        min={limits.min}
         max={limits.max}
         value={allowed}
         hint={t('guests.form.allowedHint', limits)}
         error={
           error === 'allowed'
-            ? t('guests.form.errors.allowed', {
-                min: Math.max(limits.min, unknown.confirmedAttendees ?? 0),
-                max: limits.max,
-              })
+            ? t('guests.form.errors.allowed', limits)
             : undefined
         }
-        onChange={(change) => setAllowed(change.target.value)}
+        onChange={(change) => {
+          setAllowed(change.target.value)
+          setError((current) => (current === 'allowed' ? null : current))
+        }}
       />
       <div className={styles.formActions}>
         <Button variant="ghost" onClick={onClose}>
@@ -165,7 +166,6 @@ function MergeForm({
   onClose: () => void
 }) {
   const { t, i18n } = useTranslation()
-  const format = useFormatters()
   const { showToast } = useToast()
   const merge = useMergeUnknown(eventId)
   const [query, setQuery] = useState(unknown.name)
@@ -189,15 +189,7 @@ function MergeForm({
           showToast({ tone: 'success', message: t('guests.unknown.merged') })
           onClose()
         },
-        onError: (problem) =>
-          setFailure(
-            isDomainError(problem, 'INVALID_ATTENDEE_COUNT')
-              ? t('guests.unknown.mergeOverAllowance', {
-                  count: format.number(unknown.confirmedAttendees ?? 0),
-                  max: format.number(chosen.allowedAttendees),
-                })
-              : describeError(t, problem),
-          ),
+        onError: (problem) => setFailure(describeError(t, problem)),
       },
     )
   }

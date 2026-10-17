@@ -332,8 +332,8 @@
       "timeZoneNoMatch": "Nenhum fuso horário corresponde",
       "maxAttendees": "Máximo de pessoas",
       "maxAttendeesHint": "Entre {{min}} e {{max}}.",
-      "defaultAllowedAttendees": "Pessoas previstas por convidado",
-      "defaultAllowedAttendeesHint": "Padrão para novos convidados, de {{min}} a {{max}}.",
+      "defaultAllowedAttendees": "Máximo de pessoas por convidado",
+      "defaultAllowedAttendeesHint": "O máximo de pessoas que um convidado pode confirmar em um convite, de {{min}} a {{max}}. Novos convidados começam com este número como pessoas previstas.",
       "rsvpLanguage": "Idioma padrão do RSVP",
       "rsvpLanguageHint": "O idioma em que a página pública de confirmação abre. Você pode alterá-lo depois nas Configurações de RSVP.",
       "location": "Local",
@@ -612,7 +612,7 @@
         "BR": "Um número brasileiro com DDD, como (11) 91234-5678. Para um número de outro país, comece com + e o código do país. O número deve ser único no evento."
       },
       "allowed": "Pessoas previstas",
-      "allowedHint": "Entre {{min}} e {{max}}.",
+      "allowedHint": "Para o seu planejamento, de {{min}} a {{max}}. Não limita o que o convidado confirma.",
       "add": "Adicionar convidado",
       "save": "Salvar alterações",
       "added": "O convidado foi adicionado.",
@@ -621,8 +621,7 @@
         "firstName": "Digite um nome.",
         "phone": "Digite um número de telefone válido.",
         "duplicate": "Outro convidado deste evento já tem este número de telefone.",
-        "allowed": "Digite um número inteiro entre {{min}} e {{max}}.",
-        "belowConfirmed": "Este convidado já confirmou {{count}} pessoas, então as pessoas previstas não podem ser menos que isso."
+        "allowed": "Digite um número inteiro entre {{min}} e {{max}}."
       },
       "group": "Grupo",
       "groupHint": "Opcional. Escolha um grupo ou digite um nome novo para criá-lo.",
@@ -640,8 +639,8 @@
       "title": "Alterar RSVP",
       "for": "Resposta de {{name}}",
       "attendees": "Pessoas confirmadas",
-      "attendeesHint": "Entre 1 e {{max}}.",
-      "attendeesError": "Digite um número inteiro entre 1 e {{max}}.",
+      "attendeesHint": "Até {{max}} por convite (máximo de pessoas por convidado, nas Configurações do evento).",
+      "attendeesError": "Digite um número inteiro de 1 a {{max}}.",
       "tableNotice": "Este convidado sairá da mesa {{number}}, porque só convidados confirmados têm lugar.",
       "save": "Salvar RSVP",
       "saved": "O RSVP foi atualizado."
@@ -770,7 +769,6 @@
       "chooseGuest": "Escolha o convidado",
       "noGuestFound": "Nenhum convidado corresponde a esta busca.",
       "refineSearch": "Mais convidados correspondem. Refine a busca para vê-los.",
-      "mergeOverAllowance": "A resposta é para {{count}} pessoas, mas este convidado pode levar até {{max}}. Aumente primeiro as pessoas previstas do convidado.",
       "cardAttendees": "Pessoas {{count}}",
       "columns": {
         "name": "Nome informado",
@@ -1127,12 +1125,12 @@
       "pastBody": "Este evento já começou. Ele é somente leitura."
     },
     "guestDefaults": {
-      "title": "Padrões dos convidados",
-      "subtitle": "Configurações padrão para novos convidados.",
-      "allowed": "Máximo padrão de pessoas por convidado",
-      "allowedHint": "Usado para novos convidados. Faixa permitida: {{min}} – {{max}}.",
-      "overrideTitle": "Cada convidado pode ter outro valor",
-      "overrideBody": "Este é o valor padrão para novos convidados, mas você pode definir um número máximo de pessoas diferente para cada convidado."
+      "title": "Convidados",
+      "subtitle": "Quantas pessoas um convidado pode confirmar.",
+      "allowed": "Máximo de pessoas por convidado",
+      "allowedHint": "O máximo de pessoas que um convidado pode confirmar em um convite. Faixa permitida: {{min}} – {{max}}.",
+      "overrideTitle": "Pessoas previstas são para o seu planejamento",
+      "overrideBody": "Novos convidados começam com este número como pessoas previstas, que você pode alterar em cada convidado. Esse número não limita o que o convidado confirma; este máximo, sim. Diminuí-lo mantém as respostas já dadas."
     },
     "rsvp": {
       "title": "Configurações de RSVP",
@@ -1161,7 +1159,7 @@
       "rsvp": "Os convidados podem enviar e atualizar a resposta até o início do evento. Depois disso, a página de confirmação fica encerrada.",
       "exports": "Ver o evento e baixar exportações continuam disponíveis depois do evento.",
       "maxAttendees": "O máximo de pessoas é um número inteiro de {{min}} a {{max}}.",
-      "allowed": "O padrão de pessoas por convidado é um número inteiro de {{min}} a {{max}}. Ele vale para os convidados adicionados depois e pode ser alterado em cada convidado.",
+      "allowed": "O máximo de pessoas por convidado é um número inteiro de {{min}} a {{max}}. Ele limita o que cada convidado pode confirmar, e novos convidados começam com ele como pessoas previstas. Diminuí-lo mantém as respostas já dadas.",
       "warnings": "Os avisos de capacidade nunca impedem salvar. Eles aparecem quando as presenças confirmadas passam do máximo, ou quando o número de lugares é diferente dele.",
       "date": "A data e o horário do evento só podem ser alterados para um momento no futuro.",
       "roles": "Proprietários e Administradores podem alterar o evento. Leitores podem vê-lo e baixar exportações."
@@ -1395,7 +1393,7 @@
       "name": "Digite seu nome.",
       "phone": "Digite um número de telefone válido.",
       "attendees": "Escolha o número de pessoas.",
-      "overAllowance": "Seu convite é para até {{max}} pessoas. Para levar mais, fale com quem está organizando.",
+      "overMaximum": "Este convite é para até {{max}} pessoas.",
       "failed": "Não foi possível enviar sua resposta. Tente novamente."
     },
     "result": {

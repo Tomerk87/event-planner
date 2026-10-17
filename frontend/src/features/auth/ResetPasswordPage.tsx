@@ -110,7 +110,10 @@ export function ResetPasswordPage() {
             ? t('auth.errors.passwordLength', { min: PASSWORD_MIN_LENGTH })
             : undefined
         }
-        onChange={(change) => setPassword(change.target.value)}
+        onChange={(change) => {
+          setPassword(change.target.value)
+          setInvalid(false)
+        }}
       />
       <Button type="submit" fullWidth loading={isPending}>
         {t('auth.reset.action')}

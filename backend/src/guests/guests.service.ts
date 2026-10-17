@@ -146,13 +146,17 @@ export class GuestsService {
     input: { status: RsvpStatus; attendees: number | null },
     user: User,
   ): Promise<Guest> {
-    await this.access.authorize(eventId, user, 'EDIT')
+    const { event } = await this.access.authorize(eventId, user, 'EDIT')
     return this.prisma.$transaction(async (tx) => {
       await lockEvent(tx, eventId)
       const guest = activeGuest(await loadGuests(tx, eventId), guestId)
       const updated = applyRsvp(
         guest,
-        resolveRsvp(input.status, input.attendees, guest.allowedAttendees),
+        resolveRsvp(
+          input.status,
+          input.attendees,
+          event.defaultAllowedAttendees,
+        ),
         new Date().toISOString(),
       )
       return saveGuest(tx, updated, false)

@@ -27,7 +27,7 @@ const NO_TABLE = 'NONE'
 type FieldError =
   | { field: 'firstName' }
   | { field: 'phone'; reason: 'invalid' | 'duplicate' }
-  | { field: 'allowed'; reason: 'range' | 'belowConfirmed'; count?: number }
+  | { field: 'allowed' }
 
 interface GuestFormDialogProps {
   open: boolean
@@ -74,11 +74,6 @@ function GuestForm({
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
   const limits = EVENT_LIMITS.allowedAttendees
-  // An approved guest's allowance cannot drop below the attendees they
-  // confirmed; the server refuses it too.
-  const confirmed =
-    guest?.rsvpStatus === 'APPROVED' ? (guest.confirmedAttendees ?? 0) : 0
-  const lowest = Math.max(limits.min, confirmed)
   // Only a guest who approved can be seated, so a new guest never can.
   const canSeat = guest?.rsvpStatus === 'APPROVED'
 
@@ -88,7 +83,7 @@ function GuestForm({
         return setFieldError({ field: 'firstName' })
       }
       if (error.details.field === 'allowedAttendees') {
-        return setFieldError({ field: 'allowed', reason: 'range' })
+        return setFieldError({ field: 'allowed' })
       }
     }
     if (isDomainError(error, 'INVALID_PHONE')) {
@@ -97,14 +92,12 @@ function GuestForm({
     if (isDomainError(error, 'DUPLICATE_PHONE')) {
       return setFieldError({ field: 'phone', reason: 'duplicate' })
     }
-    if (isDomainError(error, 'INVALID_ATTENDEE_COUNT')) {
-      return setFieldError({
-        field: 'allowed',
-        reason: 'belowConfirmed',
-        count: Number(error.details.min),
-      })
-    }
     setFailure(describeError(t, error))
+  }
+
+  /** Editing a field clears its message (D104); saving checks it again. */
+  function clearError(field: FieldError['field']) {
+    setFieldError((current) => (current?.field === field ? null : current))
   }
 
   function handleSubmit(event: FormEvent) {
@@ -123,14 +116,7 @@ function GuestForm({
       allowedAttendees < limits.min ||
       allowedAttendees > limits.max
     ) {
-      return setFieldError({ field: 'allowed', reason: 'range' })
-    }
-    if (allowedAttendees < confirmed) {
-      return setFieldError({
-        field: 'allowed',
-        reason: 'belowConfirmed',
-        count: confirmed,
-      })
+      return setFieldError({ field: 'allowed' })
     }
     const input = { firstName, lastName, phone, allowedAttendees, group }
     const wanted = group.trim().toLocaleLowerCase()
@@ -185,7 +171,10 @@ function GuestForm({
               ? t('guests.form.errors.firstName')
               : undefined
           }
-          onChange={(event) => setFirstName(event.target.value)}
+          onChange={(event) => {
+            setFirstName(event.target.value)
+            clearError('firstName')
+          }}
         />
         <TextField
           label={t('guests.form.lastName')}
@@ -213,27 +202,29 @@ function GuestForm({
               )
             : undefined
         }
-        onChange={(event) => setPhone(event.target.value)}
+        onChange={(event) => {
+          setPhone(event.target.value)
+          clearError('phone')
+        }}
       />
       <TextField
         label={t('guests.form.allowed')}
         type="number"
         inputMode="numeric"
         required
-        min={lowest}
+        min={limits.min}
         max={limits.max}
         value={allowed}
         hint={t('guests.form.allowedHint', limits)}
         error={
           fieldError?.field === 'allowed'
-            ? fieldError.reason === 'belowConfirmed'
-              ? t('guests.form.errors.belowConfirmed', {
-                  count: fieldError.count,
-                })
-              : t('guests.form.errors.allowed', limits)
+            ? t('guests.form.errors.allowed', limits)
             : undefined
         }
-        onChange={(event) => setAllowed(event.target.value)}
+        onChange={(event) => {
+          setAllowed(event.target.value)
+          clearError('allowed')
+        }}
       />
       <div className={styles.formRow}>
         <Combobox

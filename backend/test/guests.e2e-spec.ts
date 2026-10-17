@@ -116,9 +116,10 @@ describe('guests', () => {
     expect(await t.prisma.guest.count()).toBe(1)
   })
 
-  it('keeps RSVP counts within the allowance and cannot lower it below a confirmed count', async () => {
+  it('keeps RSVP counts within the event’s maximum per guest; Expected Attendees is free of them (D104)', async () => {
     const { owner, base } = await setUp()
-    const guest = await add(owner, base)
+    // Expected 4; the event's Maximum Attendees per Guest is 4.
+    const guest = await add(owner, base, { ...DANA, allowedAttendees: 2 })
 
     expect(
       code(
@@ -128,18 +129,22 @@ describe('guests', () => {
           .expect(400),
       ),
     ).toBe('INVALID_ATTENDEE_COUNT')
-    await owner
+    const approved = await owner
       .put(`${base}/${guest.id}/rsvp`)
-      .send({ status: 'APPROVED', attendees: 3 })
+      .send({ status: 'APPROVED', attendees: 4 })
       .expect(200)
-    expect(
-      code(
-        await owner
-          .put(`${base}/${guest.id}`)
-          .send({ ...DANA, allowedAttendees: 2 })
-          .expect(400),
-      ),
-    ).toBe('INVALID_ATTENDEE_COUNT')
+    expect(approved.body).toMatchObject({
+      allowedAttendees: 2,
+      confirmedAttendees: 4,
+    })
+    const lowered = await owner
+      .put(`${base}/${guest.id}`)
+      .send({ ...DANA, allowedAttendees: 1 })
+      .expect(200)
+    expect(lowered.body).toMatchObject({
+      allowedAttendees: 1,
+      confirmedAttendees: 4,
+    })
     const declined = await owner
       .put(`${base}/${guest.id}/rsvp`)
       .send({ status: 'DECLINED', attendees: null })
@@ -499,40 +504,43 @@ describe('unknown guests', () => {
     expect(await t.prisma.unknownRsvp.count()).toBe(0)
   })
 
-  it('refuses to convert a response above the allowance, and merges into an existing guest', async () => {
+  it('converts and merges a response whatever the Expected Attendees, also under a lowered maximum (D104)', async () => {
     const { owner, event } = await setUp()
-    const unknown = await unknownResponse(event.id, { confirmedAttendees: 3 })
+    const first = await unknownResponse(event.id, { confirmedAttendees: 3 })
+    const second = await unknownResponse(event.id, {
+      name: 'Second',
+      phone: '054-999-0002',
+      normalizedPhone: '+972549990002',
+      confirmedAttendees: 3,
+    })
     const base = `/api/events/${event.id}/unknown-guests`
     const guest = await add(owner, `/api/events/${event.id}/guests`, {
       ...DANA,
       allowedAttendees: 2,
     })
+    // The maximum is lowered after the answers were given.
+    await t.prisma.event.update({
+      where: { id: event.id },
+      data: { defaultAllowedAttendees: 2 },
+    })
 
-    const tooMany = await owner
-      .post(`${base}/${unknown.id}/convert`)
-      .send({ firstName: 'Walk', lastName: 'In', allowedAttendees: 2 })
-      .expect(400)
-    expect(code(tooMany)).toBe('INVALID_ATTENDEE_COUNT')
-    expect(
-      code(
-        await owner
-          .post(`${base}/${unknown.id}/merge`)
-          .send({ guestId: guest.id })
-          .expect(400),
-      ),
-    ).toBe('INVALID_ATTENDEE_COUNT')
-    await owner
-      .put(`/api/events/${event.id}/guests/${guest.id}`)
-      .send({ ...DANA, allowedAttendees: 3 })
-      .expect(200)
+    const converted = await owner
+      .post(`${base}/${first.id}/convert`)
+      .send({ firstName: 'Walk', lastName: 'In', allowedAttendees: 1 })
+      .expect(201)
+    expect(converted.body).toMatchObject({
+      allowedAttendees: 1,
+      confirmedAttendees: 3,
+    })
     const merged = await owner
-      .post(`${base}/${unknown.id}/merge`)
+      .post(`${base}/${second.id}/merge`)
       .send({ guestId: guest.id })
       .expect(201)
     expect(merged.body).toMatchObject({
       id: guest.id,
+      allowedAttendees: 2,
       confirmedAttendees: 3,
-      invitationName: 'Walk In',
+      invitationName: 'Second',
     })
   })
 
@@ -561,8 +569,13 @@ describe('database checks', () => {
       t.prisma.guest.update({ where: { id: guest.id }, data })
 
     await expect(
-      update({ rsvpStatus: 'APPROVED', confirmedAttendees: 9 }),
+      update({ rsvpStatus: 'APPROVED', confirmedAttendees: 11 }),
     ).rejects.toThrow()
+    // Above Expected Attendees (4) is a valid row since D104.
+    await expect(
+      update({ rsvpStatus: 'APPROVED', confirmedAttendees: 9 }),
+    ).resolves.toMatchObject({ confirmedAttendees: 9 })
+    await update({ rsvpStatus: 'NO_RESPONSE', confirmedAttendees: null })
     await expect(
       update({ rsvpStatus: 'DECLINED', confirmedAttendees: 2 }),
     ).rejects.toThrow()

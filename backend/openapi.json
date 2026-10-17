@@ -3873,6 +3873,13 @@
             ],
             "type": "string"
           },
+          "country": {
+            "enum": [
+              "IL",
+              "BR"
+            ],
+            "type": "string"
+          },
           "settings": {
             "$ref": "#/components/schemas/RsvpSettingsInputDto"
           },
@@ -3895,6 +3902,7 @@
         "required": [
           "location",
           "language",
+          "country",
           "settings",
           "title",
           "startsAt",

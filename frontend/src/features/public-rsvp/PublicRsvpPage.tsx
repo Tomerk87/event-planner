@@ -13,6 +13,7 @@ import type {
 } from '../../services/contracts/index.ts'
 import { usePublicRsvp } from '../../services/servicesContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
+import { withoutError } from '../../shared/formErrors.ts'
 import standalone from '../../shared/StandalonePage.module.css'
 import { Card } from '../../shared/ui/Card.tsx'
 import { Menu } from '../../shared/ui/Menu.tsx'
@@ -47,14 +48,23 @@ function Form({
     attendees: '',
   })
   const [errors, setErrors] = useState<FormErrors>({})
+  // Counts refused responses; each moves focus to the field to fix.
+  const [refusals, setRefusals] = useState(0)
   const [failure, setFailure] = useState(false)
   const [sending, setSending] = useState<RsvpResponse | null>(null)
   const [result, setResult] = useState<PublicRsvpResult | null>(null)
 
   // A refused response moves focus to the first field that needs attention.
   useEffect(() => {
-    ref.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
-  }, [errors])
+    if (refusals > 0) {
+      ref.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [refusals])
+
+  function refuse(found: FormErrors) {
+    setErrors(found)
+    setRefusals((count) => count + 1)
+  }
 
   async function submit(status: RsvpResponse) {
     const found: FormErrors = {}
@@ -67,11 +77,12 @@ function Form({
     if (values.attendees === '') {
       found.attendees = 'required'
     }
-    setErrors(found)
     setFailure(false)
     if (Object.keys(found).length > 0) {
+      refuse(found)
       return
     }
+    setErrors({})
 
     setSending(status)
     try {
@@ -87,9 +98,9 @@ function Form({
       void queryClient.invalidateQueries()
     } catch (error) {
       if (isDomainError(error, 'INVALID_PHONE')) {
-        setErrors({ phone: 'required' })
+        refuse({ phone: 'required' })
       } else if (isDomainError(error, 'INVALID_ATTENDEE_COUNT')) {
-        setErrors({ attendees: Number(error.details.max) })
+        refuse({ attendees: Number(error.details.max) })
       } else if (isDomainError(error, 'RSVP_CLOSED')) {
         onClosed()
       } else {
@@ -109,13 +120,16 @@ function Form({
         errors.attendees === 'required'
           ? t('publicRsvp.errors.attendees')
           : errors.attendees !== undefined
-            ? t('publicRsvp.errors.overAllowance', { max: errors.attendees })
+            ? t('publicRsvp.errors.overMaximum', { max: errors.attendees })
             : undefined,
     },
     failure: failure ? t('publicRsvp.errors.failed') : null,
     sending,
-    onChange: (field, value) =>
-      setValues((current) => ({ ...current, [field]: value })),
+    onChange: (field, value) => {
+      setValues((current) => ({ ...current, [field]: value }))
+      // Editing a field clears its message (D104); Send checks it again.
+      setErrors((current) => withoutError(current, field))
+    },
     onSubmit: (status) => void submit(status),
   }
 

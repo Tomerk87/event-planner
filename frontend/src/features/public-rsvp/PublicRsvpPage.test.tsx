@@ -122,25 +122,51 @@ describe('Public RSVP page', () => {
     ).toMatchObject({ rsvpStatus: 'NOT_SURE', confirmedAttendees: null })
   })
 
-  it('refuses more attendees than the invitation allows, and a phone it cannot read', async () => {
-    const { services } = await openPublic()
+  it('accepts up to the event’s maximum per guest, whatever the guest’s Expected Attendees (D104)', async () => {
+    const services = createTestServices()
     const guest = (await services.guests.list(MAIN)).find(
-      (candidate) => candidate.allowedAttendees < 10,
+      (candidate) => candidate.allowedAttendees < 5,
     )!
+    await openPublic(MAIN, services)
 
-    fill('Too Many', guest.phone, '10')
+    fill('Five Of Us', guest.phone, '5')
+    press("I'll be there!")
+
+    expect(
+      await screen.findByText('Attendees confirmed: 5'),
+    ).toBeInTheDocument()
+  })
+
+  it('refuses more people than a maximum lowered meanwhile, and a phone it cannot read, clearing each message on edit', async () => {
+    const { services } = await openPublic()
+    const guest = (await services.guests.list(MAIN))[0]!
+    // The organizer lowers the maximum while the page is open.
+    const { event } = await services.events.get(MAIN)
+    await services.events.update(MAIN, { ...event, defaultAllowedAttendees: 3 })
+
+    fill('Too Many', guest.phone, '5')
     press("I'll be there!")
     expect(
-      await screen.findByText(
-        `Your invitation is for up to ${guest.allowedAttendees} attendees. To bring more, please contact the organizer.`,
-      ),
+      await screen.findByText('This invitation is for up to 3 people.'),
     ).toBeInTheDocument()
+    change(screen.getByRole('combobox', { name: 'Number of Attendees' }), {
+      target: { value: '2' },
+    })
+    expect(
+      screen.queryByText('This invitation is for up to 3 people.'),
+    ).not.toBeInTheDocument()
 
     fill('Too Many', '12', '1')
     press("I'll be there!")
     expect(
       await screen.findByText('Enter a valid phone number.'),
     ).toBeInTheDocument()
+    change(screen.getByRole('textbox', { name: 'Phone Number' }), {
+      target: { value: '050' },
+    })
+    expect(
+      screen.queryByText('Enter a valid phone number.'),
+    ).not.toBeInTheDocument()
   })
 
   it('keeps a response from an unknown phone for the organizer to review', async () => {

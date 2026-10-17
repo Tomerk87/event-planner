@@ -67,6 +67,19 @@ export function describeServicesContract(
   }
 
   describe(`services contract: ${name}`, () => {
+    /** Sets the event's Maximum Attendees per Guest (D104). */
+    async function setMaximum(
+      services: Services,
+      eventId: string,
+      defaultAllowedAttendees: number,
+    ) {
+      const { event } = await services.events.get(eventId)
+      return services.events.update(eventId, {
+        ...event,
+        defaultAllowedAttendees,
+      })
+    }
+
     async function findGuest(
       services: Services,
       eventId: string,
@@ -645,12 +658,18 @@ export function describeServicesContract(
 
       it('applies an organizer’s RSVP edit with the same rules as the public form', async () => {
         const { services, events } = await setup()
+        // Expected 4; the event's Maximum Attendees per Guest is 5 (D104).
         const guest = await services.guests.create(events.owner, newGuest)
         const set = (status: Guest['rsvpStatus'], attendees: number | null) =>
           services.guests.setRsvp(events.owner, guest.id, { status, attendees })
 
-        expect(await codeOf(set('APPROVED', 5))).toBe('INVALID_ATTENDEE_COUNT')
+        expect(await codeOf(set('APPROVED', 6))).toBe('INVALID_ATTENDEE_COUNT')
         expect(await codeOf(set('APPROVED', 0))).toBe('INVALID_ATTENDEE_COUNT')
+        expect(await set('APPROVED', 5)).toMatchObject({
+          rsvpStatus: 'APPROVED',
+          confirmedAttendees: 5,
+          allowedAttendees: 4,
+        })
         expect(await set('APPROVED', 4)).toMatchObject({
           rsvpStatus: 'APPROVED',
           confirmedAttendees: 4,
@@ -663,6 +682,40 @@ export function describeServicesContract(
           rsvpStatus: 'NOT_SURE',
           confirmedAttendees: null,
         })
+      })
+
+      it('keeps answers already given when the maximum per guest is lowered (D104)', async () => {
+        const { services, events } = await setup()
+        const guest = await services.guests.create(events.owner, newGuest)
+        await services.guests.setRsvp(events.owner, guest.id, {
+          status: 'APPROVED',
+          attendees: 5,
+        })
+
+        await setMaximum(services, events.owner, 3)
+
+        expect(
+          await findGuest(
+            services,
+            events.owner,
+            (item) => item.id === guest.id,
+          ),
+        ).toMatchObject({ confirmedAttendees: 5 })
+        expect(
+          await codeOf(
+            services.guests.setRsvp(events.owner, guest.id, {
+              status: 'APPROVED',
+              attendees: 4,
+            }),
+          ),
+        ).toBe('INVALID_ATTENDEE_COUNT')
+        // Expected Attendees is a planning note: it may be below the answer.
+        expect(
+          await services.guests.update(events.owner, guest.id, {
+            ...newGuest,
+            allowedAttendees: 1,
+          }),
+        ).toMatchObject({ allowedAttendees: 1, confirmedAttendees: 5 })
       })
 
       it('refuses every guest change to a Viewer and on a past event', async () => {
@@ -818,10 +871,8 @@ export function describeServicesContract(
       it('accepts an RSVP increase that overfills a table and reports the conflict', async () => {
         const { services, events } = await setup()
         const table = await services.tables.create(events.owner, newTable)
-        const guest = await services.guests.create(events.owner, {
-          ...newGuest,
-          allowedAttendees: 10,
-        })
+        await setMaximum(services, events.owner, 10)
+        const guest = await services.guests.create(events.owner, newGuest)
         await services.guests.setRsvp(events.owner, guest.id, {
           status: 'APPROVED',
           attendees: 6,
@@ -1232,7 +1283,8 @@ export function describeServicesContract(
         )
 
         expect(open.isClosed).toBe(false)
-        expect(open.maxSelectableAttendees).toBe(10)
+        // The event's Maximum Attendees per Guest (D104).
+        expect(open.maxSelectableAttendees).toBe(5)
         expect(open.settings.welcomeMessage.length).toBeGreaterThan(0)
         expect(JSON.stringify(open)).not.toContain('+972')
         expect(closed.isClosed).toBe(true)
@@ -1269,7 +1321,7 @@ export function describeServicesContract(
         expect(await services.unknownGuests.list(events.owner)).toHaveLength(8)
       })
 
-      it('requires the number of attendees for every response and enforces the guest’s allowance when approving', async () => {
+      it('requires the number of attendees for every response and enforces the event’s maximum per guest when approving', async () => {
         const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         await services.guests.create(events.owner, newGuest)
@@ -1284,7 +1336,7 @@ export function describeServicesContract(
             attendees,
           })
 
-        expect(await codeOf(submit('APPROVED', 5))).toBe(
+        expect(await codeOf(submit('APPROVED', 6))).toBe(
           'INVALID_ATTENDEE_COUNT',
         )
         expect(await codeOf(submit('DECLINED', 0))).toBe(
@@ -1301,9 +1353,10 @@ export function describeServicesContract(
           status: 'NOT_SURE',
           confirmedAttendees: null,
         })
-        expect(await submit('APPROVED', 4)).toEqual({
+        // Above the guest's Expected Attendees (4), within the maximum (5).
+        expect(await submit('APPROVED', 5)).toEqual({
           status: 'APPROVED',
-          confirmedAttendees: 4,
+          confirmedAttendees: 5,
         })
       })
 
@@ -1426,7 +1479,7 @@ export function describeServicesContract(
         )
       })
 
-      it('refuses to convert when the response exceeds the allowance given', async () => {
+      it('adds a response as a guest whatever Expected Attendees is given, keeping it under a lowered maximum (D104)', async () => {
         const { services, events } = await setup()
         const slug = await slugOf(services, events.owner)
         await services.rsvp.submit(slug, {
@@ -1438,17 +1491,19 @@ export function describeServicesContract(
         const unknown = (await services.unknownGuests.list(events.owner)).find(
           (item) => item.name === 'Big Party',
         )
+        await setMaximum(services, events.owner, 3)
 
-        expect(
-          await codeOf(
-            services.unknownGuests.convertToGuest(events.owner, unknown!.id, {
-              firstName: 'Big',
-              lastName: 'Party',
-              allowedAttendees: 2,
-            }),
-          ),
-        ).toBe('INVALID_ATTENDEE_COUNT')
-        expect(await services.unknownGuests.list(events.owner)).toHaveLength(9)
+        const guest = await services.unknownGuests.convertToGuest(
+          events.owner,
+          unknown!.id,
+          { firstName: 'Big', lastName: 'Party', allowedAttendees: 2 },
+        )
+
+        expect(guest).toMatchObject({
+          allowedAttendees: 2,
+          rsvpStatus: 'APPROVED',
+          confirmedAttendees: 5,
+        })
       })
 
       it('merges an unknown response into an existing guest', async () => {

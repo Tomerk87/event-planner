@@ -10,7 +10,6 @@ import {
 import {
   assertMaxAttendeesCoversConfirmed,
   assertStartsInFuture,
-  EVENT_LIMITS,
   validateCoverImage,
   validateEventInput,
 } from '../../domain/events.ts'
@@ -61,6 +60,7 @@ import { formatPhone, normalizePhone } from '../../domain/phone.ts'
 import { EVENT_ROLES, type EventRole } from '../../domain/roles.ts'
 import {
   applyRsvp,
+  answeredLimit,
   resolveRsvp,
   validatePublicRsvpInput,
 } from '../../domain/rsvp.ts'
@@ -697,11 +697,15 @@ export function createMockServices(options: MockOptions): Services {
 
       setRsvp: (eventId, guestId, input) =>
         run('guests.setRsvp', () => {
-          authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT')
           const guest = activeGuest(eventId, guestId)
           const updated = applyRsvp(
             guest,
-            resolveRsvp(input.status, input.attendees, guest.allowedAttendees),
+            resolveRsvp(
+              input.status,
+              input.attendees,
+              event.defaultAllowedAttendees,
+            ),
             now().toISOString(),
           )
           commit(replaceGuest(updated))
@@ -811,7 +815,7 @@ export function createMockServices(options: MockOptions): Services {
               resolveRsvp(
                 unknown.rsvpStatus,
                 unknown.confirmedAttendees,
-                guest.allowedAttendees,
+                answeredLimit(event, unknown.confirmedAttendees),
               ),
               unknown.submittedAt,
             ),
@@ -828,7 +832,7 @@ export function createMockServices(options: MockOptions): Services {
 
       mergeIntoGuest: (eventId, unknownId, guestId) =>
         run('unknownGuests.mergeIntoGuest', () => {
-          authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT')
           const unknown = pendingUnknown(eventId, unknownId)
           const guest = activeGuest(eventId, guestId)
           const updated: Guest = {
@@ -837,7 +841,7 @@ export function createMockServices(options: MockOptions): Services {
               resolveRsvp(
                 unknown.rsvpStatus,
                 unknown.confirmedAttendees,
-                guest.allowedAttendees,
+                answeredLimit(event, unknown.confirmedAttendees),
               ),
               unknown.submittedAt,
             ),
@@ -919,7 +923,7 @@ export function createMockServices(options: MockOptions): Services {
             language: event.rsvpLanguage,
             country: event.country,
             isClosed: isEventPast(event, now()),
-            maxSelectableAttendees: EVENT_LIMITS.allowedAttendees.max,
+            maxSelectableAttendees: event.defaultAllowedAttendees,
             settings,
           }
         }),
@@ -946,7 +950,7 @@ export function createMockServices(options: MockOptions): Services {
             const outcome = resolveRsvp(
               input.status,
               input.attendees,
-              guest.allowedAttendees,
+              event.defaultAllowedAttendees,
             )
             commit(
               replaceGuest({

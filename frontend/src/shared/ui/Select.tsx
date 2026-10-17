@@ -19,6 +19,16 @@ export interface SelectOption {
   disabled?: boolean
   /** The language the label is written in, when it differs from the page's. */
   lang?: string
+  /** More words a search finds the option by, such as a country's name. */
+  keywords?: string
+}
+
+/** Text as a search compares it: lower case, without accents. */
+function forSearch(text: string): string {
+  return text
+    .toLocaleLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
 }
 
 interface SelectProps {
@@ -71,13 +81,15 @@ export function Select({
   // What was typed into a searchable field since it opened; null shows all.
   const [query, setQuery] = useState<string | null>(null)
   const selected = allOptions.find((option) => option.value === value)
-  const needle = (query ?? '').trim().toLocaleLowerCase()
+  const needle = forSearch((query ?? '').trim())
   // The options listed: all of them, or those that match what was typed.
   const options =
     needle === ''
       ? allOptions
       : allOptions.filter((option) =>
-          option.label.toLocaleLowerCase().includes(needle),
+          forSearch(`${option.label} ${option.keywords ?? ''}`).includes(
+            needle,
+          ),
         )
   const selectedIndex = options.findIndex((option) => option.value === value)
 

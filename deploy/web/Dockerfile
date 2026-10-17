@@ -10,6 +10,9 @@ COPY frontend/ ./
 # Every VITE_ value is embedded in the public build: never a secret.
 ARG VITE_DEMO_ENABLED=true
 ENV VITE_DEMO_ENABLED=$VITE_DEMO_ENABLED
+# Google location suggestions (D104); empty leaves location fields plain.
+ARG VITE_GOOGLE_MAPS_KEY=
+ENV VITE_GOOGLE_MAPS_KEY=$VITE_GOOGLE_MAPS_KEY
 # Type checking runs with the tests (`npm run build` also checks the tests,
 # which read backend/openapi.json from outside this image).
 RUN npx vite build

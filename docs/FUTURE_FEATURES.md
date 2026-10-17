@@ -60,7 +60,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Photo Sharing | Sidebar entry shown in two mockups. No requirements written. | Same |
 | Payments and full event-production management | | PRD §17 |
 | Reusable event templates | | PRD §17 |
-| Exact event location with Google | Choosing the place with Google's address search in Event Settings (storing its place id, address and coordinates), and a small map on the RSVP page. Needs a Google Cloud project, an API key restricted to the app's domain and a billing account; best done with deployment, once the domain exists. Today the Google Maps and Waze links search for the location as typed (D97). | Owner question 2026-10-15 |
+| Exact event location with Google | Suggestions from Google while typing are built (D104) and fill the location as text. Storing the chosen place's id and coordinates, for exact Maps and Waze links and a small map on the RSVP page, is not built. | Owner request 2026-10-15; suggestions built 2026-10-17 |
 | Event types: personal and business | Each event gets a type. Personal events are weddings, birthdays and the like, as today. Business events are run for companies, where guests are usually invited by email rather than WhatsApp (see "Emailing guests their invitation" under Messaging). What the type changes beyond the invitation channel (texts, RSVP fields, defaults, cover) has no requirements yet. | Owner request 2026-10-15 |
 | Duplicating an event with its guest list | In the MVP a duplicate copies the event's details, RSVP settings, message template and tables, without guests. | Owner decision 2026-10-12 |
 | Recoverable event deletion | Restoring a deleted event within a period. In the MVP deletion is permanent. | Owner decision 2026-10-12 |

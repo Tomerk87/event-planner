@@ -22,7 +22,8 @@ async function openSettings(
 }
 
 function field(name: string): HTMLInputElement {
-  return screen.getByLabelText(new RegExp(`^${name}`))
+  // The label may end with the required mark.
+  return screen.getByLabelText(new RegExp(`^${name}( \\*)?$`))
 }
 
 function type(name: string, value: string) {
@@ -53,8 +54,8 @@ describe('Event Settings', () => {
     expect(field('Maximum Attendees')).toHaveValue(300)
     expect(field('Event Date')).toHaveValue(start.date)
     expect(field('Event Time')).toHaveValue('18:30')
-    expect(field('Timezone')).toHaveValue(event.timeZone)
-    expect(field('Default Maximum Attendees per Guest')).toHaveValue(5)
+    expect(field('Timezone')).toHaveValue('Asia/Jerusalem · Israel')
+    expect(field('Maximum Attendees per Guest')).toHaveValue(5)
     expect(screen.getByText('Upcoming')).toBeInTheDocument()
     expect(
       screen.getByText('RSVP remains open until the event start time.'),
@@ -87,12 +88,12 @@ describe('Event Settings', () => {
 
   it.each([
     [
-      'Default Maximum Attendees per Guest',
+      'Maximum Attendees per Guest',
       '0',
       'Enter a whole number between 1 and 10.',
     ],
     [
-      'Default Maximum Attendees per Guest',
+      'Maximum Attendees per Guest',
       '11',
       'Enter a whole number between 1 and 10.',
     ],
@@ -119,7 +120,7 @@ describe('Event Settings', () => {
     type('Event Name', 'Our Big Day')
     type('Location', '')
     type('Maximum Attendees', '3000')
-    type('Default Maximum Attendees per Guest', '2')
+    type('Maximum Attendees per Guest', '2')
     save()
 
     expect(await screen.findByText('Event settings saved.')).toBeInTheDocument()
@@ -251,23 +252,48 @@ describe('Event Settings', () => {
     ).toBeInTheDocument()
   })
 
-  it('finds a time zone by typing part of its name', async () => {
+  it('finds a time zone by typing part of its name, or its country in any language (D104)', async () => {
     await openSettings()
     const zone = field('Timezone')
+    const shown = () =>
+      screen.getAllByRole('option').map((option) => option.textContent)
 
     fireEvent.click(zone)
     fireEvent.change(zone, { target: { value: 'jerus' } })
-    expect(
-      screen.getAllByRole('option').map((option) => option.textContent),
-    ).toEqual(['Asia/Jerusalem'])
+    expect(shown()).toEqual(['Asia/Jerusalem · Israel'])
 
     fireEvent.change(zone, { target: { value: 'new york' } })
-    expect(
-      screen.getAllByRole('option').map((option) => option.textContent),
-    ).toEqual(['America/New York'])
+    expect(shown()).toEqual(['America/New York · United States'])
+
+    fireEvent.change(zone, { target: { value: 'sao paulo' } })
+    expect(shown()).toEqual(['America/Sao Paulo · Brazil'])
+
+    fireEvent.change(zone, { target: { value: 'brazil' } })
+    expect(shown()).toContain('America/Sao Paulo · Brazil')
+    expect(shown().every((option) => option?.endsWith('· Brazil'))).toBe(true)
 
     fireEvent.change(zone, { target: { value: 'no such place' } })
     expect(screen.getByText('No time zone matches')).toBeInTheDocument()
+  })
+
+  it('finds a time zone by its country’s name in Portuguese and Hebrew too', async () => {
+    await openSettings()
+    await changeLanguage('pt')
+    const zone = await screen.findByLabelText(/^Fuso horário/)
+
+    fireEvent.click(zone)
+    fireEvent.change(zone, { target: { value: 'Brasil' } })
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent),
+    ).toContain('America/Sao Paulo · Brasil')
+
+    await changeLanguage('he')
+    fireEvent.change(await screen.findByLabelText(/^אזור זמן/), {
+      target: { value: 'ברזיל' },
+    })
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent),
+    ).toContain('America/Sao Paulo · ברזיל')
   })
 
   it('keeps the typed date and time when the time zone changes', async () => {
@@ -321,7 +347,7 @@ describe('Event Settings', () => {
       'Event Date',
       'Event Time',
       'Timezone',
-      'Default Maximum Attendees per Guest',
+      'Maximum Attendees per Guest',
     ]) {
       expect(field(name)).toBeDisabled()
     }

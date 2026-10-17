@@ -24,7 +24,6 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { canEditEvent } from '../../domain/access.ts'
 import { isDomainError } from '../../domain/errors.ts'
-import { EVENT_LIMITS } from '../../domain/events.ts'
 import {
   isRsvpLanguage,
   type Event,
@@ -60,6 +59,7 @@ import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { Card } from '../../shared/ui/Card.tsx'
 import { Dialog } from '../../shared/ui/Dialog.tsx'
 import { SelectField, TextArea, TextField } from '../../shared/ui/Field.tsx'
+import { PlaceField } from '../../shared/ui/PlaceField.tsx'
 import { RangeField } from '../../shared/ui/RangeField.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
@@ -222,10 +222,23 @@ function RsvpSettingsForm({
     setValues((current) => ({ ...current, [field]: value }))
   }
 
-  const setCalendar = (patch: Partial<Values['calendar']>) =>
+  // Editing a field clears its message (D104); saving checks it again.
+  const clearError = (fields: readonly ErrorField[]) =>
+    setErrorField((current) =>
+      current !== null && fields.includes(current) ? null : current,
+    )
+  const setCalendar = (patch: Partial<Values['calendar']>) => {
     set('calendar', { ...values.calendar, ...patch })
-  const setYoutube = (patch: Partial<Values['youtube']>) =>
+    clearError([
+      ...('title' in patch ? (['calendarTitle'] as const) : []),
+      ...('date' in patch ? (['calendarDate'] as const) : []),
+      ...('time' in patch ? (['calendarTime'] as const) : []),
+    ])
+  }
+  const setYoutube = (patch: Partial<Values['youtube']>) => {
     set('youtube', { ...values.youtube, ...patch })
+    clearError('url' in patch ? ['youtubeUrl'] : [])
+  }
 
   const errorOf = (field: ErrorField) =>
     errorField === field ? t(`rsvpSettings.actions.errors.${field}`) : undefined
@@ -354,7 +367,7 @@ function RsvpSettingsForm({
     timeZone: event.timeZone,
     location: event.location,
     country: event.country,
-    maxSelectableAttendees: EVENT_LIMITS.allowedAttendees.max,
+    maxSelectableAttendees: event.defaultAllowedAttendees,
     settings: toSettings(values),
   }
 
@@ -715,14 +728,13 @@ function RsvpSettingsForm({
                   setCalendar({ title: change.target.value })
                 }
               />
-              <TextField
+              <PlaceField
                 label={t('rsvpSettings.actions.location')}
                 maxLength={CALENDAR_TEXT_MAX_LENGTH}
                 disabled={!canEdit}
                 value={values.calendar.location}
-                onChange={(change) =>
-                  setCalendar({ location: change.target.value })
-                }
+                country={event.country}
+                onChange={(location) => setCalendar({ location })}
               />
               <TextField
                 label={t('rsvpSettings.actions.date')}
