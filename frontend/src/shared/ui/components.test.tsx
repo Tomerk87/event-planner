@@ -23,6 +23,7 @@ import { useToast } from './toastContext.ts'
 import { ToastProvider } from './ToastProvider.tsx'
 import { change } from '../../test/controls.ts'
 import { Select } from './Select.tsx'
+import { Combobox } from './Combobox.tsx'
 
 describe('Button', () => {
   it('is a non-submitting button by default and reports clicks', () => {
@@ -1015,6 +1016,75 @@ describe('Select', () => {
 
     fireEvent.click(screen.getByRole('combobox', { name: 'Fruit' }))
 
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('chooses a tapped option on an iPhone, where the tap blurs the text box first', () => {
+    const onChange = vi.fn()
+    render(
+      <Select
+        aria-label="Fruit"
+        value="a"
+        options={options}
+        searchable
+        onChange={onChange}
+      />,
+    )
+    const field = screen.getByRole('combobox', { name: 'Fruit' })
+    fireEvent.click(field)
+    fireEvent.change(field, { target: { value: 'dat' } })
+
+    // Safari moves the focus off the text box before the tap's click.
+    const date = screen.getByRole('option', { name: 'Date' })
+    fireEvent.pointerDown(date)
+    fireEvent.mouseDown(date)
+    fireEvent.blur(field, { relatedTarget: null })
+    fireEvent.click(date)
+
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('d')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+
+    // Leaving the field without pressing the list still closes it.
+    fireEvent.click(field)
+    fireEvent.blur(field, { relatedTarget: null })
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+})
+
+describe('Combobox', () => {
+  it('chooses a tapped option on an iPhone, where the tap blurs the text box first', () => {
+    function Group() {
+      const [value, setValue] = useState('')
+      return (
+        <>
+          <Combobox
+            label="Group"
+            value={value}
+            onChange={setValue}
+            options={['Family', 'Friends']}
+            clearLabel="No Group"
+            createLabel={(text) => `Create "${text}"`}
+            toggleLabel="Show groups"
+          />
+          <output>{value}</output>
+        </>
+      )
+    }
+    render(<Group />)
+    const field = screen.getByRole('combobox', { name: 'Group' })
+    fireEvent.click(field)
+
+    const friends = screen.getByRole('option', { name: 'Friends' })
+    fireEvent.pointerDown(friends)
+    fireEvent.mouseDown(friends)
+    fireEvent.blur(field, { relatedTarget: null })
+    fireEvent.click(friends)
+
+    expect(screen.getByRole('status')).toHaveTextContent('Friends')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+
+    fireEvent.click(field)
+    fireEvent.blur(field, { relatedTarget: null })
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 })

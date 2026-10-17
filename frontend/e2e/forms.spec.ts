@@ -34,9 +34,15 @@ test('a time zone is found by its country', async ({ page }) => {
   await zone.click()
   await zone.fill('brazil')
 
-  await expect(
-    page.getByRole('option', { name: 'America/Sao Paulo · Brazil' }),
-  ).toBeVisible()
+  const saoPaulo = page.getByRole('option', {
+    name: 'America/Sao Paulo · Brazil',
+  })
+  await expect(saoPaulo).toBeVisible()
+
+  // A tap chooses it (on an iPhone the tap used to close the list first).
+  await saoPaulo.click()
+  await expect(page.getByRole('listbox')).toBeHidden()
+  await expect(zone).toHaveValue('America/Sao Paulo · Brazil')
 })
 
 test('Status and Confirmed change in the table, within the event’s maximum per guest (D105)', async ({
