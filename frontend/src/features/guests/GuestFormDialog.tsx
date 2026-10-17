@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDomainError } from '../../domain/errors.ts'
@@ -41,6 +42,8 @@ interface GuestFormDialogProps {
   tables: readonly TableWithOccupancy[]
   /** The guest being edited; leave out to add a new one. */
   guest?: Guest | null
+  /** Offered while editing: asks to delete the guest (D105). */
+  onDelete?: (guest: Guest) => void
 }
 
 function GuestForm({
@@ -50,6 +53,7 @@ function GuestForm({
   groups,
   tables,
   guest,
+  onDelete,
   onClose,
 }: Omit<GuestFormDialogProps, 'open'>) {
   const { t } = useTranslation()
@@ -255,6 +259,16 @@ function GuestForm({
         </SelectField>
       </div>
       <div className={styles.formActions}>
+        {guest && onDelete && (
+          <Button
+            variant="danger"
+            icon={<Trash2 />}
+            className={styles.formStartAction}
+            onClick={() => onDelete(guest)}
+          >
+            {t('guests.form.delete')}
+          </Button>
+        )}
         <Button variant="ghost" onClick={onClose}>
           {t('common.cancel')}
         </Button>

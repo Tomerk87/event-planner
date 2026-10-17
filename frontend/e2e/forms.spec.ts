@@ -39,33 +39,42 @@ test('a time zone is found by its country', async ({ page }) => {
   ).toBeVisible()
 })
 
-test('Change RSVP accepts up to the event’s Maximum Attendees per Guest', async ({
+test('Status and Confirmed change in the table, within the event’s maximum per guest (D105)', async ({
   page,
   isMobile,
 }) => {
-  test.skip(isMobile, 'the row menu is checked on desktop')
+  test.skip(isMobile, 'the cells are edited in the desktop table')
   await page.goto('/events/evt-1/guests?rsvp=NO_RESPONSE')
-  await page
-    .getByRole('table')
-    .getByRole('button', { name: /^More actions for/ })
+  const row = page
+    .getByRole('table', { name: 'Guests' })
+    .locator('tbody tr')
     .first()
-    .click()
-  await page.getByRole('menuitem', { name: 'Change RSVP' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Change RSVP' })
-  await dialog.getByRole('radio', { name: 'Approved' }).check()
 
-  await expect(
-    dialog.getByText(
-      'Up to 5 per invitation (Maximum Attendees per Guest in Event Settings).',
-    ),
-  ).toBeVisible()
-  const attendees = dialog.getByLabel(/^Confirmed Attendees/)
-  await attendees.fill('6')
-  await dialog.getByRole('button', { name: 'Save RSVP' }).click()
-  await expect(
-    dialog.getByText('Enter a whole number from 1 to 5.'),
-  ).toBeVisible()
-  await attendees.fill('5')
-  await dialog.getByRole('button', { name: 'Save RSVP' }).click()
+  const name = await row.locator('button[title^="View details"]').textContent()
+  await row.getByRole('button', { name: /^Status of / }).dblclick()
+  await row
+    .getByRole('combobox', { name: /^New status of / })
+    .selectOption('APPROVED')
   await expect(page.getByText('The RSVP was updated.')).toBeVisible()
+
+  // The guest is now approved, so the list (filtered on No response) drops
+  // them; find them through Approved.
+  await page.goto(`/events/evt-1/guests?q=${encodeURIComponent(name ?? '')}`)
+  const approved = page
+    .getByRole('table', { name: 'Guests' })
+    .locator('tbody tr')
+    .first()
+  await approved
+    .getByRole('button', { name: /^Confirmed attendees of / })
+    .dblclick()
+  const count = approved.getByRole('spinbutton')
+  await count.fill('6')
+  await count.press('Enter')
+  await expect(approved.getByRole('alert')).toHaveText('1 to 5')
+  await count.fill('5')
+  await expect(approved.getByRole('alert')).toBeHidden()
+  await count.press('Enter')
+  await expect(
+    approved.getByRole('button', { name: /^Confirmed attendees of .*: 5\./ }),
+  ).toBeVisible()
 })

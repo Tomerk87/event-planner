@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDomainError } from '../../domain/errors.ts'
@@ -27,6 +28,8 @@ interface TableDialogProps {
   tables: readonly SeatedTable[]
   /** The table being edited; leave out to add a new one. */
   editing?: SeatedTable | null
+  /** Offered while editing: asks to delete the table (D105). */
+  onDelete?: (item: SeatedTable) => void
 }
 
 function isInRange(value: number, range: { min: number; max: number }) {
@@ -37,6 +40,7 @@ function TableForm({
   eventId,
   tables,
   editing,
+  onDelete,
   onClose,
 }: Omit<TableDialogProps, 'open'>) {
   const { t } = useTranslation()
@@ -180,6 +184,16 @@ function TableForm({
         </Notice>
       )}
       <div className={formStyles.formActions}>
+        {editing && onDelete && (
+          <Button
+            variant="danger"
+            icon={<Trash2 />}
+            className={formStyles.formStartAction}
+            onClick={() => onDelete(editing)}
+          >
+            {t('layout.selected.delete')}
+          </Button>
+        )}
         <Button variant="ghost" onClick={onClose}>
           {t('common.cancel')}
         </Button>

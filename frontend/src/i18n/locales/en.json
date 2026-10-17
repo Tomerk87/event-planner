@@ -545,7 +545,7 @@
       "phone": "Phone",
       "allowed": "Expected Attendees",
       "confirmed": "Confirmed",
-      "status": "RSVP Status",
+      "status": "Status",
       "sent": "Invitations Sent",
       "table": "Table",
       "actions": "Actions",
@@ -563,11 +563,10 @@
     },
     "row": {
       "whatsapp": "Send a WhatsApp message to {{name}}",
-      "editGuest": "Edit Guest",
-      "more": "More actions for {{name}}",
       "details": "View details of {{name}}",
       "changeRsvp": "Change RSVP",
-      "delete": "Delete"
+      "edit": "Edit",
+      "editNamed": "Edit {{name}}"
     },
     "card": {
       "allowed": "Expected {{count}}",
@@ -633,7 +632,8 @@
         "title": "Create a New Group?",
         "body": "The group \"{{name}}\" does not exist yet. Create it and put this guest in it?",
         "confirm": "Create Group"
-      }
+      },
+      "delete": "Delete Guest"
     },
     "rsvpDialog": {
       "title": "Change RSVP",
@@ -777,6 +777,15 @@
         "submitted": "Submitted",
         "rejectedAt": "Rejected"
       }
+    },
+    "inline": {
+      "hint": "Double-click to change",
+      "status": "Status of {{name}}: {{status}}. Double-click or press Enter to change.",
+      "statusEditor": "New status of {{name}}",
+      "confirmed": "Confirmed attendees of {{name}}: {{count}}. Double-click or press Enter to change.",
+      "confirmedEditor": "Confirmed attendees of {{name}}",
+      "confirmedError": "1 to {{max}}",
+      "unseated": "The RSVP was updated. {{name}} was removed from table {{number}}, because only approved guests are seated."
     }
   },
   "layout": {
@@ -854,8 +863,8 @@
     "row": {
       "manage": "Manage guests of {{name}}",
       "view": "View guests of {{name}}",
-      "more": "More actions for {{name}}",
-      "delete": "Delete Table"
+      "edit": "Edit",
+      "editNamed": "Edit {{name}}"
     },
     "card": {
       "viewGuests": "View Guests ({{count}})"
@@ -872,7 +881,8 @@
       "parties": "Assigned Guest Parties ({{count}})",
       "edit": "Edit Table",
       "manage": "Manage Guests",
-      "hintList": "Select a table in the list to see its guests here."
+      "hintList": "Select a table in the list to see its guests here.",
+      "delete": "Delete Table"
     },
     "form": {
       "addTitle": "Add Table",

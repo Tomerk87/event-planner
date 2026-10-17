@@ -3,7 +3,6 @@ import {
   ArrowUpDown,
   CircleCheck,
   Download,
-  Ellipsis,
   Pencil,
   Plus,
   Search,
@@ -213,23 +212,19 @@ export function EventLayoutPage() {
     setChosenId((current) => (current === tableId ? null : tableId))
   }
 
-  /** Edit and Delete, for Owners and Admins of an upcoming event. */
-  function menuItems(item: SeatedTable) {
-    return [
-      {
-        id: 'edit',
-        label: t('layout.selected.edit'),
-        icon: <Pencil />,
-        onSelect: () => setPanel({ kind: 'edit', tableId: item.table.id }),
-      },
-      {
-        id: 'delete',
-        label: t('layout.row.delete'),
-        icon: <Trash2 />,
-        tone: 'danger' as const,
-        onSelect: () => setPanel({ kind: 'delete', tableId: item.table.id }),
-      },
-    ]
+  /** Edit, for Owners and Admins of an upcoming event (D105). */
+  function editButton(item: SeatedTable) {
+    return (
+      <Button
+        variant="secondary"
+        size="sm"
+        icon={<Pencil />}
+        aria-label={t('layout.row.editNamed', { name: tableName(item) })}
+        onClick={() => setPanel({ kind: 'edit', tableId: item.table.id })}
+      >
+        {t('layout.row.edit')}
+      </Button>
+    )
   }
 
   function rowActions(item: SeatedTable) {
@@ -243,15 +238,7 @@ export function EventLayoutPage() {
         >
           <Users />
         </IconButton>
-        {canEdit && (
-          <Menu
-            label={t('layout.row.more', { name })}
-            triggerClassName={guestStyles.iconControl}
-            items={menuItems(item)}
-          >
-            <Ellipsis aria-hidden="true" />
-          </Menu>
-        )}
+        {canEdit && editButton(item)}
       </div>
     )
   }
@@ -324,15 +311,7 @@ export function EventLayoutPage() {
         <div className={styles.cardTop}>
           <p className={styles.cardNumber}>{name}</p>
           {status(item)}
-          {canEdit && (
-            <Menu
-              label={t('layout.row.more', { name })}
-              triggerClassName={guestStyles.iconControl}
-              items={menuItems(item)}
-            >
-              <Ellipsis aria-hidden="true" />
-            </Menu>
-          )}
+          {canEdit && editButton(item)}
         </div>
         <div className={styles.cardFacts}>
           <ShapeLabel shape={item.table.shape} />
@@ -469,6 +448,15 @@ export function EventLayoutPage() {
               }
             >
               {t('layout.selected.manage')}
+            </Button>
+            <Button
+              variant="danger"
+              icon={<Trash2 />}
+              onClick={() =>
+                setPanel({ kind: 'delete', tableId: selected.table.id })
+              }
+            >
+              {t('layout.selected.delete')}
             </Button>
           </div>
         )}
@@ -740,6 +728,9 @@ export function EventLayoutPage() {
         eventId={eventId}
         tables={tableList}
         editing={panel?.kind === 'edit' ? panelItem : null}
+        onDelete={(item) =>
+          setPanel({ kind: 'delete', tableId: item.table.id })
+        }
       />
       <DeleteTableDialog
         open={panel?.kind === 'delete' && !!panelItem}

@@ -1,10 +1,8 @@
 import {
   ChevronRight,
   Download,
-  Ellipsis,
   MessageCircle,
   Pencil,
-  RefreshCw,
   Search,
   SearchX,
   Tags,
@@ -64,9 +62,15 @@ import {
   useAssignTable,
   useGuestColumns,
   useSetGuestColumns,
+  useSetGuestRsvp,
 } from './guestQueries.ts'
 import styles from './Guests.module.css'
 import { GuestStatusBadge } from './GuestStatusBadge.tsx'
+import {
+  ConfirmedCell,
+  StatusCell,
+  type RsvpChange,
+} from './InlineRsvpCells.tsx'
 import { RsvpDialog } from './RsvpDialog.tsx'
 
 const NONE = '—'
@@ -121,6 +125,7 @@ export function GuestsTab({
   const storedColumns = useGuestColumns()
   const setColumns = useSetGuestColumns()
   const assignTable = useAssignTable(eventId)
+  const setRsvp = useSetGuestRsvp(eventId)
   const tableOptions = useTableOptions()
 
   const eventTables = tablesOf(tables)
@@ -206,6 +211,29 @@ export function GuestsTab({
     )
   }
 
+  /** Saves an answer changed in the table's Status or Confirmed cell (D105). */
+  function saveRsvp(guest: Guest, change: RsvpChange) {
+    const number = tableNumber(guest)
+    setRsvp.mutate(
+      { guestId: guest.id, input: change },
+      {
+        onSuccess: () =>
+          showToast({
+            tone: 'success',
+            message:
+              change.status !== 'APPROVED' && number !== null
+                ? t('guests.inline.unseated', {
+                    name: guestFullName(guest),
+                    number: format.number(number),
+                  })
+                : t('guests.rsvpDialog.saved'),
+          }),
+        onError: (error) =>
+          showToast({ tone: 'danger', message: describeError(t, error) }),
+      },
+    )
+  }
+
   function tableControl(guest: Guest) {
     if (guest.rsvpStatus !== 'APPROVED') {
       return <span className={styles.muted}>{NONE}</span>
@@ -242,34 +270,15 @@ export function GuestsTab({
             >
               <MessageCircle />
             </IconButton>
-            <Menu
-              label={t('guests.row.more', { name })}
-              triggerClassName={styles.iconControl}
-              items={[
-                {
-                  id: 'edit',
-                  label: t('guests.row.editGuest'),
-                  icon: <Pencil />,
-                  onSelect: () => setPanel({ kind: 'edit', guestId: guest.id }),
-                },
-                {
-                  id: 'rsvp',
-                  label: t('guests.row.changeRsvp'),
-                  icon: <RefreshCw />,
-                  onSelect: () => setPanel({ kind: 'rsvp', guestId: guest.id }),
-                },
-                {
-                  id: 'delete',
-                  label: t('guests.row.delete'),
-                  icon: <Trash2 />,
-                  tone: 'danger',
-                  onSelect: () =>
-                    setPanel({ kind: 'delete', guestIds: [guest.id] }),
-                },
-              ]}
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<Pencil />}
+              aria-label={t('guests.row.editNamed', { name })}
+              onClick={() => setPanel({ kind: 'edit', guestId: guest.id })}
             >
-              <Ellipsis aria-hidden="true" />
-            </Menu>
+              {t('guests.row.edit')}
+            </Button>
           </>
         )}
         {isPhone && (
@@ -336,16 +345,29 @@ export function GuestsTab({
       header: t('guests.columns.confirmed'),
       sortable: true,
       align: 'center',
-      cell: (guest) =>
-        guest.confirmedAttendees === null
-          ? NONE
-          : format.number(guest.confirmedAttendees),
+      cell: (guest) => (
+        <ConfirmedCell
+          guest={guest}
+          canEdit={canEdit}
+          maxPerGuest={event.defaultAllowedAttendees}
+          saving={setRsvp.isPending}
+          onSave={(change) => saveRsvp(guest, change)}
+        />
+      ),
     },
     status: {
       id: 'status',
       header: t('guests.columns.status'),
       sortable: true,
-      cell: (guest) => <GuestStatusBadge status={guestDisplayStatus(guest)} />,
+      cell: (guest) => (
+        <StatusCell
+          guest={guest}
+          canEdit={canEdit}
+          maxPerGuest={event.defaultAllowedAttendees}
+          saving={setRsvp.isPending}
+          onSave={(change) => saveRsvp(guest, change)}
+        />
+      ),
     },
     sent: {
       id: 'sent',
@@ -449,6 +471,7 @@ export function GuestsTab({
         groups={groups}
         tables={tables}
         guest={panel?.kind === 'edit' ? panelGuest : null}
+        onDelete={(guest) => setPanel({ kind: 'delete', guestIds: [guest.id] })}
       />
       <RsvpDialog
         open={panel?.kind === 'rsvp' && panelGuest !== null}

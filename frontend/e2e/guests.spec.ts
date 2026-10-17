@@ -93,10 +93,7 @@ test('a guest can be added, found, edited and deleted, and the Dashboard follows
   await expect(list.getByText('Zohar Newcomer', { exact: true })).toBeVisible()
   await expect(list.getByText('Not Sent')).toBeVisible()
 
-  await list
-    .getByRole('button', { name: 'More actions for Zohar Newcomer' })
-    .click()
-  await page.getByRole('menuitem', { name: 'Edit Guest' }).click()
+  await list.getByRole('button', { name: 'Edit Zohar Newcomer' }).click()
   const edit = page.getByRole('dialog', { name: 'Edit Guest' })
   await edit.getByLabel(/Last Name/).fill('Renamed')
   await edit.getByRole('button', { name: 'Save Changes' }).click()
@@ -117,10 +114,9 @@ test('a guest can be added, found, edited and deleted, and the Dashboard follows
   ).toHaveText(String(total + 1))
 
   await page.goto(`${GUESTS}?q=0505550199`)
-  await page
-    .getByRole('button', { name: 'More actions for Zohar Renamed' })
-    .click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  // Delete is offered in Edit Guest (D105).
+  await page.getByRole('button', { name: 'Edit Zohar Renamed' }).click()
+  await page.getByRole('button', { name: 'Delete Guest' }).click()
   await page
     .getByRole('dialog', { name: 'Delete Guest' })
     .getByRole('button', { name: 'Delete' })
@@ -417,18 +413,26 @@ test('a Viewer can view and export but sees no way to change guests', async ({
   expect((await csvRows(file)).length).toBeGreaterThan(1)
 })
 
-test('a row menu opens above the rows beneath it and can be clicked', async ({
+test('a guest’s details offer Change RSVP, on desktop and phone', async ({
   page,
   isMobile,
 }) => {
   await page.goto(GUESTS)
   const list = guestList(page, isMobile)
 
-  await list
-    .getByRole('button', { name: /^More actions for/ })
-    .first()
-    .click()
-  await page.getByRole('menuitem', { name: 'Change RSVP' }).click()
+  if (isMobile) {
+    await list
+      .getByRole('button', { name: /^View details of/ })
+      .first()
+      .click()
+  } else {
+    await list
+      .locator('tbody tr')
+      .first()
+      .locator('button[title^="View details"]')
+      .click()
+  }
+  await page.getByRole('button', { name: 'Change RSVP' }).click()
 
   await expect(page.getByRole('dialog', { name: 'Change RSVP' })).toBeVisible()
 })
@@ -469,15 +473,19 @@ test('the table can be used from the keyboard', async ({ page, isMobile }) => {
   await page.keyboard.press('Space')
   await expect(page.getByText('1 selected')).toBeVisible()
 
-  const more = table.getByRole('button', { name: /^More actions for/ }).first()
-  await more.focus()
+  // A Status cell opens its choice with Enter, and Escape returns (D105).
+  const status = table.getByRole('button', { name: /^Status of / }).first()
+  await status.focus()
   await page.keyboard.press('Enter')
-  await expect(page.getByRole('menuitem', { name: 'Edit Guest' })).toBeFocused()
-  await page.keyboard.press('ArrowDown')
-  await page.keyboard.press('ArrowDown')
-  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeFocused()
+  const choice = table.getByRole('combobox', { name: /^New status of / })
+  await expect(choice).toBeFocused()
   await page.keyboard.press('Escape')
-  await expect(more).toBeFocused()
+  await expect(choice).toBeHidden()
+
+  const edit = table.getByRole('button', { name: /^Edit / }).first()
+  await edit.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog', { name: 'Edit Guest' })).toBeVisible()
 })
 
 for (const language of ['en', 'he'] as const) {
@@ -513,9 +521,11 @@ for (const language of ['en', 'he'] as const) {
         await page.keyboard.press('Escape')
       }
 
-      await page.locator('button[aria-haspopup="menu"]').last().click()
-      await expect(page.getByRole('menu')).toBeVisible()
-      await page.getByRole('menuitem').first().click()
+      // The row's Edit, which opens Edit Guest with Delete Guest (D105).
+      await page
+        .getByRole('button', { name: /^(Edit|עריכת|Editar) / })
+        .last()
+        .click()
       await expect(page.getByRole('dialog')).toBeVisible()
       await expectNoViolations(page)
       await page.keyboard.press('Escape')
