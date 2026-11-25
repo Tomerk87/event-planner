@@ -371,7 +371,7 @@ deploy/scripts/build-images.sh
 deploy/scripts/deploy.sh event-planner
 ```
 
-The version is the commit's short id. `deploy.sh` does the following:
+The images are tagged with the commit's short id, which is also what `/version.json` and `/api/system/version` report beside the product version. `deploy.sh` does the following:
 
 1. sends what changed
 2. copies `docker-compose.yml` and the server scripts
@@ -433,6 +433,15 @@ From S3:
 aws s3 ls s3://<bucket>/
 scripts/restore.sh s3://<bucket>/<time>/db-<time>.dump s3://<bucket>/<time>/uploads-<time>.tgz
 ```
+
+### Check which versions are running
+
+```sh
+curl https://<your domain>/version.json
+curl https://<your domain>/api/system/version
+```
+
+Each answers its version and the commit it was built from (D107), such as `{"version":"1.4","commit":"0f34225"}`. Signed in as the Super User, the System page shows both. On the demo-only site only `/version.json` exists.
 
 ### Check a deployed site
 

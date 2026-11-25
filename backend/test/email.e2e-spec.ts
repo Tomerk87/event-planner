@@ -1,3 +1,4 @@
+import { readVersion } from '../src/config.ts'
 import {
   CapturingMailer,
   createEvent,
@@ -416,6 +417,22 @@ describe('system settings (D91)', () => {
     mailer.failNext = true
     const failed = await user.post('/api/system/email/test').expect(503)
     expect(failed.body).toEqual({ code: 'UNAVAILABLE', details: {} })
+  })
+
+  it('tells anyone, signed in or not, the version and commit and nothing else (D107)', async () => {
+    const version = readVersion()
+    const response = await t.browser().get('/api/system/version').expect(200)
+    expect(response.body).toEqual({ version, commit: null })
+
+    const built = await createTestApp({ commit: 'abc1234' })
+    try {
+      await built
+        .browser()
+        .get('/api/system/version')
+        .expect(200, { version, commit: 'abc1234' })
+    } finally {
+      await built.close()
+    }
   })
 })
 

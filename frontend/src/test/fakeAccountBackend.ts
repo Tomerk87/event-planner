@@ -7,6 +7,7 @@ import { DomainError } from '../domain/errors.ts'
 import type { Id, User } from '../domain/models.ts'
 import type { ApiBackend } from '../services/api/apiBackend.ts'
 import type {
+  AppVersion,
   EmailStatus,
   Services,
   Session,
@@ -54,6 +55,8 @@ export function createFakeAccountBackend(
     sessionPersistence?: Persistence<Session>
     /** The server sends email (D88); off by default, as on the server. */
     email?: FakeEmail
+    /** The server's version (D107); null when it cannot be reached. */
+    serverVersion?: AppVersion | null
   } = {},
 ): ApiBackend & {
   endSession: () => void
@@ -63,6 +66,7 @@ export function createFakeAccountBackend(
     accountsPersistence = createMemoryPersistence(),
     sessionPersistence = createMemoryPersistence<Session>(),
     email,
+    serverVersion = { version: '1.0', commit: null },
     ...mockOptions
   } = options
   let account: { userId: Id; services: Services } | undefined
@@ -115,6 +119,12 @@ export function createFakeAccountBackend(
           record(`resendInvitation:${invitationId}`),
       },
       system: {
+        getVersion: async () => {
+          if (!serverVersion) {
+            throw new DomainError('UNAVAILABLE')
+          }
+          return serverVersion
+        },
         getEmailStatus: async () =>
           email?.status ?? {
             mode: 'off',

@@ -13,6 +13,7 @@ import {
   EmailStatusDto,
   FeaturesDto,
   TestEmailResultDto,
+  VersionDto,
 } from './system.dto.ts'
 
 function assertSuperUser(user: User): void {
@@ -38,6 +39,13 @@ export class SystemController {
   @Get('features')
   features(): FeaturesDto {
     return { email: this.email.enabled }
+  }
+
+  /** This server's version and commit (D107); nothing else about it. */
+  @Public()
+  @Get('version')
+  version(): VersionDto {
+    return { version: this.config.version, commit: this.config.commit }
   }
 
   @ApiCookieAuth(SESSION_COOKIE)

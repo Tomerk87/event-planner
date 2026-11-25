@@ -13,6 +13,10 @@ ENV VITE_DEMO_ENABLED=$VITE_DEMO_ENABLED
 # Google location suggestions (D104); empty leaves location fields plain.
 ARG VITE_GOOGLE_MAPS_KEY=
 ENV VITE_GOOGLE_MAPS_KEY=$VITE_GOOGLE_MAPS_KEY
+# The commit this build is from, written into /version.json (D107); the
+# image has no .git to read it from.
+ARG GIT_COMMIT=
+ENV GIT_COMMIT=$GIT_COMMIT
 # Type checking runs with the tests (`npm run build` also checks the tests,
 # which read backend/openapi.json from outside this image).
 RUN npx vite build

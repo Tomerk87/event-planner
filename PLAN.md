@@ -668,6 +668,18 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] Timezone (searchable Select), Group (Combobox) and Location (PlaceField) keep their list open through a tap (`shared/ui/useListPress.ts`: `mousedown` stopped as well as `pointerdown`; a blur during a press in the list is ignored).
 - [ ] Owner retest on the iPhone 16 (Netlify preview): Timezone, Group, and Location once the Google key is set.
 
+## Versions — 2026-11-25 (D107)
+
+**Goal:** the frontend and the backend each carry a version, starting at 1.0 and raised by one minor step for each merged pull request that changes them; the versions can be checked, by the owner only in the interface.
+
+### Checklist
+- [x] `frontend/VERSION` and `backend/VERSION` at 1.0.
+- [x] Version workflow and `bump-versions.sh`: raise the changed side after a merge (1.9 → 1.10), keep a version set in the pull request, commit and tag.
+- [x] Backend: `GET /api/system/version` (public: version and commit); `VERSION` and `GIT_COMMIT` in the image; openapi.json.
+- [x] Frontend: `/version.json` in development and in the build; the build's version in the app; commit from `GIT_COMMIT`, Netlify or git; Netlify serves it uncached.
+- [x] System page: Versions card with both versions (Super Users only).
+- [ ] After the merge: the workflow tags `frontend-v1.0` and `backend-v1.0`; the next code pull request raises its side to 1.1.
+
 ---
 
 ## Deferred / future backlog
@@ -1412,6 +1424,19 @@ Next: owner review; compare `event_layout_manage_guests.png` with the Manage Gue
 - Docs: D106 (revises D100), PRD 11.4.
 Validation: frontend typecheck, lint, format; test:coverage 1281 passed (95.2% statements); Playwright desktop and mobile for event-layout, arrangement, shell, accessibility, tabs, dashboard, portuguese, real-layout, real-guests, real-permissions and real-account: 325 passed, 11 skipped. Not run: performance spec. By hand: screenshots at 1440px in English and 390px in Hebrew.
 Next: owner review.
+
+2026-11-25 — Versions (D107, owner request), branch phase_26_versioning from main.
+- `frontend/VERSION`, `backend/VERSION` (1.0); `.github/workflows/version.yml` and `.github/scripts/bump-versions.sh`.
+- Backend: `readVersion` and `commit` in `config.ts`; `GET /api/system/version` (`VersionDto`); Dockerfile copies `VERSION` and takes `GIT_COMMIT`; openapi.json regenerated.
+- Frontend: `buildVersion.ts` (VERSION, commit, `__APP_VERSION__`/`__APP_COMMIT__`, `/version.json`), used by `vite.config.ts` and `vitest.config.api.ts`; `SystemService.getVersion` (API; the demo has none); Versions card on the System page; texts in en, he, pt and review sheets regenerated; `netlify.toml` header; `deploy/web/Dockerfile` and `build-images.sh` pass the commit.
+- Docs: D107, ARCHITECTURE, DEVELOPMENT (Versions), DEPLOYMENT, AGENTS.
+Validation:
+- Bump script: dry runs for frontend only, backend only, both, `deploy/web`, docs only, Markdown under `frontend/`, a `VERSION` edited in the pull request, 1.9 → 1.10, a malformed version; a write run in a scratch repository; workflow YAML parsed.
+- Backend: typecheck, lint (the 2 known warnings), format; unit 580 (new: `readVersion` accepts 1.10 and 2.0, refuses 1, 1.0.0, v1.0 and empty; `GIT_COMMIT`); integration 302 (new: the version without a session, with and without a commit).
+- Frontend: typecheck, lint, format; test:coverage 1283 passed (95.2% statements); one test failed once in the first run and passed in three runs since, not identified. New: the Versions card, and the server unreachable. Playwright email.spec (desktop, mobile, email) 8 passed, including the accessibility check of /system in en and he at 1280 and 390 px.
+- By hand: `/version.json` and `/api/system/version` on the development servers (also through the frontend's proxy); `dist/version.json` with `GIT_COMMIT`; the backend built in `dist/` reads `VERSION`; both Docker images built locally report 1.0 and the commit given; System page screenshots at 1440 px in English and 390 px in Hebrew.
+Not tested: the workflow on GitHub (runs on the first merge).
+Next: merge, then check the workflow's run and tags.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

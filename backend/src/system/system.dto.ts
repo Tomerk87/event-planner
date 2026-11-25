@@ -24,3 +24,12 @@ export class TestEmailResultDto {
   /** Whether the provider accepted the email; false while email is off. */
   sent!: boolean
 }
+
+/** This server's version (D107). */
+export class VersionDto {
+  /** MAJOR.MINOR, such as "1.4". */
+  version!: string
+  /** The commit the server was built from; null in development. */
+  @ApiProperty({ type: String, nullable: true })
+  commit!: string | null
+}

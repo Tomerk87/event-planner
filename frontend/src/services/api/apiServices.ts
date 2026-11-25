@@ -17,6 +17,7 @@ import type { PublicRsvpInput } from '../../domain/rsvp.ts'
 import type { TableInput } from '../../domain/seating.ts'
 import type {
   AccountEmailService,
+  AppVersion,
   Dashboard,
   EmailStatus,
   EventAccessInfo,
@@ -383,6 +384,7 @@ export function createApiServices(
     },
 
     system: {
+      getVersion: () => http.get<AppVersion>('/system/version'),
       getEmailStatus: () => http.get<EmailStatus>('/system/email'),
       sendTestEmail: () =>
         http.post<{ sent: boolean }>('/system/email/test', {

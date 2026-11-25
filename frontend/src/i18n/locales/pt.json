@@ -1426,6 +1426,12 @@
   },
   "system": {
     "subtitle": "Configurações do servidor, para Superusuários. Elas são alteradas na configuração do servidor, não aqui.",
+    "version": {
+      "title": "Versões",
+      "frontend": "Frontend",
+      "backend": "Servidor (backend)",
+      "unavailable": "Não foi possível acessar o servidor."
+    },
     "email": {
       "title": "E-mail",
       "status": "Situação",

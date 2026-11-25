@@ -1406,6 +1406,7 @@ export function createMockServices(options: MockOptions): Services {
     },
 
     system: {
+      getVersion: () => run('system.getVersion', () => notFound('system')),
       getEmailStatus: () =>
         run('system.getEmailStatus', () => notFound('system')),
       sendTestEmail: () =>
