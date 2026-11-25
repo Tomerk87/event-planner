@@ -135,7 +135,7 @@ test('editing controls are hidden for a Viewer and for a past event', async ({
 
   // An Owner of an event that has passed.
   await page.goto('/events/evt-5/layout')
-  await expect(page.getByText('This event has ended').first()).toBeVisible()
+  await expect(page.getByText('This event has started').first()).toBeVisible()
   await expect(page.getByRole('button', { name: 'Add Table' })).toHaveCount(0)
 })
 

@@ -503,7 +503,7 @@ describe('Dashboard', () => {
 
   it.each([
     [DEMO_EVENTS.viewer, 'View-only access'],
-    [DEMO_EVENTS.past, 'This event has ended'],
+    [DEMO_EVENTS.past, 'This event has started'],
   ])(
     'is fully visible, and marked read-only, for %s',
     async (eventId, notice) => {
@@ -555,7 +555,7 @@ describe('Dashboard', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'לוח בקרה' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('סך האורחים')).toBeInTheDocument()
+    expect(screen.getByText('סה״כ אורחים')).toBeInTheDocument()
     expect(
       screen.getByRole('table', { name: 'סטטוס אישורי הגעה' }),
     ).toBeInTheDocument()

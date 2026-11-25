@@ -118,7 +118,7 @@ test('unsaved changes can be saved on the way out', async ({ page }) => {
   await expect(page.getByLabel('Event Name')).toHaveValue('Saved On The Way')
 })
 
-test('the event rules open from the Danger Zone', async ({ page }) => {
+test('the event rules open from the Event Rules section', async ({ page }) => {
   await openSettings(page)
 
   await page.getByRole('button', { name: 'View Event Rules' }).click()
@@ -131,7 +131,9 @@ test('the event rules open from the Danger Zone', async ({ page }) => {
 test('a past event is shown read-only', async ({ page }) => {
   await openSettings(page, '/events/evt-5/settings')
 
-  await expect(page.getByText('This event has ended')).toBeVisible()
+  await expect(
+    page.getByText('This event has started', { exact: true }),
+  ).toBeVisible()
   await expect(page.getByLabel('Event Name')).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Save Changes' })).toHaveCount(
     0,

@@ -28,7 +28,10 @@ test('a first visit in Portuguese opens in Portuguese, and Try Demo gives Brazil
 }) => {
   await page.goto('/')
   await expect(
-    page.getByRole('heading', { level: 1, name: /Planeje cada convidado/ }),
+    page.getByRole('heading', {
+      level: 1,
+      name: /Organize sua lista de convidados/,
+    }),
   ).toBeVisible()
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt')
 
@@ -90,7 +93,7 @@ test('a guest of a Brazilian event answers in Portuguese with a local number, fr
   await expect(guestPage.getByRole('button', { name: 'Eu vou!' })).toBeVisible()
   await expect(
     guestPage.getByText(
-      'De fora do Brasil, comece com + e o código do seu país.',
+      'Se o seu número for de fora do Brasil, comece com + e o código do país.',
     ),
   ).toBeVisible()
 

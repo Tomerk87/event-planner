@@ -74,7 +74,7 @@ describe('application frame on demo data', () => {
 
     await openEvent(DEMO_EVENTS.owner)
     expect(screen.queryByText('View-only access')).not.toBeInTheDocument()
-    expect(screen.queryByText('This event has ended')).not.toBeInTheDocument()
+    expect(screen.queryByText('This event has started')).not.toBeInTheDocument()
   })
 
   it('marks a past event as read-only even for its Owner', async () => {
@@ -83,7 +83,7 @@ describe('application frame on demo data', () => {
     expect(
       screen.getByText('Your role in this event: Owner'),
     ).toBeInTheDocument()
-    expect(screen.getByText('This event has ended')).toBeInTheDocument()
+    expect(screen.getByText('This event has started')).toBeInTheDocument()
   })
 
   it('shows no role on the homepage', async () => {

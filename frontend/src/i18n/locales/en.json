@@ -88,7 +88,7 @@
   },
   "access": {
     "PAST_EVENT": {
-      "title": "This event has ended",
+      "title": "This event has started",
       "body": "Past events are read-only. You can still view all data and download exports."
     },
     "VIEWER": {
@@ -128,7 +128,7 @@
     "INVALID_CREDENTIALS": "The email or password is incorrect.",
     "TOO_MANY_REQUESTS": "Too many attempts. Wait a minute and try again.",
     "FORBIDDEN": "You do not have permission to do this.",
-    "EVENT_READ_ONLY": "This event has ended and can no longer be changed.",
+    "EVENT_READ_ONLY": "This event has started and can no longer be changed.",
     "NOT_FOUND": "This item could not be found.",
     "VALIDATION": "Some of the details are not valid. Please check them and try again.",
     "INVALID_PHONE": "Enter a valid phone number.",
@@ -804,7 +804,7 @@
       "OVER_CAPACITY": "Over Capacity",
       "FULL": "Full",
       "ALMOST_FULL": "Almost Full",
-      "READY": "Ready"
+      "READY": "Available Seats"
     },
     "shapes": {
       "CIRCLE": "Circle",
@@ -1147,7 +1147,7 @@
       "maxAttendees": "Maximum Attendees"
     },
     "danger": {
-      "title": "Danger Zone",
+      "title": "Event Rules",
       "subtitle": "Important information about event changes and limitations.",
       "lockTitle": "Past events become read-only",
       "lockBody": "After the event start time ({{date}}, {{time}}), this event will be locked and become read-only. You will still be able to view all data, but you won't be able to make changes to guests, seating, or settings.",
@@ -1176,7 +1176,7 @@
       "body": "An Owner can manage everything in the event. An Admin can manage the event but cannot delete or duplicate it, and cannot change an Owner. A Viewer can view the event and download exports."
     },
     "pastEvent": {
-      "title": "This event has ended",
+      "title": "This event has started",
       "body": "Only an Owner can change the permissions of a past event. You can still see who has access."
     },
     "simulation": {

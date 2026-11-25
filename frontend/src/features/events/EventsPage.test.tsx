@@ -136,7 +136,9 @@ describe('My Events', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Dashboard' }),
     ).toBeInTheDocument()
-    expect(await screen.findByText('This event has ended')).toBeInTheDocument()
+    expect(
+      await screen.findByText('This event has started'),
+    ).toBeInTheDocument()
   })
 
   it('filters by upcoming and past, and keeps the filter in the address', async () => {
@@ -351,9 +353,9 @@ describe('My Events', () => {
     expect(
       within(dialog).getByLabelText(/País dos números de telefone/),
     ).toHaveValue('BR')
-    expect(within(dialog).getByLabelText(/Idioma padrão do RSVP/)).toHaveValue(
-      'pt',
-    )
+    expect(
+      within(dialog).getByLabelText(/Idioma padrão da confirmação de presença/),
+    ).toHaveValue('pt')
 
     change(within(dialog).getByLabelText(/Nome do evento/), {
       target: { value: 'Festa de Ano Novo' },
@@ -600,7 +602,7 @@ describe('My Events', () => {
       screen.getByRole('tab', { name: tabName('שהסתיימו', 2) }),
     ).toBeInTheDocument()
     const wedding = within(card(WEDDING))
-    expect(wedding.getByText('קרוב')).toBeInTheDocument()
+    expect(wedding.getByText('עתידי')).toBeInTheDocument()
     expect(wedding.getByText('עד 300 משתתפים')).toBeInTheDocument()
     expect(wedding.getByText('11 בדצמ׳ 2026')).toBeInTheDocument()
     expect(

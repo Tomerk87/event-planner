@@ -1657,7 +1657,7 @@ describe('Unknown Guests', () => {
 describe('Guests page for a read-only event', () => {
   it.each([
     [DEMO_EVENTS.viewer, 'View-only access'],
-    [DEMO_EVENTS.past, 'This event has ended'],
+    [DEMO_EVENTS.past, 'This event has started'],
   ])(
     'lets %s be viewed and exported but not changed',
     async (eventId, notice) => {

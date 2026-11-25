@@ -201,7 +201,7 @@ describe('Event Layout', () => {
           ? 'Full'
           : available <= 2
             ? 'Almost Full'
-            : 'Ready'
+            : 'Available Seats'
 
     for (const { table, assigned, available } of tables) {
       expect(cells(table.number).slice(0, 6)).toEqual([
@@ -397,7 +397,7 @@ describe('Event Layout', () => {
         '6',
         '0',
         '6',
-        'Ready',
+        'Available Seats',
       ]),
     )
     expect((await tableNumbered(services, 40)).table).toMatchObject({
@@ -662,7 +662,7 @@ describe('Event Layout', () => {
 
   it.each([
     [DEMO_EVENTS.viewer, 'View-only access'],
-    [DEMO_EVENTS.past, 'This event has ended'],
+    [DEMO_EVENTS.past, 'This event has started'],
   ])(
     'is read-only at %s, with viewing and export still offered',
     async (eventId, notice) => {

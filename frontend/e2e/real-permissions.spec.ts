@@ -227,7 +227,7 @@ test('a past event is read-only, and its data can still be viewed and exported',
   makePast(event.id)
 
   await page.goto(`/events/${event.id}/guests`)
-  await expect(page.getByText('This event has ended')).toBeVisible()
+  await expect(page.getByText('This event has started')).toBeVisible()
   await expect(page.getByText('Dana').first()).toBeVisible()
   await expect(page.getByRole('button', { name: 'Add Guest' })).toHaveCount(0)
   const refused = await page.request.post(`/api/events/${event.id}/guests`, {

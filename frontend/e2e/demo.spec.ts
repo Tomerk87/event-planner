@@ -117,7 +117,7 @@ test('demo data is kept per browser and not shared between visitors', async ({
 test('a past event is shown as read-only', async ({ page }) => {
   await page.goto('/events/evt-5/dashboard')
 
-  await expect(page.getByText('This event has ended')).toBeVisible()
+  await expect(page.getByText('This event has started')).toBeVisible()
 })
 
 test('an event that does not exist shows the not-found page', async ({

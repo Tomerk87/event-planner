@@ -134,7 +134,7 @@ describe('landing page', () => {
     expect(
       await screen.findByRole('heading', {
         level: 1,
-        name: 'לתכנן כל אורח. לנהל כל פרט.',
+        name: 'כל האורחים במקום אחד. כל הפרטים בשליטה.',
       }),
     ).toBeInTheDocument()
     expect(

@@ -266,7 +266,7 @@ describe('Public RSVP page', () => {
 
     expect(
       screen.getByText(
-        'De fora do Brasil, comece com + e o código do seu país.',
+        'Se o seu número for de fora do Brasil, comece com + e o código do país.',
       ),
     ).toBeInTheDocument()
     change(screen.getByRole('textbox', { name: 'Nome completo' }), {
