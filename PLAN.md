@@ -1437,6 +1437,16 @@ Validation:
 - By hand: `/version.json` and `/api/system/version` on the development servers (also through the frontend's proxy); `dist/version.json` with `GIT_COMMIT`; the backend built in `dist/` reads `VERSION`; both Docker images built locally report 1.0 and the commit given; System page screenshots at 1440 px in English and 390 px in Hebrew.
 Not tested: the workflow on GitHub (runs on the first merge).
 Next: merge, then check the workflow's run and tags.
+Then (2026-11-25): merged as #31; the workflow's first run created `frontend-v1.0` and `backend-v1.0` without a commit, as planned.
+
+2026-11-25 — Translation review pack (owner request), branch phase_27_translation_review from main.
+Owner request: every text in English with the current Hebrew and Brazilian Portuguese, page by page, for translators to review; their corrections come back to be applied. Decisions: one pack per language (separate translators), a picture of each screen, PDF to read plus the sheet to correct.
+- `frontend/scripts/translationReview.ts`: the numbered rows (grouped by screen, emails last), shared by the sheet and the PDF so a number means the same text in both.
+- `translation-review-sheet.ts` now uses it and has a `#` column.
+- New `translation-review-pdf.ts` (`npm run translation-review-pdf -- <he|pt>`): pictures of 15 screens from the running app, each in English (the source, owner request) and in the reviewed language (a demo per language, signed-out pages, the public RSVP page by the demo's link) and the 5 emails, then the numbered texts; A4, page numbers, Hebrew right to left, `{{…}}` marks highlighted. The System page (Super Users) is listed without a picture.
+- `.gitignore`: the PDFs (about 3 MB each) are not kept; README and DEVELOPMENT updated.
+Validation: both sheets regenerated (1071 texts); both PDFs generated (Hebrew 90 pages, Portuguese 92, about 5.5 MB each) and read page by page in places: cover and contents, short lists flowing on, a screen with its picture, RTL tables, the emails; the review scripts type-checked on their own (they are outside the project's type check, as before); frontend typecheck, lint, format.
+Next: the owner sends the packs; apply the returned corrections by `#` and key.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
