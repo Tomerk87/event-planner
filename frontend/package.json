@@ -19,6 +19,7 @@
     "test:performance": "playwright test --project=performance",
     "hebrew-review": "node scripts/translation-review-sheet.ts he",
     "translation-review": "node scripts/translation-review-sheet.ts",
+    "translation-review-pdf": "node scripts/translation-review-pdf.ts",
     "email-images": "node scripts/email-images.ts"
   },
   "dependencies": {

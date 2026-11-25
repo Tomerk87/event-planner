@@ -40,6 +40,7 @@ Run from `frontend/`.
 | `npm run hebrew-review` | Write `docs/hebrew-review.xlsx`, every text in English and Hebrew for review |
 | `npm run email-images` | Redraw the pictures inside the server's emails (`backend/src/email/images.ts`) |
 | `npm run translation-review -- pt` | Write `docs/portuguese-review.xlsx`, every text in English and Portuguese for review (`he` writes the Hebrew sheet) |
+| `npm run translation-review-pdf -- pt` | Write `docs/portuguese-review.pdf` for a translator: the same numbered texts as the sheet, screen by screen, with a picture of each screen and email in English (the source) and in the reviewed language (`he` for Hebrew). Needs `npm run dev` running; not kept in git |
 | `npm run test:api` | Builds the backend and runs the provider contract suite on the real API, against the test database |
 
 The first end-to-end run needs a browser: `npx playwright install chromium`. `npm run test:e2e` and `npm run test:api` need the development database and Mailpit running (`npm run db:up` in `backend/`).
