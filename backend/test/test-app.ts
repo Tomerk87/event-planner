@@ -6,7 +6,7 @@ import path from 'node:path'
 import request from 'supertest'
 import type TestAgent from 'supertest/lib/agent.js'
 import { createAppModule } from '../src/app.module.ts'
-import type { AppConfig } from '../src/config.ts'
+import { readVersion, type AppConfig } from '../src/config.ts'
 import { MAILER, type EmailMessage, type Mailer } from '../src/email/mailer.ts'
 import { PrismaService } from '../src/prisma/prisma.service.ts'
 import { setupApp } from '../src/setup-app.ts'
@@ -119,6 +119,8 @@ export async function createTestApp(
       resetMinutes: 60,
       perAddressPerHour: 3,
     },
+    version: readVersion(),
+    commit: null,
     ...overrides,
   }
   const moduleRef = await Test.createTestingModule({

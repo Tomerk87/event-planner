@@ -37,6 +37,28 @@
         ]
       }
     },
+    "/api/system/version": {
+      "get": {
+        "operationId": "SystemController_version",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "This server's version and commit (D107); nothing else about it.",
+        "tags": [
+          "system"
+        ]
+      }
+    },
     "/api/system/email": {
       "get": {
         "operationId": "SystemController_emailStatus",
@@ -2548,6 +2570,24 @@
         },
         "required": [
           "email"
+        ]
+      },
+      "VersionDto": {
+        "type": "object",
+        "properties": {
+          "commit": {
+            "type": "string",
+            "nullable": true,
+            "description": "The commit the server was built from; null in development."
+          },
+          "version": {
+            "type": "string",
+            "description": "MAJOR.MINOR, such as \"1.4\"."
+          }
+        },
+        "required": [
+          "commit",
+          "version"
         ]
       },
       "EmailStatusDto": {

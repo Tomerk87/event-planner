@@ -347,6 +347,14 @@ export interface AccountEmailService {
 }
 
 /** The email settings of the server, without any secret (D91). */
+/** A version of one side of the product (D107). */
+export interface AppVersion {
+  /** MAJOR.MINOR, such as "1.4". */
+  version: string
+  /** The commit it was built from; null in development. */
+  commit: string | null
+}
+
 export interface EmailStatus {
   mode: 'off' | 'smtp'
   host: string | null
@@ -371,6 +379,8 @@ export interface NotificationsService {
 
 /** The server's own settings, for a Super User; read-only (D91). */
 export interface SystemService {
+  /** The server's own version (D107); the demo has none. */
+  getVersion(): Promise<AppVersion>
   getEmailStatus(): Promise<EmailStatus>
   /** Sends a test email to the Super User; `sent` is false while email is off. */
   sendTestEmail(): Promise<{ sent: boolean }>

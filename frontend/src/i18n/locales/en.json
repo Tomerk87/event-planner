@@ -1426,6 +1426,12 @@
   },
   "system": {
     "subtitle": "Server settings, for Super Users. They're changed in the server's configuration, not here.",
+    "version": {
+      "title": "Versions",
+      "frontend": "Frontend",
+      "backend": "Backend (server)",
+      "unavailable": "The server could not be reached."
+    },
     "email": {
       "title": "Email",
       "status": "Status",

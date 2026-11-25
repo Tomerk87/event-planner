@@ -53,8 +53,19 @@ Coverage target: at least 80% on relevant application logic (`AGENTS.md`), never
 | End-to-end tests | Playwright on Chromium. `npm run test:e2e` runs the `desktop`, `mobile` (Pixel 7 viewport) and `email` projects; `npm run test:performance` runs the `performance` project. Hebrew/RTL and Portuguese are covered by tests that switch the language. `playwright.deploy.config.ts` runs the smoke tests in `e2e-deploy/` against a deployed site | In place |
 | Backend checks | In `backend/`: the same type-check, oxlint, Prettier and Vitest, plus integration tests against the test database (`npm run test:e2e`) | In place |
 | Translation review | `npm run hebrew-review` and `npm run translation-review -- pt` write side-by-side sheets for native speakers (`docs/hebrew-review.xlsx`, `docs/portuguese-review.xlsx`) | In place |
+| Versions | GitHub Actions: `.github/workflows/version.yml` raises the versions after a merge (see Versions below) | In place |
 
 Update this table when a tool is adopted.
+
+## Versions
+
+The frontend and the backend each have a version, `MAJOR.MINOR`, in `frontend/VERSION` and `backend/VERSION` (D107). They start at 1.0 and move independently.
+
+- When a pull request is merged into `main`, the Version workflow raises the minor number of each side the pull request changed: 1.9 becomes 1.10. Files under `frontend/` or `deploy/web/` count for the frontend, files under `backend/` for the backend; Markdown files count for neither, so a docs-only pull request raises nothing.
+- The workflow commits the new numbers to `main` ("Version: frontend 1.4 (#31)") and tags them (`frontend-v1.4`). Pull `main` after each merge before starting a new branch.
+- Do not edit a `VERSION` file by hand, except to start a new major version: a pull request that sets `2.0` keeps it, and the workflow only tags it.
+- To try the rules: `printf 'frontend/src/a.ts\n' | .github/scripts/bump-versions.sh --dry-run`.
+- To see what is running: `/version.json` (frontend) and `/api/system/version` (backend), both with the commit; a Super User sees both on the System page.
 
 ## Branches, commits and review
 

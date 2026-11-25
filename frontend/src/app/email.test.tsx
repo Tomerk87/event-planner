@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { changeLanguage } from '../i18n/i18n.ts'
+import type { AppVersion } from '../services/contracts/index.ts'
 import {
   createFakeAccountBackend,
   VALID_TOKEN,
@@ -17,9 +18,19 @@ function emailOn(overrides: Partial<FakeEmail> = {}): FakeEmail {
 }
 
 async function setUp(
-  options: { email?: FakeEmail; signedIn?: boolean; superUser?: boolean } = {},
+  options: {
+    email?: FakeEmail
+    signedIn?: boolean
+    superUser?: boolean
+    serverVersion?: AppVersion | null
+  } = {},
 ) {
-  const accounts = createFakeAccountBackend({ email: options.email })
+  const accounts = createFakeAccountBackend({
+    email: options.email,
+    ...(options.serverVersion !== undefined && {
+      serverVersion: options.serverVersion,
+    }),
+  })
   const backend = createTestBackend({ session: 'none', accounts })
   if (options.signedIn) {
     await backend.auth.signUp({
@@ -324,6 +335,42 @@ describe('System page (D91)', () => {
     expect(
       screen.getByRole('button', { name: 'Send a Test Email' }),
     ).toBeDisabled()
+  })
+
+  it('shows the version of this build and of the server (D107)', async () => {
+    const { backend } = await setUp({
+      signedIn: true,
+      superUser: true,
+      serverVersion: { version: '1.7', commit: 'abc1234' },
+    })
+    renderApp('/system', undefined, { backend })
+
+    const heading = await screen.findByRole('heading', { name: 'Versions' })
+    const versions = within(heading.closest('section') as HTMLElement)
+    const frontend = __APP_COMMIT__
+      ? `${__APP_VERSION__} · ${__APP_COMMIT__}`
+      : __APP_VERSION__
+    expect(versions.getByText('Frontend').nextElementSibling).toHaveTextContent(
+      frontend,
+    )
+    expect(await versions.findByText('1.7 · abc1234')).toBeInTheDocument()
+  })
+
+  it('says so when the server cannot tell its version', async () => {
+    const { backend } = await setUp({
+      signedIn: true,
+      superUser: true,
+      serverVersion: null,
+    })
+    renderApp('/system', undefined, { backend })
+
+    expect(
+      await screen.findByText('The server could not be reached.'),
+    ).toBeInTheDocument()
+    // The email settings are shown all the same.
+    expect(
+      await screen.findByText('Off: no emails are sent'),
+    ).toBeInTheDocument()
   })
 
   it('is not there for anyone else, nor in the demo', async () => {

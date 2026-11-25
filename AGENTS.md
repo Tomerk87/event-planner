@@ -366,6 +366,7 @@ When fixing a bug, add or update a regression test whenever practical.
 - Put durable product/architecture documentation in `docs/`.
 - Update documentation when behavior, setup, schema, API contracts, or architecture changes.
 - Keep `PLAN.md` synchronized with implementation progress.
+- Do not edit `frontend/VERSION` or `backend/VERSION` by hand: the Version workflow raises them when a pull request is merged (D107, `docs/DEVELOPMENT.md` "Versions"). The one exception is setting a new major version, on the owner's decision.
 - Keep product requirements in `docs/PRD.md`, implementation rules in `AGENTS.md`, execution steps in `PLAN.md`, and exact screen-to-image mappings in `mockups/README.md`.
 - Keep `docs/FUTURE_FEATURES.md` as the list of everything left out of the MVP. Whenever a feature is left out (by a scope decision, or because a mockup shows something that is not being built now), add it there in the same change.
 - If the files conflict, flag the disagreement instead of silently overriding an approved product requirement.

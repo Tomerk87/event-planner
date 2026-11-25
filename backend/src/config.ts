@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 /** Settings read from the environment once, at start-up. */
 export interface AppConfig {
   databaseUrl: string
@@ -22,6 +24,10 @@ export interface AppConfig {
    */
   trustProxyHops: number
   email: EmailConfig
+  /** This server's version (D107), from the VERSION file, such as "1.4". */
+  version: string
+  /** The commit the image was built from; null outside a built image. */
+  commit: string | null
 }
 
 /**
@@ -97,6 +103,20 @@ function loadEmail(env: NodeJS.ProcessEnv): EmailConfig {
   }
 }
 
+/**
+ * The VERSION file beside src/ and dist/ (D107), raised by the Version
+ * workflow when a pull request changing the backend is merged.
+ */
+export function readVersion(
+  file: URL = new URL('../VERSION', import.meta.url),
+): string {
+  const version = readFileSync(file, 'utf8').trim()
+  if (!/^\d+\.\d+$/.test(version)) {
+    throw new Error(`VERSION must be MAJOR.MINOR, such as 1.0: "${version}"`)
+  }
+  return version
+}
+
 /** Reads and checks the configuration; a missing or bad value stops start-up. */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const port = Number(env['PORT'] ?? 3000)
@@ -139,6 +159,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     },
     trustProxyHops: positiveInteger(env, 'TRUST_PROXY_HOPS', 0, 0),
     email: loadEmail(env),
+    version: readVersion(),
+    commit: env['GIT_COMMIT']?.trim() || null,
   }
 }
 

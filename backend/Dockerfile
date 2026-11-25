@@ -28,6 +28,11 @@ RUN npm ci --omit=dev --ignore-scripts \
 COPY --from=build /app/dist ./dist
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+# The version (D107), read at start-up, and the commit the image was built
+# from (deploy/scripts/build-images.sh), reported by GET /api/system/version.
+COPY VERSION ./
+ARG GIT_COMMIT=
+ENV GIT_COMMIT=$GIT_COMMIT
 RUN mkdir -p /data/uploads && chown node:node /data/uploads
 USER node
 EXPOSE 3000

@@ -1,4 +1,8 @@
-import { loadConfig } from './config.ts'
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { loadConfig, readVersion } from './config.ts'
 
 const valid = {
   DATABASE_URL: 'postgresql://user:secret@localhost:5432/app',
@@ -26,7 +30,40 @@ describe('configuration', () => {
         resetMinutes: 60,
         perAddressPerHour: 3,
       },
+      version: readFileSync(
+        new URL('../VERSION', import.meta.url),
+        'utf8',
+      ).trim(),
+      commit: null,
     })
+  })
+
+  it('reads the version from the VERSION file and the commit of the build (D107)', () => {
+    expect(loadConfig(valid).version).toMatch(/^\d+\.\d+$/)
+    expect(loadConfig({ ...valid, GIT_COMMIT: ' abc1234 ' }).commit).toBe(
+      'abc1234',
+    )
+  })
+
+  it.each([
+    ['1.10\n', '1.10'],
+    ['2.0', '2.0'],
+  ])('reads VERSION %j as %s', (contents, version) => {
+    const file = path.join(
+      mkdtempSync(path.join(tmpdir(), 'version-')),
+      'VERSION',
+    )
+    writeFileSync(file, contents)
+    expect(readVersion(pathToFileURL(file))).toBe(version)
+  })
+
+  it.each(['1', '1.0.0', 'v1.0', ''])('refuses VERSION %j', (contents) => {
+    const file = path.join(
+      mkdtempSync(path.join(tmpdir(), 'version-')),
+      'VERSION',
+    )
+    writeFileSync(file, contents)
+    expect(() => readVersion(pathToFileURL(file))).toThrow(/MAJOR\.MINOR/)
   })
 
   it('reads the email provider when email is on', () => {

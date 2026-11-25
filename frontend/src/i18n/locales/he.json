@@ -1426,6 +1426,12 @@
   },
   "system": {
     "subtitle": "הגדרות השרת, למשתמשי-על. משנים אותן בהגדרות השרת, לא כאן.",
+    "version": {
+      "title": "גרסאות",
+      "frontend": "צד לקוח (Frontend)",
+      "backend": "שרת (Backend)",
+      "unavailable": "לא ניתן היה להתחבר לשרת."
+    },
     "email": {
       "title": "אימייל",
       "status": "מצב",

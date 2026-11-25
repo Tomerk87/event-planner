@@ -1,5 +1,12 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
+import {
+  readBuildVersion,
+  versionDefines,
+  versionFile,
+} from './buildVersion.ts'
+
+const build = readBuildVersion()
 
 /**
  * The API, reached through this server so the session cookie stays on the
@@ -14,7 +21,8 @@ const api = {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), versionFile(build)],
+  define: versionDefines(build),
   server: {
     proxy: api,
   },

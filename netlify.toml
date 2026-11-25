@@ -32,6 +32,12 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "SAMEORIGIN"
 
+# Always the deployed version (D107).
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "no-cache"
+
 # File names in /assets/ change with their content.
 [[headers]]
   for = "/assets/*"

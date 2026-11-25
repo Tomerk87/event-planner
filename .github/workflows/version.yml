@@ -1,0 +1,77 @@
+# Raises the version of each side a merged pull request changed, and tags it
+# (D107, docs/DEVELOPMENT.md "Versions"). The rules are in
+# .github/scripts/bump-versions.sh.
+name: Version
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+# One merge at a time, so two merges never take the same number.
+concurrency:
+  group: version-bump
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Raise the versions
+        id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/$PR/files" --paginate \
+            --jq '.[].filename' > "$RUNNER_TEMP/files"
+          .github/scripts/bump-versions.sh < "$RUNNER_TEMP/files" \
+            | tee "$RUNNER_TEMP/result"
+
+      - name: Commit, tag and push
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          result="$RUNNER_TEMP/result"
+          if [ ! -s "$result" ]; then
+            echo "No frontend or backend change: no new version."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898299+github-actions[bot]@users.noreply.github.com'
+
+          if grep -q ' bumped$' "$result"; then
+            summary=$(awk '$3 == "bumped" { printf "%s%s %s", sep, $1, $2; sep = ", " }' "$result")
+            git add frontend/VERSION backend/VERSION
+            git commit -m "Version: $summary (#$PR)"
+          fi
+
+          # Another merge may have moved main meanwhile: rebase and retry.
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then
+              echo "Could not push to main." >&2
+              exit 1
+            fi
+            git pull --rebase origin main
+          done
+
+          while read -r side version _; do
+            # A re-run of the same merge finds its tags already made.
+            if git rev-parse -q --verify "refs/tags/$side-v$version" >/dev/null; then
+              continue
+            fi
+            git tag "$side-v$version"
+            git push origin "$side-v$version"
+          done < "$result"
