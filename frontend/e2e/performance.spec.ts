@@ -145,10 +145,13 @@ test(`an event of ${GUESTS} guests stays fast, and ${SIMULTANEOUS} answers at on
           timeout: 30_000,
         }),
     ),
-    layout: await timeToShow(page, `/events/${event.id}/layout`, (shown) =>
-      expect(
-        shown.getByRole('table', { name: 'Tables' }).getByRole('row').nth(1),
-      ).toBeVisible({ timeout: 30_000 }),
+    layout: await timeToShow(
+      page,
+      `/events/${event.id}/layout?view=tables`,
+      (shown) =>
+        expect(
+          shown.getByRole('table', { name: 'Tables' }).getByRole('row').nth(1),
+        ).toBeVisible({ timeout: 30_000 }),
     ),
   }
 

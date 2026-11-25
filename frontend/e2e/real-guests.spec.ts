@@ -327,7 +327,7 @@ test('only approved guests are seated, a full table refuses more, and a changed 
     status: 'APPROVED',
     attendees: 3,
   })
-  await page.goto(`/events/${event.id}/layout`)
+  await page.goto(`/events/${event.id}/layout?view=tables`)
   await expect(page.getByText('Over Capacity').first()).toBeVisible()
   await page.goto(`/events/${event.id}/dashboard`)
   await expect(page.getByRole('link', { name: /over capacity/i })).toBeVisible()

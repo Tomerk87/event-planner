@@ -16,10 +16,10 @@ npm run start:dev    # http://localhost:3000/api, documentation at /api/docs
 
 | Command | Purpose |
 |---|---|
-| `npm run start:dev` | Run the API, restarting on changes |
+| `npm run start:dev` | Run the API, restarting on changes (`npm run start` without, `npm run start:debug` with the debugger) |
 | `npm run build` / `npm run start:prod` | Build to `dist/` and run the build |
-| `npm run typecheck` / `npm run lint` / `npm run format:check` | Checks |
-| `npm test` / `npm run test:cov` | Unit tests (business rules, configuration) |
+| `npm run typecheck` / `npm run lint` / `npm run format:check` | Checks (`npm run format` writes the formatting) |
+| `npm test` / `npm run test:watch` / `npm run test:cov` | Unit tests (business rules, configuration) |
 | `npm run test:e2e` / `npm run test:e2e:cov` | Integration tests: the whole API against the test database |
 | `npm run db:up` / `npm run db:down` | Start or stop the development database and Mailpit |
 | `npm run db:migrate` | Create and apply a migration after changing `prisma/schema.prisma` |
@@ -50,4 +50,4 @@ EMAIL_FROM=Event Planner <noreply@localhost>
 npm run start:dev
 ```
 
-Every email then appears at http://localhost:8025 and nothing leaves the machine. A Super User sees the settings on the System page and can send a test email there. In production, Amazon SES's SMTP endpoint and SMTP credentials are set in the server's environment (`PLAN.md` Phase 18), never in the repository.
+Every email then appears at http://localhost:8025 and nothing leaves the machine. A Super User sees the settings on the System page and can send a test email there. Emails are written in English, Hebrew or Portuguese, the language of the interface that caused them. In production, Amazon SES's SMTP endpoint and SMTP credentials are set in the server's environment (`docs/DEPLOYMENT.md`, step 12), never in the repository.

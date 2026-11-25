@@ -1,12 +1,12 @@
 # Event Planner
 
-Web application for event organizers: guests, WhatsApp invitations, public RSVP, attendance dashboard, tables and seating, exports, and event-level permissions.
+Web application for event organizers: guests, WhatsApp invitations, public RSVP, attendance dashboard, tables and seating with a floor plan, exports, event-level permissions, notifications and account emails. The interface and the public RSVP page are in English, Hebrew (right to left) and Brazilian Portuguese, and each event reads phone numbers as Israeli or Brazilian.
 
 The React frontend (`frontend/`) and the NestJS API (`backend/`, PostgreSQL) run together. The public demo needs no backend: its data is generated and kept in the visitor's browser. Accounts, their events and the public RSVP page of a real event use the API.
 
 ## Prerequisites
 
-- Node.js (developed and tested on v26)
+- Node.js (developed and tested on v26, the version the Dockerfiles and `netlify.toml` use)
 - npm
 
 ## Run the frontend
@@ -38,6 +38,7 @@ Run from `frontend/`.
 | `npm run test:e2e` | Run end-to-end tests, including accessibility checks (Playwright): the demo and real accounts on desktop and phone, and the email flows against Mailpit. Starts the built API on the backend's test database (ports 3102 and 3103, the second with email on) and its own development servers (ports 5174 and 5175) |
 | `npm run test:performance` | The 3,000-guest performance check (PLAN.md Phase 17), on its own |
 | `npm run hebrew-review` | Write `docs/hebrew-review.xlsx`, every text in English and Hebrew for review |
+| `npm run email-images` | Redraw the pictures inside the server's emails (`backend/src/email/images.ts`) |
 | `npm run translation-review -- pt` | Write `docs/portuguese-review.xlsx`, every text in English and Portuguese for review (`he` writes the Hebrew sheet) |
 | `npm run test:api` | Builds the backend and runs the provider contract suite on the real API, against the test database |
 
@@ -45,7 +46,7 @@ The first end-to-end run needs a browser: `npx playwright install chromium`. `np
 
 ## Configuration
 
-Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DEMO_ENABLED=false` hides the demo for a deployment; `VITE_ACCOUNTS_ENABLED=false` makes a demo-only site with no accounts and no server (the Netlify build). `API_URL` (an environment variable of the development server) changes where `/api` is forwarded.
+Copy `frontend/.env.example` to `frontend/.env.local` to override defaults. `VITE_DEMO_ENABLED=false` hides the demo for a deployment; `VITE_ACCOUNTS_ENABLED=false` makes a demo-only site with no accounts and no server (the Netlify build). `VITE_GOOGLE_MAPS_KEY` (a browser key, never committed) turns on Google place suggestions in location fields; without it they are plain text fields (`docs/DEPLOYMENT.md`, "Google location suggestions"). `API_URL` (an environment variable of the development server) changes where `/api` is forwarded.
 
 The demo keeps its data in the browser's local storage. To review loading and error states, add `?demoDelay=2000` (milliseconds) or `?demoFail=events.get` (a comma-separated list of operations) to the address when opening the app.
 

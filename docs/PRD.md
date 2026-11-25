@@ -1,7 +1,7 @@
 # Event Planner — Product Requirements Document
 
-**Version:** 1.1  
-**Status:** Product baseline for POC/MVP development  
+**Version:** 1.2  
+**Status:** Describes the built MVP as of 2026-10-17 (POC deployment pending)  
 **Primary market:** Israel; Brazil added 2026-10-16 (D103)  
 **Supported languages:** English, Hebrew and Brazilian Portuguese  
 **Supported devices:** Desktop and mobile browsers (tablets receive the desktop or mobile layout that fits their width; dedicated tablet layouts are deferred)  
@@ -32,7 +32,7 @@ The POC targets a lightweight single-machine deployment; this is a delivery cons
 
 ### 3.1 Organizer accounts
 
-A visitor first sees a landing page with three ways in: **Sign Up** (create an account, then the Events homepage), **Sign In** (the Events homepage) and **Try Demo** (the populated demo, no account; section 12). A signed-out visitor who opens an application address is sent to the landing page.
+A visitor first sees a landing page with three ways in: **Sign Up** (create an account, then the Events homepage), **Sign In** (the Events homepage) and **Try Demo** (the populated demo, no account; section 12). A signed-out visitor who opens an application address is sent to the landing page. A deployment can run without accounts, as a demo-only preview site (D102): the landing page then offers only Try Demo, with a note that everything is sample data kept in the browser, and the account pages are not offered.
 
 Authenticated users see an Events homepage containing events they can access. Each event card shows at minimum the name and date, and opens that event; it also shows the time, maximum attendees, confirmed attendees against capacity, whether the event is upcoming or past, and the user's role. The list can be filtered (all, upcoming, past) and searched by name. Users can have different roles in different events. A new account has no events until it creates one or is given access to one.
 
@@ -136,7 +136,7 @@ The mockups were created after the PRD. Where a mapped mockup differs from or ad
 | RSVP title | Optional short title for the public RSVP page; the event name is used when empty |
 | Event photo | Optional; JPG or PNG up to 5 MB, uploaded in Create Event and Event Settings and removable. Shown on the event card and in the event selector; a duplicate keeps it. Without one, a cover is generated for the event |
 
-The event creator becomes an Owner. A new event must start in the future, and an existing event's date and time can only be changed to a time in the future. Changing the time zone keeps the date and time as typed. Changing the default allowed attendees affects only guests added afterwards. The application UI language can differ from the event's default guest-facing RSVP language.
+The event creator becomes an Owner. A new event must start in the future, and an existing event's date and time can only be changed to a time in the future. Changing the time zone keeps the date and time as typed. Changing the maximum attendees per guest changes the starting Expected Attendees only for guests added afterwards. The application UI language can differ from the event's default guest-facing RSVP language.
 
 Event Settings edits the name, location, maximum attendees, date, time, time zone, maximum attendees per guest and phone number country. A time zone can be found by its city or its country's name, in any interface language. The location (and the calendar location on RSVP Settings) suggests places from Google Maps as it is typed when the deployment has a Google key (D104); anything typed is kept as written. It shows a capacity summary with the Dashboard's figures and warnings, and a **View Event Rules** dialog listing the rules in this section. Leaving the page with unsaved changes asks for confirmation.
 
@@ -152,7 +152,7 @@ Only Owners and Super Users may duplicate or delete events. Both are allowed on 
 
 | Copied | Not copied |
 |---|---|
-| Event details (time zone, maximum attendees, default allowed attendees, RSVP language, location, RSVP title) | Guests and their RSVP responses |
+| Event details (time zone, maximum attendees, maximum attendees per guest, RSVP language, phone number country, location, RSVP title, photo) | Guests and their RSVP responses |
 | RSVP settings | Unknown RSVP responses |
 | Message template | Sent-message history and invitation counters |
 | Tables (number, capacity, shape), with nobody seated | Other members and their roles |
@@ -186,13 +186,13 @@ A normalized phone number is unique **within each event**. A number written with
 
 ### 6.2 Soft deletion and restoration
 
-Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lists, analytics, and exports. If the same normalized phone is subsequently added within that event, update and reactivate the existing record (`deleted = 0`) rather than inserting a duplicate. Restoration must not accidentally surface stale seating information or invalid RSVP state. The rule is: the restored guest takes the name, phone and allowed attendees just entered; the RSVP returns to No Response with no confirmed attendees, no invitation name and no table; the invitation-sent count and last-sent time are kept, because the counter never decreases. Soft-deleting a guest also frees their table seats.
+Deleting a guest sets `deleted = 1`. Deleted guests are absent from ordinary lists, analytics, and exports. If the same normalized phone is subsequently added within that event, update and reactivate the existing record (`deleted = 0`) rather than inserting a duplicate. Restoration must not accidentally surface stale seating information or invalid RSVP state. The rule is: the restored guest takes the name, phone and Expected Attendees just entered; the RSVP returns to No Response with no confirmed attendees, no invitation name and no table; the invitation-sent count and last-sent time are kept, because the counter never decreases. Soft-deleting a guest also frees their table seats.
 
 ### 6.3 Guests screen
 
 - Known Guests list with create, view, update, soft-delete, search, and sortable columns.
 - Search by first name, last name, full name, Invitation Name, group, and phone number. Filter by RSVP status, invitation status, table and group.
-- Show group, attendee allowance, confirmed count, RSVP status, invitation counter, and Table Number (if assigned). Column headings are centred, and so are the number columns.
+- Show group, Expected Attendees, confirmed count, RSVP status, invitation counter, and Table Number (if assigned). Column headings are centred, and so are the number columns.
 - Add Guest and Edit Guest include Group and Table. Group is a dropdown of the event's groups that can be searched by typing; a name that matches no group can be created, after a confirmation when the guest is saved. Table can be chosen only for an Approved guest, so it is greyed when adding a guest.
 - Import accepts an optional Group column; exports include it.
 - Allow authorized users to manually update RSVP status, confirmed attendees, and table assignments subject to the same rules as public RSVP and Event Layout. On the desktop table (D105) the **Status** column (named so since 2026-10-17) is a dropdown like the filters: a click (or Enter, Space or an arrow key) opens the RSVP answers; an approved guest's **Confirmed** count changes by double-click, Enter or F2 and typing a number (1 to the event's Maximum Attendees per Guest). On a phone the card's status is the same dropdown, and a tap edits the confirmed count. Both save at once, Escape cancels, and leaving Approved tells that a seated guest lost their table. This is the only way to change an answer by hand: the Change RSVP dialog was removed. Each row offers **Edit** (in place of a ⋯ menu), and Edit Guest offers **Delete Guest**.
@@ -259,11 +259,11 @@ Abuse safeguards (decision D2):
 | RSVP status | Confirmed attendees | Other behavior |
 |---|---|---|
 | `NO_RESPONSE` | `null` | Initial state |
-| `APPROVED` | Integer from `1` to guest's allowed maximum | Show Approved message and configured actions |
+| `APPROVED` | Integer from `1` to the event's Maximum Attendees per Guest | Show Approved message and configured actions |
 | `DECLINED` | `0` | Show Declined message; remove any seating assignment |
 | `NOT_SURE` | `null` | Show Not Sure message; remove any seating assignment |
 
-- Approved attendee counts cannot be zero, negative, fractional, or above the event's Maximum Attendees per Guest (D104), whoever answers: the guest on the public page, the organizer in Change RSVP, or a response added or matched from Unknown Guests. A guest's Expected Attendees does not limit it.
+- Approved attendee counts cannot be zero, negative, fractional, or above the event's Maximum Attendees per Guest (D104), whoever answers: the guest on the public page, the organizer in the guest list, or a response added or matched from Unknown Guests. A guest's Expected Attendees does not limit it.
 - Maximum Attendees per Guest is 5 by default and configurable from 1 to 10. Lowering it keeps answers already given; new answers, including a guest changing theirs, follow the new maximum. A count over a maximum lowered while the page was open is refused with "This invitation is for up to N people." Do not silently add guest records.
 - Not Sure guests are **not** counted toward confirmed/expected attendance. The organizer may contact them and manually change their status.
 - Guests may update responses until the event starts; the latest valid response is authoritative.
@@ -370,7 +370,7 @@ Exports remain available after an event becomes Past.
 
 ### 11.4 Table Arrangement (floor plan)
 
-Built in Phase 20 (decision D100; owner request 2026-10-16). Event Layout has two tabs, **Tables** and **Table Arrangement**; the chosen tab is kept in the address. Above both are the seating figures and, under them, the seating notices in cards of their own exactly as on the Dashboard (seating against confirmed attendees, informational; confirmed attendees without a table, linking to those guests). There is no Capacity Warnings card: a table over capacity shows it by its status in the list and in red on the plan. One table is chosen at a time, the same on both tabs, by clicking its row in the list or the table on the plan, and choosing it again lets go; the **Selected Table** card, with its figures, its parties, Edit Table and Manage Guests, is at the same place on both tabs, beside the list or plan on a wide screen (1280px and up) and below it otherwise (D69). Each table row offers **Edit** (in place of a ⋯ menu, D105), and the Selected Table card offers Edit Table, Manage Guests and **Delete Table**.
+Built in Phase 20 (decision D100; owner request 2026-10-16). Event Layout has two tabs, **Table Arrangement** and **Tables**. The page opens on the Table Arrangement, the event's actual layout (D106); the Tables tab is kept in the address (`?view=tables`). Above both are the seating figures and, under them, the seating notices in cards of their own exactly as on the Dashboard (seating against confirmed attendees, informational; confirmed attendees without a table, linking to those guests). There is no Capacity Warnings card: a table over capacity shows it by its status in the list and in red on the plan. One table is chosen at a time, the same on both tabs, by clicking its row in the list or the table on the plan, and choosing it again lets go; the **Selected Table** card, with its figures, its parties, Edit Table and Manage Guests, is at the same place on both tabs, beside the list or plan on a wide screen (1280px and up) and below it otherwise (D69). Each table row offers **Edit** (in place of a ⋯ menu, D105), and the Selected Table card offers Edit Table, Manage Guests and **Delete Table**.
 
 - **The plan:** one room per event, measured in centimetres (default 20 × 15 m, 3–200 m a side). Tables stand by their centre and a turn; their size comes from their shape and chairs, with one chair per seat, seats taken by assigned attendees filled, and a table over capacity drawn in red with "!". Venue objects: Wall, Stage, Bar, Stairs (marking a change of floor level, drawn with treads), Food Station, Entrance and Plant, each with an optional label. A newly added item is drawn on top of the others. An optional **floor picture** (a plan or map of the venue) lies under everything, with Transparency (0–90%), Zoom (25–400%) and Rotate (−180° to 180°). The plan is drawn left to right in every language.
 - **View mode** (default, every role, desktop and phone): zoom buttons, Ctrl/⌘ with the wheel or a trackpad pinch, two-finger pinch on a phone, drag to pan, Show the whole room, Fullscreen. Clicking a table chooses it, as in the Tables list (D69).
@@ -387,7 +387,7 @@ Demo Mode is a **permanent user-facing product capability**, not a disposable de
 - Visitors can choose **Try Demo** on the landing page without authenticating. Leaving the demo (Log out) returns to the landing page and keeps the visitor's demo data until the demo ends: 3 days after it started, or after 12 hours without activity, whichever comes first (D99). Then the data is cleared and the next Try Demo starts afresh; a visitor who was in the demo is told why on the landing page.
 - Demo loads a prepopulated fictional event and allows visitors to explore the same pages/components as the real application.
 - Demo visitors can perform simulated guest CRUD, RSVPs, WhatsApp actions, seating changes, and role-aware exploration of Permissions, with restrictions corresponding to the selected demo role.
-- Demo Mode is clearly labeled and can be disabled by deployment configuration.
+- Demo Mode is clearly labeled and can be disabled by deployment configuration. A deployment can also offer the demo alone, without accounts or a server (section 3.1, D102).
 
 ### 12.2 Generation and behavior
 
@@ -465,7 +465,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 9. **Capacity:** Chair count may be higher/lower than event maximum; save succeeds and warning appears. Confirmed attendance over event maximum also generates a warning.
 10. **Exports:** Venue-ready CSV/XLSX seating export correctly reflects assignments; exports work on Past events.
 11. **Lifecycle:** At event start the event and its public RSVP become read-only/unavailable for modification, while viewing/export remains possible.
-12. **Languages and devices:** Core organizer and RSVP flows are usable in English/LTR and Hebrew/RTL, on desktop and mobile.
+12. **Languages and devices:** Core organizer and RSVP flows are usable in English/LTR, Hebrew/RTL and Brazilian Portuguese/LTR, on desktop and mobile.
 13. **Public demo:** Visitor without an account can explore an interactive fictional event, change and reset data, and cannot trigger real-world side effects or access customer records.
 
 ## 16. Quality, security, and operational requirements
@@ -477,7 +477,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 - No production secrets committed to source control.
 - Responsive performance for events with up to 3,000 attendees; avoid unnecessary heavyweight infrastructure.
 - Maintain test coverage and end-to-end scenarios per `AGENTS.md` and `PLAN.md`.
-- POC can be deployed to one low-resource VM using static React assets, NestJS, PostgreSQL, and persistent volumes; production Docker packaging is scheduled after frontend/backend integration under the frontend-first execution plan.
+- The POC is deployed to one low-resource VM (AWS EC2) with Docker Compose: static React assets behind Nginx with Let's Encrypt, NestJS, PostgreSQL and persistent volumes, with email through Amazon SES; see `docs/DEPLOYMENT.md`. The demo-only preview site is hosted separately as static files.
 - Ensure backup/restore and restart persistence are considered before opening real-user data collection.
 - Turn email on (section 3.4) before real users, so that an email is verified before an invitation gives access.
 
@@ -495,7 +495,7 @@ Where a direct mockup is unavailable (including certain dialogs, public RSVP sta
 
 These do not block creation of the PRD, but should be resolved at the relevant implementation stage rather than inferred:
 
-1. ~~**Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?~~ Resolved 2026-10-12: the event's default allowed attendees (section 8.3).
+1. ~~**Unknown RSVP attendee limit:** What maximum applies to an unknown responder before organizer review?~~ Resolved 2026-10-12: the event's default allowed attendees, now named Maximum Attendees per Guest (section 8.3, D104).
 2. ~~**Public RSVP abuse prevention:** What rate limits or additional verification are appropriate without creating an unnecessarily difficult guest experience?~~ Resolved 2026-10-14: rate limits only (section 8.2).
 3. ~~**Event duplication/deletion semantics:** Which records are copied and how long deleted events remain recoverable?~~ Resolved 2026-10-12: section 5.3.
 4. ~~**Permission invite flow:** What happens when an organizer grants access to an email not yet registered?~~ Resolved 2026-10-13: a pending invitation that becomes a membership at sign-up (section 3.3).

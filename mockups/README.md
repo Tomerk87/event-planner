@@ -63,7 +63,7 @@ Mobile:
 Notes:
 - A guest with no invitation sent and no response is labelled "Not Sent", not "Awaiting Response" as drawn.
 - The sliders button beside the filters is a column chooser on the desktop table and is not shown on a phone. A "Clear filters" button is added beside it.
-- The "⋯" menu holds Edit Guest, Change RSVP and Delete; the drawn pencil is not shown (D81). The ">" arrow on a phone and the guest's name on desktop open a details panel.
+- Each row has an **Edit** button (close to the drawn pencil); Delete Guest is in Edit Guest. The RSVP answer is changed in the list: Status is a dropdown opened by one click, and an approved guest's Confirmed count changes by double-click (a tap on a phone card) (D105). The ">" arrow on a phone and the guest's name on desktop open a details panel.
 - Row checkboxes offer Delete selected and Export selected.
 - "Allowed" is named "Expected Attendees". The Approved card counts confirmed attendees (people).
 - A Group column and filter are added, and Group and Table fields in the guest form. Column headings are centred.
@@ -83,13 +83,17 @@ Tables tab:
 Arrangements tab:
 - `event_layout_arrangement_mobile.png`
 
+Manage Guests dialog (desktop):
+- `event_layout_manage_guests.png`
+
 Notes:
 - The Name column of the tables list is not built: a table has a number, a capacity and a shape only.
 - The desktop mockup contains the full Event Layout page.
 - Status labels are Ready, Almost Full, Full (added) and Over Capacity. The KPI "Assigned Guests" is labelled "Assigned Attendees".
-- The row's "⋯" menu holds Edit Table and Delete Table; the drawn pencil is not shown (D82).
+- Each table row has an **Edit** button (in place of the drawn "⋯" menu, D105); Delete Table is on the Selected Table card and in Edit Table.
 - The Selected Table card shows the one chosen table at the same place on both tabs, beside the list or the plan on a wide screen and below it otherwise. Details in `docs/MOCKUP_NOTES.md`.
 - The mobile UI separates the Tables and Arrangements views into dedicated tab mockups.
+- `event_layout_manage_guests.png` was added on 2026-10-15, after the Manage Guests dialog was built (D68). It has not yet been compared with the built dialog; differences should be listed in `docs/MOCKUP_NOTES.md` and settled with the owner.
 - The Table Arrangement tab is built (Phase 20, D100); the Arrangement Preview and Capacity Warnings are not (owner, 2026-10-16). `docs/MOCKUP_NOTES.md` lists what the tab adds to the mockups.
 - The desktop mockup's sidebar is not the approved navigation; use the order in `docs/PRD.md` section 4.2.
 
@@ -139,7 +143,8 @@ Mobile:
 Notes:
 - The mobile mockup shows Save Changes beside the page title. On a phone it goes in the pinned bottom action bar instead, as on the other form pages.
 - The RSVP Language selector is not built here; the language belongs to RSVP Settings. The "RSVP Settings" card keeps only the notice.
-- An optional Location field is added under Event Name.
+- An optional Location field is added under Event Name; it suggests places from Google Maps when the deployment has a Google key (D104).
+- A Phone Number Country field (Israel or Brazil, D103) is added; the Timezone field can be searched by city or country (D104).
 - "View Event Rules" opens a read-only dialog listing the event's rules.
 
 ## Permissions
@@ -167,13 +172,13 @@ Notes:
 - Accept Invitation opens the sign-up form with the invited address filled in; signing up (and, with email on, verifying the address) turns the invitation into access (D89).
 - The date is the event's day in the event's time zone, written in the email's language.
 - The Help, Privacy and Terms links in the footer are not shown: those pages do not exist yet (`docs/FUTURE_FEATURES.md`).
-- There is no Hebrew mockup; the Hebrew emails mirror it right to left.
+- There is no Hebrew or Portuguese mockup; the Hebrew emails mirror it right to left, and the Portuguese ones follow it as drawn.
 
 ## Breakpoints
 
 - Desktop mockups are 1448×1086 or 1536×1024.
 - Mobile mockups are 941×1672 (portrait phone).
-- There are no Hebrew/RTL mockups; adapt from the mapped images.
+- There are no Hebrew/RTL or Portuguese mockups; adapt from the mapped images.
 - There are no tablet mockups. Tablet layouts are not designed for the MVP; a tablet gets the desktop or mobile layout that fits its width.
 
 Differences between these mockups and the approved requirements are recorded in `docs/MOCKUP_NOTES.md`.

@@ -21,9 +21,10 @@ Requirement or mockup conflicts are recorded (in `docs/MOCKUP_NOTES.md` or `docs
 | Unit tests for domain and business rules | Any change to rules, mock services, or backend services |
 | Component tests | Important UI behavior |
 | End-to-end tests | Critical flows listed in `AGENTS.md` |
-| Automated accessibility check (axe) with zero violations, in English and Hebrew, desktop and phone | Every new page and every new visual state of a shared component |
+| Automated accessibility check (axe) with zero violations, in English, Hebrew and Portuguese, desktop and phone | Every new page and every new visual state of a shared component |
 | Coverage at or above the 80% threshold (`npm run test:coverage`) | Every code change |
 | Mockup comparison in desktop LTR, desktop RTL, mobile LTR, mobile RTL | Every UI change |
+| New or changed texts in all three locales (`en`, `he`, `pt`; the type check refuses a missing key), and the review sheets regenerated | Every change to user-facing text |
 | Demo Mode still uses the shared UI | UI and service changes |
 | Broader regression run | Changes to shared components, contracts or rules |
 
@@ -49,7 +50,9 @@ Coverage target: at least 80% on relevant application logic (`AGENTS.md`), never
 | Unit and component tests | Vitest + React Testing Library + jsdom (`npm test`) | In place |
 | Coverage | `@vitest/coverage-v8` (`npm run test:coverage`); the run fails below 80% statements, branches, functions or lines | In place |
 | Accessibility | `@axe-core/playwright`, run inside the end-to-end suite (`e2e/accessibility.spec.ts`). It catches what a tool can detect, including colour contrast; it does not replace manual keyboard and screen-reader checks | In place |
-| End-to-end tests | Playwright on Chromium with two projects, `desktop` and `mobile` (Pixel 7 viewport); Hebrew/RTL is covered by tests that switch the language (`npm run test:e2e`) | In place |
+| End-to-end tests | Playwright on Chromium. `npm run test:e2e` runs the `desktop`, `mobile` (Pixel 7 viewport) and `email` projects; `npm run test:performance` runs the `performance` project. Hebrew/RTL and Portuguese are covered by tests that switch the language. `playwright.deploy.config.ts` runs the smoke tests in `e2e-deploy/` against a deployed site | In place |
+| Backend checks | In `backend/`: the same type-check, oxlint, Prettier and Vitest, plus integration tests against the test database (`npm run test:e2e`) | In place |
+| Translation review | `npm run hebrew-review` and `npm run translation-review -- pt` write side-by-side sheets for native speakers (`docs/hebrew-review.xlsx`, `docs/portuguese-review.xlsx`) | In place |
 
 Update this table when a tool is adopted.
 

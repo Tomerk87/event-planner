@@ -39,8 +39,8 @@ If requirements conflict, stop and surface the conflict rather than silently cho
 - Use domain types and service contracts early; implement mock and real API providers against the same contract. Do not assume all responses are instantaneous or successful.
 - Do not build separate demo and production page trees; use shared UI and route behavior with dependency-injected services.
 - Keep business rules testable independently of React and reuse rule definitions where practical without compromising backend authority.
-- Mock services should simulate relevant validation, authorization, loading, errors, and lifecycle behavior. The backend later enforces these rules authoritatively.
-- Implement and review each page against its mockups in desktop/mobile and English/Hebrew, not as a final translation-only pass.
+- Mock services should simulate relevant validation, authorization, loading, errors, and lifecycle behavior. The backend enforces these rules authoritatively.
+- Implement and review each page against its mockups in desktop/mobile and English/Hebrew/Portuguese, not as a final translation-only pass.
 - Do not skip ahead to backend or deployment work before completing the relevant plan gate without documenting and obtaining approval for any significant change of direction.
 
 ## Demo Mode implementation
@@ -62,8 +62,8 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 - Demo roles are simulations only: never let them authorize backend actions or access real event/customer data. Server-side endpoints must not trust a client-supplied demo flag as authorization.
 - Support exploring Viewer, Admin, and Owner states inside the demo without authenticating as real accounts; simulated role switching must only affect local demo authorization behavior.
 - Demo state must never expose real personal information, credentials, production event data, or actual contact numbers.
-- Support both English and Hebrew, LTR and RTL, desktop and mobile in Demo Mode.
-- Make Demo Mode configurable per deployment; disabling it must not remove or change regular application features.
+- Support English, Hebrew and Portuguese, LTR and RTL, desktop and mobile in Demo Mode. A demo started in Portuguese uses the Brazilian sample events (D103).
+- Make Demo Mode configurable per deployment (`VITE_DEMO_ENABLED`); disabling it must not remove or change regular application features. A deployment can also be demo-only, without accounts or a server (`VITE_ACCOUNTS_ENABLED=false`, D102).
 - Test demo initialization, mutations, refresh persistence, isolation, simulated side effects, and reset behavior.
 
 ## Product principles
@@ -88,7 +88,7 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 - Past events are read-only through normal product flows and remain viewable/exportable.
 - Event maximum attendees:
   - minimum: 50
-  - default: 300
+  - default: 50
   - maximum: 3000
 
 ### Permissions
@@ -114,12 +114,12 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 ### RSVP
 
 - There is one public RSVP URL per event, shared by all guests.
-- Each event has a default RSVP language, set on RSVP Settings. A guest can switch the public RSVP page between English and Hebrew; texts the organizer wrote are shown as written.
+- Each event has a default RSVP language, set on RSVP Settings. A guest can switch the public RSVP page between English, Hebrew and Portuguese; texts the organizer wrote are shown as written.
 - Public RSVP asks for name, phone number, number of attendees, and response. Number of attendees is always required; for Declined and Not Sure the submitted number is discarded.
 - Known guests are matched by normalized phone number.
 - Unmatched responses are stored as Unknown Guests for organizer review.
 - RSVP states: `NO_RESPONSE`, `APPROVED`, `NOT_SURE`, `DECLINED`.
-- Approved attendee count must be an integer from 1 through the guest's allowed-attendees limit.
+- Approved attendee count must be an integer from 1 through the event's Maximum Attendees per Guest (D104); the guest's Expected Attendees is a planning note and does not limit it.
 - Declined means confirmed attendees = 0.
 - Not Sure is not counted in expected/confirmed attendance.
 - Guests may update RSVP until the event begins.
@@ -157,13 +157,13 @@ At minimum:
 - Backend: Node.js + NestJS.
 - Database: PostgreSQL.
 - ORM and database migrations: Prisma.
-- Frontend localization: `i18next` + `react-i18next`, with English (`en`) and Hebrew (`he`).
+- Frontend localization: `i18next` + `react-i18next`, with English (`en`), Hebrew (`he`) and Brazilian Portuguese (`pt`).
 - POC deployment target: **one small, low-resource AWS EC2 instance** (or comparable VM), running all application services via Docker Compose.
 - POC production topology: Nginx serving the static React build and reverse-proxying NestJS; NestJS backend; PostgreSQL with a persistent volume. Avoid a continuously running frontend development server in production.
 - Build application images outside the low-memory host where practical, then pull and run the built images on the VM.
 - No Kubernetes, microservices, Redis, message queues, managed RDS, or other always-on infrastructure without a measured requirement and explicit approval.
 - Design for backup/restore, restart survival, and resource limits on a constrained VM; do not equate AWS Free Tier with permanently free hosting.
-- Local frontend-first development may run without Docker. Full Docker Compose packaging and cloud deployment occur in the later plan phases.
+- Local frontend development may run without Docker; the backend's development database runs in Docker (`backend/docker-compose.dev.yml`). Production packaging is in `deploy/` and the deployment steps in `docs/DEPLOYMENT.md`.
 - Keep frontend and backend concerns clearly separated.
 - Define API contracts explicitly and keep generated/shared types synchronized if the repository adopts that pattern.
 - Store uploaded assets through an abstraction that can support local development and object storage later; do not couple business logic directly to local filesystem paths.
@@ -185,10 +185,18 @@ Typical structure:
     README.md
   docs/
     PRD.md
+    DOMAIN.md
+    FUTURE_FEATURES.md
+    ARCHITECTURE.md
+    DEVELOPMENT.md
+    DEPLOYMENT.md
+    MOCKUP_NOTES.md
   frontend/
   backend/
-  scripts/
-  docker-compose.yml
+  deploy/
+    docker-compose.yml
+    scripts/, web/ (Nginx)
+  netlify.toml
 ```
 
 Add nested `AGENTS.md` files only when a subdirectory has important instructions that differ from the root. Nested instructions should extend, not duplicate, the root unnecessarily.
@@ -219,13 +227,13 @@ Add nested `AGENTS.md` files only when a subdirectory has important instructions
 ## Internationalization implementation
 
 - Use `i18next` with `react-i18next` for frontend localization unless the existing repository has already adopted another i18n solution.
-- Initial locales: `en` and `he`.
+- Locales: `en`, `he` and `pt` (Hebrew and Portuguese load on demand).
 - All user-facing strings must come from translation resources; do not hard-code English or Hebrew strings directly in components.
 - Set the root document `lang` and `dir` attributes according to the active locale.
-- Hebrew must use `dir="rtl"` and English must use `dir="ltr"`.
+- Hebrew must use `dir="rtl"`; English and Portuguese use `dir="ltr"`.
 - Prefer CSS logical properties such as `margin-inline-start`, `padding-inline-end`, and `text-align: start/end` over left/right-specific styling.
 - Components containing phone numbers, URLs, emails, or other inherently LTR values may explicitly use LTR direction inside an RTL page.
-- Coding agents may generate initial English/Hebrew translation resources; libraries only resolve translations and do not translate automatically. Keep terminology editable and reviewable.
+- Coding agents may generate initial Hebrew and Portuguese translation resources; libraries only resolve translations and do not translate automatically. Keep terminology editable and reviewable.
 - The authenticated application's UI language is independent of the event's default guest-facing RSVP language.
 
 ## UI mockups and visual guidance
@@ -321,7 +329,7 @@ Critical flows requiring strong coverage include:
 - RSVP-induced seating conflicts
 - past-event read-only enforcement
 - CSV/XLSX import/export
-- English/Hebrew and RTL smoke coverage
+- English/Hebrew/Portuguese and RTL smoke coverage
 - deterministic demo generation, reset, isolation, and persistence across refresh
 - WhatsApp links are opened only by an explicit user click and never by the data layer; no other external side effects in Demo Mode
 - mock/API provider contract consistency
@@ -373,7 +381,7 @@ Before declaring a plan item complete:
 5. When UI is affected:
    - compare the result against the mapped mockups;
    - validate desktop and mobile layouts;
-   - validate English/LTR and Hebrew/RTL behavior;
+   - validate English/LTR, Hebrew/RTL and Portuguese/LTR behavior;
    - verify Demo Mode still uses the same shared UI when relevant.
 6. Update documentation if behavior or architecture changed.
 7. Update `PLAN.md`:

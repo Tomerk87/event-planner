@@ -1396,6 +1396,22 @@ Owner report: on an iPhone 16 a tapped Timezone result is not chosen; fine on a 
 - New `shared/ui/useListPress.ts`, used on the list of Select, Combobox and PlaceField: stops `pointerdown` and `mousedown`, and `pressing()` lets `onBlur` ignore a blur during a press in the list.
 Validation: frontend typecheck, lint, format; unit 1280 (new: Select, Combobox and PlaceField choose a tapped option when the text box blurs first, and still close on a plain blur; each fails without the fix); test:e2e 522 passed, 32 skipped (the time zone test now taps the option and checks it is chosen). No server change. Not run on a real iPhone here.
 Next: owner retest on the iPhone 16.
+
+2026-10-17 — Docs brought up to date (owner asked whether every .md file matches the product and whether the PRD can serve as the real PRD), branch phase_25_layout_tab_order from main.
+- `docs/PRD.md` 1.2: Approved count limited by the event's Maximum Attendees per Guest in §8.3 (was the guest's allowance); Change RSVP mention removed; "default allowed attendees" renamed; Expected Attendees in §6.2/§6.3; duplication copies the phone country and photo; demo-only deployment (D102) in §3.1 and §12.1; Portuguese in §15; §16 deployment as built (EC2, Docker Compose, Nginx, SES).
+- `AGENTS.md`: default maximum 50, en/he/pt, approval limit per D104, demo-only and Google switches, repository tree with `deploy/` and the docs.
+- `docs/DOMAIN.md`: definitions corrected (languages, country, Expected Attendees, Confirmed, phone forms); superseded or revised notes added to D1, D6, D19, D26, D33, D37, D40, D64, D71, D75, D78, D81, D82, D93, D94, D97, D98, D104, P3 and P6 (rows kept as written).
+- `docs/MOCKUP_NOTES.md`, `mockups/README.md`: Status dropdown and Confirmed editing, Edit buttons, live WhatsApp button, photo upload, Portuguese, Phone Number Country, place suggestions; `event_layout_manage_guests.png` indexed (not yet compared with the built dialog).
+- `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `docs/FUTURE_FEATURES.md`, `README.md`, `backend/README.md`, `frontend/src/domain/README.md`, `frontend/src/services/README.md`: email verification built, three languages, trees and modules, Playwright projects, review sheets, missing commands and switches.
+Validation: each changed statement checked against the code (duplicate copies `country`, scripts in package.json, folders on disk); grep of the docs for Change RSVP, ⋯ menus, default allowed attendees, two-language wording and the old 300 default finds only history and annotated rows. Docs only; no test run.
+Next: owner review; compare `event_layout_manage_guests.png` with the Manage Guests dialog.
+
+2026-11-25 — Event Layout opens on the Table Arrangement (D106, owner request), branch phase_25_layout_tab_order.
+- `EventLayoutPage.tsx`: Table Arrangement is the first tab and the default; Tables is `?view=tables`; an older `?view=arrangement` address still opens the plan.
+- Tests: unit tests open the Tables tab through `?view=tables`; new tests for the tab order, the default and the older address. End-to-end specs that work on the list (event-layout, shell, real-guests, performance) open `?view=tables`; arrangement and real-layout open the bare address; accessibility checks both tabs.
+- Docs: D106 (revises D100), PRD 11.4.
+Validation: frontend typecheck, lint, format; test:coverage 1281 passed (95.2% statements); Playwright desktop and mobile for event-layout, arrangement, shell, accessibility, tabs, dashboard, portuguese, real-layout, real-guests, real-permissions and real-account: 325 passed, 11 skipped. Not run: performance spec. By hand: screenshots at 1440px in English and 390px in Hebrew.
+Next: owner review.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

@@ -7,6 +7,7 @@ const pages = [
   ['event page', '/events/evt-1/dashboard'],
   ['guests', '/events/evt-1/guests'],
   ['event layout', '/events/evt-1/layout'],
+  ['event layout tables', '/events/evt-1/layout?view=tables'],
   ['event settings', '/events/evt-1/settings'],
   ['messages', '/events/evt-1/messages'],
   ['RSVP settings', '/events/evt-1/rsvp'],
