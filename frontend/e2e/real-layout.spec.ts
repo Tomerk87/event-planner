@@ -26,7 +26,7 @@ test('a real event’s plan and floor picture are saved and come back', async ({
   const event = await createEventByApi(page, { name: 'Plan Party' })
   await addTable(page, event.id, 1)
   await addTable(page, event.id, 2)
-  await page.goto(`/events/${event.id}/layout?view=arrangement`)
+  await page.goto(`/events/${event.id}/layout`)
 
   await expect(page.getByText('Tables not on the plan yet: 2.')).toBeVisible()
   await page.getByRole('button', { name: 'Edit Layout' }).click()

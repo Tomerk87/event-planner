@@ -123,7 +123,8 @@ export function EventLayoutPage() {
   // One chosen table, shown in the Selected Table card on both tabs.
   const [chosenId, setChosenId] = useState<string | null>(null)
   const exportSeating = useSeatingExport(eventId, info.data?.event.name ?? '')
-  const view = params.get('view') === 'arrangement' ? 'arrangement' : 'tables'
+  // The Table Arrangement opens first: it is the event's actual layout.
+  const view = params.get('view') === 'tables' ? 'tables' : 'arrangement'
 
   const queries = [guests, tables]
   const failed = queries.find((query) => query.isError)
@@ -678,12 +679,10 @@ export function EventLayoutPage() {
               label={t('layout.tabs.label')}
               variant="segmented"
               value={view}
-              onChange={(id) =>
-                setParam({ view: id === 'arrangement' ? id : null })
-              }
+              onChange={(id) => setParam({ view: id === 'tables' ? id : null })}
               tabs={[
-                { id: 'tables', label: t('layout.tabs.tables') },
                 { id: 'arrangement', label: t('layout.tabs.arrangement') },
+                { id: 'tables', label: t('layout.tabs.tables') },
               ]}
             />
           </div>

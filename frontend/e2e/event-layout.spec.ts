@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises'
 import { readSheet } from 'read-excel-file/node'
 import { startInDemo } from './helpers.ts'
 
-const LAYOUT = '/events/evt-1/layout'
+// The Tables tab; the page opens on the Table Arrangement.
+const LAYOUT = '/events/evt-1/layout?view=tables'
 const WEDDING_FILE = 'Maya & Daniel’s Wedding - seating'
 const HEADINGS =
   'First Name,Last Name,Invitation Name,Phone,Number of Attendees,Table Number'
@@ -90,7 +91,7 @@ test('a table can be added, edited and deleted, and the change survives a reload
   page,
   isMobile,
 }) => {
-  await page.goto(`${LAYOUT}?size=25`)
+  await page.goto(`${LAYOUT}&size=25`)
   await expect(figure(page, 'Total Tables')).toHaveText('18')
 
   await page.getByRole('button', { name: 'Add Table' }).click()
@@ -329,8 +330,8 @@ test('the seating list exports to CSV and to Excel, a row per seated party in ta
 })
 
 for (const [path, notice] of [
-  ['/events/evt-4/layout', 'View-only access'],
-  ['/events/evt-5/layout', 'This event has ended'],
+  ['/events/evt-4/layout?view=tables', 'View-only access'],
+  ['/events/evt-5/layout?view=tables', 'This event has ended'],
 ] as const) {
   test(`${notice}: tables can be viewed and exported but not changed`, async ({
     page,
@@ -362,7 +363,7 @@ test('search, shape and sorting are kept in the address', async ({
   page,
   isMobile,
 }) => {
-  await page.goto(`${LAYOUT}?q=1&shape=SQUARE&sort=-number`)
+  await page.goto(`${LAYOUT}&q=1&shape=SQUARE&sort=-number`)
 
   const list = tableList(page, isMobile)
   await expect(page.getByRole('searchbox')).toHaveValue('1')

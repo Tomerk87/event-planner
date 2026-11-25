@@ -4,7 +4,8 @@ import { startInDemo } from './helpers.ts'
 
 /** The Table Arrangement tab of Event Layout (D100). */
 
-const ARRANGEMENT = '/events/evt-1/layout?view=arrangement'
+// The page opens on the Table Arrangement.
+const ARRANGEMENT = '/events/evt-1/layout'
 
 test.beforeEach(async ({ page }) => {
   await startInDemo(page)

@@ -16,7 +16,7 @@ async function openArrangement(
   services: Services = createTestServices(),
   eventId: string = MAIN,
 ) {
-  const view = renderApp(`/events/${eventId}/layout?view=arrangement`, services)
+  const view = renderApp(`/events/${eventId}/layout`, services)
   await screen.findByRole('group', { name: 'Floor plan' })
   return view
 }
@@ -39,24 +39,38 @@ async function startEditing() {
 }
 
 describe('Table Arrangement (D100)', () => {
-  it('is a tab of its own, kept in the address, with no Soon badge', async () => {
+  it('is the first tab and the one the page opens on, with no Soon badge; the Tables tab is kept in the address', async () => {
     const { router } = renderApp(`/events/${MAIN}/layout`, createTestServices())
-    const tab = await screen.findByRole('tab', { name: 'Table Arrangement' })
-
-    expect(tab).toBeEnabled()
-    fireEvent.click(tab)
-
     expect(
       await screen.findByRole('group', { name: 'Floor plan' }),
     ).toBeInTheDocument()
-    expect(router.state.location.search).toBe('?view=arrangement')
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs.map((tab) => tab.textContent)).toEqual([
+      'Table Arrangement',
+      'Tables',
+    ])
+    expect(tabs[0]).toBeEnabled()
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true')
     expect(screen.queryByRole('table', { name: 'Tables' })).toBeNull()
 
     fireEvent.click(screen.getByRole('tab', { name: 'Tables' }))
     expect(
       await screen.findByRole('table', { name: 'Tables' }),
     ).toBeInTheDocument()
+    expect(router.state.location.search).toBe('?view=tables')
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Table Arrangement' }))
+    expect(
+      await screen.findByRole('group', { name: 'Floor plan' }),
+    ).toBeInTheDocument()
     expect(router.state.location.search).toBe('')
+  })
+
+  it('still opens on the plan from an address with the former ?view=arrangement', async () => {
+    renderApp(`/events/${MAIN}/layout?view=arrangement`, createTestServices())
+    expect(
+      await screen.findByRole('group', { name: 'Floor plan' }),
+    ).toBeInTheDocument()
   })
 
   it('draws the placed tables with their seats, the objects, and says what is not placed', async () => {

@@ -37,7 +37,10 @@ async function openLayout(
   services: Services = createTestServices(),
   eventId: string = MAIN,
 ) {
-  const view = renderApp(`/events/${eventId}/layout${query}`, services)
+  // The Tables tab; the page opens on the Table Arrangement.
+  const search = new URLSearchParams(query)
+  if (!search.has('view')) search.set('view', 'tables')
+  const view = renderApp(`/events/${eventId}/layout?${search}`, services)
   await screen.findByRole('region', { name: 'Seating figures' })
   return view
 }

@@ -1405,6 +1405,13 @@ Next: owner retest on the iPhone 16.
 - `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `docs/FUTURE_FEATURES.md`, `README.md`, `backend/README.md`, `frontend/src/domain/README.md`, `frontend/src/services/README.md`: email verification built, three languages, trees and modules, Playwright projects, review sheets, missing commands and switches.
 Validation: each changed statement checked against the code (duplicate copies `country`, scripts in package.json, folders on disk); grep of the docs for Change RSVP, ⋯ menus, default allowed attendees, two-language wording and the old 300 default finds only history and annotated rows. Docs only; no test run.
 Next: owner review; compare `event_layout_manage_guests.png` with the Manage Guests dialog.
+
+2026-11-25 — Event Layout opens on the Table Arrangement (D106, owner request), branch phase_25_layout_tab_order.
+- `EventLayoutPage.tsx`: Table Arrangement is the first tab and the default; Tables is `?view=tables`; an older `?view=arrangement` address still opens the plan.
+- Tests: unit tests open the Tables tab through `?view=tables`; new tests for the tab order, the default and the older address. End-to-end specs that work on the list (event-layout, shell, real-guests, performance) open `?view=tables`; arrangement and real-layout open the bare address; accessibility checks both tabs.
+- Docs: D106 (revises D100), PRD 11.4.
+Validation: frontend typecheck, lint, format; test:coverage 1281 passed (95.2% statements); Playwright desktop and mobile for event-layout, arrangement, shell, accessibility, tabs, dashboard, portuguese, real-layout, real-guests, real-permissions and real-account: 325 passed, 11 skipped. Not run: performance spec. By hand: screenshots at 1440px in English and 390px in Hebrew.
+Next: owner review.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

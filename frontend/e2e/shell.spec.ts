@@ -112,7 +112,7 @@ test('a dialog keeps focus off the page behind it, closes with Escape and return
 })
 
 test('a data table becomes cards on a phone', async ({ page, isMobile }) => {
-  await page.goto('/events/evt-1/layout')
+  await page.goto('/events/evt-1/layout?view=tables')
 
   await expect(page.getByRole('table', { name: 'Tables' })).toBeVisible({
     visible: !isMobile,
@@ -214,7 +214,7 @@ test('a page opened from another page starts at its top', async ({ page }) => {
 
 for (const [where, path, list, dialog] of [
   ['Guests', '/events/evt-1/guests', 'Guests', 'Edit Guest'],
-  ['Event Layout', '/events/evt-1/layout', 'Tables', /^Edit Table/],
+  ['Event Layout', '/events/evt-1/layout?view=tables', 'Tables', /^Edit Table/],
 ] as const) {
   // Each line offers Edit in place of a ⋯ menu (D105).
   test(`the last line on ${where} opens its edit form`, async ({
