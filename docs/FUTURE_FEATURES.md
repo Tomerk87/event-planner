@@ -1,6 +1,6 @@
 # Future features
 
-Everything that has been considered and left out of the MVP, to be developed later. Nothing here is built or scheduled unless it is moved into a phase of `PLAN.md`.
+Everything that has been considered and left out of the MVP, to be developed later. Nothing here is built or scheduled unless it is moved into a phase of `PLAN.md`; the language reviews by native speakers are the exception, tracked in Phases 17 and 21.
 
 Keep this file current: whenever a feature is left out of the MVP — by a scope decision, or because a mockup shows something that will not be built now — add it here in the same change. When a feature is brought into scope, remove it from this file and add it to `docs/PRD.md` and `PLAN.md`.
 
@@ -25,7 +25,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 |---|---|---|
 | Individual attendee records | Names or details for each person in a party. In the MVP attendees are only counted. | PRD §17 |
 | Guest-specific RSVP URLs | One link per guest. The MVP has one shared link per event. | PRD §17 |
-| Translating organizer-written RSVP texts | A guest can switch the public RSVP page between English and Hebrew, but the welcome and response messages are shown as the organizer wrote them. Translating them, or letting the organizer write each in both languages, is not built. | Owner decision 2026-10-13 |
+| Translating organizer-written RSVP texts | A guest can switch the public RSVP page between English, Hebrew and Portuguese, but the welcome and response messages are shown as the organizer wrote them. Translating them, or letting the organizer write each in every language, is not built. | Owner decision 2026-10-13 |
 | More guest-facing languages | Languages beyond English, Hebrew and Brazilian Portuguese, such as Spanish (owner, 2026-10-16). A language needs its texts file, its emails, its import column names and a review sheet; its market may get its own demo sample events and phone rules (D103). | PRD §17; owner 2026-10-16 |
 | Choosing which details the phone guest cards show | On a phone the guest cards always show the same details; the column chooser applies to the desktop table only. | Owner decision 2026-10-13 |
 | Country selector for a phone number | A searchable country list in Add and Edit Guest, in import (per file) and on the public RSVP form, for a guest from a country other than the event's. | Owner decision 2026-10-13 |

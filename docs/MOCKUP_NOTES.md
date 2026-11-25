@@ -36,7 +36,7 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
   | Mockup text | Built text | Why |
   |---|---|---|
   | "Send beautiful WhatsApp invitations and reminders directly from the app." | "Write your invitation once and open it in WhatsApp for each guest, ready to send." | The MVP opens WhatsApp for the organizer to send; reminders are out of scope (PRD §7.1, §17) |
-  | "Design your seating plan, manage tables, and easily assign guests." | "Set up your tables and assign confirmed guests, with capacity checked for you." | The visual seating plan is deferred (PRD §11.4) |
+  | "Design your seating plan, manage tables, and easily assign guests." | "Set up your tables and assign confirmed guests, with capacity checked for you." | The visual seating plan was deferred when written; it was built in Phase 20 (PRD §11.4, D100) |
   | "Track responses in real time and see who's coming, pending or not attending." | "One RSVP link per event. See who is coming, who is not sure and who declined." | Uses the product's own statuses; nothing is pushed in real time |
   | "…a fully populated event and real sample data." | "…fully populated events and fictional sample data." | Demo data is fictional by rule (`AGENTS.md`), and there are several demo events |
 
@@ -47,7 +47,7 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
 
 ### Homepage / Events
 
-- Event cards show a **cover image** per event. **Decided (2026-10-12):** until organizers can upload one, each card shows a generated cover — a gradient with an icon, chosen from the event's id, drawn in the browser. Uploading an image when creating an event and in Event Settings is listed in `docs/FUTURE_FEATURES.md`.
+- Event cards show a **cover image** per event. **Decided (2026-10-12):** until organizers can upload one, each card shows a generated cover — a gradient with an icon, chosen from the event's id, drawn in the browser. Since D76 an organizer can upload an event photo when creating an event and in Event Settings; the generated cover is used when there is none.
 - Cards have a "⋯" menu whose contents are not shown. It is the only visible place for Duplicate/Delete, since `event_settings.png` has neither. Built with Open, Duplicate and Delete; the last two for an Owner (or Super User) only.
 - Search, grid/list toggle and All/Upcoming/Past tabs are not in the PRD; treated as presentation of existing data. The chosen tab, search text and layout are kept in the page address.
 - The mockups show only the grid on desktop and only the list on a phone. Both layouts are available at every width; the list uses the phone mockup's card.
@@ -85,8 +85,8 @@ Decided 2026-10-13 unless noted.
 - Column headings are centred (the mockup starts them at the edge); number columns are centred as drawn.
 - The column and field the mockup calls "Allowed" is named **Expected attendees**.
 - The **Approved** card shows confirmed attendees (people), with "attendees" under the figure, not the number of invitations that approved.
-- The **"⋯" menu** held Change RSVP and Delete until 2026-10-17; each row now offers **Edit** instead, Delete is in Edit Guest, and Status and Confirmed change in the table by double-click (D105). The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel, which offers Edit. The Change RSVP dialog was removed (2026-10-17): Status and Confirmed change in the table, or by a tap on a phone card.
-- The **WhatsApp button** on each row is shown disabled with a "Soon" hint until Phase 8.
+- The **"⋯" menu** held Change RSVP and Delete until 2026-10-17; each row now offers **Edit** instead, Delete is in Edit Guest, and the RSVP answer changes in the list (D105): Status is a dropdown opened by one click (on desktop and on phone cards), and an approved guest's Confirmed count changes by double-click on desktop or a tap on a phone card. The Change RSVP dialog was removed. The **">" arrow** on the phone cards, and the guest's name on desktop, open a details panel, which offers Edit.
+- The **WhatsApp button** on each row opens the message for that guest (built in Phase 8; it was shown disabled with a "Soon" hint before).
 - The **Export** dropdown offers CSV and Excel.
 - The KPI strip and the RSVP Status / Invitation Status / Table filters are not in the PRD; treated as presentation of existing data.
 - The Unknown Guests tab is visible only as a tab header; its content has no mockup. Rejected responses are kept in a Rejected list, also without a mockup.
@@ -115,7 +115,7 @@ Found while building (Phase 6):
 
 - The public form shows **Number of attendees as a required field above the three response buttons**. **Decided (2026-10-12):** the field is always required, as drawn. For Declined and Not Sure the submitted number is discarded. PRD §8.1 has been updated.
 - The RSVP page shows a **location** ("Tel Aviv, Israel") and a short **display title** ("Deborah & Tomer") that differs from the event name. The event header in other mockups also shows a location. The PRD has no event location or RSVP title field; location exists only inside the Google Calendar action. Built as shown; the fields are added to the PRD in Phase 7 / Phase 9.
-- An **RSVP Language selector** appears on both RSVP Settings and Event Settings. **Decided (2026-10-13):** RSVP Settings owns the event's default language, and each guest can switch the public page between English and Hebrew. Event Settings has no language selector; its "RSVP Settings" card keeps only the "RSVP remains open" notice. Organizer-written texts are not translated.
+- An **RSVP Language selector** appears on both RSVP Settings and Event Settings. **Decided (2026-10-13):** RSVP Settings owns the event's default language, and each guest can switch the public page between English, Hebrew and Portuguese (D103). Event Settings has no language selector; its "RSVP Settings" card keeps only the "RSVP remains open" notice. Organizer-written texts are not translated.
 - **QR code** button and "RSVP page is active" status are not in the PRD. Built as shown.
 - The mockup states limits the PRD does not: 500 characters per message, and background image "1920 × 1080, JPG or PNG, up to 5MB". Adopted as requirements.
 - The mobile preview has Welcome / Approved / Declined / Not Sure state tabs; the desktop preview shows only the welcome state. **Built (2026-10-13):** the four tabs are offered on desktop too.
@@ -130,21 +130,23 @@ Found while building (Phase 6):
 - "Assigned Guests" in the KPI row counts attendees (214), not guest parties. It is labelled **Assigned Attendees**.
 - **Selected Table** is drawn under the Arrangement Preview on desktop and only in the Arrangement tab on a phone. It is built at the same place on both tabs: beside the list or the plan from 1280px, below it on narrower screens and phones, for the one table chosen by a click on its row or on the plan (D69, revised 2026-10-16). The panel's subtitle (the table's name) is not shown.
 - **Manage Guests / View Guests** has nothing drawn behind it; it opens the dialog described in D68.
-- The row **"…"** menu has no drawn contents; it holds Delete Table.
+- The row **"…"** menu has no drawn contents; it held Delete Table until D105, when it became an **Edit** button (see below).
 - **Export Tables** opens a menu of CSV and Excel and writes the seating list (D70).
 - **Capacity Warnings** is not built (owner, 2026-10-16): a table over capacity shows it by its status and on the plan. The seating notice (chairs against confirmed attendees) and attendees awaiting a table, which the mockup does not draw, are cards of their own under the figures, exactly as on the Dashboard, on both tabs (owner, 2026-10-16).
 - The search placeholder says "by number or name"; it searches by number.
-- The phone tab is drawn as "Arrangement" with no badge; it is "Table Arrangement" with the Soon badge, as on desktop.
+- The phone tab is drawn as "Arrangement"; it is named "Table Arrangement", as on desktop.
 - The list shows 10 tables a page with the product's pager, not the 8 and 5 drawn. The phone's ↑↓ button opens a sort menu; on desktop the column headings sort.
 - Add Table and Edit Table have no mockup; they are a dialog with Table Number, Capacity and Shape.
-- **Edit Table** was the first item of the row's "⋯" menu (owner, 2026-10-14, D82); since 2026-10-17 it is an **Edit** button on the row, and Delete Table is on the Selected Table card (D105).
+- **Edit Table** was the first item of the row's "⋯" menu (owner, 2026-10-14, D82); since 2026-10-17 it is an **Edit** button on the row, and Delete Table is on the Selected Table card and in Edit Table (D105).
 - The seating card is amber only when confirmed attendees outnumber the chairs; chairs below the event maximum with everyone seated is shown in green (D77).
 
 ### Event Settings
 
 - A required **Timezone** field is shown. PRD §5.2 relies on an event timezone and `PLAN.md` Phase 7 includes it, but the PRD §5.1 field table omits it. Treated as required; the PRD table should be updated when Phase 7 is implemented.
 - The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here. **Decided (2026-10-13):** the button opens a read-only dialog listing the event's rules; Duplicate and Delete stay in the event card menu only.
-- The mockup has no **Location** field, although an event has a location. **Decided (2026-10-13):** an optional Location field is added to General Information, under Event Name.
+- The mockup has no **Location** field, although an event has a location. **Decided (2026-10-13):** an optional Location field is added to General Information, under Event Name. It suggests places from Google Maps when the deployment has a Google key (D104).
+- The mockup has no **Phone Number Country** field. **Added (D103):** Israel or Brazil, the country a number typed without a code is read as.
+- The **Timezone** field can be searched by city or by country (D104).
 
 ### Permissions
 
@@ -195,10 +197,12 @@ Built from the established visual language and shared components (`AGENTS.md`, U
 - Invite User dialog and the pending-invitation line on Permissions
 - Unknown Guests tab content and its review / convert / merge / reject actions
 - Guest add/edit form, guest import flow (mapping, preview, errors), export menu
+- The Status dropdown and Confirmed editor in the guest list and on phone cards (D105)
+- Location suggestions from Google Maps (D104)
 - Table add/edit form, assign-guests dialog, populated-table delete confirmation
 - Change-role and remove-member dialogs on Permissions
 - Public RSVP as a standalone page, including validation errors and the closed (past event) state
 - Past-event read-only presentation and Viewer-restricted presentation of each page
 - Loading, empty and error states
-- Every Hebrew/RTL layout (all mockups are English/LTR)
+- Every Hebrew/RTL and Portuguese layout (all mockups are English/LTR)
 - Tablet layouts: not designed or verified for the MVP (owner decision 2026-10-12); a tablet gets the desktop or phone layout that fits its width
