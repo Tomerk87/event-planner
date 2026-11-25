@@ -1,6 +1,13 @@
 # Raises the version of each side a merged pull request changed, and tags it
 # (D107, docs/DEVELOPMENT.md "Versions"). The rules are in
 # .github/scripts/bump-versions.sh.
+#
+# main accepts changes only through a pull request (the repository's rule
+# "Require pull request to main"), so a new version goes in through a pull
+# request of its own, which this workflow opens and merges. That needs the
+# repository setting Actions → General → "Allow GitHub Actions to create and
+# approve pull requests". A pull request opened by this workflow starts no
+# workflow, so it never raises a version itself.
 name: Version
 
 on:
@@ -10,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 # One merge at a time, so two merges never take the same number.
 concurrency:
@@ -20,6 +28,11 @@ jobs:
   bump:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+      # The merged pull request's commit on main.
+      MERGED: ${{ github.event.pull_request.merge_commit_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,19 +40,13 @@ jobs:
           fetch-depth: 0
 
       - name: Raise the versions
-        id: bump
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
         run: |
           gh api "repos/${{ github.repository }}/pulls/$PR/files" --paginate \
             --jq '.[].filename' > "$RUNNER_TEMP/files"
           .github/scripts/bump-versions.sh < "$RUNNER_TEMP/files" \
             | tee "$RUNNER_TEMP/result"
 
-      - name: Commit, tag and push
-        env:
-          PR: ${{ github.event.pull_request.number }}
+      - name: Merge the new versions into main and tag them
         run: |
           result="$RUNNER_TEMP/result"
           if [ ! -s "$result" ]; then
@@ -49,29 +56,40 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898299+github-actions[bot]@users.noreply.github.com'
 
+          # The commit the tags name: the merged pull request's own, or the
+          # version pull request's once it is merged.
+          tagged="$MERGED"
           if grep -q ' bumped$' "$result"; then
             summary=$(awk '$3 == "bumped" { printf "%s%s %s", sep, $1, $2; sep = ", " }' "$result")
+            branch="version/pr-$PR"
+            git switch -c "$branch"
             git add frontend/VERSION backend/VERSION
             git commit -m "Version: $summary (#$PR)"
+            git push --force origin "$branch"
+            url=$(gh pr create --base main --head "$branch" \
+              --title "Version: $summary (#$PR)" \
+              --body "Raised by the Version workflow after #$PR was merged (D107).")
+            # GitHub works out whether a new pull request can be merged in the
+            # background; until then a merge is refused.
+            for attempt in 1 2 3 4 5 6; do
+              if gh pr merge "$url" --merge --delete-branch; then
+                break
+              fi
+              if [ "$attempt" = 6 ]; then
+                echo "Could not merge $url; merge it by hand, then add the tags." >&2
+                exit 1
+              fi
+              sleep 10
+            done
+            tagged=$(gh pr view "$url" --json mergeCommit --jq '.mergeCommit.oid')
+            git fetch origin main
           fi
-
-          # Another merge may have moved main meanwhile: rebase and retry.
-          for attempt in 1 2 3; do
-            if git push origin HEAD:main; then
-              break
-            fi
-            if [ "$attempt" = 3 ]; then
-              echo "Could not push to main." >&2
-              exit 1
-            fi
-            git pull --rebase origin main
-          done
 
           while read -r side version _; do
             # A re-run of the same merge finds its tags already made.
-            if git rev-parse -q --verify "refs/tags/$side-v$version" >/dev/null; then
+            if git ls-remote --exit-code --tags origin "refs/tags/$side-v$version" >/dev/null; then
               continue
             fi
-            git tag "$side-v$version"
+            git tag "$side-v$version" "$tagged"
             git push origin "$side-v$version"
           done < "$result"

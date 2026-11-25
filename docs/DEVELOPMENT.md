@@ -62,7 +62,7 @@ Update this table when a tool is adopted.
 The frontend and the backend each have a version, `MAJOR.MINOR`, in `frontend/VERSION` and `backend/VERSION` (D107). They start at 1.0 and move independently.
 
 - When a pull request is merged into `main`, the Version workflow raises the minor number of each side the pull request changed: 1.9 becomes 1.10. Files under `frontend/` or `deploy/web/` count for the frontend, files under `backend/` for the backend; Markdown files count for neither, so a docs-only pull request raises nothing.
-- The workflow commits the new numbers to `main` ("Version: frontend 1.4 (#31)") and tags them (`frontend-v1.4`). Pull `main` after each merge before starting a new branch.
+- `main` accepts changes only through a pull request (the repository rule "Require pull request to main"), so the workflow opens a small pull request of its own ("Version: frontend 1.4 (#31)", branch `version/pr-31`), merges it, and tags the merged commit (`frontend-v1.4`). This needs the setting Actions → General → "Allow GitHub Actions to create and approve pull requests". Pull `main` after each merge before starting a new branch.
 - Do not edit a `VERSION` file by hand, except to start a new major version: a pull request that sets `2.0` keeps it, and the workflow only tags it.
 - To try the rules: `printf 'frontend/src/a.ts\n' | .github/scripts/bump-versions.sh --dry-run`.
 - To see what is running: `/version.json` (frontend) and `/api/system/version` (backend), both with the commit; a Super User sees both on the System page.
