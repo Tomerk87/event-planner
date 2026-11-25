@@ -68,7 +68,10 @@ describe('landing page', () => {
       'WhatsApp Invitations',
       'Seating & Tables',
     ])
-    expect(document.title).toBe('Plan every guest · Event Planner')
+    // The title is set just after the page shows (useDocumentTitle's effect).
+    await waitFor(() =>
+      expect(document.title).toBe('Plan every guest · Event Planner'),
+    )
   })
 
   it('opens the populated demo with one click and no account', async () => {
