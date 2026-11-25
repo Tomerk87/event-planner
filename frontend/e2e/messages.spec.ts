@@ -177,7 +177,7 @@ test('a sent message can be viewed and sent again', async ({ page }) => {
 test('a past event shows the message read-only', async ({ page }) => {
   await openMessages(page, '/events/evt-5/messages')
 
-  await expect(page.getByText('This event has ended')).toBeVisible()
+  await expect(page.getByText('This event has started')).toBeVisible()
   await expect(
     page.getByRole('textbox', { name: 'Message' }),
   ).not.toBeEditable()

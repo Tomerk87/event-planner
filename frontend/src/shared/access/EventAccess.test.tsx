@@ -33,7 +33,9 @@ describe('read-only primitives', () => {
         screen.getByRole('button', { name: 'Add Guest' }),
       ).toBeInTheDocument()
       expect(screen.queryByText('View-only access')).not.toBeInTheDocument()
-      expect(screen.queryByText('This event has ended')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('This event has started'),
+      ).not.toBeInTheDocument()
     },
   )
 
@@ -50,13 +52,13 @@ describe('read-only primitives', () => {
     renderWithAccess({ role: 'OWNER', isPastEvent: true }, controls)
 
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
-    expect(screen.getAllByText('This event has ended')).toHaveLength(2)
+    expect(screen.getAllByText('This event has started')).toHaveLength(2)
   })
 
   it('shows the past-event reason rather than the Viewer reason when both apply', () => {
     renderWithAccess({ role: 'VIEWER', isPastEvent: true }, controls)
 
-    expect(screen.getAllByText('This event has ended')).toHaveLength(2)
+    expect(screen.getAllByText('This event has started')).toHaveLength(2)
     expect(screen.queryByText('View-only access')).not.toBeInTheDocument()
   })
 

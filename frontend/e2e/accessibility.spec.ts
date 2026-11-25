@@ -129,7 +129,7 @@ for (const language of ['en', 'he', 'pt'] as const) {
       await page.goto('/events/evt-5/dashboard')
       await expect(
         page.getByText(
-          /This event has ended|האירוע הסתיים|Este evento já terminou/,
+          /This event has started|האירוע כבר התחיל|Este evento já começou/,
         ),
       ).toBeVisible()
 

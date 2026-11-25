@@ -106,7 +106,7 @@ test('a table can be added, edited and deleted, and the change survives a reload
 
   await expect(page.getByText('Table 30 was added.')).toBeVisible()
   await expect(figure(page, 'Total Tables')).toHaveText('19')
-  await expect(entry(page, isMobile, 30)).toContainText('Ready')
+  await expect(entry(page, isMobile, 30)).toContainText('Available Seats')
 
   await page.reload()
   await expect(entry(page, isMobile, 30)).toBeVisible()
@@ -331,7 +331,7 @@ test('the seating list exports to CSV and to Excel, a row per seated party in ta
 
 for (const [path, notice] of [
   ['/events/evt-4/layout?view=tables', 'View-only access'],
-  ['/events/evt-5/layout?view=tables', 'This event has ended'],
+  ['/events/evt-5/layout?view=tables', 'This event has started'],
 ] as const) {
   test(`${notice}: tables can be viewed and exported but not changed`, async ({
     page,

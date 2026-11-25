@@ -321,7 +321,7 @@ describe('Table Arrangement (D100)', () => {
 
   it.each([
     [DEMO_EVENTS.viewer, 'View-only access'],
-    [DEMO_EVENTS.past, 'This event has ended'],
+    [DEMO_EVENTS.past, 'This event has started'],
   ])('only shows the plan at %s', async (eventId, notice) => {
     await openArrangement(createTestServices(), eventId)
 

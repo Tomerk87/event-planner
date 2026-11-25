@@ -342,7 +342,7 @@ describe('WhatsApp Messages', () => {
 
   it.each([
     [DEMO_EVENTS.viewer, 'View-only access'],
-    [DEMO_EVENTS.past, 'This event has ended'],
+    [DEMO_EVENTS.past, 'This event has started'],
   ])('is read-only for %s', async (eventId, notice) => {
     await openMessages(eventId)
 

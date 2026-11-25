@@ -126,7 +126,7 @@ Found while building (Phase 6):
 
 - The mockup gives each table a **name** ("Family", "Friends"). **Decided (2026-10-13):** a table has only a number, a capacity and a shape; names are not built.
 
-- Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decided (2026-10-13, D22):** Over Capacity above the chairs; Full with no seat free, a label the mockup does not draw; Almost Full with 1 or 2 seats free; Ready otherwise.
+- Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decided (2026-10-13, D22):** Over Capacity above the chairs; Full with no seat free, a label the mockup does not draw; Almost Full with 1 or 2 seats free; Ready otherwise. *Renamed (owner, 2026-11-25, D108): Ready is shown as **Available Seats**.*
 - "Assigned Guests" in the KPI row counts attendees (214), not guest parties. It is labelled **Assigned Attendees**.
 - **Selected Table** is drawn under the Arrangement Preview on desktop and only in the Arrangement tab on a phone. It is built at the same place on both tabs: beside the list or the plan from 1280px, below it on narrower screens and phones, for the one table chosen by a click on its row or on the plan (D69, revised 2026-10-16). The panel's subtitle (the table's name) is not shown.
 - **Manage Guests / View Guests** has nothing drawn behind it; it opens the dialog described in D68.
@@ -143,7 +143,7 @@ Found while building (Phase 6):
 ### Event Settings
 
 - A required **Timezone** field is shown. PRD §5.2 relies on an event timezone and `PLAN.md` Phase 7 includes it, but the PRD §5.1 field table omits it. Treated as required; the PRD table should be updated when Phase 7 is implemented.
-- The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here. **Decided (2026-10-13):** the button opens a read-only dialog listing the event's rules; Duplicate and Delete stay in the event card menu only.
+- The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here. **Decided (2026-10-13):** the button opens a read-only dialog listing the event's rules; Duplicate and Delete stay in the event card menu only. *Renamed (owner, 2026-11-25, D108): the section is titled **Event Rules**, since it holds rules, not destructive actions.*
 - The mockup has no **Location** field, although an event has a location. **Decided (2026-10-13):** an optional Location field is added to General Information, under Event Name. It suggests places from Google Maps when the deployment has a Google key (D104).
 - The mockup has no **Phone Number Country** field. **Added (D103):** Israel or Brazil, the country a number typed without a code is read as.
 - The **Timezone** field can be searched by city or by country (D104).

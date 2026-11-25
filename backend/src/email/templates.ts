@@ -18,8 +18,8 @@ type Content = Omit<EmailMessage, 'to'> & { images: EmailImage[] }
 
 const ROLE: Record<EmailLanguage, Record<EventRole, string>> = {
   en: { OWNER: 'Owner', ADMIN: 'Admin', VIEWER: 'Viewer' },
-  he: { OWNER: 'בעלים', ADMIN: 'מנהל', VIEWER: 'צופה' },
-  pt: { OWNER: 'Proprietário', ADMIN: 'Administrador', VIEWER: 'Leitor' },
+  he: { OWNER: 'בעלים', ADMIN: 'מנהל', VIEWER: 'צפייה בלבד' },
+  pt: { OWNER: 'Proprietário', ADMIN: 'Administrador', VIEWER: 'Visualizador' },
 }
 
 const LOCALE: Record<EmailLanguage, string> = {
@@ -319,10 +319,10 @@ export function resetPassword(
       greeting,
       body: [['התקבלה בקשה לאפס את הסיסמה של החשבון שלך.']],
       button: { label: 'בחירת סיסמה חדשה', url: input.url },
-      notes: [`הקישור תקף ל-${input.minutes} דקות ולשימוש אחד.`],
+      notes: [`הקישור תקף ל-${input.minutes} דקות ולשימוש חד־פעמי.`],
       footer: [
         SECURE.he.email,
-        'אם לא ביקשת לאפס את הסיסמה, אפשר להתעלם מהודעה זו בבטחה; הסיסמה לא תשתנה.',
+        'אם לא ביקשת לאפס את הסיסמה, אפשר להתעלם מההודעה. הסיסמה תישאר ללא שינוי.',
       ],
     },
     pt: {
@@ -414,7 +414,7 @@ export function invitation(
       greeting,
       body: [
         [
-          `${inviter} הזמין/ה אותך להצטרף לניהול האירוע `,
+          `הוזמנת על ידי ${inviter} להצטרף לניהול האירוע `,
           { strong: event },
           '.',
         ],
@@ -485,7 +485,7 @@ export function accessGranted(
       hero: 'envelope',
       title: `קיבלת גישה לאירוע ${event}`,
       greeting,
-      body: [[`${inviter} נתן/ה לך גישה לאירוע `, { strong: event }, '.']],
+      body: [[`קיבלת מ־${inviter} גישה לאירוע `, { strong: event }, '.']],
       details,
       button: { label: 'פתיחת האירוע', url: input.url },
       notes: ['האירוע מופיע עכשיו בדף "האירועים שלי".'],
@@ -530,8 +530,8 @@ export function testEmail(
     he: {
       kind: 'test',
       subject: 'אימייל בדיקה מ-Event Planner',
-      title: 'שליחת אימיילים עובדת',
-      body: [['זהו אימייל בדיקה. אם הוא הגיע, שליחת האימיילים עובדת.']],
+      title: 'שליחת האימיילים פועלת',
+      body: [['זוהי הודעת בדיקה. אם קיבלת אותה, שליחת האימיילים פועלת.']],
       button: { label: 'פתיחת Event Planner', url: input.url },
       notes: [],
       footer: [SECURE.he.email, 'נשלח מדף המערכת על ידי משתמש-על.'],

@@ -62,6 +62,9 @@ describe('notification bell (D95)', () => {
         `/events/${DEMO_EVENTS.owner}/guests`,
       ),
     )
+    // The event pages have their own top bar, loaded on first use: until the
+    // Guests page shows, the bell on screen is My Events' and about to go.
+    await screen.findByRole('heading', { level: 1, name: 'Guests' })
     expect(screen.queryByRole('group', { name: /^Notifications/ })).toBeNull()
     expect(
       await screen.findByRole('button', {
