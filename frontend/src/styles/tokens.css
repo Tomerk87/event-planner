@@ -1,5 +1,5 @@
 /*
- * Design tokens, taken from the mockups in /mockups.
+ * Design tokens, taken from the mockups in /resources/mockups.
  * Breakpoints (media queries cannot read custom properties):
  *   phone layout   below 768px   — tables become cards
  *   compact shell  below 1024px  — sidebar becomes a drawer behind a menu button

@@ -210,4 +210,5 @@ The production stack (Nginx, the API and PostgreSQL in Docker Compose on one sma
 - `docs/DEPLOYMENT.md` — production stack, AWS setup guide and operations
 - `docs/MOCKUP_NOTES.md` — differences between mockups and requirements
 - `docs/FUTURE_FEATURES.md` — features left out of the MVP
-- `mockups/README.md` — page-to-mockup mapping
+- `resources/mockups/README.md` — page-to-mockup mapping
+- `resources/screenshots/` — the application as built, every page and tab, desktop and mobile

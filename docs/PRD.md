@@ -6,7 +6,7 @@
 **Supported languages:** English, Hebrew and Brazilian Portuguese  
 **Supported devices:** Desktop and mobile browsers (tablets receive the desktop or mobile layout that fits their width; dedicated tablet layouts are deferred)  
 **Implementation reference:** `AGENTS.md` and `PLAN.md`  
-**Visual reference:** `mockups/README.md` and the mapped images in `mockups/`
+**Visual reference:** `resources/mockups/README.md` and the mapped images in `resources/mockups/`
 
 ## 1. Product vision
 
@@ -282,7 +282,7 @@ The organizer can configure:
 - Optional YouTube link after approval. Only `https` addresses on `youtube.com` or `youtu.be` are accepted.
 - The default RSVP language.
 - A live preview of the public page, including unsaved changes, for each of its four states.
-- Mobile Settings and Preview tabs as mapped in `mockups/README.md`.
+- Mobile Settings and Preview tabs as mapped in `resources/mockups/README.md`.
 
 On the public page the three response buttons send the answer directly. The guest then sees the matching message and can change the answer until the event starts. After an approval the calendar and YouTube actions open the real pages in a new tab. A link that matches no event shows a plain "not available" page.
 
@@ -436,7 +436,7 @@ A new visitor can open Demo Mode without login, see a populated event, create/ed
 
 ## 14. Visual design and mockup mapping
 
-`mockups/README.md` is the authoritative mapping for individual desktop and mobile reference images. The known mappings are:
+`resources/mockups/README.md` is the authoritative mapping for individual desktop and mobile reference images. The known mappings are:
 
 | Page | Desktop | Mobile |
 |---|---|---|
@@ -507,7 +507,7 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 - `docs/PRD.md` (this document) defines **product behavior and acceptance expectations**.
 - `AGENTS.md` defines coding-agent rules and technical constraints.
 - `PLAN.md` defines implementation sequencing, validation gates, and a living progress log.
-- `mockups/README.md` maps screens/tabs to their reference images.
+- `resources/mockups/README.md` maps screens/tabs to their reference images.
 - `docs/FUTURE_FEATURES.md` lists features left out of the MVP.
 
 If technical implementation uncovers a conflict or unspecified product behavior, record the decision and update this PRD rather than silently changing functionality. Keep completed plan steps and implementation notes in `PLAN.md`, not here.

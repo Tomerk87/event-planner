@@ -1,5 +1,5 @@
 /**
- * Draws the pictures of the server's emails (mockups/event_collaboration_email.png)
+ * Draws the pictures of the server's emails (resources/mockups/event_collaboration_email.png)
  * and writes them, as PNG, into backend/src/email/images.ts. Email programs
  * do not show SVG, so each drawing is rendered by the browser of Playwright.
  *

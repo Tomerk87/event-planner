@@ -1,6 +1,6 @@
 # Mockup notes: scope and differences from the PRD
 
-Recorded after reviewing all 19 images in `mockups/` against `docs/PRD.md` (2026-10-12); the two landing-page images were added and reviewed on 2026-10-13. `mockups/README.md` remains the authoritative page-to-image mapping; this file records where the images and the approved requirements disagree or leave gaps.
+Recorded after reviewing all 19 images in `resources/mockups/` against `docs/PRD.md` (2026-10-12); the two landing-page images were added and reviewed on 2026-10-13. `resources/mockups/README.md` remains the authoritative page-to-image mapping; this file records where the images and the approved requirements disagree or leave gaps.
 
 Rule applied throughout (`AGENTS.md`, owner decision 2026-10-12): the mockups were created after the PRD, so where a mockup differs from or adds to the PRD, the mockup is built. The PRD remains the source of truth for business rules and is updated in the same phase. Items marked **Decision needed** are ones this rule does not settle, because mockups contradict each other or do not show what an element does; they are listed in `docs/DOMAIN.md` and are not to be resolved by guessing. Items marked **Decided** record an owner decision.
 

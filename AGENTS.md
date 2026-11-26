@@ -181,8 +181,10 @@ Typical structure:
   AGENTS.md
   CLAUDE.md
   PLAN.md
-  mockups/
-    README.md
+  resources/
+    mockups/
+      README.md
+    screenshots/
   docs/
     PRD.md
     DOMAIN.md
@@ -238,13 +240,13 @@ Add nested `AGENTS.md` files only when a subdirectory has important instructions
 
 ## UI mockups and visual guidance
 
-The project contains UI reference images in the root-level `mockups/` directory.
+The project contains UI reference images in the `resources/mockups/` directory. `resources/screenshots/` holds screenshots of the application as built (English, desktop and mobile, every page and tab) for comparison and for designing new mockups; the mockups and their mapping stay the reference.
 
-`mockups/README.md` is the authoritative mapping between product pages/tabs and their corresponding desktop/mobile mockup files.
+`resources/mockups/README.md` is the authoritative mapping between product pages/tabs and their corresponding desktop/mobile mockup files.
 
 Before implementing or modifying any user-facing page or tab:
 
-1. Read `mockups/README.md`.
+1. Read `resources/mockups/README.md`.
 2. Identify the exact mockup(s) mapped to the page or tab being implemented.
 3. Open and review all relevant desktop and mobile mockups before writing UI code.
 4. If mobile has separate tab-specific mockups, implement those layouts explicitly. Do not assume that mobile is simply a scaled-down desktop version.
@@ -272,7 +274,7 @@ Before implementing or modifying any user-facing page or tab:
 8. Do not invent a substantially different visual language or page structure when a mapped mockup exists.
    - Every data table follows the same guidelines on desktop (owner decision 2026-10-13): headings centred; number columns centred and text columns start-aligned; English headings in Title Case; the actions column last, pinned, with its heading hidden. Build tables with the shared `DataTable`; see `docs/ARCHITECTURE.md`.
    - Every dropdown uses the product's own list (`shared/ui/Select.tsx`, through `SelectField`), the same list the group picker shows; the browser's native select is not used. The column chooser, which has checkboxes, is the one deliberate exception.
-9. Do not select a mockup based only on visual similarity when `mockups/README.md` provides an explicit mapping.
+9. Do not select a mockup based only on visual similarity when `resources/mockups/README.md` provides an explicit mapping.
 10. If desktop and mobile mockups differ structurally, treat that difference as intentional unless it clearly conflicts with an approved product requirement.
 11. The mockups were created after the PRD. If a mapped mockup differs from or adds to the PRD:
    - build what the mockup shows (layout, navigation, fields, panels, buttons);
@@ -284,7 +286,7 @@ Before implementing or modifying any user-facing page or tab:
    - reuse established patterns from the closest relevant mockups;
    - reuse existing shared components;
    - do not introduce a new visual language without need.
-13. When a new mockup is added, update `mockups/README.md` so the mapping remains explicit.
+13. When a new mockup is added, update `resources/mockups/README.md` so the mapping remains explicit.
 
 Every UI implementation must be validated in:
 - desktop LTR
@@ -368,7 +370,7 @@ When fixing a bug, add or update a regression test whenever practical.
 - Keep `PLAN.md` synchronized with implementation progress.
 - Limits that a deployment may change (seats per table, event and invitation sizes, import and picture sizes) are read from `domain/limits.ts` (`limits()`, `EVENT_LIMITS`, `TABLE_LIMITS`), never written as numbers in rules or screens; they come from the server's settings, or the demo's `VITE_*_DEMO` settings (D110, README.md "Settings").
 - Do not edit `frontend/VERSION` or `backend/VERSION` by hand: the Version workflow raises them when a pull request is merged (D107, `docs/DEVELOPMENT.md` "Versions"). The one exception is setting a new major version, on the owner's decision.
-- Keep product requirements in `docs/PRD.md`, implementation rules in `AGENTS.md`, execution steps in `PLAN.md`, and exact screen-to-image mappings in `mockups/README.md`.
+- Keep product requirements in `docs/PRD.md`, implementation rules in `AGENTS.md`, execution steps in `PLAN.md`, and exact screen-to-image mappings in `resources/mockups/README.md`.
 - Keep `docs/FUTURE_FEATURES.md` as the list of everything left out of the MVP. Whenever a feature is left out (by a scope decision, or because a mockup shows something that is not being built now), add it there in the same change.
 - If the files conflict, flag the disagreement instead of silently overriding an approved product requirement.
 

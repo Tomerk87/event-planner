@@ -5,7 +5,7 @@ import type { EmailImage, EmailMessage } from './mailer.ts'
 
 /**
  * The emails the server sends, in English, Hebrew and Portuguese, laid out as in
- * mockups/event_collaboration_email.png: the Event Planner mark, a title, the
+ * resources/mockups/event_collaboration_email.png: the Event Planner mark, a title, the
  * message, an optional box of details, one button, and a footer. Each email
  * is HTML plus a plain-text version; the HTML escapes every value a person
  * typed. The pictures travel inside the email (inline attachments), since
