@@ -3,11 +3,11 @@
 **Status:** Frontend-first POC plan  
 **Approach:** Mockup-driven interactive frontend → UX acceptance → NestJS/PostgreSQL backend → API integration → Docker Compose/AWS deployment  
 **Execution:** Living checklist maintained by the coding agent  
-**Sources:** `AGENTS.md` (engineering rules), `docs/PRD.md` (product behavior), `mockups/README.md` (exact visual mapping)
+**Sources:** `AGENTS.md` (engineering rules), `docs/PRD.md` (product behavior), `resources/mockups/README.md` (exact visual mapping)
 
 ## How to use this plan
 
-1. Read `AGENTS.md`, the current active phase in `PLAN.md`, and the relevant sections of `docs/PRD.md` and `mockups/README.md` for the task at hand.
+1. Read `AGENTS.md`, the current active phase in `PLAN.md`, and the relevant sections of `docs/PRD.md` and `resources/mockups/README.md` for the task at hand.
 2. Inspect the current repository and **preserve already implemented work**. Do not blindly scaffold over existing files.
 3. Work through phases in order. A dependency-driven exception requires a note in the progress log; do not silently switch to a backend-first approach.
 4. Complete one small, testable checklist unit at a time. Add missing tasks, discovered edge cases, and refinements in the relevant phase.
@@ -32,7 +32,7 @@
 - Defer full Docker Compose integration until later. Design for a **single small, low-resource AWS EC2 VM** from the start: static React build via Nginx, NestJS, local PostgreSQL persistent volume, upload storage abstraction.
 - No Redis, Kubernetes, microservices, managed RDS, or background workers for the POC unless justified and approved.
 - The **visual venue Arrangement editor** remains post-MVP as previously specified; the MVP includes Tables and seating. Preserve its mobile/desktop mockups for later. If full interactive Arrangement is desired earlier, record a scope decision before moving it.
-- Mockup mapping lives in `mockups/README.md`. Never guess which tab's PNG to use when the mapping exists.
+- Mockup mapping lives in `resources/mockups/README.md`. Never guess which tab's PNG to use when the mapping exists.
 - **Mockups were created after the PRD.** Where a mockup differs from or adds to the PRD, build what the mockup shows; the PRD stays the source of truth for business rules and is updated in the same phase. Ask the owner when a mockup element's behavior is not evident.
 - Features left out of the MVP are listed in `docs/FUTURE_FEATURES.md`; add to it whenever something is deferred.
 
@@ -45,7 +45,7 @@
 ### Checklist
 - [x] Confirm root `AGENTS.md`, `CLAUDE.md`, and `PLAN.md` exist; ensure Claude redirects to AGENTS.
 - [x] Confirm `docs/PRD.md` exists and includes Demo Mode, event permissions, guests, RSVP, WhatsApp, tables, exports, and past-event behavior.
-- [x] Confirm `mockups/README.md` indexes actual PNG filenames, pages, breakpoints, and tab variants.
+- [x] Confirm `resources/mockups/README.md` indexes actual PNG filenames, pages, breakpoints, and tab variants.
 - [x] Confirm all referenced PNG files exist. Note missing images explicitly rather than silently substituting designs.
 - [x] Document MVP vs post-MVP visual Arrangement scope and any differences between PRD and mockups.
 - [x] Record architecture decisions under `docs/` (React/TypeScript, NestJS, PostgreSQL, Prisma, i18next, mock/API providers, AWS single-VM constraints).
@@ -85,7 +85,7 @@
 **Goal:** establish one reusable visual language from the actual desktop/mobile mockups before creating feature pages.
 
 ### Checklist
-- [x] Read `mockups/README.md`; inspect all supplied screen types to extract common patterns.
+- [x] Read `resources/mockups/README.md`; inspect all supplied screen types to extract common patterns.
 - [x] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
 - [x] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
 - [x] Implement responsive application shell, event selector/header, desktop navigation and mobile navigation. Event navigation is identical on every event page, in this order: Dashboard, Guests, RSVP, Messages, Event Layout, Event Settings, Permissions (hidden for Viewers). The event selector is in the sidebar only. Do not build the notification bell, Profile or account Settings (the bell was later built at the owner's request, D95, 2026-10-15). Inside an event the avatar shows the user's role icon (crown Owner, shield Admin, people icon Viewer; Super User without membership shows the crown); no icon outside an event. Design and verify desktop and phone widths; tablets are not a separate target.
@@ -375,7 +375,7 @@
 **Goal:** finish a cohesive interactive prototype and obtain explicit acceptance before backend implementation.
 
 ### Checklist
-- [x] Walk through every mockup mapped in `mockups/README.md`; compare implemented pages/tabs and record differences. Differences are in `docs/MOCKUP_NOTES.md`.
+- [x] Walk through every mockup mapped in `resources/mockups/README.md`; compare implemented pages/tabs and record differences. Differences are in `docs/MOCKUP_NOTES.md`.
 - [x] Review all core workflows on desktop and mobile, English/LTR and Hebrew/RTL.
 - [x] Check demo setup, deterministic reset, local persistence and independent visitor data.
 - [x] Check loading, empty, success, error, conflict, confirmation, disabled and read-only states.
@@ -513,7 +513,7 @@
 - [x] Forgot password by email, with a one-time link that signs the account out everywhere (D88).
 - [x] Invitation emails, with "Resend email" on a pending invitation (D90).
 - [x] Read-only System page for Super Users: email settings and a test email (D91).
-- [x] Email design from `mockups/event_collaboration_email.png` for every email the server sends, in English and Hebrew; Accept Invitation opens sign-up with the address filled in (owner request 2026-10-15, D93).
+- [x] Email design from `resources/mockups/event_collaboration_email.png` for every email the server sends, in English and Hebrew; Accept Invitation opens sign-up with the address filled in (owner request 2026-10-15, D93).
 - [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew. The owner chose the side-by-side sheet (2026-10-15): `docs/hebrew-review.xlsx` (`npm run hebrew-review` in `frontend/`) is ready; **waiting for the owner's corrections**, then apply them and re-check the Hebrew screenshots.
 
 ### Validation and exit criteria
@@ -715,7 +715,7 @@ Follow-ups/risks:
 - The current Vite template ships oxlint (`.oxlintrc.json`), not ESLint; decide in the next Phase 1 item whether to keep it.
 - `frontend/src/App.tsx` has a hard-coded placeholder string "Event Planner"; replace when i18n lands in Phase 2.
 - `frontend/README.md` is still the Vite template text; replace in the Phase 1 README item.
-- `mockups/permissions.png` and `mockups/permissions_mobile.png` exist but are not indexed in `mockups/README.md`, and `docs/PRD.md` says Permissions has no direct mockup; resolve in Phase 0 / before Phase 11.
+- `resources/mockups/permissions.png` and `resources/mockups/permissions_mobile.png` exist but are not indexed in `resources/mockups/README.md`, and `docs/PRD.md` says Permissions has no direct mockup; resolve in Phase 0 / before Phase 11.
 Next: Phase 1 — strict TypeScript, lint, formatting, test runner and e2e strategy.
 ```
 
@@ -724,10 +724,10 @@ Next: Phase 1 — strict TypeScript, lint, formatting, test runner and e2e strat
 Done:
 - Confirmed AGENTS.md, CLAUDE.md (redirects to AGENTS.md), PLAN.md and docs/PRD.md exist; PRD covers Demo Mode, permissions, guests, RSVP, WhatsApp, tables, exports and past events.
 - Added docs/ARCHITECTURE.md (decisions, undecided choices, repository structure), docs/DOMAIN.md (glossary, open decisions D1–D24), docs/MOCKUP_NOTES.md (Arrangement scope, PRD-vs-mockup differences, screens with no mockup), docs/DEVELOPMENT.md (quality, testing and review workflow).
-- Indexed permissions.png / permissions_mobile.png and added a breakpoints note in mockups/README.md; added the Permissions row to PRD §14 and a mockup mapping to Phase 11. This resolves the unindexed-mockup follow-up from the previous entry.
+- Indexed permissions.png / permissions_mobile.png and added a breakpoints note in resources/mockups/README.md; added the Permissions row to PRD §14 and a mockup mapping to Phase 11. This resolves the unindexed-mockup follow-up from the previous entry.
 - Added root .gitignore.
-Validation: script check that every PNG named in mockups/README.md, docs/PRD.md and PLAN.md exists (none missing) and every PNG on disk is indexed (none unindexed after the README update); all 19 mockups opened and reviewed; pattern scan of tracked text files for secrets and env/key files (none found).
-Mockups reviewed: all 19 files in mockups/.
+Validation: script check that every PNG named in resources/mockups/README.md, docs/PRD.md and PLAN.md exists (none missing) and every PNG on disk is indexed (none unindexed after the README update); all 19 mockups opened and reviewed; pattern scan of tracked text files for secrets and env/key files (none found).
+Mockups reviewed: all 19 files in resources/mockups/.
 Follow-ups/risks:
 - No behavioral conflict found between AGENTS.md, PLAN.md and docs/PRD.md. The mockups differ from the PRD in several places; these are recorded in docs/MOCKUP_NOTES.md and the ones needing an owner decision are D6–D22 in docs/DOMAIN.md. D7–D9 are needed by Phase 2.
 - PRD §5.1 field table omits the event timezone that PRD §5.2 and Phase 7 rely on; update the PRD table in Phase 7.
@@ -765,7 +765,7 @@ Decisions:
 - Arrangement: tab shown as "Soon" and disabled; no Arrangement Preview panel.
 - Public RSVP: number of attendees always required; discarded for Declined and Not Sure.
 - New docs/FUTURE_FEATURES.md lists everything left out of the MVP and is kept current.
-Changed: AGENTS.md, docs/PRD.md (sections 4.2, 8.1, 11.4, 17, 18, 19), docs/DOMAIN.md (D6, D10, D15, D18, D20, D21 resolved; R1–R3 added), docs/MOCKUP_NOTES.md, mockups/README.md, docs/ARCHITECTURE.md, Phases 2, 9 and 10 of this plan, and the placeholder navigation order in frontend/src/app/EventLayout.tsx.
+Changed: AGENTS.md, docs/PRD.md (sections 4.2, 8.1, 11.4, 17, 18, 19), docs/DOMAIN.md (D6, D10, D15, D18, D20, D21 resolved; R1–R3 added), docs/MOCKUP_NOTES.md, resources/mockups/README.md, docs/ARCHITECTURE.md, Phases 2, 9 and 10 of this plan, and the placeholder navigation order in frontend/src/app/EventLayout.tsx.
 Validation: after the navigation change, from frontend/: `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm test` 22 passed; `npm run test:e2e` 4 passed. Searched the docs for the superseded wording; none left.
 Follow-ups/risks: still open before Phase 2 — D7 (event selector placement), D8 (notification bell, Profile, account Settings), D9 (crown icon).
 Next: Phase 2.
@@ -774,7 +774,7 @@ Next: Phase 2.
 ```text
 2026-10-12 — Phase 2 owner decisions recorded (no phase item completed)
 Decisions: D7 event selector in the sidebar only; D8 notification bell, Profile and account Settings left out of the MVP; D9 avatar icon shows the role in the current event (crown Owner, shield Admin, people icon Viewer), none outside an event, Super User shows the crown; D24 tablet layouts not designed or verified for the MVP.
-Changed: docs/DOMAIN.md, docs/FUTURE_FEATURES.md, docs/PRD.md (header, sections 4.2 and 13), docs/MOCKUP_NOTES.md, mockups/README.md, Phase 2 shell item in this plan.
+Changed: docs/DOMAIN.md, docs/FUTURE_FEATURES.md, docs/PRD.md (header, sections 4.2 and 13), docs/MOCKUP_NOTES.md, resources/mockups/README.md, Phase 2 shell item in this plan.
 Validation: documentation only, no code changed. Checked that docs/DOMAIN.md has no open decision needed by Phase 2 and searched the docs for wording that contradicts the outcomes.
 Follow-ups/risks: none blocking Phase 2. Open decisions D11–D14, D16, D17, D19, D22 and D23 belong to Phase 3 and later.
 Next: Phase 2.
@@ -835,7 +835,7 @@ Next: Phase 3 — needs owner decision D23 (phone-number range for generated dem
 ```text
 2026-10-12 — Phase 2 addition — phone bottom action bar.
 Decisions (owner): the two-button bottom bar in four phone mockups is drawn wider than the page and is a mockup error; the bar is aligned with the page content with equal-width buttons, stays pinned to the bottom of the screen, and is used on every phone form page that is saved, including Event Settings.
-Done: BottomActionBar component; PageHeader option compactActions="bar" that moves header actions into the bar below 1024px; space reserved at the end of the page so the bar never covers content, focused fields or toasts; demonstrated on /showcase; decisions recorded in docs/MOCKUP_NOTES.md, docs/DOMAIN.md (R4, R5), docs/PRD.md section 13, mockups/README.md and Phases 7, 8 and 9 of this plan.
+Done: BottomActionBar component; PageHeader option compactActions="bar" that moves header actions into the bar below 1024px; space reserved at the end of the page so the bar never covers content, focused fields or toasts; demonstrated on /showcase; decisions recorded in docs/MOCKUP_NOTES.md, docs/DOMAIN.md (R4, R5), docs/PRD.md section 13, resources/mockups/README.md and Phases 7, 8 and 9 of this plan.
 Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 142 passed, coverage 94.43% statements, 91.66% branches, 90.85% functions, 94.22% lines; `npm run test:e2e` 62 passed, 12 skipped by design (tests that apply to only one of the two layouts), zero axe violations; `npm run build` succeeded. End-to-end checks on the phone project: bar edges match the content cards in English and Hebrew, buttons equal width, primary action on the right in English and left in Hebrew, bar stays in place while scrolling, does not cover the page end, toasts sit above it, fits a 320px-wide phone, single allowed action spans the full width. Phone screenshots in English and Hebrew reviewed by the agent.
 Mockups reviewed: whatsapp_message_editor_mobile.png, whatsapp_message_preview_mobile.png, rsvp_settings_settings_mobile.png, rsvp_settings_preview_mobile.png, event_settings_mobile.png.
 Follow-ups/risks: the bar is built for widths below 1024px only; it has not been tried on a real phone with an on-screen keyboard open. Work is on branch phase_2_bottom_action_bar, created from main; nothing committed.
@@ -888,7 +888,7 @@ Next: Phase 5 — Dashboard. Needs owner decision D12 (where the Dashboard's "Vi
 
 ```text
 2026-10-13 — Phase 4 follow-ups and Phase 5 decisions.
-Decisions (owner): the Dashboard's "View Event" button is named "Event Settings" and opens Event Settings (D12, Dashboard half); Seating Capacity and Unassigned Confirmed Attendees are two more KPI cards (D28); warnings without a mockup use the over-capacity warning's style (D29); an organizer's manual RSVP change counts as the guest's latest response (P5 confirmed); the landing page keeps its drawn preview (D30). Recorded in docs/DOMAIN.md, docs/PRD.md section 10, docs/MOCKUP_NOTES.md and mockups/README.md; Phase 5 checklist updated.
+Decisions (owner): the Dashboard's "View Event" button is named "Event Settings" and opens Event Settings (D12, Dashboard half); Seating Capacity and Unassigned Confirmed Attendees are two more KPI cards (D28); warnings without a mockup use the over-capacity warning's style (D29); an organizer's manual RSVP change counts as the guest's latest response (P5 confirmed); the landing page keeps its drawn preview (D30). Recorded in docs/DOMAIN.md, docs/PRD.md section 10, docs/MOCKUP_NOTES.md and resources/mockups/README.md; Phase 5 checklist updated.
 Done: the design-system showcase now shows the Menu component and the generated event covers, which Phase 4 had left out.
 Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 531 passed, coverage 97.94% statements, 93.57% branches; `npm run test:e2e` 137 passed, 13 skipped by design, zero accessibility violations including the showcase with the menu open, in English and Hebrew; `npm run build` succeeds.
 Follow-ups/risks:
@@ -917,7 +917,7 @@ Next: Phase 6 — Guests and Unknown Guests. Needs owner decisions D13 (bulk sel
 
 ```text
 2026-10-13 — Phase 5 follow-ups and Phase 6 decisions.
-Decisions (owner): Guests — bulk delete and export of selected rows (D13); label "Not Sent" for a guest not yet invited (D14); rejected unknown responses are kept in a restorable Rejected list (D31); export as CSV and Excel (D32); details panel and row menu (D33); the sliders button is a column chooser with Name and Phone always shown, remembered in the browser, desktop only (D34); a Clear filters button (D35); the per-row WhatsApp button is disabled until Phase 8 (D36). Defaults P2, P3, P6, P10, P11 and P13 confirmed. P12 changed: activity times use the viewer's own time zone. Recorded in docs/DOMAIN.md, docs/PRD.md, docs/MOCKUP_NOTES.md, mockups/README.md and docs/FUTURE_FEATURES.md; the Phase 6 checklist was rewritten to match.
+Decisions (owner): Guests — bulk delete and export of selected rows (D13); label "Not Sent" for a guest not yet invited (D14); rejected unknown responses are kept in a restorable Rejected list (D31); export as CSV and Excel (D32); details panel and row menu (D33); the sliders button is a column chooser with Name and Phone always shown, remembered in the browser, desktop only (D34); a Clear filters button (D35); the per-row WhatsApp button is disabled until Phase 8 (D36). Defaults P2, P3, P6, P10, P11 and P13 confirmed. P12 changed: activity times use the viewer's own time zone. Recorded in docs/DOMAIN.md, docs/PRD.md, docs/MOCKUP_NOTES.md, resources/mockups/README.md and docs/FUTURE_FEATURES.md; the Phase 6 checklist was rewritten to match.
 Done: Dashboard chart group renamed from "Not Invited Yet" to "Not Sent"; Recent Guest Activity times now follow the viewer's time zone.
 Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 571 passed, coverage 97.96% statements, 93.58% branches; `npm run test:e2e` 168 passed, 14 skipped by design; `npm run build` succeeds.
 Follow-ups/risks:
@@ -966,7 +966,7 @@ Next: Phase 7 — Event Settings. Needs owner decisions D19 and the "View Event 
 ```text
 2026-10-13 — Phase 7 — Event Settings.
 Decisions (owner): the guest RSVP language belongs to RSVP Settings and each guest can switch the public page between English and Hebrew; organizer-written texts are not translated (D19, replaces "fixed per event"). Event Settings has no language selector. View Event Rules opens a rules dialog (D12). No Duplicate/Delete in the Danger Zone (D38). Location is edited here (D39). A date in the past is refused, a time-zone change keeps the typed time, defaults do not alter existing guests (D40). Leaving asks only when there are unsaved changes (D41). P14–P18 confirmed.
-Done: Event Settings page (General Information, Guest Defaults, RSVP notice, Capacity Summary with the Dashboard's figures and warnings, Danger Zone, rules dialog, unsaved-changes prompt); Save in the header on desktop and in the bottom bar on a phone; read-only for a Viewer and a past event. events.update refuses a past date. Form validation and messages shared with the create-event dialog. AGENTS.md, PRD, DOMAIN, MOCKUP_NOTES, mockups/README and FUTURE_FEATURES updated; Phase 9 checklist gained the default-language selector, the guest language switch and the RSVP title.
+Done: Event Settings page (General Information, Guest Defaults, RSVP notice, Capacity Summary with the Dashboard's figures and warnings, Danger Zone, rules dialog, unsaved-changes prompt); Save in the header on desktop and in the bottom bar on a phone; read-only for a Viewer and a past event. events.update refuses a past date. Form validation and messages shared with the create-event dialog. AGENTS.md, PRD, DOMAIN, MOCKUP_NOTES, resources/mockups/README and FUTURE_FEATURES updated; Phase 9 checklist gained the default-language selector, the guest language switch and the RSVP title.
 Validation: from frontend/ — `npm run typecheck`, `npm run lint`, `npm run format:check` clean; `npm run test:coverage` 783 passed, coverage 96.54% statements, 91.19% branches; `npm run test:e2e` 218 passed, 18 skipped by design; `npm run build` succeeds. Desktop and phone, English and Hebrew, checked from screenshots against both mockups.
 Follow-ups/risks:
 - Until Phase 9 the RSVP language can only be chosen when creating an event.
@@ -1094,7 +1094,7 @@ Decisions (owner): table status thresholds, with a Full label (D22); capacity ma
 - Domain: tableStatus, partiesAt, seatingCandidates, TABLE_LIMITS (seating.ts); filterTables, sortTables (tableList.ts); buildSeatingExportTable (exports.ts); buildSeatingSummaryRows removed. The service contract did not change.
 - Shared: DataTable can highlight the row whose details are shown (activeKey).
 - Demo data: generated tables now leave some chairs free, so every status label appears; dataset version 6, so stored demo data is regenerated once.
-- Docs: PRD §11.1 and §11.3, DOMAIN, MOCKUP_NOTES, mockups/README, FUTURE_FEATURES. `*.swp` added to .gitignore.
+- Docs: PRD §11.1 and §11.3, DOMAIN, MOCKUP_NOTES, resources/mockups/README, FUTURE_FEATURES. `*.swp` added to .gitignore.
 Validation: typecheck, lint, format clean; 955 unit tests (96% statements, 91% branches; event-layout 93%); browser tests 281 passed, 25 skipped by design; build succeeds.
 Mockups reviewed: event_layout.png, event_layout_tables_mobile.png, event_layout_arrangement_mobile.png. Screenshots reviewed: desktop 1440px (English, Hebrew), 1100px, phone (English, Hebrew), guests dialog desktop and phone.
 Differences from the mockups: recorded in MOCKUP_NOTES under Event Layout.
@@ -1114,7 +1114,7 @@ Decisions (owner): pending invitation for an email with no account (D4); permiss
 - Contract: permissions.list returns members and invitations; invite(email, role) replaces listCandidates and grant, so accounts are never listed; changeInvitationRole, cancelInvitation.
 - Mock: invitations stored with the workspace; sign-up turns the invitations of that email into memberships; deleting an event removes them, duplicating does not copy them. Dataset version 7 (one seeded invitation), so stored demo data is regenerated once. Accounts saved earlier are kept: missing invitations read as none.
 - Shared: KpiGrid `trio` keeps three cards on one row on a phone.
-- Docs: PRD §3.2, §3.3, §5.2, §18; DOMAIN (D4, P1, P8, D72); MOCKUP_NOTES; mockups/README; FUTURE_FEATURES.
+- Docs: PRD §3.2, §3.3, §5.2, §18; DOMAIN (D4, P1, P8, D72); MOCKUP_NOTES; resources/mockups/README; FUTURE_FEATURES.
 Validation: typecheck, lint, format clean; unit tests pass with a role-by-action matrix for Viewer, Admin, Owner and Super User on an upcoming and a past event (80 cases) and the contract suite extended for invitations; permissions feature coverage 97% statements, 93% branches; browser tests for the page on desktop and phone, English and Hebrew, with accessibility checks.
 Mockups reviewed: permissions.png, permissions_mobile.png. Screenshots reviewed: desktop English and Hebrew, phone English and Hebrew.
 Differences from the mockups: recorded in MOCKUP_NOTES under Permissions.
@@ -1278,13 +1278,13 @@ Follow-ups/risks:
 Next: owner review of Phase 17 and the Hebrew sheet; then Phase 18.
 
 2026-10-15 — Phase 17 — email design from the owner's new mockup, and a future feature.
-Decisions (owner): emails follow mockups/event_collaboration_email.png, so they are ready when a provider is connected (D93). Future feature: event types, personal or business, with business guests invited by email.
+Decisions (owner): emails follow resources/mockups/event_collaboration_email.png, so they are ready when a provider is connected (D93). Future feature: event types, personal or business, with business guests invited by email.
 - backend/src/email/templates.ts: one table-based layout with inline styles for all emails (mark, optional envelope picture, title, greeting, message, Role and Date box for event emails, button with an arrow that follows the reading direction, closing, footer with lock), en/he, plus a plain-text version. The event date is the event's day in its time zone. Typed values are escaped, and isolated in Hebrew. Pictures are PNGs sent as inline attachments (cid), drawn in frontend/scripts/email-images.ts (`npm run email-images`) into backend/src/email/images.ts. SmtpMailer attaches them.
 - Accept Invitation links to /signup?email=…; the sign-up form fills in that address. The access email greets the account by name.
-- Not built from the mockup: the Help, Privacy and Terms footer links (no such pages; FUTURE_FEATURES). Recorded in MOCKUP_NOTES and mockups/README.md.
+- Not built from the mockup: the Help, Privacy and Terms footer links (no such pages; FUTURE_FEATURES). Recorded in MOCKUP_NOTES and resources/mockups/README.md.
 - Hebrew review sheet regenerated with the new email texts.
 Validation: backend typecheck, lint (same 2 warnings), format, unit 508 (new: layout, greeting, date in the event's time zone, pictures, arrow direction, inline attachments), integration 283, build; frontend typecheck, lint, unit 1117 (new: sign-up fills in the invited address), coverage 96.1% / 91.3%, build, test:e2e 347 passed / 25 skipped (the email spec now opens Accept Invitation and signs up from it). By hand: invitation, access and reset emails sent over SMTP to Mailpit in English and Hebrew and viewed at 640 and 390 px; they match the mockup.
-Mockups reviewed: mockups/event_collaboration_email.png.
+Mockups reviewed: resources/mockups/event_collaboration_email.png.
 Follow-ups/risks: email stays off until Phase 18; the Hebrew email texts are part of the Hebrew review.
 Next: owner review of Phase 17 and the Hebrew sheet; then Phase 18.
 
@@ -1323,7 +1323,7 @@ Owner requests: make the Arrangement active and remove "Soon"; a table was alway
 - Selection (D69 revised): tick boxes on the desktop list, kept across pages, sorting and both tabs; nothing ticked to begin with; bulk bar with Export selected (seating of those tables; `tableIds` added to the seating export in the contract, demo, API and server), Delete selected (one confirmation; DeleteTableDialog takes several tables) and Clear selection; Selected Table only for exactly one ticked table; a table's number and the capacity warnings open its guests dialog at every width. `?table=` and the first-over-capacity default removed.
 - Table Arrangement tab (`?view=arrangement`): FloorPlan.tsx (SVG; chairs per seat, taken seats, red "!" over capacity, objects with icons and labels, floor picture clipped to the room, overlap outlines; zoom buttons, Ctrl/⌘-wheel and pinch, drag to pan, Show the whole room, Fullscreen with a fallback; plain clicks for keyboard and assistive technology, the pointer held only once a press becomes a drag). ArrangementTab.tsx: View mode with the Selected Table card beside or below; Edit mode (not on phones) with palette (unplaced tables, seven objects, Add Table), drag/move/turn/resize with 50 cm snapping, panel for position, turn, size, label, room size and the floor picture (Transparency, Zoom, Rotate, Reset, Replace, Remove), keyboard moves, Save Layout/Cancel, unsaved-changes guard, LAYOUT_CHANGED with Reload. Arrangement Preview with Open Arrangement on the Tables tab at 1360px and up. Shared RangeField (from the RSVP page) and a list formatter.
 - Found by hand and fixed: the plan box was taller than the room (now sized to it); Fit and Fullscreen had the same icon; the overlap notice above the plan pushed it down mid-drag, so a dragged table jumped (moved below the editor); a turned floor picture was clipped with its own turn; a click on a table never reached it in a browser once the plan captured the pointer; nothing led back to the room settings after choosing an item (Room and Picture button).
-- Docs: PRD §11.4 rewritten as built, §17 and question 6 updated; DOMAIN D69 revised, D100 points to the screen; MOCKUP_NOTES Visual Arrangement section; FUTURE_FEATURES (removed the editor, preview, extra objects; added phone editing, printing/exporting the plan, moving the floor picture, undo); ARCHITECTURE floor-plan row; mockups/README; Hebrew sheet 1075 texts.
+- Docs: PRD §11.4 rewritten as built, §17 and question 6 updated; DOMAIN D69 revised, D100 points to the screen; MOCKUP_NOTES Visual Arrangement section; FUTURE_FEATURES (removed the editor, preview, extra objects; added phone editing, printing/exporting the plan, moving the floor picture, undo); ARCHITECTURE floor-plan row; resources/mockups/README; Hebrew sheet 1075 texts.
 Validation:
 - Backend: typecheck, lint (same 2 warnings), format, unit 552, integration 300 (seating export of selected tables), npm audit 0, openapi.json regenerated.
 - Frontend: typecheck, lint, format; unit 1217 (new: ArrangementTab 16, FloorPlan gestures 7, selection and bulk on the page), coverage 95.69% statements / 90.35% branches; build; test:api 63 passed, 2 skipped; test:e2e 421 passed, 29 skipped (new arrangement.spec.ts and real-layout.spec.ts: choose and let go on the plan, pan and zoom, place by dragging from the palette, move with the mouse, add a plant, floor picture saved and reloaded with its opacity and turn, unsaved-changes guard, phone view with fullscreen, axe in en/he on both modes; event-layout.spec.ts: ticking, export and delete of selected tables).
@@ -1413,7 +1413,7 @@ Next: owner retest on the iPhone 16.
 - `docs/PRD.md` 1.2: Approved count limited by the event's Maximum Attendees per Guest in §8.3 (was the guest's allowance); Change RSVP mention removed; "default allowed attendees" renamed; Expected Attendees in §6.2/§6.3; duplication copies the phone country and photo; demo-only deployment (D102) in §3.1 and §12.1; Portuguese in §15; §16 deployment as built (EC2, Docker Compose, Nginx, SES).
 - `AGENTS.md`: default maximum 50, en/he/pt, approval limit per D104, demo-only and Google switches, repository tree with `deploy/` and the docs.
 - `docs/DOMAIN.md`: definitions corrected (languages, country, Expected Attendees, Confirmed, phone forms); superseded or revised notes added to D1, D6, D19, D26, D33, D37, D40, D64, D71, D75, D78, D81, D82, D93, D94, D97, D98, D104, P3 and P6 (rows kept as written).
-- `docs/MOCKUP_NOTES.md`, `mockups/README.md`: Status dropdown and Confirmed editing, Edit buttons, live WhatsApp button, photo upload, Portuguese, Phone Number Country, place suggestions; `event_layout_manage_guests.png` indexed (not yet compared with the built dialog).
+- `docs/MOCKUP_NOTES.md`, `resources/mockups/README.md`: Status dropdown and Confirmed editing, Edit buttons, live WhatsApp button, photo upload, Portuguese, Phone Number Country, place suggestions; `event_layout_manage_guests.png` indexed (not yet compared with the built dialog).
 - `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `docs/FUTURE_FEATURES.md`, `README.md`, `backend/README.md`, `frontend/src/domain/README.md`, `frontend/src/services/README.md`: email verification built, three languages, trees and modules, Playwright projects, review sheets, missing commands and switches.
 Validation: each changed statement checked against the code (duplicate copies `country`, scripts in package.json, folders on disk); grep of the docs for Change RSVP, ⋯ menus, default allowed attendees, two-language wording and the old 300 default finds only history and annotated rows. Docs only; no test run.
 Next: owner review; compare `event_layout_manage_guests.png` with the Manage Guests dialog.

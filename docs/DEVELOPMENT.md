@@ -5,7 +5,7 @@ How work is carried out and checked in this repository. `AGENTS.md` holds the ru
 ## Unit of work
 
 1. Take the earliest unchecked item in the active phase of `PLAN.md`.
-2. Read the related sections of `docs/PRD.md`. For UI work, open every mockup mapped to that page in `mockups/README.md`, desktop and mobile.
+2. Read the related sections of `docs/PRD.md`. For UI work, open every mockup mapped to that page in `resources/mockups/README.md`, desktop and mobile.
 3. Implement the smallest complete change. Split the checklist item in `PLAN.md` first if it turns out to be large.
 4. Run the validation below.
 5. Check the item off in `PLAN.md` only after validation passes, and append a progress-log entry listing the commands actually run.

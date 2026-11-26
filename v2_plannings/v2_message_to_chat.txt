@@ -1,0 +1,20 @@
+to this moment, our client is a person who organize an event, with an option to create a map of the place itself.
+
+I want us to talk about another client - Event Venues.&#x20;
+
+I think if we focus on them, their homepage might be separated to a few sections (maybe by tabs):
+
+1. The spaces they have. Here they can see all the places they have. When they create a space they will create a place with generic details: Name, Address, Maximum capacity (amount of people the place support).  Also - they get a Layout of the venue which is the Event Layout we have. They could create their own place, a map of the place, tables arrangements and save it.
+2. &#x20;My Events - The normal page with the 3 tabs (All events, Upcoming, Past). here they can create an events normally as is today, but they could share it with their customers (people who organize an event/or people who celebrate, for example - couple who get married). The difference is that they can create an event and say in which venue it occur - and the address, maximum capacity and the entire table arrangements os already set. They person they will share it with will be granted a new permission (maybe `Client` permission?). This person will be able to organize all the data such as WhatsApp Message, RSVP page, Guests, but will not be able to change anything the owner of the venue did (only be a viewer on the capacity, address, Table Layout and map). And on the contrary - the Venue owner will not be able to change anything the `Client` permission user did. He could only see the guests so he will know who are they and where is their sittings.
+
+
+
+I think this way, a venue owner can share and give his clients a system where they can manage their event, organize guests without need to transfer data to the venue with guests list and so. They can actually talk at the same language.
+
+Also in this kind of platform - I can get subscription to my product by venues owners. They can pay monthly or annually.
+
+Something I thought about - the venue owners create an event and share with their clients, attach the Event Layout, but the event layout will not be unique, but will be cloned. Why? because during time the Venue owners might change seating, might need to show past events (for some reason whatsoever), so maybe it's better that every event will have it's own layout. Also - what if venue owner plans a date with a client, and until the date of the event occur, they make some changes to the map, the client will suddenly se changes that he never knew about.
+
+
+
+What do you think about this idea? does it make sense? do you think it worth developing? what are the risks and problems we can have by doing so?
