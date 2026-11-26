@@ -34,6 +34,10 @@ const STATUS: Record<DomainErrorCode, HttpStatus> = {
   ACCOUNT_NOT_FOUND: HttpStatus.NOT_FOUND,
   LINK_EXPIRED: HttpStatus.GONE,
   UNAVAILABLE: HttpStatus.SERVICE_UNAVAILABLE,
+  // Demo Mode's own limits (D109); the server never raises them.
+  DEMO_EVENT_LIMIT: HttpStatus.CONFLICT,
+  DEMO_GUEST_LIMIT: HttpStatus.CONFLICT,
+  DEMO_STORAGE_FULL: HttpStatus.CONFLICT,
 }
 
 /** The body of every error response: a stable code the frontend translates. */

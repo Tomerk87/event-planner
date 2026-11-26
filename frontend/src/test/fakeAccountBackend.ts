@@ -1,3 +1,4 @@
+import { DEFAULT_LIMITS, type Limits } from '../domain/limits.ts'
 import {
   findAccountByEmail,
   validateSignIn,
@@ -57,6 +58,8 @@ export function createFakeAccountBackend(
     email?: FakeEmail
     /** The server's version (D107); null when it cannot be reached. */
     serverVersion?: AppVersion | null
+    /** The limits the server's settings set (D110); the defaults by default. */
+    serverLimits?: Limits
   } = {},
 ): ApiBackend & {
   endSession: () => void
@@ -67,6 +70,7 @@ export function createFakeAccountBackend(
     sessionPersistence = createMemoryPersistence<Session>(),
     email,
     serverVersion = { version: '1.0', commit: null },
+    serverLimits = DEFAULT_LIMITS,
     ...mockOptions
   } = options
   let account: { userId: Id; services: Services } | undefined
@@ -143,7 +147,10 @@ export function createFakeAccountBackend(
 
   return {
     accountEmail: {
-      getFeatures: async () => ({ email: Boolean(email) }),
+      getFeatures: async () => ({
+        email: Boolean(email),
+        limits: serverLimits,
+      }),
       forgotPassword: (address) => record(`forgotPassword:${address}`),
       resetPassword: (token, password) =>
         redeemToken(token, `resetPassword:${password}`).then(() => {

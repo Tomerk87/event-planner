@@ -362,10 +362,15 @@ describe('guests', () => {
       code: 'VALIDATION',
       details: { field: 'fileType' },
     })
-    await owner
+    // Over IMPORT_MAX_FILE_MB (5 by default, D110).
+    const big = await owner
       .post(`${base}/import/read`)
       .attach('file', Buffer.alloc(5 * 1024 * 1024 + 1), 'big.csv')
-      .expect(413)
+      .expect(400)
+    expect(big.body).toEqual({
+      code: 'VALIDATION',
+      details: { field: 'fileSize' },
+    })
     const broken = await owner
       .post(`${base}/import/read`)
       .attach('file', Buffer.from('not a zip'), 'broken.xlsx')
@@ -568,8 +573,9 @@ describe('database checks', () => {
     const update = (data: Record<string, unknown>) =>
       t.prisma.guest.update({ where: { id: guest.id }, data })
 
+    // Past the database's safety range (D110); the setting is lower still.
     await expect(
-      update({ rsvpStatus: 'APPROVED', confirmedAttendees: 11 }),
+      update({ rsvpStatus: 'APPROVED', confirmedAttendees: 101 }),
     ).rejects.toThrow()
     // Above Expected Attendees (4) is a valid row since D104.
     await expect(
@@ -592,7 +598,8 @@ describe('database checks', () => {
     await expect(
       t.prisma.event.update({
         where: { id: event.id },
-        data: { maxAttendees: 10 },
+        // Past the database's safety range (D110).
+        data: { maxAttendees: 100_001 },
       }),
     ).rejects.toThrow()
   })

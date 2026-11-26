@@ -4,7 +4,8 @@ import type { StoredDemo } from './state.ts'
 export interface Persistence<Value> {
   /** The stored value as found, unvalidated; null when nothing is stored. */
   load(): unknown
-  save(value: Value): void
+  /** Whether the value was stored; false when storage is full or blocked. */
+  save(value: Value): boolean
   clear(): void
   /** Tells when another tab of the same browser changed the stored value. */
   onChange?(listener: () => void): void
@@ -27,8 +28,8 @@ export const PREFERENCES_STORAGE_KEY = 'event-planner.preferences'
 /**
  * Stores a value in the visitor's own browser profile. This is the only
  * place application data touches browser storage. If storage is unavailable
- * or full the application keeps working for the current visit and the value
- * is simply not remembered.
+ * or full, saving says so (false) and the caller decides: the demo refuses a
+ * change it cannot keep (D109).
  */
 export function createBrowserPersistence<Value = StoredDemo>(
   storage: Storage,
@@ -46,8 +47,9 @@ export function createBrowserPersistence<Value = StoredDemo>(
     save(value) {
       try {
         storage.setItem(key, JSON.stringify(value))
+        return true
       } catch {
-        return
+        return false
       }
     },
     clear() {
@@ -79,6 +81,7 @@ export function createMemoryPersistence<Value = StoredDemo>(
     load: () => stored,
     save: (value) => {
       stored = JSON.parse(JSON.stringify(value)) as unknown
+      return true
     },
     clear: () => {
       stored = null

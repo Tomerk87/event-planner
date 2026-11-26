@@ -22,6 +22,18 @@ type SessionState =
       demoEnded?: DemoEndReason | null
     }
 
+/**
+ * Puts the session's limits in force before its pages show (D110). If the
+ * server cannot say, its pages report that themselves; the limits stay.
+ */
+async function applyLimits(backend: Backend, session: Session | null) {
+  try {
+    await backend.applyLimits(session)
+  } catch {
+    return
+  }
+}
+
 /** How often an open demo checks whether its time is up (D99). */
 const DEMO_CHECK_MS = 60_000
 
@@ -44,7 +56,8 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
     void backend.auth
       .getSession()
       .catch(() => null)
-      .then((session) => {
+      .then(async (session) => {
+        await applyLimits(backend, session)
         if (!cancelled) {
           setState({
             status: 'ready',
@@ -121,7 +134,8 @@ export function SessionProvider({ backend, children }: SessionProviderProps) {
   }, [backend, inDemo, queryClient])
 
   const value = useMemo<SessionContextValue>(() => {
-    function change(next: Session | null) {
+    async function change(next: Session | null) {
+      await applyLimits(backend, next)
       queryClient.clear()
       setState({ status: 'ready', session: next })
     }

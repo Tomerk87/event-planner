@@ -11,6 +11,12 @@
   NODE_VERSION = "26"
   VITE_DEMO_ENABLED = "true"
   VITE_ACCOUNTS_ENABLED = "false"
+  # The demo's limits (D110). Leave them out for the defaults, or set them
+  # here or in Netlify's site settings (Environment variables), for example:
+  # VITE_TABLE_MAX_SEATS_DEMO = "30"
+  # VITE_EVENTS_MAX_DEMO = "10"
+  # VITE_LIFETIME_DAYS_DEMO = "3"
+  # README.md "Settings" lists every one.
 
 # A file that no longer exists (a tab from an older version) is a real 404,
 # so the page reloads instead of reading HTML as a script.

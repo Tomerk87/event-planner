@@ -7,6 +7,7 @@ import request from 'supertest'
 import type TestAgent from 'supertest/lib/agent.js'
 import { createAppModule } from '../src/app.module.ts'
 import { readVersion, type AppConfig } from '../src/config.ts'
+import { DEFAULT_LIMITS } from '../src/domain/limits.ts'
 import { MAILER, type EmailMessage, type Mailer } from '../src/email/mailer.ts'
 import { PrismaService } from '../src/prisma/prisma.service.ts'
 import { setupApp } from '../src/setup-app.ts'
@@ -121,6 +122,7 @@ export async function createTestApp(
     },
     version: readVersion(),
     commit: null,
+    limits: DEFAULT_LIMITS,
     ...overrides,
   }
   const moduleRef = await Test.createTestingModule({

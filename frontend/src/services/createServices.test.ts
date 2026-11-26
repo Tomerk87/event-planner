@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DomainError } from '../domain/errors.ts'
+import { DEFAULT_LIMITS, limits, setLimits } from '../domain/limits.ts'
 import { createFakeAccountBackend } from '../test/fakeAccountBackend.ts'
 import type { Session } from './contracts/index.ts'
 import { combineBackends, createServices } from './createServices.ts'
@@ -42,6 +43,36 @@ describe('combined backend', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     localStorage.clear()
+  })
+
+  it('puts in force the limits of the session’s side: the demo’s settings, or the server’s (D110)', async () => {
+    const sessionPersistence = createMemoryPersistence<Session>()
+    const demo = createDemoBackend({
+      demoPersistence: createMemoryPersistence(),
+      sessionPersistence,
+      now: () => NOW,
+    })
+    const accounts = createFakeAccountBackend({
+      now: () => NOW,
+      serverLimits: { ...DEFAULT_LIMITS, tableMaxSeats: 40 },
+    })
+    const backend = combineBackends(demo, accounts, {
+      ...DEFAULT_LIMITS,
+      tableMaxSeats: 12,
+    })
+    try {
+      await backend.applyLimits(await backend.auth.enterDemo())
+      expect(limits().tableMaxSeats).toBe(12)
+
+      await backend.applyLimits(await backend.auth.signUp(riley))
+      expect(limits().tableMaxSeats).toBe(40)
+
+      // Signed out, the limits stay as they were.
+      await backend.applyLimits(null)
+      expect(limits().tableMaxSeats).toBe(40)
+    } finally {
+      setLimits(DEFAULT_LIMITS)
+    }
   })
 
   it('serves the demo session from the browser and an account from the server', async () => {

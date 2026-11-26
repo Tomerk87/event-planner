@@ -1,3 +1,4 @@
+import { limits } from '../../domain/limits.ts'
 import {
   ImageUp,
   Pencil,
@@ -736,7 +737,9 @@ export function ArrangementTab({
           {pictureProblem && (
             <Notice
               tone="danger"
-              title={t(`rsvpSettings.background.errors.${pictureProblem}`)}
+              title={t(`rsvpSettings.background.errors.${pictureProblem}`, {
+                mb: limits().imageMaxFileMb,
+              })}
               announce
             />
           )}

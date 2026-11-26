@@ -1,9 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger'
 
+/** An event's Maximum Attendees: the lowest, the highest, a new event's. */
+export class EventMaxAttendeesDto {
+  min!: number
+  max!: number
+  default!: number
+}
+
+/** People one invitation may confirm: the highest, a new event's. */
+export class GuestMaxAttendeesDto {
+  max!: number
+  default!: number
+}
+
+/** The product's adjustable limits, as the server's settings set them (D110). */
+export class LimitsDto {
+  /** Chairs at one table (TABLE_MAX_SEATS). */
+  tableMaxSeats!: number
+  eventMaxAttendees!: EventMaxAttendeesDto
+  guestMaxAttendees!: GuestMaxAttendeesDto
+  /** Rows in one guest import (IMPORT_MAX_ROWS). */
+  importMaxRows!: number
+  /** Size of an imported guest file in megabytes (IMPORT_MAX_FILE_MB). */
+  importMaxFileMb!: number
+  /** Size of a chosen picture in megabytes (IMAGE_MAX_FILE_MB). */
+  imageMaxFileMb!: number
+}
+
 /** What the server offers, for the frontend to show or hide (D88). */
 export class FeaturesDto {
   /** Whether emails are really sent. */
   email!: boolean
+  /** The limits the server applies; the screens apply the same (D110). */
+  limits!: LimitsDto
 }
 
 /** The email configuration, without any secret (D91). */

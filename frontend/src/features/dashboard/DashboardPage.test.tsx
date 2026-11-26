@@ -275,11 +275,19 @@ describe('Dashboard', () => {
   it('shows no warnings when there is nothing to warn about', async () => {
     const services = createTestServices()
     const event = await newEmptyEvent(services)
-    await services.tables.create(event.id, {
-      number: 1,
-      capacity: 100,
-      shape: 'CIRCLE',
-    })
+    // Chairs for exactly the event's maximum of 100, at most 30 a table.
+    for (const [number, capacity] of [
+      [1, 30],
+      [2, 30],
+      [3, 30],
+      [4, 10],
+    ]) {
+      await services.tables.create(event.id, {
+        number: number!,
+        capacity: capacity!,
+        shape: 'CIRCLE',
+      })
+    }
 
     await openDashboard(event.id, services)
 

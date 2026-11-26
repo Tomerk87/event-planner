@@ -1,3 +1,4 @@
+import type { Limits } from '../../domain/limits.ts'
 import type { SignInInput, SignUpInput } from '../../domain/accounts.ts'
 import type { EventInput } from '../../domain/events.ts'
 import type {
@@ -331,6 +332,8 @@ export interface DemoControl {
 export interface ServerFeatures {
   /** Whether emails are really sent. */
   email: boolean
+  /** The limits the server applies, from its settings (D110). */
+  limits: Limits
 }
 
 /**
@@ -467,6 +470,12 @@ export interface Backend {
   onSessionEnded(listener: () => void): () => void
   /** The demo's time limits (D99); null when this deployment has no demo. */
   demoTime: DemoTime | null
+  /**
+   * Puts in force the limits of a session's side (D110): the demo's _DEMO
+   * settings, or the server's settings for an account. Done before its pages
+   * show; with no session, the limits stay as they are.
+   */
+  applyLimits(session: Session | null): Promise<void>
 }
 
 /** Why a demo ended on its own (D99). */

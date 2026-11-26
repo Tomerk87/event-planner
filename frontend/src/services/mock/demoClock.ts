@@ -44,15 +44,30 @@ function read(stored: unknown): DemoClockState {
   return { status: 'none' }
 }
 
+/**
+ * How long a demo lasts (D99): from its start, and without activity. Set by
+ * LIFETIME_DAYS_DEMO and IDLE_HOURS_DEMO (D110).
+ */
+export interface DemoTimeLimits {
+  lifetimeMs: number
+  idleMs: number
+}
+
+export const DEFAULT_DEMO_TIME: DemoTimeLimits = {
+  lifetimeMs: DEMO_LIFETIME_MS,
+  idleMs: DEMO_IDLE_LIMIT_MS,
+}
+
 /** Why a running demo is over at `now`, or null while it is not. */
 export function demoEndReason(
   clock: { startedAt: Date; lastActiveAt: Date },
   now: Date,
+  limits: DemoTimeLimits = DEFAULT_DEMO_TIME,
 ): DemoEndReason | null {
-  if (now.getTime() - clock.startedAt.getTime() >= DEMO_LIFETIME_MS) {
+  if (now.getTime() - clock.startedAt.getTime() >= limits.lifetimeMs) {
     return 'lifetime'
   }
-  if (now.getTime() - clock.lastActiveAt.getTime() >= DEMO_IDLE_LIMIT_MS) {
+  if (now.getTime() - clock.lastActiveAt.getTime() >= limits.idleMs) {
     return 'idle'
   }
   return null
@@ -75,6 +90,7 @@ export interface DemoClock {
 export function createDemoClock(
   persistence: Persistence<StoredDemoClock>,
   now: () => Date,
+  limits: DemoTimeLimits = DEFAULT_DEMO_TIME,
 ): DemoClock {
   const state = () => read(persistence.load())
 
@@ -101,7 +117,9 @@ export function createDemoClock(
 
     due() {
       const current = state()
-      return current.status === 'running' ? demoEndReason(current, now()) : null
+      return current.status === 'running'
+        ? demoEndReason(current, now(), limits)
+        : null
     },
 
     end(reason) {
@@ -111,7 +129,7 @@ export function createDemoClock(
     endsAt() {
       const current = state()
       return current.status === 'running'
-        ? new Date(current.startedAt.getTime() + DEMO_LIFETIME_MS)
+        ? new Date(current.startedAt.getTime() + limits.lifetimeMs)
         : null
     },
   }

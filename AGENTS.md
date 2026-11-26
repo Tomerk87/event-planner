@@ -86,7 +86,7 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 - `SUPER_USER` is a system-level permission stored on the user, not an event role.
 - Event creators become Owners.
 - Past events are read-only through normal product flows and remain viewable/exportable.
-- Event maximum attendees:
+- Event maximum attendees (defaults; adjustable by server settings, D110):
   - minimum: 50
   - default: 50
   - maximum: 3000
@@ -128,7 +128,7 @@ Demo Mode is a **permanent public-facing MVP capability**, not disposable develo
 ### Tables and seating
 
 - Table numbers are unique within an event.
-- Tables have a capacity and shape.
+- Tables have a capacity (1 to 30 chairs by default, `TABLE_MAX_SEATS`, D110) and shape.
 - Manual assignment that would exceed a table's capacity must be rejected.
 - RSVP changes are authoritative: if a later RSVP increase causes an assigned table to exceed capacity, accept the RSVP and surface a seating conflict.
 - Total configured chairs may be below or above the event maximum-attendees value. Save the configuration and show a warning; do not block it.
@@ -366,6 +366,7 @@ When fixing a bug, add or update a regression test whenever practical.
 - Put durable product/architecture documentation in `docs/`.
 - Update documentation when behavior, setup, schema, API contracts, or architecture changes.
 - Keep `PLAN.md` synchronized with implementation progress.
+- Limits that a deployment may change (seats per table, event and invitation sizes, import and picture sizes) are read from `domain/limits.ts` (`limits()`, `EVENT_LIMITS`, `TABLE_LIMITS`), never written as numbers in rules or screens; they come from the server's settings, or the demo's `VITE_*_DEMO` settings (D110, README.md "Settings").
 - Do not edit `frontend/VERSION` or `backend/VERSION` by hand: the Version workflow raises them when a pull request is merged (D107, `docs/DEVELOPMENT.md` "Versions"). The one exception is setting a new major version, on the owner's decision.
 - Keep product requirements in `docs/PRD.md`, implementation rules in `AGENTS.md`, execution steps in `PLAN.md`, and exact screen-to-image mappings in `mockups/README.md`.
 - Keep `docs/FUTURE_FEATURES.md` as the list of everything left out of the MVP. Whenever a feature is left out (by a scope decision, or because a mockup shows something that is not being built now), add it there in the same change.

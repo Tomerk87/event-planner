@@ -2560,16 +2560,94 @@
       }
     },
     "schemas": {
+      "EventMaxAttendeesDto": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "default": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max",
+          "default"
+        ]
+      },
+      "GuestMaxAttendeesDto": {
+        "type": "object",
+        "properties": {
+          "max": {
+            "type": "number"
+          },
+          "default": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "max",
+          "default"
+        ]
+      },
+      "LimitsDto": {
+        "type": "object",
+        "properties": {
+          "tableMaxSeats": {
+            "type": "number",
+            "description": "Chairs at one table (TABLE_MAX_SEATS)."
+          },
+          "eventMaxAttendees": {
+            "$ref": "#/components/schemas/EventMaxAttendeesDto"
+          },
+          "guestMaxAttendees": {
+            "$ref": "#/components/schemas/GuestMaxAttendeesDto"
+          },
+          "importMaxRows": {
+            "type": "number",
+            "description": "Rows in one guest import (IMPORT_MAX_ROWS)."
+          },
+          "importMaxFileMb": {
+            "type": "number",
+            "description": "Size of an imported guest file in megabytes (IMPORT_MAX_FILE_MB)."
+          },
+          "imageMaxFileMb": {
+            "type": "number",
+            "description": "Size of a chosen picture in megabytes (IMAGE_MAX_FILE_MB)."
+          }
+        },
+        "required": [
+          "tableMaxSeats",
+          "eventMaxAttendees",
+          "guestMaxAttendees",
+          "importMaxRows",
+          "importMaxFileMb",
+          "imageMaxFileMb"
+        ]
+      },
       "FeaturesDto": {
         "type": "object",
         "properties": {
           "email": {
             "type": "boolean",
             "description": "Whether emails are really sent."
+          },
+          "limits": {
+            "description": "The limits the server applies; the screens apply the same (D110).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LimitsDto"
+              }
+            ]
           }
         },
         "required": [
-          "email"
+          "email",
+          "limits"
         ]
       },
       "VersionDto": {

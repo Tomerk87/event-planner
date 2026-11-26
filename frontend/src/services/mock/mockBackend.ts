@@ -8,7 +8,11 @@ import type {
   Services,
   Session,
 } from '../contracts/index.ts'
-import { createDemoClock, type StoredDemoClock } from './demoClock.ts'
+import {
+  createDemoClock,
+  type DemoTimeLimits,
+  type StoredDemoClock,
+} from './demoClock.ts'
 import { generateDemoState } from './generator.ts'
 import { createMockServices, type MockOptions } from './mockServices.ts'
 import {
@@ -26,6 +30,8 @@ export interface DemoBackendOptions extends Omit<MockOptions, 'persistence'> {
   demoServices?: Services
   /** Where the demo's start and last activity are kept (D99). */
   clockPersistence?: Persistence<StoredDemoClock>
+  /** How long a demo lasts (D99, D110); three days and 12 idle hours by default. */
+  timeLimits?: DemoTimeLimits
   /**
    * Whose sample events a new demo starts with (D103), asked when one is
    * generated: Brazil's for a visitor using Portuguese. Israel's by default.
@@ -60,6 +66,7 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
     sessionPersistence,
     demoServices,
     clockPersistence = createMemoryPersistence<StoredDemoClock>(),
+    timeLimits,
     market = () => 'IL',
     ...mockOptions
   } = options
@@ -68,7 +75,7 @@ export function createDemoBackend(options: DemoBackendOptions): DemoBackend {
     failOperations = new Set<string>(),
     now = () => new Date(),
   } = mockOptions
-  const clock = createDemoClock(clockPersistence, now)
+  const clock = createDemoClock(clockPersistence, now, timeLimits)
 
   let demo: Services | undefined = demoServices
   // Set when a guest's RSVP link belongs to the other market's sample events.

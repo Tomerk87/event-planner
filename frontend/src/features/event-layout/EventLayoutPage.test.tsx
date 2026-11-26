@@ -378,11 +378,12 @@ describe('Event Layout', () => {
       await within(dialog).findByText('Table number 4 is already in use.'),
     ).toBeInTheDocument()
 
-    fillTableForm(dialog, { number: '40', capacity: '0' })
+    // At most 30 chairs at a table (D109).
+    fillTableForm(dialog, { number: '40', capacity: '31' })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add Table' }))
     expect(
       await within(dialog).findByText(
-        'Enter a whole number of chairs from 1 to 1000.',
+        'Enter a whole number of chairs from 1 to 30.',
       ),
     ).toBeInTheDocument()
 

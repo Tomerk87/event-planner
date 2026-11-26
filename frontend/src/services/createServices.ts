@@ -1,4 +1,5 @@
 import { DomainError, isDomainError } from '../domain/errors.ts'
+import { DEFAULT_LIMITS, setLimits, type Limits } from '../domain/limits.ts'
 import type { Language } from '../i18n/languages.ts'
 import { createApiBackend, type ApiBackend } from './api/apiBackend.ts'
 import { noAccountsBackend } from './api/noAccountsBackend.ts'
@@ -6,6 +7,7 @@ import type { Backend, Session } from './contracts/index.ts'
 import type { StoredDemoClock } from './mock/demoClock.ts'
 import { demoMarketFor } from './mock/generator.ts'
 import { createDemoBackend, type DemoBackend } from './mock/mockBackend.ts'
+import { readDemoSettings, type DemoSettings } from './demoSettings.ts'
 import {
   createBrowserPersistence,
   DEMO_CLOCK_STORAGE_KEY,
@@ -38,6 +40,8 @@ function parseDelay(value: string | null): number {
 export function combineBackends(
   demo: DemoBackend | null,
   accounts: ApiBackend | null,
+  /** The limits the demo applies (its _DEMO settings, D110). */
+  demoLimits: Limits = DEFAULT_LIMITS,
 ): Backend {
   const api = accounts ?? noAccountsBackend
 
@@ -122,6 +126,14 @@ export function combineBackends(
     onSessionEnded: (listener) => api.onSessionEnded(listener),
 
     demoTime: demo?.time ?? null,
+    applyLimits: async (session) => {
+      if (session?.workspace === 'demo') {
+        setLimits(demoLimits)
+      } else if (session?.workspace === 'account') {
+        // The server is the authority; the screens apply what it applies.
+        setLimits((await api.accountEmail.getFeatures()).limits)
+      }
+    },
   }
 }
 
@@ -142,6 +154,8 @@ export function createServices(options: {
   apiUrl?: string
   /** The interface language, for the emails a request sends (D88). */
   language?: () => Language
+  /** The demo's VITE_*_DEMO settings (D110); the defaults when left out. */
+  demoSettings?: DemoSettings
 }): Backend {
   const {
     demoEnabled,
@@ -150,6 +164,7 @@ export function createServices(options: {
     storage,
     apiUrl = '/api',
     language,
+    demoSettings = readDemoSettings(),
   } = options
   if (!demoEnabled && !accountsEnabled) {
     throw new Error(
@@ -176,6 +191,10 @@ export function createServices(options: {
           DEMO_CLOCK_STORAGE_KEY,
         ),
         preferencesPersistence,
+        // A visitor's demo stays well inside the browser's storage (D109),
+        // and lasts as long as its settings say (D99, D110).
+        limits: demoSettings.demo,
+        timeLimits: demoSettings.time,
         delayMs: parseDelay(params.get('demoDelay')),
         failOperations: new Set(
           (params.get('demoFail') ?? '').split(',').filter(Boolean),
@@ -192,5 +211,5 @@ export function createServices(options: {
         language,
       })
     : null
-  return combineBackends(demo, api)
+  return combineBackends(demo, api, demoSettings.limits)
 }

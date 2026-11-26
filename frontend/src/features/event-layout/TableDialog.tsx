@@ -150,7 +150,7 @@ function TableForm({
           min={TABLE_LIMITS.capacity.min}
           max={TABLE_LIMITS.capacity.max}
           value={capacity}
-          hint={t('layout.form.capacityHint')}
+          hint={t('layout.form.capacityHint', TABLE_LIMITS.capacity)}
           error={
             fieldError?.field === 'capacity'
               ? t('layout.form.errors.capacity', TABLE_LIMITS.capacity)

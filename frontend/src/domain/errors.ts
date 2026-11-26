@@ -26,6 +26,10 @@ export type DomainErrorCode =
   | 'ACCOUNT_NOT_FOUND'
   | 'LINK_EXPIRED'
   | 'UNAVAILABLE'
+  // Demo Mode only (D109): its data lives in the visitor's browser.
+  | 'DEMO_EVENT_LIMIT'
+  | 'DEMO_GUEST_LIMIT'
+  | 'DEMO_STORAGE_FULL'
 
 export type ErrorDetails = Readonly<Record<string, string | number>>
 

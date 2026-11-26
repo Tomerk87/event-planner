@@ -7,6 +7,7 @@ import {
   DEMO_EVENTS,
   renderApp,
 } from '../../test/renderApp.tsx'
+import { DEMO_LIMITS } from '../../services/mock/mockServices.ts'
 import { change } from '../../test/controls.ts'
 
 const WEDDING = 'Maya & Daniel’s Wedding'
@@ -505,6 +506,33 @@ describe('My Events', () => {
     expect(copy?.event.maxAttendees).toBe(300)
     expect(await services.tables.list(copy?.event.id ?? '')).toHaveLength(18)
     expect(names()).toContain(WEDDING)
+  })
+
+  it('tells a demo visitor when the demo holds as many events as it can (D109)', async () => {
+    const services = createTestServices({
+      limits: { ...DEMO_LIMITS, events: 6 },
+    })
+    expect(await services.events.list()).toHaveLength(6)
+    await openEvents('/events', services)
+    fireEvent.click(
+      within(openMenu(WEDDING)).getByRole('menuitem', { name: 'Duplicate' }),
+    )
+    const dialog = screen.getByRole('dialog', { name: 'Duplicate event' })
+    fillEventForm(dialog, {
+      name: 'Anniversary Party',
+      date: '2031-06-01',
+      time: '19:00',
+    })
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Duplicate Event' }),
+    )
+
+    expect(
+      await screen.findByText(
+        'The demo holds up to 6 events. Delete an event to add another, or reset the demo to start fresh.',
+      ),
+    ).toBeInTheDocument()
+    expect(await services.events.list()).toHaveLength(6)
   })
 
   it('deletes an event only after its name is typed', async () => {

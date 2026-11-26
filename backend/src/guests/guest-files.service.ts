@@ -6,7 +6,7 @@ import {
   buildGuestExportTable,
   type GuestExportLabels,
 } from '../domain/exports.ts'
-import { MAX_IMPORT_ROWS } from '../domain/guestImport.ts'
+import { limits } from '../domain/limits.ts'
 import type { User } from '../domain/models.ts'
 import { PrismaService } from '../prisma/prisma.service.ts'
 import { toGuest, toTable } from '../prisma/mappers.ts'
@@ -49,10 +49,10 @@ export class GuestFilesService {
     }
     const rows = await readSpreadsheet(file)
     // The heading row is not a guest.
-    if (rows.length - 1 > MAX_IMPORT_ROWS) {
+    if (rows.length - 1 > limits().importMaxRows) {
       throw new DomainError('VALIDATION', {
         field: 'rows',
-        max: MAX_IMPORT_ROWS,
+        max: limits().importMaxRows,
       })
     }
     return rows

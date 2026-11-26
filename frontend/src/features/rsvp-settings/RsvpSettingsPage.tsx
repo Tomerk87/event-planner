@@ -1,3 +1,4 @@
+import { limits } from '../../domain/limits.ts'
 import {
   ArrowLeft,
   ChevronDown,
@@ -601,12 +602,16 @@ function RsvpSettingsForm({
               </div>
             )}
             <p className={styles.note}>
-              {t('rsvpSettings.background.requirements')}
+              {t('rsvpSettings.background.requirements', {
+                mb: limits().imageMaxFileMb,
+              })}
             </p>
             {imageProblem && (
               <Notice
                 tone="danger"
-                title={t(`rsvpSettings.background.errors.${imageProblem}`)}
+                title={t(`rsvpSettings.background.errors.${imageProblem}`, {
+                  mb: limits().imageMaxFileMb,
+                })}
                 announce
               />
             )}

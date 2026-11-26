@@ -1039,6 +1039,12 @@ describe('seating', () => {
       })
     })
 
+    it('accepts up to 30 chairs at a table (D109)', () => {
+      expect(
+        validateTableInput({ ...input, capacity: 30 }, existing, null).capacity,
+      ).toBe(30)
+    })
+
     it('rejects a number already used in the event', () => {
       expect(
         codeOf(() =>
@@ -1060,6 +1066,7 @@ describe('seating', () => {
       [{ number: 1.5 }, 'number'],
       [{ capacity: 0 }, 'capacity'],
       [{ capacity: -4 }, 'capacity'],
+      [{ capacity: 31 }, 'capacity'],
       [{ shape: 'OVAL' as 'CIRCLE' }, 'shape'],
     ])('rejects %j', (patch, field) => {
       const run = () =>

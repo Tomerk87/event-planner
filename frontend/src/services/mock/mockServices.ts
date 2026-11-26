@@ -124,6 +124,28 @@ export interface MockOptions {
   dataVersion?: number
   /** Where display choices are kept; in memory only when left out. */
   preferencesPersistence?: Persistence<StoredPreferences>
+  /** Demo Mode's limits (D109); none when left out, as in tests. */
+  limits?: DemoLimits
+}
+
+/**
+ * What one visitor's demo may hold (D109). Its data lives in the browser,
+ * which keeps about 5 MB for a site, so the demo stays well inside that.
+ */
+export interface DemoLimits {
+  events: number
+  guestsPerEvent: number
+  /** Characters of stored data, pictures included. */
+  storedLength: number
+}
+
+export const DEMO_LIMITS: DemoLimits = {
+  // The sample events and a few of the visitor's own.
+  events: 10,
+  // As many as the largest event allowed (EVENT_LIMITS.maxAttendees).
+  guestsPerEvent: 3000,
+  // Browsers keep about 5 million characters for a site.
+  storedLength: 4_000_000,
 }
 
 interface EventContext {
@@ -150,9 +172,15 @@ export function createMockServices(options: MockOptions): Services {
     demoControls = true,
     dataVersion = DATASET_VERSION,
     preferencesPersistence = createMemoryPersistence<StoredPreferences>(),
+    limits,
   } = options
 
   let regenerated = false
+  // Whether this browser has stored the demo at all: with storage blocked
+  // (some private windows) the demo still runs, for this visit only.
+  let storageWorks = false
+  // The length of the stored data, for the storage limit.
+  let storedLength = 0
   let state = load()
   // Another tab of this browser saved newer data, such as a guest's RSVP.
   let outdated = false
@@ -168,6 +196,11 @@ export function createMockServices(options: MockOptions): Services {
         version: dataVersion,
       })
     ) {
+      // Found in this browser's storage, so storage works here.
+      storageWorks = true
+      if (limits) {
+        storedLength = JSON.stringify(stored).length
+      }
       // Data saved before guests had groups reads as guests in no group.
       const found = withInvitations(stored.state)
       return {
@@ -207,9 +240,55 @@ export function createMockServices(options: MockOptions): Services {
     return save(seed(now()))
   }
 
+  /** Stores the data; false when the browser refused it. */
+  function store(next: DemoState): boolean {
+    const stored = persistence.save({ version: dataVersion, state: next })
+    if (stored) {
+      storageWorks = true
+      if (limits) {
+        storedLength = JSON.stringify({
+          version: dataVersion,
+          state: next,
+        }).length
+      }
+    }
+    return stored
+  }
+
   function save(next: DemoState): DemoState {
-    persistence.save({ version: dataVersion, state: next })
+    store(next)
     return next
+  }
+
+  /**
+   * Refuses a change that would take the demo past its limits (D109). Only
+   * growth is refused, so deleting always works, whatever the demo holds.
+   */
+  function assertWithinLimits(next: DemoState): void {
+    if (!limits) {
+      return
+    }
+    if (
+      next.events.length > limits.events &&
+      next.events.length > state.events.length
+    ) {
+      throw new DomainError('DEMO_EVENT_LIMIT', { max: limits.events })
+    }
+    const guestsIn = (data: DemoState, eventId: Id) =>
+      data.guests.filter((guest) => guest.eventId === eventId && !guest.deleted)
+        .length
+    for (const event of next.events) {
+      const count = guestsIn(next, event.id)
+      if (count > limits.guestsPerEvent && count > guestsIn(state, event.id)) {
+        throw new DomainError('DEMO_GUEST_LIMIT', {
+          max: limits.guestsPerEvent,
+        })
+      }
+    }
+    const length = JSON.stringify({ version: dataVersion, state: next }).length
+    if (length > limits.storedLength && length > storedLength) {
+      throw new DomainError('DEMO_STORAGE_FULL')
+    }
   }
 
   /**
@@ -274,8 +353,17 @@ export function createMockServices(options: MockOptions): Services {
     return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }
 
+  /**
+   * Keeps a change. A change the browser refuses to store is refused here
+   * too, so the visitor is told at once instead of losing it on the next
+   * visit (D109).
+   */
   function commit(next: DemoState): void {
-    state = save(next)
+    assertWithinLimits(next)
+    if (!store(next) && storageWorks) {
+      throw new DomainError('DEMO_STORAGE_FULL')
+    }
+    state = next
   }
 
   function newId(prefix: string): Id {

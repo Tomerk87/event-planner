@@ -1,6 +1,7 @@
 import { DomainError, isDomainError } from './errors.ts'
 import { EVENT_LIMITS } from './events.ts'
 import { addGuest, GROUP_MAX_LENGTH, type GuestInput } from './guests.ts'
+import { limits } from './limits.ts'
 import type { Event, Guest } from './models.ts'
 import { normalizePhone, type Country } from './phone.ts'
 
@@ -22,8 +23,6 @@ export const REQUIRED_IMPORT_FIELDS: readonly ImportField[] = [
 
 /** For each field, the position of the file's column that holds it. */
 export type ColumnMapping = Record<ImportField, number | null>
-
-export const MAX_IMPORT_ROWS = 5000
 
 // Headings recognised automatically, in English, Hebrew and Portuguese,
 // compared without case, accents, spaces or punctuation.
@@ -215,8 +214,9 @@ export function planGuestImport(
   event: Pick<Event, 'id' | 'country' | 'defaultAllowedAttendees'>,
   firstRowNumber = 2,
 ): ImportPlan {
-  if (dataRows.length > MAX_IMPORT_ROWS) {
-    throw new DomainError('VALIDATION', { field: 'rows', max: MAX_IMPORT_ROWS })
+  const maxRows = limits().importMaxRows
+  if (dataRows.length > maxRows) {
+    throw new DomainError('VALIDATION', { field: 'rows', max: maxRows })
   }
   const read = (row: readonly string[], field: ImportField) => {
     const index = mapping[field]

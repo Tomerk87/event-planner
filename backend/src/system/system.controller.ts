@@ -38,7 +38,7 @@ export class SystemController {
   @Public()
   @Get('features')
   features(): FeaturesDto {
-    return { email: this.email.enabled }
+    return { email: this.email.enabled, limits: this.config.limits }
   }
 
   /** This server's version and commit (D107); nothing else about it. */
