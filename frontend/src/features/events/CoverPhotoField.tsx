@@ -1,3 +1,4 @@
+import { limits } from '../../domain/limits.ts'
 import { ImageUp, Trash2 } from 'lucide-react'
 import { useId, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -111,14 +112,18 @@ export function CoverPhotoField({
             </div>
           )}
           <p className={styles.hint}>
-            {t(value ? 'events.form.photo.hint' : 'events.form.photo.none')}
+            {t(value ? 'events.form.photo.hint' : 'events.form.photo.none', {
+              mb: limits().imageMaxFileMb,
+            })}
           </p>
         </div>
       </div>
       {problem && (
         <Notice
           tone="danger"
-          title={t(`rsvpSettings.background.errors.${problem}`)}
+          title={t(`rsvpSettings.background.errors.${problem}`, {
+            mb: limits().imageMaxFileMb,
+          })}
           announce
         />
       )}

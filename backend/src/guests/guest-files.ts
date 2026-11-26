@@ -2,10 +2,16 @@ import { readSheet } from 'read-excel-file/node'
 import writeXlsxFile from 'write-excel-file/node'
 import { parseCsv, toCsv } from '../domain/csv.ts'
 import { DomainError } from '../domain/errors.ts'
+import { LIMIT_CEILINGS, limits, megabytes } from '../domain/limits.ts'
 
 export type FileFormat = 'csv' | 'xlsx'
 
-export const MAX_FILE_BYTES = 5 * 1024 * 1024
+/**
+ * The most the upload accepts, whatever IMPORT_MAX_FILE_MB says: the upload
+ * handler is set up before the settings are read, so the file is checked
+ * against the setting once it is in (readSpreadsheet).
+ */
+export const UPLOAD_CEILING_BYTES = megabytes(LIMIT_CEILINGS.fileMb)
 
 type Table = readonly (readonly (string | number | null)[])[]
 
@@ -33,7 +39,7 @@ export async function readSpreadsheet(file: {
   size: number
   buffer: Buffer
 }): Promise<string[][]> {
-  if (file.size > MAX_FILE_BYTES) {
+  if (file.size > megabytes(limits().importMaxFileMb)) {
     throw new DomainError('VALIDATION', { field: 'fileSize' })
   }
   const name = file.originalname.toLowerCase()

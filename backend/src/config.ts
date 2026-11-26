@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { readLimits, type Limits } from './domain/limits.ts'
 
 /** Settings read from the environment once, at start-up. */
 export interface AppConfig {
@@ -28,6 +29,11 @@ export interface AppConfig {
   version: string
   /** The commit the image was built from; null outside a built image. */
   commit: string | null
+  /**
+   * The product's adjustable limits (D110): TABLE_MAX_SEATS and the others
+   * in LIMIT_SETTINGS, each defaulting to DEFAULT_LIMITS.
+   */
+  limits: Limits
 }
 
 /**
@@ -161,6 +167,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     email: loadEmail(env),
     version: readVersion(),
     commit: env['GIT_COMMIT']?.trim() || null,
+    limits: readLimits((name) => env[name]),
   }
 }
 

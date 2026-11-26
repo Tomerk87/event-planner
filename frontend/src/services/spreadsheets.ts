@@ -1,9 +1,9 @@
 import { parseCsv, toCsv } from '../domain/csv.ts'
 import { DomainError } from '../domain/errors.ts'
+import { limits, megabytes } from '../domain/limits.ts'
 import type { SpreadsheetOptions } from './contracts/index.ts'
 
 /** Largest guest file accepted, in the browser and on the server. */
-export const MAX_FILE_BYTES = 5 * 1024 * 1024
 
 type Table = readonly (readonly (string | number | null)[])[]
 
@@ -19,7 +19,7 @@ function cellText(value: unknown): string {
 
 /** Refuses a file before it is read or uploaded, the way the server would. */
 export function assertGuestFileSize(file: File): void {
-  if (file.size > MAX_FILE_BYTES) {
+  if (file.size > megabytes(limits().importMaxFileMb)) {
     throw new DomainError('VALIDATION', { field: 'fileSize' })
   }
 }

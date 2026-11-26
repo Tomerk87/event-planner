@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { loadConfig, readVersion } from './config.ts'
+import { DEFAULT_LIMITS } from './domain/limits.ts'
 
 const valid = {
   DATABASE_URL: 'postgresql://user:secret@localhost:5432/app',
@@ -35,7 +36,18 @@ describe('configuration', () => {
         'utf8',
       ).trim(),
       commit: null,
+      limits: DEFAULT_LIMITS,
     })
+  })
+
+  it('reads the adjustable limits from their settings (D110)', () => {
+    expect(
+      loadConfig({ ...valid, TABLE_MAX_SEATS: '40', IMPORT_MAX_ROWS: '800' })
+        .limits,
+    ).toMatchObject({ tableMaxSeats: 40, importMaxRows: 800 })
+    expect(() => loadConfig({ ...valid, TABLE_MAX_SEATS: '2000' })).toThrow(
+      /TABLE_MAX_SEATS/,
+    )
   })
 
   it('reads the version from the VERSION file and the commit of the build (D107)', () => {

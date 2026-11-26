@@ -9,7 +9,7 @@ import {
   softDeleteGuest,
   type GuestInput,
 } from '../domain/guests.ts'
-import { MAX_IMPORT_ROWS } from '../domain/guestImport.ts'
+import { limits } from '../domain/limits.ts'
 import {
   DEFAULT_GUEST_SORT,
   filterGuests,
@@ -217,10 +217,10 @@ export class GuestsService {
     user: User,
   ): Promise<ImportOutcome> {
     const { event } = await this.access.authorize(eventId, user, 'EDIT')
-    if (inputs.length > MAX_IMPORT_ROWS) {
+    if (inputs.length > limits().importMaxRows) {
       throw new DomainError('VALIDATION', {
         field: 'rows',
-        max: MAX_IMPORT_ROWS,
+        max: limits().importMaxRows,
       })
     }
     return this.prisma.$transaction(

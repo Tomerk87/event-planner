@@ -5,6 +5,7 @@ import type { Backend } from '../services/contracts/index.ts'
 import { isDomainError } from '../domain/errors.ts'
 import { getCurrentLanguage } from '../i18n/i18n.ts'
 import { createServices } from '../services/createServices.ts'
+import { readDemoSettings } from '../services/demoSettings.ts'
 import {
   parseAccountsEnabled,
   parseDemoEnabled,
@@ -43,6 +44,8 @@ function createAppBackend(): Backend | null {
       location: window.location,
       storage: window.localStorage,
       language: getCurrentLanguage,
+      // The demo's VITE_*_DEMO settings (D110); a bad value stops the app.
+      demoSettings: readDemoSettings(import.meta.env),
     })
   } catch {
     return null

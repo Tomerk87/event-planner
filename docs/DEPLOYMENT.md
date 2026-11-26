@@ -362,6 +362,16 @@ If it doesn't arrive:
 
 All server commands run in `/opt/event-planner` (`ssh event-planner`, then `cd /opt/event-planner`).
 
+### Change a limit
+
+Seats per table, event and invitation sizes, and import and picture sizes are settings (D110; README.md "Settings" lists them with their defaults). On the server, set the line in `/opt/event-planner/.env`, for example `TABLE_MAX_SEATS=40`, then restart the API:
+
+```sh
+ssh event-planner 'cd /opt/event-planner && docker compose up -d backend'
+```
+
+The screens read the new limits from the server the next time a page is opened. An empty line keeps the default.
+
 ### Deploy a new version
 
 From the Mac, with the work committed:
@@ -525,6 +535,8 @@ The Location fields can suggest places from Google Maps as the organizer types (
 
 A public prototype with **only the demo** (D102), for showing the product before the AWS server exists, or alongside it. It needs no server:
 - every visitor gets their own demo, kept in their browser and ending on its own after 3 days (D99)
+- a demo holds at most 10 events, 3,000 guests in an event and about 4 million characters of data, so it stays inside the browser's storage; past that, or when the browser's storage is full, a change is refused with a message rather than lost (D109)
+- these limits, the demo's length and the product limits it applies are build settings (`VITE_*_DEMO`, D110): set them in `netlify.toml` or in Netlify's **Site configuration → Environment variables**, then deploy again; README.md "Demo settings" lists them
 - a demo event's RSVP link opens on any phone
 - Sign In and Sign Up are not shown
 

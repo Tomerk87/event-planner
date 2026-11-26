@@ -1,5 +1,6 @@
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
 import { isValidTimeZone } from './eventTime.ts'
+import { limits } from './limits.ts'
 import {
   isRsvpLanguage,
   type Event,
@@ -8,10 +9,18 @@ import {
 } from './models.ts'
 import { isCountry, type Country } from './phone.ts'
 
+/**
+ * An event's Maximum Attendees and Maximum Attendees per Guest, from the
+ * limits in force (D110; set from outside the code).
+ */
 export const EVENT_LIMITS = {
-  maxAttendees: { min: 50, max: 3000, default: 50 },
-  allowedAttendees: { min: 1, max: 10, default: 5 },
-} as const
+  get maxAttendees(): { min: number; max: number; default: number } {
+    return { ...limits().eventMaxAttendees }
+  },
+  get allowedAttendees(): { min: number; max: number; default: number } {
+    return { min: 1, ...limits().guestMaxAttendees }
+  },
+}
 
 export interface EventInput {
   name: string

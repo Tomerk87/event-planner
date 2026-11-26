@@ -1,4 +1,5 @@
 import { readVersion } from '../src/config.ts'
+import { DEFAULT_LIMITS } from '../src/domain/limits.ts'
 import {
   CapturingMailer,
   createEvent,
@@ -389,7 +390,10 @@ describe('limits per address', () => {
 
 describe('system settings (D91)', () => {
   it('tells everyone whether email is on, and only a Super User the details', async () => {
-    await t.browser().get('/api/system/features').expect(200, { email: true })
+    await t
+      .browser()
+      .get('/api/system/features')
+      .expect(200, { email: true, limits: DEFAULT_LIMITS })
 
     const user = t.browser()
     const account = await signUp(user, 'Dana Lev')
@@ -451,6 +455,7 @@ describe('email off (the default, D88)', () => {
         )
       await app.browser().get('/api/system/features').expect(200, {
         email: false,
+        limits: DEFAULT_LIMITS,
       })
       await app
         .browser()

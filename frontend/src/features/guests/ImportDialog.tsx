@@ -8,11 +8,12 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toCsv } from '../../domain/csv.ts'
 import { isDomainError } from '../../domain/errors.ts'
+import { EVENT_LIMITS } from '../../domain/events.ts'
+import { limits } from '../../domain/limits.ts'
 import {
   detectMapping,
   IMPORT_FIELDS,
   isMappingComplete,
-  MAX_IMPORT_ROWS,
   planGuestImport,
   REQUIRED_IMPORT_FIELDS,
   type ColumnMapping,
@@ -75,7 +76,9 @@ function ImportSteps({
     if (isDomainError(error, 'VALIDATION')) {
       const { field } = error.details
       if (field === 'fileSize') {
-        return t('guests.import.errors.fileSize')
+        return t('guests.import.errors.fileSize', {
+          mb: limits().importMaxFileMb,
+        })
       }
       if (field === 'fileType') {
         return t('guests.import.errors.fileType')
@@ -85,7 +88,7 @@ function ImportSteps({
       }
       if (field === 'rows') {
         return t('guests.import.errors.tooManyRows', {
-          max: format.number(MAX_IMPORT_ROWS),
+          max: format.number(limits().importMaxRows),
         })
       }
     }
@@ -175,7 +178,11 @@ function ImportSteps({
             ...skipped.map((row) => [
               row.rowNumber,
               ...IMPORT_FIELDS.map((field) => row.values[field]),
-              row.error ? t(`guests.import.rowErrors.${row.error}`) : '',
+              row.error
+                ? t(`guests.import.rowErrors.${row.error}`, {
+                    max: EVENT_LIMITS.allowedAttendees.max,
+                  })
+                : '',
             ]),
           ]),
         ],
@@ -198,7 +205,8 @@ function ImportSteps({
           <li>{t('guests.import.ruleDuplicates')}</li>
           <li>
             {t('guests.import.ruleLimit', {
-              max: format.number(MAX_IMPORT_ROWS),
+              max: format.number(limits().importMaxRows),
+              mb: limits().importMaxFileMb,
             })}
           </li>
         </ul>
@@ -357,7 +365,9 @@ function ImportSteps({
                   <td>
                     {row.error ? (
                       <span className={styles.rowError}>
-                        {t(`guests.import.rowErrors.${row.error}`)}
+                        {t(`guests.import.rowErrors.${row.error}`, {
+                          max: EVENT_LIMITS.allowedAttendees.max,
+                        })}
                       </span>
                     ) : (
                       t(`guests.import.outcome.${row.outcome}`)

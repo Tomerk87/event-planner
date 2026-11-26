@@ -25,6 +25,21 @@ describe('demo clock (D99)', () => {
     expect(demoEndReason(busy, at(72 * HOUR))).toBe('lifetime')
   })
 
+  it('lasts as long as its settings say (D110)', () => {
+    const persistence = createMemoryPersistence<StoredDemoClock>()
+    let now = START
+    const clock = createDemoClock(persistence, () => now, {
+      lifetimeMs: 7 * 24 * HOUR,
+      idleMs: 24 * HOUR,
+    })
+    clock.start()
+    expect(clock.endsAt()).toEqual(at(7 * 24 * HOUR))
+    now = at(24 * HOUR - 1)
+    expect(clock.due()).toBeNull()
+    now = at(24 * HOUR)
+    expect(clock.due()).toBe('idle')
+  })
+
   it('writes activity down at most once a minute', () => {
     const persistence = createMemoryPersistence<StoredDemoClock>()
     let now = START

@@ -4,10 +4,10 @@ import { DomainError } from './errors.ts'
 import {
   detectMapping,
   isMappingComplete,
-  MAX_IMPORT_ROWS,
   planGuestImport,
   type ColumnMapping,
 } from './guestImport.ts'
+import { limits } from './limits.ts'
 
 const mapping: ColumnMapping = {
   firstName: 0,
@@ -311,7 +311,7 @@ describe('planGuestImport', () => {
   })
 
   it('refuses a file with more rows than the limit', () => {
-    const rows = Array.from({ length: MAX_IMPORT_ROWS + 1 }, () => ['a'])
+    const rows = Array.from({ length: limits().importMaxRows + 1 }, () => ['a'])
 
     expect(() => plan(rows)).toThrow(DomainError)
     expect(() => plan(rows.slice(1))).not.toThrow()

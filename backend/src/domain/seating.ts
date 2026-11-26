@@ -1,4 +1,5 @@
 import { assertIntegerInRange, DomainError } from './errors.ts'
+import { limits } from './limits.ts'
 import {
   TABLE_SHAPES,
   type EventTable,
@@ -9,8 +10,11 @@ import {
 
 export const TABLE_LIMITS = {
   number: { min: 1, max: 9999 },
-  capacity: { min: 1, max: 1000 },
-} as const
+  /** Chairs at one table: 30 by default (D109), set by TABLE_MAX_SEATS (D110). */
+  get capacity(): { min: number; max: number } {
+    return { min: 1, max: limits().tableMaxSeats }
+  },
+}
 
 export const TABLE_STATUSES = [
   'OVER_CAPACITY',

@@ -35,7 +35,7 @@ import {
 } from '../domain/guestList.ts'
 import { RSVP_STATUSES, type RsvpStatus, type User } from '../domain/models.ts'
 import { DEFAULT_PAGE_SIZE } from '../domain/paging.ts'
-import { MAX_FILE_BYTES } from './guest-files.ts'
+import { UPLOAD_CEILING_BYTES } from './guest-files.ts'
 import { GuestFilesService } from './guest-files.service.ts'
 import {
   AssignTableDto,
@@ -221,7 +221,9 @@ export class GuestsController {
   @Post('import/read')
   @HttpCode(200)
   @UseInterceptors(
-    FileInterceptor('file', { limits: { fileSize: MAX_FILE_BYTES, files: 1 } }),
+    FileInterceptor('file', {
+      limits: { fileSize: UPLOAD_CEILING_BYTES, files: 1 },
+    }),
   )
   async readFile(
     @Param('eventId') eventId: string,

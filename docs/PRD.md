@@ -342,7 +342,7 @@ Table-total mismatch is **nonblocking**, including when chairs exceed the event 
 
 ### 11.1 Tables
 
-The organizer can create, view, update, and delete tables. Each table has a unique number within its event, a capacity (number of chairs), and a shape: **circle, rectangle, or square**.
+The organizer can create, view, update, and delete tables. Each table has a unique number within its event, a capacity (number of chairs, **1 to 30**, D109), and a shape: **circle, rectangle, or square**.
 
 Tables display assigned/available chairs and guests. Authorized users can assign or unassign guests both from the Tables view and from the Table field in Guests.
 

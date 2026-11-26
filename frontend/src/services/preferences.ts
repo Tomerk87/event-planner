@@ -37,7 +37,8 @@ export function createPreferencesService(
   persistence: Persistence<StoredPreferences>,
 ): PreferencesService {
   const update = (change: StoredPreferences) =>
-    persistence.save({ ...readPreferences(persistence.load()), ...change })
+    // A choice that cannot be stored lasts for this visit (D86).
+    void persistence.save({ ...readPreferences(persistence.load()), ...change })
   return {
     getGuestColumns: async () =>
       readPreferences(persistence.load()).guestColumns ?? null,

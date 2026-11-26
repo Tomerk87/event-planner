@@ -8,6 +8,7 @@ import {
   signUp,
   type TestApp,
 } from './test-app.ts'
+import { DEFAULT_LIMITS, setLimits } from '../src/domain/limits.ts'
 
 let t: TestApp
 
@@ -164,6 +165,47 @@ describe('tables', () => {
           .expect(404),
       ),
     ).toBe('NOT_FOUND')
+  })
+
+  it('seats at most TABLE_MAX_SEATS at a table: 30 by default (D109, D110)', async () => {
+    const { owner, event, base } = await setUp()
+
+    await addTable(owner, base, 1, 30)
+    expect(
+      code(
+        await owner
+          .post(`${base}/tables`)
+          .send({ number: 2, capacity: 31, shape: 'CIRCLE' })
+          .expect(400),
+      ),
+    ).toBe('VALIDATION')
+    // The database keeps a safety range above any setting.
+    await expect(
+      t.prisma.eventTable.create({
+        data: { eventId: event.id, number: 3, capacity: 1001, shape: 'CIRCLE' },
+      }),
+    ).rejects.toThrow(/EventTable_capacity_range/)
+  })
+
+  it('follows TABLE_MAX_SEATS when it is set, and tells the screens (D110)', async () => {
+    const wide = await createTestApp({
+      limits: { ...DEFAULT_LIMITS, tableMaxSeats: 40 },
+    })
+    try {
+      const owner = wide.browser()
+      await signUp(owner, 'Owner')
+      const event = await createEvent(owner)
+      await owner
+        .post(`/api/events/${event.id}/tables`)
+        .send({ number: 1, capacity: 40, shape: 'CIRCLE' })
+        .expect(201)
+      const features = await owner.get('/api/system/features').expect(200)
+      expect(features.body.limits).toMatchObject({ tableMaxSeats: 40 })
+    } finally {
+      await wide.close()
+      // The limits are the process's: back to those of the other tests.
+      setLimits(DEFAULT_LIMITS)
+    }
   })
 
   it('accepts a capacity below the guests seated, shown as over capacity', async () => {

@@ -1,4 +1,5 @@
-export const IMAGE_MAX_BYTES = 5 * 1024 * 1024
+import { limits, megabytes } from '../domain/limits.ts'
+
 export const IMAGE_TYPES = ['image/jpeg', 'image/png']
 
 export type ImageProblem = 'type' | 'size' | 'failed'
@@ -10,7 +11,7 @@ export function checkImageFile(
   if (!IMAGE_TYPES.includes(file.type)) {
     return 'type'
   }
-  return file.size > IMAGE_MAX_BYTES ? 'size' : null
+  return file.size > megabytes(limits().imageMaxFileMb) ? 'size' : null
 }
 
 // Tried in order until the picture is small enough to keep, each as a share

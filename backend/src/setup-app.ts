@@ -1,3 +1,4 @@
+import { setLimits } from './domain/limits.ts'
 import { ValidationPipe, type INestApplication } from '@nestjs/common'
 import type { NestExpressApplication } from '@nestjs/platform-express'
 import {
@@ -11,13 +12,17 @@ import { SESSION_COOKIE } from './auth/session-token.ts'
 
 /** Settings shared by the running server and the tests. */
 export function setupApp(app: INestApplication, config: AppConfig): void {
+  // The limits the rules apply, from the settings (D110).
+  setLimits(config.limits)
   app.setGlobalPrefix('api')
   // Rate limits count by client address, which a proxy must pass on.
   ;(app as NestExpressApplication).set('trust proxy', config.trustProxyHops)
   // Pictures arrive as data addresses (up to about 700 KB for an RSVP
-  // background) and an import can carry 5,000 guests: well above Express's
-  // 100 KB default.
-  ;(app as NestExpressApplication).useBodyParser('json', { limit: '5mb' })
+  // background) and an import can carry IMPORT_MAX_ROWS guests (5,000 by
+  // default): well above Express's 100 KB default.
+  ;(app as NestExpressApplication).useBodyParser('json', {
+    limit: `${Math.max(5, config.limits.importMaxFileMb)}mb`,
+  })
   // Answers are data, never pages: not to be sniffed into another type,
   // framed, or sent on as a referrer. Nginx adds the page headers (Phase 18).
   app.use(
