@@ -22,6 +22,7 @@
     "test:cov": "vitest run --coverage",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "test:e2e:cov": "vitest run --config ./vitest.config.e2e.ts --coverage",
+    "test:coverage": "vitest run --config ./vitest.config.coverage.ts --coverage",
     "db:up": "docker compose -f docker-compose.dev.yml up -d --wait",
     "db:down": "docker compose -f docker-compose.dev.yml down",
     "db:migrate": "prisma migrate dev",
