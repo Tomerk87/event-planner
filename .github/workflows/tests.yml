@@ -1,7 +1,7 @@
 # Runs every check on each pull request (D116, PLAN.md Phase 23): lint,
 # typecheck, formatting, unit and integration tests with their coverage
-# minimums, the API contract suite, and the Playwright suite (desktop, phone
-# and email). The last job, "All tests passed", is the one to require before
+# minimums, a dependency security audit, the API contract suite, and the
+# Playwright suite (desktop, phone and email). The last job, "All tests passed", is the one to require before
 # merging.
 name: Tests
 
@@ -46,9 +46,8 @@ jobs:
       - name: Unit tests with the coverage minimum (80%)
         run: npm run test:coverage
       - run: npm run build
-      - name: Security audit (report only)
-        continue-on-error: true
-        run: npm audit --omit=dev --audit-level=high
+      - name: Security audit (fails on high or critical)
+        run: npm audit --audit-level=high
 
   backend:
     name: Backend
@@ -81,9 +80,8 @@ jobs:
       - name: Unit and integration tests with the coverage minimum
         run: npm run test:coverage
       - run: npm run build
-      - name: Security audit (report only)
-        continue-on-error: true
-        run: npm audit --omit=dev --audit-level=high
+      - name: Security audit (fails on high or critical)
+        run: npm audit --audit-level=high
 
   e2e:
     name: Browser and API contract tests
