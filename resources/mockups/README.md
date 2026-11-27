@@ -174,6 +174,49 @@ Notes:
 - The Help, Privacy and Terms links in the footer are not shown: those pages do not exist yet (`docs/FUTURE_FEATURES.md`).
 - There is no Hebrew or Portuguese mockup; the Hebrew emails mirror it right to left, and the Portuguese ones follow it as drawn.
 
+## V2.2 — Venues
+
+The venue mockups (2026-11-27) are interactive HTML pages in `v2/html/`, one per screen. Each page adapts to the screen width:
+- the phone layout below 768px;
+- the sidebar as a drawer below 1024px.
+
+Most pages have a "Mockup state" bar at the bottom that switches between the screen's states. **The bar is a mockup tool, not part of the product.**
+
+The PNGs in `v2/` are screenshots of every state, taken with the bar hidden:
+- **Naming:** `<file>_<state>.png` for desktop (1440px wide), and `<file>_<state>_mobile.png` for phone (390px wide).
+- **Use them for comparison.** Open the HTML to see interaction and hover.
+
+The screen numbers are those of `v2_plannings/V2.2_MOCKUPS.md`. The decisions behind these screens are D111–D118 in `docs/DOMAIN.md`; the differences from the rules are in `docs/MOCKUP_NOTES.md` ("V2.2 venue mockups").
+
+| # | Screen | HTML (`v2/html/`) | States (PNG suffixes in `v2/`) |
+|---|---|---|---|
+| 1, 2 | Workspace switcher; Venue → My Events | `02_venue_events.html` | (default), `switcher_open` |
+| 3 | Venue → My Spaces | `03_venue_spaces.html` | `spaces`, `empty_venue` |
+| 4, 5 | Create / edit space dialog; Space details | `05_venue_space_details.html` | `layouts`, `no_layouts`, `archived_space`, `edit_space_dialog` |
+| 6 | Layout template editor | `06_venue_layout_editor.html` | `420_chairs`, `384_chairs`, `400_chairs` (the chairs-vs-max-people warning) |
+| 7 | Team | `07_venue_team.html` | `owner_view`, `manager_view` |
+| 9 | Create venue event wizard | `09_venue_create_event.html` | `step_1`, `step_2`, `step_3`, `same_day`, `step_4`, `created` |
+| 10 | Client card in a venue event | `10_venue_event_client.html` | `awaiting`, `sent`, `expired`, `joined`, `past` |
+| 11 | Invitation email to the client | `11_venue_client_invitation_email.html` | (default) |
+| 12 | Accept-invitation page | `12_venue_accept_invitation.html` | `signed_in_right_email`, `not_signed_in`, `signed_in_other_email`, `accepted`, `expired_link`, `revoked_link`, `already_used` |
+| 13 | Client: "Managed by venue" on the event card and in the event | `13_client_venue_event_card.html` | (default) |
+| 14 | Client: Event Settings with the venue section locked | `14_client_event_settings.html` | (default) |
+| 15 | Permissions, split by side | `15_event_permissions.html` | `venue_owner`, `venue_owner_client_status_menu`, `client_lead`, `client_editor` |
+| 16 | Client: Event Layout (map read-only, seating active) | `16_client_event_layout.html` | `map`, `tables`, `selected`, `manage_guests` |
+| 17 | Venue: Guests (read-only, no phones) | `17_venue_event_guests.html` | `client_joined`, `awaiting_client` |
+| 19 | Venue: Dashboard with warnings | `19_venue_event_dashboard.html` | `awaiting_client`, `client_joined`, `no_warnings` |
+| 20 | Venue: delete an occupied table | `20_venue_delete_table_warning.html` | `table_7`, `warning`, `after_delete`, `empty_table` |
+| 22 | Demo: choose a demo | `22_demo_choose.html` | `public_page`, `choose_a_demo`, `venue_picked`, `loading`, `event_demo`, `venue_demo` |
+| 23 | Demo: venue/client switcher | `23_demo_venue_switcher.html` | `venue_my_events`, `venue_dashboard`, `client_my_events`, `client_dashboard`, `switcher_open` |
+| 24 | Landing page: "For venues" | `24_landing_page_venues.html` | `top_of_page`, `for_venues_section`, `venue_demo_picked`, `loading`, `phone_menu` |
+
+Not drawn, built from existing patterns as `V2.2_MOCKUPS.md` allows:
+- **#8 Venue Settings:** organization name, default language, and the venue's contact email and phone shown to clients (D117).
+- **#18 Venue: Event Layout:** the current page, with table and map editing; seating is view-only for the venue.
+- **#21 the notice to the client:** the existing bell, plus a notice on the Dashboard.
+
+The current product is in `resources/screenshots/`. The design rules are in `resources/DESIGN_GUIDE.md`.
+
 ## Breakpoints
 
 - Desktop mockups are 1448×1086 or 1536×1024.

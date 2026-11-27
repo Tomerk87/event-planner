@@ -14,7 +14,6 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Undo in the floor-plan editor | Changes are kept until Save Layout or dropped with Cancel; single steps cannot be undone. | Phase 20, 2026-10-16 |
 | Per-seat assignment | Assigning attendees to individual chairs. | PRD §17; `PLAN.md` backlog |
 | Splitting a party across tables | In the MVP a guest's whole party sits at one table. | PRD §11.2, §17 |
-| Venue templates | Reusable venue layouts. | `PLAN.md` backlog |
 | Table summary export | One row per table: Table Number, Capacity, Assigned, Remaining. The MVP exports the seating list only. | PRD §11.3 before 2026-10-13; owner decision 2026-10-13 (D70) |
 | Adding several tables at once | For example ten tables of twelve chairs in one step. In the MVP tables are added one at a time. | Owner decision 2026-10-13 (D71) |
 | Table names | A name beside the table number ("Family"), as drawn in `event_layout.png`. | Mockup; owner decision 2026-10-13 (D52) |
@@ -106,6 +105,7 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Custom MAIL FROM domain in SES | Emails pass DMARC through DKIM; a `mail.<domain>` MAIL FROM (an MX and an SPF record) would also align SPF. | Phase 18 (D101) |
 | DNS in Route 53 | The domain's records are edited by hand at GoDaddy. Moving the nameservers to a Route 53 hosted zone (about $0.50 a month) would let SES add its records itself. | Phase 18 (D101) |
 | Images for ordinary (x86) servers | The images are built for ARM (t4g). Another server type needs `--platform linux/amd64` or a multi-platform build. | Phase 18 (D101) |
+| Hosting and email for the full site | Not decided (O-H1). Options: one server with Cloudflare in front, all on Cloudflare, AWS as documented, or another host; email through Resend, Amazon SES, Cloudflare or another SMTP provider. Comparison, costs and setup steps: `v2_plannings/HOSTING_PLAN.md`. Needed before the V2.2 backend is released. | Owner 2026-11-27 |
 
 ## Analytics and history
 
@@ -119,3 +119,22 @@ Keep this file current: whenever a feature is left out of the MVP — by a scope
 | Feature | Notes | Source |
 |---|---|---|
 | Server-backed expiring demos | Only if browser-local Demo Mode proves insufficient. (The browser-local demo expires on its own since 2026-10-15: 3 days, or 12 hours without activity, D99.) | `PLAN.md` backlog |
+
+## Venues (after V2.2)
+
+V2.2 (PRD §20, D111–D118) brings venues, spaces and layout templates into scope. These parts are left out of it:
+
+| Feature | Notes | Source |
+|---|---|---|
+| Venue Staff role | A third venue role that sees only the events assigned to it, for venues with bigger teams; needs "assign staff to events" screens and rules. Optional, built only if venues ask for it. | Owner 2026-11-26 (D112) |
+| Layout template revisions | Draft → publish, with immutable versions. Not needed in V2.2, because every event gets its own copy (D111). | Owner 2026-11-26 (Q7) |
+| Booking times and buffers | Reserved start and end with setup and cleanup times, and overlap checks across hours and time zones. V2.2 only warns about another event in the same space on the same day. | Owner 2026-11-26 (Q12) |
+| Billing and subscriptions | Monthly or yearly plans, trial and grace periods, limits per plan, a payment provider. V2.2 is a pilot with venues set up by a script. | Owner 2026-11-26 (Q8) |
+| Change-log viewer | A page listing venue and client changes to an event. V2.2 keeps a minimal record and notifies the client. | V2.2 proposal |
+| Replacing a client lead | A controlled, logged handover of an event to a different lead after acceptance. | V2.2 proposal |
+| Duplicating venue events | Copying a venue event, from its own layout copy or a fresh template. | V2.2 proposal |
+| Linking a personal event to a venue | Moving an existing personal event under a venue, or between venues. | V2.2 proposal |
+| Client leaving a venue | A support-assisted export and handover of the client's data when the relationship ends. | V2.2 proposal |
+| Multi-space events | One event spread over several spaces. | V2.2 proposal |
+| Day-of operations after the start | Venue edits once the event has started; V2.2 keeps the current read-only rule (Q9). | Owner 2026-11-26 |
+| PDF seating export | Drawn as a format of the venue's seating export (mockup #17); see "Print / Export to PDF" under Event Layout. | Mockup #17 (D118) |
