@@ -53,6 +53,7 @@ import {
   assertCanChangeInvitation,
   assertCanChangeMembership,
   effectiveRole,
+  eventUpdateActions,
   type Actor,
   type EventAction,
 } from '../../domain/permissions.ts'
@@ -724,7 +725,13 @@ export function createMockServices(options: MockOptions): Services {
 
       update: (eventId, input) =>
         run('events.update', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const context = contextFor(eventId)
+          const { event } = context
+          // The schedule and the settings can belong to different sides of a
+          // venue-managed event (D113); each part changed needs its own right.
+          for (const action of eventUpdateActions(event, input)) {
+            assertCan(action, context.actor, { isPastEvent: context.isPast })
+          }
           const fields = validateEventInput(input)
           const coverImage =
             input.coverImage === undefined
@@ -758,7 +765,7 @@ export function createMockServices(options: MockOptions): Services {
 
       create: (eventId, input) =>
         run('guests.create', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT_GUESTS')
           const { guest } = addGuest(state.guests, event, input, newId('gst'))
           commit(replaceGuest(guest))
           return guest
@@ -766,7 +773,7 @@ export function createMockServices(options: MockOptions): Services {
 
       update: (eventId, guestId, input) =>
         run('guests.update', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT_GUESTS')
           const guest = editGuest(
             state.guests,
             activeGuest(eventId, guestId),
@@ -779,13 +786,13 @@ export function createMockServices(options: MockOptions): Services {
 
       remove: (eventId, guestId) =>
         run('guests.remove', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_GUESTS')
           commit(replaceGuest(softDeleteGuest(activeGuest(eventId, guestId))))
         }),
 
       setRsvp: (eventId, guestId, input) =>
         run('guests.setRsvp', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT_GUESTS')
           const guest = activeGuest(eventId, guestId)
           const updated = applyRsvp(
             guest,
@@ -802,7 +809,7 @@ export function createMockServices(options: MockOptions): Services {
 
       assignTable: (eventId, guestId, tableId) =>
         run('guests.assignTable', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'ASSIGN_SEATING')
           const guest = activeGuest(eventId, guestId)
           const table = tableId === null ? null : tableOf(eventId, tableId)
           assertCanAssign(guest, table, state.guests)
@@ -813,7 +820,7 @@ export function createMockServices(options: MockOptions): Services {
 
       removeMany: (eventId, guestIds) =>
         run('guests.removeMany', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_GUESTS')
           const removed = new Map(
             [...new Set(guestIds)].map((guestId) => [
               guestId,
@@ -828,7 +835,7 @@ export function createMockServices(options: MockOptions): Services {
 
       setGroup: (eventId, guestIds, group) =>
         run('guests.setGroup', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_GUESTS')
           const ids = new Set(guestIds)
           ids.forEach((guestId) => activeGuest(eventId, guestId))
           const resolved = resolveGroup(state.guests, eventId, group)
@@ -842,7 +849,7 @@ export function createMockServices(options: MockOptions): Services {
 
       importMany: (eventId, inputs) =>
         run('guests.importMany', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT_GUESTS')
           let guests = state.guests
           let created = 0
           let restored = 0
@@ -888,7 +895,7 @@ export function createMockServices(options: MockOptions): Services {
 
       convertToGuest: (eventId, unknownId, input) =>
         run('unknownGuests.convertToGuest', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT_GUESTS')
           const unknown = pendingUnknown(eventId, unknownId)
           // The international form reads the same whatever the event's country.
           const { guest } = addGuest(
@@ -920,7 +927,7 @@ export function createMockServices(options: MockOptions): Services {
 
       mergeIntoGuest: (eventId, unknownId, guestId) =>
         run('unknownGuests.mergeIntoGuest', () => {
-          const { event } = authorize(eventId, 'EDIT')
+          const { event } = authorize(eventId, 'EDIT_GUESTS')
           const unknown = pendingUnknown(eventId, unknownId)
           const guest = activeGuest(eventId, guestId)
           const updated: Guest = {
@@ -946,7 +953,7 @@ export function createMockServices(options: MockOptions): Services {
 
       reject: (eventId, unknownId) =>
         run('unknownGuests.reject', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_GUESTS')
           const unknown = pendingUnknown(eventId, unknownId)
           commit(
             replaceUnknown({ ...unknown, rejectedAt: now().toISOString() }),
@@ -955,7 +962,7 @@ export function createMockServices(options: MockOptions): Services {
 
       restore: (eventId, unknownId) =>
         run('unknownGuests.restore', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_GUESTS')
           const unknown = unknownOf(eventId, unknownId)
           if (!unknown.rejectedAt) {
             return notFound('unknownRsvp')
@@ -979,7 +986,7 @@ export function createMockServices(options: MockOptions): Services {
 
       updateSettings: (eventId, input) =>
         run('rsvp.updateSettings', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_RSVP_SETTINGS')
           const updated: RsvpSettings = {
             eventId,
             ...validateRsvpSettings(input),
@@ -1102,7 +1109,7 @@ export function createMockServices(options: MockOptions): Services {
 
       updateTemplate: (eventId, body) =>
         run('messages.updateTemplate', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_MESSAGE')
           const updated = { eventId, body: validateTemplate(body) }
           commit({
             ...state,
@@ -1192,7 +1199,7 @@ export function createMockServices(options: MockOptions): Services {
 
       create: (eventId, input) =>
         run('tables.create', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_TABLES')
           const table: EventTable = {
             id: newId('tbl'),
             eventId,
@@ -1204,7 +1211,7 @@ export function createMockServices(options: MockOptions): Services {
 
       update: (eventId, tableId, input) =>
         run('tables.update', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_TABLES')
           const updated: EventTable = {
             ...tableOf(eventId, tableId),
             ...validateTableInput(input, eventTables(eventId), tableId),
@@ -1220,7 +1227,7 @@ export function createMockServices(options: MockOptions): Services {
 
       remove: (eventId, tableId) =>
         run('tables.remove', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_TABLES')
           tableOf(eventId, tableId)
           commit({
             ...state,
@@ -1247,7 +1254,7 @@ export function createMockServices(options: MockOptions): Services {
 
       save: (eventId, input) =>
         run('layout.save', () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_LAYOUT')
           const current = layoutOf(eventId)
           assertLayoutVersion(input.version, current.version)
           // The demo keeps the picture itself, so its address is the picture.
@@ -1453,13 +1460,13 @@ export function createMockServices(options: MockOptions): Services {
     files: {
       readGuestFile: (eventId, file) =>
         run('files.readGuestFile', async () => {
-          authorize(eventId, 'EDIT')
+          authorize(eventId, 'EDIT_GUESTS')
           return readSpreadsheet(file)
         }),
 
       exportGuests: (eventId, request) =>
         run('files.exportGuests', () => {
-          authorize(eventId, 'EXPORT')
+          authorize(eventId, 'EXPORT_GUESTS')
           const ids = new Set(request.guestIds)
           return spreadsheetBlob(
             buildGuestExportTable(

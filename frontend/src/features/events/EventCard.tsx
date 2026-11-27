@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { canPerform } from '../../domain/access.ts'
 import { Link } from 'react-router'
 import { useFormatters } from '../../i18n/format.ts'
 import type { EventSummary } from '../../services/contracts/index.ts'
@@ -43,7 +44,9 @@ export function EventCard({
   const address = `/events/${event.id}/dashboard`
   const openLabel = t(isPast ? 'events.card.view' : 'events.card.open')
   // Only an Owner (or a Super User, who counts as one) may copy or delete.
-  const canManage = role === 'OWNER'
+  const access = { role, isPastEvent: isPast }
+  const canDuplicate = canPerform(access, 'DUPLICATE_EVENT')
+  const canDelete = canPerform(access, 'DELETE_EVENT')
   const filled = Math.min(
     100,
     Math.round((confirmedAttendees / event.maxAttendees) * 100),
@@ -51,7 +54,7 @@ export function EventCard({
 
   const menuItems: MenuItem[] = [
     { id: 'open', label: openLabel, icon: <FolderOpen />, to: address },
-    ...(canManage
+    ...(canDuplicate
       ? [
           {
             id: 'duplicate',
@@ -59,6 +62,10 @@ export function EventCard({
             icon: <Copy />,
             onSelect: onDuplicate,
           },
+        ]
+      : []),
+    ...(canDelete
+      ? [
           {
             id: 'delete',
             label: t('events.card.delete'),

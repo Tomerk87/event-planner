@@ -17,7 +17,7 @@ const controls = (
   <>
     <ReadOnlyNotice />
     <ReadOnlyBadge />
-    <EditGate fallback={<p>No editing</p>}>
+    <EditGate action="EDIT_GUESTS" fallback={<p>No editing</p>}>
       <button type="button">Add Guest</button>
     </EditGate>
   </>

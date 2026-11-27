@@ -13,7 +13,7 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { canEditEvent } from '../../domain/access.ts'
+import { canPerform } from '../../domain/access.ts'
 import { computeDashboardMetrics } from '../../domain/metrics.ts'
 import type { Guest } from '../../domain/models.ts'
 import { useFormatters } from '../../i18n/format.ts'
@@ -48,7 +48,10 @@ export function GuestsPage() {
   const { eventId = '' } = useParams()
   const { params, replaceAll } = useQueryParams()
   const access = useEventAccess()
-  const canEdit = access !== null && canEditEvent(access)
+  const canEdit = access !== null && canPerform(access, 'EDIT_GUESTS')
+  const canSeat = access !== null && canPerform(access, 'ASSIGN_SEATING')
+  const canSend = access !== null && canPerform(access, 'SEND_MESSAGE')
+  const canExport = access !== null && canPerform(access, 'EXPORT_GUESTS')
   // The layout has already loaded the event, so this read comes from the cache.
   const info = useEventAccessInfo(eventId)
   const guests = useGuests(eventId)
@@ -83,25 +86,27 @@ export function GuestsPage() {
           {t('guests.actions.import')}
         </Button>
       )}
-      <Menu
-        label={t('guests.actions.export')}
-        triggerClassName={styles.exportButton}
-        items={[
-          {
-            id: 'csv',
-            label: t('guests.actions.exportCsv'),
-            onSelect: () => onExport('csv', list),
-          },
-          {
-            id: 'xlsx',
-            label: t('guests.actions.exportXlsx'),
-            onSelect: () => onExport('xlsx', list),
-          },
-        ]}
-      >
-        <Download aria-hidden="true" />
-        <span aria-hidden="true">{t('guests.actions.export')}</span>
-      </Menu>
+      {canExport && (
+        <Menu
+          label={t('guests.actions.export')}
+          triggerClassName={styles.exportButton}
+          items={[
+            {
+              id: 'csv',
+              label: t('guests.actions.exportCsv'),
+              onSelect: () => onExport('csv', list),
+            },
+            {
+              id: 'xlsx',
+              label: t('guests.actions.exportXlsx'),
+              onSelect: () => onExport('xlsx', list),
+            },
+          ]}
+        >
+          <Download aria-hidden="true" />
+          <span aria-hidden="true">{t('guests.actions.export')}</span>
+        </Menu>
+      )}
       {canEdit && (
         <Button
           icon={<Plus />}
@@ -204,6 +209,9 @@ export function GuestsPage() {
               guests={list}
               tables={tables.data}
               canEdit={canEdit}
+              canSeat={canSeat}
+              canSend={canSend}
+              canExport={canExport}
               onAdd={() => setDialog('add')}
               onExport={onExport}
             />

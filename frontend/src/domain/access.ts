@@ -1,3 +1,4 @@
+import { roleCan, type EventAction } from './permissions.ts'
 import type { EventRole } from './roles.ts'
 
 export interface EventAccess {
@@ -21,12 +22,18 @@ export function getReadOnlyReason(access: EventAccess): ReadOnlyReason | null {
   return null
 }
 
-export function canEditEvent(access: EventAccess): boolean {
-  return getReadOnlyReason(access) === null
+/**
+ * Whether the user may take this action in the event now. Each page asks for
+ * the action it performs (PLAN.md Phase 24), so a venue and a client can later
+ * hold different parts of one event. For the interface only; the data layer
+ * enforces the same rule.
+ */
+export function canPerform(access: EventAccess, action: EventAction): boolean {
+  return roleCan(action, access.role, { isPastEvent: access.isPastEvent })
 }
 
 export function canOpenPermissions(role: EventRole): boolean {
-  return role !== 'VIEWER'
+  return roleCan('VIEW_PERMISSIONS', role, { isPastEvent: false })
 }
 
 /**
@@ -34,9 +41,7 @@ export function canOpenPermissions(role: EventRole): boolean {
  * event is past; an Owner (or a Super User, who counts as one) keeps it.
  */
 export function canManagePermissions(access: EventAccess): boolean {
-  return (
-    access.role === 'OWNER' || (access.role === 'ADMIN' && !access.isPastEvent)
-  )
+  return canPerform(access, 'MANAGE_PERMISSIONS')
 }
 
 /** The roles the user may give, change or take away. */
