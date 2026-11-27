@@ -185,6 +185,7 @@ Typical structure:
     mockups/
       README.md
     screenshots/
+    DESIGN_GUIDE.md
   docs/
     PRD.md
     DOMAIN.md
@@ -240,7 +241,7 @@ Add nested `AGENTS.md` files only when a subdirectory has important instructions
 
 ## UI mockups and visual guidance
 
-The project contains UI reference images in the `resources/mockups/` directory. `resources/screenshots/` holds screenshots of the application as built (English, desktop and mobile, every page and tab) for comparison and for designing new mockups; the mockups and their mapping stay the reference.
+The project contains UI reference images in the `resources/mockups/` directory. `resources/screenshots/` holds screenshots of the application as built (English, desktop and mobile, every page and tab) for comparison and for designing new mockups; the mockups and their mapping stay the reference. `resources/DESIGN_GUIDE.md` describes the visual language for designers; keep it in step with `frontend/src/styles/tokens.css` and the shared components when they change.
 
 `resources/mockups/README.md` is the authoritative mapping between product pages/tabs and their corresponding desktop/mobile mockup files.
 

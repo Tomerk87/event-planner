@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Event Settings · Client: venue section locked (mockup #14)</title>
+<style>
+/* Mockup #14, client_event_settings: the client's Event Settings inside a venue event (Dana & Yossi's Wedding, Grand Garden Hall).
+   Two parts: "Venue Details" (plain text, maintained by the venue, no inputs) and "Your Settings" (editable as today).
+   Tokens: DESIGN_GUIDE.md / tokens.css. Shell, sidebar and "Managed by" badge reused from mockup #13.
+   Layout: sidebar at 1024px+, drawer below, phone layout (single column + bottom action bar) below 768px. */
+:root{color-scheme:light;--bg:#F6F7FB;--sf:#fff;--sfm:#F8F9FC;--bd:#E5E8F0;--bds:#CFD4E2;--tx:#0F1433;--mu:#5B6480;--sb:#626B85;--pr:#4F46E5;--prh:#4338CA;--prs:#EEF0FF;--prb:#C9CDFB;--nv1:#0F1535;--nv2:#151C47;--nvr:#1B2350;--nvb:#262E5C;--nvt:#F1F3FB;--nvm:#B4BBD6;--own:#D97706;--sh:0 1px 2px rgb(15 20 51/6%);--shm:0 8px 24px rgb(15 20 51/12%)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.5 Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans Hebrew',Arial,sans-serif;color:var(--tx);background:var(--bg)}
+ul{list-style:none}a{text-decoration:none;color:inherit}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit}
+:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.i{flex:none;display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:600;white-space:nowrap}
+.btn.pri{background:var(--pr);color:#fff}.btn.pri:hover{background:var(--prh)}
+.btn.sec{background:#fff;color:var(--pr);border:1px solid var(--prb)}.btn.sec:hover{border-color:var(--pr)}
+.btn.soft{background:var(--prs);color:var(--pr)}
+.btn.sm{height:36px;padding:0 14px}
+.badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.badge.lg{height:28px;padding:0 12px;gap:6px}
+.success{color:#15803D;background:#E6F7EC;border-color:#BDE5CB}
+.warning{color:#B45309;background:#FFF4E3;border-color:#F8D8A4}
+.danger{color:#C81E1E;background:#FDECEC;border-color:#F6C4C4}
+.info{color:#4338CA;background:#EEF0FF;border-color:#C9CDFB}
+.neutral{color:#475069;background:#ECEFF5;border-color:#D9DEEA}
+/* "Managed by" badge: Info tone + building-2 (DESIGN_GUIDE §12). Wraps instead of overflowing for long venue names / PT text. */
+.mgd{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.4;border:1px solid #C9CDFB;background:#EEF0FF;color:#4338CA;text-align:start;max-width:100%}
+button.mgd:hover{border-color:#4338CA}
+.mgd .i{flex:none}
+/* shell */
+.app{display:flex;min-height:100vh}
+.side{width:248px;flex:none;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:30;background:linear-gradient(180deg,var(--nv1),var(--nv2));color:var(--nvt);display:flex;flex-direction:column;padding:16px}
+.dh{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;padding:4px 8px 0}
+.logo .mk{width:32px;height:32px;border-radius:8px;background:var(--pr);display:grid;place-items:center;color:#fff}
+.xb{display:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--nvb);place-items:center;color:var(--nvt)}
+.evs{position:relative;margin-top:20px}
+.evbtn{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--nvr);border:1px solid var(--nvb);text-align:start;color:var(--nvt)}
+.evbtn.open{border-color:var(--nvm)}
+.evbtn .nm{font-size:14px;font-weight:600;line-height:1.3;display:block}
+.evbtn .sub{font-size:12px;color:var(--nvm);display:block;margin-top:2px;line-height:1.4}
+.evbtn .sub .i{display:inline-block;vertical-align:-2px;margin-right:4px}
+.evbtn .grow{flex:1;min-width:0}
+.evbtn>.i{color:var(--nvm)}
+.cov{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:#fff}
+.g1{background:linear-gradient(135deg,#8B5CF6,#EC4899)}.g2{background:linear-gradient(135deg,#10B981,#3B82F6)}.g3{background:linear-gradient(135deg,#0EA5E9,#6366F1)}.g4{background:linear-gradient(135deg,#F59E0B,#EC4899)}
+.nav{margin-top:16px;display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--nvm)}
+.nav a:hover{background:var(--nvr)}
+.nav a.on{background:var(--nvr);color:var(--nvt);font-weight:600}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:16px}
+.lang{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--nvb);background:var(--nvr);font-size:14px;width:100%;color:var(--nvt)}
+.lang span{flex:1;text-align:start}
+.out{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;font-size:14px;color:var(--nvm);width:100%}
+.out:hover{color:var(--nvt)}
+/* dropdown menus (product list design) */
+.menu{position:absolute;background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:8px;z-index:50}
+.menu h4{font-size:12px;font-weight:500;color:var(--mu);padding:8px 12px 4px}
+.mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;width:100%;text-align:start;font-size:14px;font-weight:500}
+.mi:hover{background:var(--sfm)}
+.mi.sel{background:var(--prs)}
+.mi .tx{flex:1;min-width:0}.mi .nm{font-size:14px;font-weight:600;line-height:1.3;display:block}.mi .sub{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px}
+.mi .ck{color:var(--pr)}
+.mi>.i{color:var(--mu)}
+.msep{height:1px;background:var(--bd);margin:8px 0}
+.mnote{display:flex;gap:8px;padding:8px 12px 4px;font-size:12px;color:var(--mu);line-height:1.5}
+.mnote .i{color:#4338CA;margin-top:2px}
+.evs .menu{left:0;top:calc(100% + 8px);width:100%;min-width:248px}
+.scrim{display:none}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:64px;background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:20}
+.ibtn{width:44px;height:44px;border:1px solid var(--bd);border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--tx)}
+.ibtn.on{background:var(--prs);color:var(--pr);border-color:var(--prb)}
+.top .mk{display:none;width:40px;height:40px;border-radius:10px;background:var(--pr);place-items:center;color:#fff}
+.top .sp{flex:1}
+.bell{position:relative;width:44px;height:44px;display:grid;place-items:center;color:var(--mu)}
+.bell em{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:999px;background:#C81E1E;color:#fff;font-size:11px;font-weight:600;font-style:normal;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
+.rolei{width:36px;height:44px;display:grid;place-items:center;color:var(--own)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--prs);color:var(--pr);font-size:14px;font-weight:600;display:grid;place-items:center;flex:none}
+.whob{position:relative}
+.who{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}.who .i{color:var(--mu)}
+.whob .menu{right:0;top:calc(100% + 8px);width:260px}
+.ume{padding:8px 12px 4px}.ume b{display:block;font-size:14px}.ume span{font-size:12px;color:var(--mu)}
+/* page */
+.content{padding:24px 32px 40px;width:100%;max-width:1344px;display:flex;flex-direction:column;gap:24px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+.ph h1{font-size:32px;line-height:1.2;font-weight:700}
+.ph p{color:var(--mu);margin-top:4px}
+.phm{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-top:12px;position:relative}
+.phm .ctx{font-size:14px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.phm .ctx .i{color:var(--sb)}
+.card{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:20px}
+.chd h2{font-size:18px;font-weight:600;line-height:1.3}
+.chd p{font-size:14px;color:var(--mu);margin-top:4px}
+.chd{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+/* venue popover */
+.pop{position:absolute;left:0;top:calc(100% + 8px);width:400px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:20px;z-index:40;display:flex;flex-direction:column;gap:16px;font-size:14px}
+.pop .phd{display:flex;gap:12px;align-items:flex-start}
+.pop .phd .grow{flex:1;min-width:0}
+.pop .phd b{display:block;font-size:16px;font-weight:600;line-height:1.3}
+.pop .phd span{color:var(--mu);font-size:14px}
+.sic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--prs);color:var(--pr)}
+.xbtn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--mu);margin:-6px -8px 0 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.split div{padding:12px;border-radius:10px;background:var(--sfm);border:1px solid var(--bd)}
+.split h5{font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px}
+.split li{display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:1.4;padding:2px 0}
+.split li .i{margin-top:1px}
+.split .y .i{color:#15803D}.split .v .i{color:#4338CA}
+.ct{display:flex;flex-direction:column;gap:6px;color:var(--mu)}
+.ct li{display:flex;gap:8px;align-items:center}.ct .i{color:var(--sb)}
+.ct a{color:var(--pr);font-weight:500;direction:ltr}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:134px}
+.kpi .l{font-size:14px;color:var(--mu);line-height:1.5}
+.kpi .n{font-size:24px;font-weight:700;line-height:1.2;margin-top:2px}
+.kpi .u{font-size:12px;color:var(--sb)}
+.kic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.t-pr{background:#EEF0FF;color:#4F46E5}.t-ok{background:#E6F7EC;color:#15803D}.t-wa{background:#FFF4E3;color:#B45309}.t-da{background:#FDECEC;color:#C81E1E}.t-ne{background:#ECEFF5;color:#475069}
+.toast{position:fixed;right:24px;bottom:24px;background:var(--tx);color:#fff;font-size:14px;padding:12px 16px;border-radius:10px;box-shadow:var(--shm);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:70;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:none}
+.hidden{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* ---------- Event Settings ---------- */
+.ph .acts{display:flex;gap:12px;align-items:center}
+.btn.ghost{color:var(--mu)}.btn.ghost:hover{color:var(--tx);background:var(--sfm)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.pri:disabled:hover{background:var(--pr)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+.col{display:flex;flex-direction:column;gap:24px;min-width:0}
+.chd .mgd{flex:none}
+/* Venue Details: label → value pairs as text (DESIGN_GUIDE §2.4, §12) */
+.vnote{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:14px;border:1px solid #C9CDFB;background:#EEF0FF;margin-top:20px}
+.vnote>.i{color:#4338CA;margin-top:1px}
+.vnote b{display:block;font-size:14px;font-weight:600;color:#4338CA}
+.vnote p{font-size:14px;color:var(--tx);margin-top:4px}
+.vnote .cts{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:8px;font-size:14px}
+.vnote .cts a{display:inline-flex;align-items:center;gap:6px;color:var(--pr);font-weight:500;direction:ltr}
+.vnote .cts a:hover{text-decoration:underline}
+.vd{margin-top:8px}
+.vd .r{display:grid;grid-template-columns:184px minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--bd);align-items:start}
+.vd .r:last-child{border-bottom:0;padding-bottom:0}
+.vd dt{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--mu);line-height:1.5}
+.vd dt .i{color:var(--sb)}
+.vd dd{font-size:16px;line-height:1.5;color:var(--tx);min-width:0}
+.vd dd small{display:block;font-size:14px;color:var(--mu);margin-top:2px}
+.vd dd .lnk{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--pr);font-weight:500;margin-top:4px}
+.vd dd .lnk:hover{text-decoration:underline}
+/* form fields */
+.form{display:flex;flex-direction:column;gap:20px;margin-top:20px}
+.fld{display:flex;flex-direction:column;gap:8px;min-width:0}
+.fld>label,.fld>.lb{font-size:14px;font-weight:500;line-height:1.5;display:flex;justify-content:space-between;gap:8px}
+.fld .req{color:#C81E1E}
+.fld .cnt{font-weight:400;color:var(--sb);font-size:12px;align-self:flex-end}
+.inp{display:block;width:100%;height:44px;border:1px solid var(--bd);border-radius:10px;background:#fff;padding:0 16px;font-size:14px;color:var(--tx)}
+.inp:hover{border-color:var(--bds)}
+.inp:focus{outline:none;border-color:var(--pr);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.fld.err .inp{border-color:#C81E1E}
+.help{font-size:12px;color:var(--mu);line-height:1.5}
+.fld.err .help{color:#C81E1E}
+.dirty-dot{display:none;width:6px;height:6px;border-radius:50%;background:var(--pr);align-self:center}
+.fld.changed .dirty-dot{display:inline-block}
+.lbl{display:inline-flex;align-items:center;gap:4px}
+.photo{display:flex;gap:16px;align-items:flex-start}
+.pcov{width:144px;height:88px;border-radius:10px;display:grid;place-items:center;color:#fff;flex:none}
+.photo .help{margin-top:8px}
+.sub-h{padding-top:20px;border-top:1px solid var(--bd)}
+.sub-h h3{font-size:16px;font-weight:600;line-height:1.3}
+.sub-h p{font-size:14px;color:var(--mu);margin-top:4px}
+/* product dropdown (never the native select) */
+.dd{position:relative}
+.ddb{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:44px;border:1px solid var(--bd);border-radius:10px;background:#fff;padding:0 12px 0 16px;font-size:14px;text-align:start}
+.ddb:hover{border-color:var(--bds)}
+.ddb[aria-expanded="true"]{border-color:var(--pr);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.ddb .i{color:var(--mu)}
+.ddb .v{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ddm{left:0;right:0;top:calc(100% + 8px);max-height:296px;overflow-y:auto}
+.ddm .mi .sub{display:block}
+.flag{font-size:12px;font-weight:600;color:var(--mu);min-width:28px;height:20px;border-radius:6px;background:#ECEFF5;display:inline-grid;place-items:center;padding:0 4px}
+/* right column */
+.rnote{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:14px;border:1px solid;margin-top:20px}
+.rnote b{display:block;font-size:14px;font-weight:600}
+.rnote p{font-size:14px;color:var(--mu);margin-top:4px}
+.rnote.info>.i,.rnote.info b{color:#4338CA}
+.rnote.warning>.i,.rnote.warning b{color:#B45309}
+.rnote.success>.i,.rnote.success b{color:#15803D}
+.rnote .grow{flex:1;min-width:0}
+.rnote.link{width:100%;text-align:start}
+.rnote.link>.i:last-child{align-self:center;color:var(--mu)}
+.rnote.link:hover{border-color:#4338CA}
+.ckpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.ckpis .kpi{min-height:0;box-shadow:none}
+.capnote{font-size:12px;color:var(--mu);margin-top:12px;display:flex;gap:6px;align-items:flex-start}
+.capnote .i{color:#4338CA;margin-top:2px}
+.rules{background:#FDECEC;border-color:#F6C4C4}
+.rules .chd h2{color:#C81E1E}
+.rules .rnote{background:#FFF4E3;border-color:#F8D8A4;align-items:flex-start}
+.rules .rbtn{margin-top:12px}
+/* phone bottom bar */
+.bbar{display:none}
+.phone-only{display:none}
+@media (max-width:1279px){.vd .r{grid-template-columns:152px minmax(0,1fr)}}
+/* compact: drawer */
+@media (max-width:1023px){
+ .side{position:fixed;left:0;top:0;bottom:0;height:auto;width:min(320px,85vw);transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shm)}
+ .app.drawer .side{transform:none}
+ .scrim{display:block;position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:25;opacity:0;pointer-events:none;transition:opacity .2s}
+ .app.drawer .scrim{opacity:1;pointer-events:auto}
+ .xb,.top .mk{display:grid}
+ .top{padding:0 16px;gap:12px}
+ .grid2{grid-template-columns:1fr}
+}
+/* phone */
+@media (max-width:767px){
+ .who .nm,.who .i{display:none}
+ .content{padding:24px 16px 120px;gap:20px}
+ .ph{flex-direction:column;gap:16px}
+ .ph h1{font-size:28px}
+ .ph .acts{display:none}
+ .grid2,.col{gap:20px}
+ .card{padding:16px}
+ .chd{flex-direction:column;gap:12px}
+ .vnote{padding:16px;margin-top:16px}
+ .vnote .cts{flex-direction:column;gap:8px}
+ .vnote .cts a{min-height:24px}
+ .vd .r{grid-template-columns:1fr;gap:4px;padding:12px 0}
+ .form{margin-top:16px}
+ .photo{flex-direction:column;gap:12px}
+ .pcov{width:100%;max-width:200px;height:112px}
+ .ckpis .kpi{padding:16px;align-items:flex-start}
+ .ckpis .kic{width:40px;height:40px}
+ .rnote{margin-top:16px}
+ .bbar{display:flex;gap:12px;position:fixed;left:0;right:0;bottom:0;z-index:22;background:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgb(15 20 51/8%)}
+ .bbar .btn{flex:1;padding:0 12px}
+ .bbar .btn.sec:disabled{opacity:.5}
+ .toast{left:16px;right:16px;bottom:84px}
+ .phone-only{display:block}
+ .pop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-width:none;border-radius:14px 14px 0 0;padding:20px 16px 24px;max-height:85vh;overflow-y:auto;transform:none}
+ .split{grid-template-columns:1fr}
+}
+.popscrim{position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:39}
+.pop.center{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:41}
+@media (max-width:767px){.pop.center{left:0;top:auto;transform:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="app" id="app">
+ <aside class="side" id="side" aria-label="Main navigation">
+  <div class="dh"><div class="logo"><span class="mk" id="lg"></span>Event Planner</div><button class="xb" id="close" aria-label="Close menu"></button></div>
+  <div class="evs" id="evs"></div>
+  <nav class="nav" id="nav" aria-label="Event"></nav>
+  <div class="foot" id="foot"></div>
+ </aside>
+ <div class="scrim" id="scrim"></div>
+ <div class="main">
+  <header class="top"><button class="ibtn" id="burger" aria-label="Menu"></button><span class="mk" id="lg2"></span><span class="sp"></span><button class="bell" id="bell" aria-label="2 notifications"></button><span class="rolei" id="rolei" title="Your role: Client lead" aria-label="Your role: Client lead"></span><div class="whob" id="whob"></div></header>
+  <main class="content" id="content"></main>
+ </div>
+ <div class="bbar" id="bbar"></div>
+ <div id="popwrap"></div>
+ <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* Preview-safe address updates: sandboxed previews block history changes, so ignore that error. */
+(function(){try{['replaceState','pushState'].forEach(function(m){var o=history[m];if(typeof o!=='function')return;history[m]=function(){try{return o.apply(history,arguments)}catch(e){}}})}catch(e){}})();
+</script>
+<script>
+{
+const P={
+"logo": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18m-12 6 2 2 4-4\"/>",
+"home": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>",
+"users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/>",
+"user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>",
+"userplus": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M19 8v6M22 11h-6\"/>",
+"layout": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M3 9h18M9 21V9\"/>",
+"gear": "<path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>",
+"shield": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>",
+"crown": "<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\"/><path d=\"M5 21h14\"/>",
+"mail": "<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\"/><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\"/>",
+"clock": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>",
+"alertc": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4M12 16h.01\"/>",
+"info": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4M12 8h.01\"/>",
+"lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>",
+"check": "<path d=\"M20 6 9 17l-5-5\"/>",
+"minus": "<path d=\"M5 12h14\"/>",
+"pencil": "<path d=\"M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z\"/><path d=\"m15 5 4 4\"/>",
+"bld": "<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"/><path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"/><path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"/><path d=\"M10 6h4M10 10h4M10 14h4M10 18h4\"/>",
+"heart": "<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"/>",
+"resend": "<path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/>",
+"swap": "<path d=\"m17 2 4 4-4 4\"/><path d=\"M3 11v-1a4 4 0 0 1 4-4h14\"/><path d=\"m7 22-4-4 4-4\"/><path d=\"M21 13v1a4 4 0 0 1-4 4H3\"/>",
+"ban": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m4.9 4.9 14.2 14.2\"/>",
+"history": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/><path d=\"M12 7v5l4 2\"/>",
+"send": "<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\"/><path d=\"m21.854 2.147-10.94 10.939\"/>",
+"updown": "<path d=\"m7 15 5 5 5-5M7 9l5-5 5 5\"/>",
+"down": "<path d=\"m6 9 6 6 6-6\"/>",
+"right": "<path d=\"m9 18 6-6-6-6\"/>",
+"back": "<path d=\"m12 19-7-7 7-7M19 12H5\"/>",
+"bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\"/><path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\"/>",
+"globe": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20\"/>",
+"menu": "<path d=\"M4 12h16M4 6h16M4 18h16\"/>",
+"x": "<path d=\"M18 6 6 18M6 6l12 12\"/>",
+"cal": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/>",
+"pin": "<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>",
+"logout": "<path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"/><path d=\"m16 17 5-5-5-5M21 12H9\"/>",
+"arrow": "<path d=\"M5 12h14M12 5l7 7-7 7\"/>",
+"left": "<path d=\"m15 18-6-6 6-6\"/>",
+"map": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\"/><path d=\"M15 5.764v15M9 3.236v15\"/>",
+"alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4M12 17h.01\"/>",
+"image": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><circle cx=\"9\" cy=\"9\" r=\"2\"/><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\"/>",
+"upload": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12\"/>",
+"trash": "<path d=\"M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"/>",
+"chair": "<path d=\"M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3\"/><path d=\"M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\"/><path d=\"M5 18v2M19 18v2\"/>",
+"table": "<path d=\"M12 3v18\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M3 9h18M3 15h18\"/>",
+"copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/>",
+"type": "<path d=\"M4 7V4h16v3M9 20h6M12 4v16\"/>",
+"party": "<path d=\"M5.8 11.3 2 22l10.7-3.79M4 3h.01M22 8h.01M15 2h.01M22 20h.01M22 2l-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10M22 13l-.82-.33c-.86-.34-1.82.2-1.98 1.11-.11.7-.72 1.22-1.43 1.22H17M11 2l.33.82c.34.86-.2 1.82-1.11 1.98-.7.1-1.22.72-1.22 1.43V7\"/><path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\"/>",
+"plus": "<path d=\"M5 12h14M12 5v14\"/>",
+"search": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/>",
+"dots": "<circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/>",
+"archive": "<rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\"/><path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4\"/>",
+"undo": "<path d=\"M3 7v6h6\"/><path d=\"M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13\"/>",
+"calplus": "<path d=\"M8 2v4M16 2v4M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8M3 10h18M16 19h6M19 16v6\"/>",
+"eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>",
+"checkc": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>",
+"zin": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3M11 8v6M8 11h6\"/>",
+"zout": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3M8 11h6\"/>",
+"fit": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2\"/>",
+"max": "<path d=\"M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7\"/>",
+"min": "<path d=\"M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7\"/>",
+"dl": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5M12 15V3\"/>",
+"save": "<path d=\"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\"/><path d=\"M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7M7 3v4a1 1 0 0 0 1 1h7\"/>",
+"shapes": "<path d=\"M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><circle cx=\"17.5\" cy=\"17.5\" r=\"3.5\"/>",
+"round": "<circle cx=\"12\" cy=\"12\" r=\"9\"/>',square:'<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/>',rect:'<rect x=\"2\" y=\"7\" width=\"20\" height=\"10\" rx=\"2\"/>",
+"monitor": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\"/><path d=\"M8 21h8M12 17v4\"/>",
+"glass": "<path d=\"M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z\"/><path d=\"M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0\"/>",
+"cake": "<path d=\"M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8\"/><path d=\"M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1\"/><path d=\"M2 21h20\"/><path d=\"M7 8v3M12 8v3M17 8v3\"/><path d=\"M7 4h.01M12 4h.01M17 4h.01\"/>",
+"grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\"/>",
+"list": "<path d=\"M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13\"/>",
+"cc": "<path d=\"M18 6 7 17l-5-5\"/><path d=\"m22 10-7.5 7.5L13 16\"/>",
+"help": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01\"/>",
+"userx": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"m17 8 5 5M22 8l-5 5\"/>",
+"userck": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"m16 11 2 2 4-4\"/>",
+"msg": "<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>",
+"wa": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\"/>",
+"phone": "<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"/>"
+};
+P.calclock='<path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/>';
+P.ext='<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>';
+P.file='<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/>';
+P.languages='<path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"/>';
+P.sofa='<path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M4 18v2M20 18v2"/>';
+const I=(n,s=20,c='')=>`<svg class="i ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800)}
+
+const VENUE={name:'Grand Garden Hall',space:'Main Hall',address:'12 Garden Rd, Tel Aviv',email:'events@grandgardenhall.example.com',phone:'03-000-0000'};
+const EV={name:"Dana & Yossi's Wedding",day:'Friday',date:'Jun 18, 2027',time:'19:30',tz:'Asia/Jerusalem',max:350,conf:264,seats:280,unassigned:38,tables:28};
+const LANGS=[['en','English','English','EN'],['he','Hebrew','עברית','HE'],['pt','Portuguese (Brazil)','Português (Brasil)','PT']];
+const COUNTRIES=[['IL','Israel','+972'],['BR','Brazil','+55'],['US','United States','+1'],['GB','United Kingdom','+44'],['PT','Portugal','+351'],['FR','France','+33']];
+const COVERS=[['g1','glass'],['g2','heart'],['g3','party']];
+const SAVED={name:EV.name,cover:0,lang:'en',perGuest:'5',country:'IL'};
+let F={...SAVED};
+const S={menu:null,pop:false};
+
+$('lg').innerHTML=I('logo',18);$('lg2').innerHTML=I('logo',20);
+$('close').innerHTML=I('x',20);$('burger').innerHTML=I('menu',20);
+$('bell').innerHTML=I('bell',22)+'<em>2</em>';$('rolei').innerHTML=I('crown',22);
+function mgdBadge(tag='span',extra=''){return `<${tag} class="mgd" ${extra}>${I('bld',14)}<span>Managed by ${esc(VENUE.name)}</span></${tag}>`}
+
+/* ---------- shell (same as mockup #13) ---------- */
+function renderSide(){
+ const c=COVERS[SAVED.cover];
+ $('evs').innerHTML=`<button class="evbtn ${S.menu==='evs'?'open':''}" id="evbtn" aria-haspopup="menu" aria-expanded="${S.menu==='evs'}"><span class="cov ${c[0]}">${I(c[1],20)}</span><span class="grow"><span class="nm">${esc(SAVED.name||EV.name)}</span><span class="sub">${I('bld',12)}Managed by ${esc(VENUE.name)}</span></span>${I('down',16)}</button>`+
+ (S.menu==='evs'?`<div class="menu" role="menu"><h4>Switch event</h4>
+   <button class="mi" role="menuitem" data-toast="Switching events isn't part of this mockup."><span class="cov g3" style="width:32px;height:32px;border-radius:8px">${I('cake',16)}</span><span class="tx"><span class="nm">Grandma Ruth's 80th</span><span class="sub">Mar 6, 2027</span></span></button>
+   <button class="mi" role="menuitem" data-toast="Switching events isn't part of this mockup."><span class="cov g2" style="width:32px;height:32px;border-radius:8px">${I('party',16)}</span><span class="tx"><span class="nm">Henna Night</span><span class="sub">May 27, 2027</span></span></button>
+   <button class="mi sel" role="menuitem" data-close="1"><span class="cov ${c[0]}" style="width:32px;height:32px;border-radius:8px">${I(c[1],16)}</span><span class="tx"><span class="nm">${esc(SAVED.name)}</span><span class="sub">${I('bld',12)}Managed by ${esc(VENUE.name)}</span></span>${I('check',18,'ck')}</button>
+   <div class="msep"></div><button class="mi" role="menuitem" data-page="My Events">${I('back',18)}Back to My Events</button></div>`:'');
+ const items=[['home','Dashboard'],['users','Guests'],['mail','RSVP'],['msg','Messages'],['layout','Event Layout'],['gear','Event Settings'],['shield','Permissions']];
+ $('nav').innerHTML=items.map(([ic,l])=>l==='Event Settings'?`<a href="#" class="on" aria-current="page" data-here="1">${I(ic,20)}${l}</a>`:`<a href="#" data-page="${l}">${I(ic,20)}${l}</a>`).join('');
+ $('foot').innerHTML=`<button class="lang" data-toast="The interface language uses the existing selector.">${I('globe',18)}<span>English</span>${I('down',16)}</button><a class="out" href="#" data-page="My Events">${I('back',20)}Back to My Events</a>`;
+}
+function renderTop(){
+ $('whob').innerHTML=`<button class="who" id="who" aria-haspopup="menu" aria-expanded="${S.menu==='who'}"><span class="av">DL</span><span class="nm">Dana Levi</span>${I('down',16)}</button>`+
+ (S.menu==='who'?`<div class="menu" role="menu"><div class="ume"><b>Dana Levi</b><span>dana.levi@example.com</span></div><div class="msep"></div><button class="mi" role="menuitem" data-toast="Profile isn't part of this mockup.">${I('user',18)}Profile</button><button class="mi" role="menuitem" data-toast="Log out isn't part of this mockup.">${I('logout',18)}Log out</button></div>`:'');
+}
+
+/* ---------- page ---------- */
+function dd(id,label,opts,val,help){
+ // opts: [value, main, sub, tag]
+ const cur=opts.find(o=>o[0]===val);
+ return `<div class="fld" id="f-${id}"><span class="lb" id="l-${id}"><span class="lbl">${label}<span class="req" aria-hidden="true">*</span><span class="dirty-dot" title="Changed"></span></span></span>
+  <div class="dd" id="dd-${id}">${ddInner(id,opts,cur)}</div>
+  <span class="help">${help}</span></div>`;
+}
+function ddInner(id,opts,cur){
+ const open=S.menu==='dd-'+id;
+ return `<button type="button" class="ddb" data-dd="${id}" aria-haspopup="listbox" aria-expanded="${open}" aria-labelledby="l-${id}"><span class="v"><span class="flag">${cur[3]}</span>${esc(cur[1])}</span>${I('down',18)}</button>`+
+ (open?`<div class="menu ddm" role="listbox" aria-labelledby="l-${id}">${opts.map(o=>`<button type="button" class="mi ${o[0]===cur[0]?'sel':''}" role="option" aria-selected="${o[0]===cur[0]}" data-opt="${id}:${o[0]}"><span class="flag">${o[3]}</span><span class="tx"><span class="nm">${esc(o[1])}</span>${o[2]?`<span class="sub">${esc(o[2])}</span>`:''}</span>${o[0]===cur[0]?I('check',18,'ck'):''}</button>`).join('')}</div>`:'');
+}
+const langOpts=()=>LANGS.map(l=>[l[0],l[1],l[2],l[3]]);
+const ctyOpts=()=>COUNTRIES.map(c=>[c[0],c[1],'Country code '+c[2],c[0]]);
+
+function renderPage(){
+ const c=COVERS[F.cover];
+ $('content').innerHTML=`
+ <div class="ph"><div><h1>Event Settings</h1><p>Update your event information and defaults.</p></div>
+  <div class="acts"><button class="btn ghost hidden" id="discard">Discard</button><button class="btn pri" id="save" disabled>${I('save',18)}Save Changes</button></div></div>
+ <div class="grid2">
+  <div class="col">
+   <section class="card" aria-labelledby="vd-h">
+    <div class="chd"><div><h2 id="vd-h">Venue Details</h2><p>The date, place and size of your event.</p></div>${mgdBadge('button','id="mgdbtn" aria-haspopup="dialog"')}</div>
+    <div class="vnote" role="note">${I('bld',20)}<div class="grow"><b>Maintained by ${esc(VENUE.name)}. Contact them to change it.</b>
+     <p>These details are set by the venue for everyone planning this event.</p>
+     <div class="cts"><a href="#" data-toast="Opens your email app.">${I('mail',16)}${VENUE.email}</a><a href="#" data-toast="Opens your phone app.">${I('phone',16)}${VENUE.phone}</a></div></div></div>
+    <dl class="vd">
+     <div class="r"><dt>${I('calclock',18)}Date and Time</dt><dd>${EV.day}, ${EV.date} · ${EV.time}<small>Time zone: ${EV.tz} · Israel</small></dd></div>
+     <div class="r"><dt>${I('bld',18)}Space</dt><dd>${esc(VENUE.space)}<small>${esc(VENUE.name)} · ${EV.tables} tables</small></dd></div>
+     <div class="r"><dt>${I('pin',18)}Address</dt><dd>${esc(VENUE.address)}<br><a href="#" class="lnk" data-toast="Opens Google Maps in a new tab.">${I('ext',14)}Open in Google Maps</a><small>Shown to guests on the RSVP page, with links to Google Maps and Waze.</small></dd></div>
+     <div class="r"><dt>${I('users',18)}Maximum Attendees</dt><dd>${EV.max} people<small>${EV.conf} attendees have confirmed so far.</small></dd></div>
+     <div class="r"><dt>${I('checkc',18)}Event Status</dt><dd><span class="badge lg success">${I('checkc',14)}Upcoming</span><small>Your event is active and visible to guests.</small></dd></div>
+    </dl>
+   </section>
+
+   <section class="card" aria-labelledby="ys-h">
+    <div class="chd"><div><h2 id="ys-h">Your Settings</h2><p>You can change these at any time.</p></div></div>
+    <div class="form">
+     <div class="fld" id="f-name"><label for="in-name"><span class="lbl">Event Name<span class="req" aria-hidden="true">*</span><span class="dirty-dot" title="Changed"></span></span><span class="cnt" id="cnt-name">${F.name.length}/80</span></label>
+      <input class="inp" id="in-name" maxlength="80" value="${esc(F.name)}" aria-describedby="h-name" required>
+      <span class="help" id="h-name">Shown to guests on the RSVP page and in your messages.</span></div>
+     <div class="fld" id="f-cover"><span class="lb"><span class="lbl">Event Photo<span class="dirty-dot" title="Changed"></span></span></span>
+      <div class="photo"><span class="pcov ${c[0]}" id="pcov">${I(c[1],36)}</span><div><button class="btn sec sm" id="upload">${I('image',18)}Upload Photo</button><p class="help">JPG or PNG, up to 5 MB. Without a photo the event keeps its generated cover.</p></div></div></div>
+     ${dd('lang','RSVP Page Language',langOpts(),F.lang,'The language guests see first on the RSVP page. They can switch it there.')}
+     <div class="sub-h"><h3>Guests</h3><p>How many people a guest can confirm.</p></div>
+     <div class="fld" id="f-pg"><label for="in-pg"><span class="lbl">Maximum Attendees per Guest<span class="req" aria-hidden="true">*</span><span class="dirty-dot" title="Changed"></span></span></label>
+      <input class="inp" id="in-pg" type="number" inputmode="numeric" min="1" max="10" value="${esc(F.perGuest)}" aria-describedby="h-pg" required>
+      <span class="help" id="h-pg">The most people a guest can confirm for one invitation. Allowed range: 1 – 10.</span></div>
+     ${dd('cty','Phone Number Country',ctyOpts(),F.country,'Phone numbers typed without a country code are read as numbers from this country.')}
+     <div class="rnote info">${I('info',20)}<div class="grow"><b>Expected Attendees is for your planning</b><p>New guests start with this number as their Expected Attendees, which you can change for each guest. It does not limit what a guest confirms; this maximum does. Lowering it keeps answers already given.</p></div></div>
+    </div>
+   </section>
+  </div>
+
+  <div class="col">
+   <section class="card"><div class="chd"><div><h2>RSVP Settings</h2><p>When guests can respond.</p></div></div>
+    <div class="rnote info">${I('info',20)}<div class="grow"><b>RSVP remains open until the event start time.</b><p>Guests can submit and update their RSVP at any time until ${EV.date}, ${EV.time} (${EV.tz}). If ${esc(VENUE.name)} moves the date, this follows it.</p></div></div>
+   </section>
+   <section class="card"><div class="chd"><div><h2>Capacity Summary</h2><p>Current event capacity and attendance overview.</p></div></div>
+    <div class="ckpis">
+     <div class="kpi"><div><div class="l">Maximum Attendees</div><div class="n">${EV.max}</div><div class="u">people</div></div><span class="kic t-pr">${I('users',22)}</span></div>
+     <div class="kpi"><div><div class="l">Confirmed Attendees</div><div class="n">${EV.conf}</div><div class="u">people</div></div><span class="kic t-ok">${I('userck',22)}</span></div>
+     <div class="kpi"><div><div class="l">Seating Capacity</div><div class="n">${EV.seats}</div><div class="u">chairs</div></div><span class="kic t-wa">${I('sofa',22)}</span></div>
+     <div class="kpi"><div><div class="l">Unassigned Confirmed Attendees</div><div class="n">${EV.unassigned}</div><div class="u">people</div></div><span class="kic t-da">${I('userx',22)}</span></div>
+    </div>
+    <button class="rnote info link" data-page="Event Layout">${I('chair',20)}<span class="grow"><b>Confirmed attendees without a table</b><p>${EV.unassigned} confirmed attendees are not seated yet. There are ${EV.seats} chairs for ${EV.conf} confirmed attendees.</p></span>${I('right',18)}</button>
+    <p class="capnote">${I('bld',14)}<span>The maximum attendees and the tables are set by ${esc(VENUE.name)}.</span></p>
+   </section>
+   <section class="card rules"><div class="chd"><div><h2>Event Rules</h2><p>Important information about event changes and limitations.</p></div></div>
+    <div class="rnote warning">${I('alert',20)}<div class="grow"><b>Past events become read-only</b><p>After the event start time (${EV.date}, ${EV.time}), this event will be locked and become read-only. You will still be able to view all data, but you won't be able to make changes to guests, seating, or settings.</p>
+     <button class="btn sec sm rbtn" data-toast="Event Rules opens the existing rules dialog.">${I('file',18)}View Event Rules</button></div></div>
+   </section>
+  </div>
+ </div>`;
+ $('bbar').innerHTML=`<button class="btn sec" id="discard2" disabled>Discard</button><button class="btn pri" id="save2" disabled>${I('save',18)}Save Changes</button>`;
+ syncDirty();
+}
+
+/* ---------- form state ---------- */
+function pgError(){const v=F.perGuest.trim();if(v==='')return 'Enter a number from 1 to 10.';const n=Number(v);if(!Number.isInteger(n)||n<1||n>10)return 'Enter a whole number from 1 to 10.';return ''}
+function nameError(){return F.name.trim()===''?'Enter an event name.':''}
+const KEYS=[['name','f-name'],['cover','f-cover'],['lang','f-lang'],['perGuest','f-pg'],['country','f-cty']];
+function changes(){return KEYS.filter(([k])=>String(F[k])!==String(SAVED[k])).length}
+function setErr(fid,hid,msg,def){const f=$(fid),h=$(hid);if(!f)return;f.classList.toggle('err',!!msg);h.textContent=msg||def;const i=f.querySelector('input');if(i)i.setAttribute('aria-invalid',msg?'true':'false')}
+function syncDirty(){
+ const n=changes(),bad=!!(pgError()||nameError());
+ KEYS.forEach(([k,fid])=>$(fid)?.classList.toggle('changed',String(F[k])!==String(SAVED[k])));
+ setErr('f-pg','h-pg',pgError(),'The most people a guest can confirm for one invitation. Allowed range: 1 – 10.');
+ setErr('f-name','h-name',nameError(),'Shown to guests on the RSVP page and in your messages.');
+ ['save','save2'].forEach(id=>{const b=$(id);if(b){b.disabled=n===0||bad;b.innerHTML=I('save',18)+(n?`Save Changes (${n})`:'Save Changes')}});
+ const d=$('discard');if(d)d.classList.toggle('hidden',n===0);
+ const d2=$('discard2');if(d2)d2.disabled=n===0;
+}
+function save(){
+ if(pgError()||nameError()){toast('Fix the highlighted fields before saving.');return}
+ F.perGuest=String(Number(F.perGuest));Object.assign(SAVED,F);
+ S.menu=null;renderSide();renderPage();toast('Your settings were saved.');
+}
+function discard(){F={...SAVED};S.menu=null;renderPage();toast('Changes discarded.')}
+function rerenderDD(id){
+ const opts=id==='lang'?langOpts():ctyOpts(),val=id==='lang'?F.lang:F.country;
+ $('dd-'+id).innerHTML=ddInner(id,opts,opts.find(o=>o[0]===val));
+}
+
+/* ---------- venue popover (from mockup #13) ---------- */
+function renderPop(){
+ const v=VENUE;
+ $('popwrap').innerHTML=S.pop?`<div class="popscrim" data-act="closepop"></div>
+ <div class="pop center" role="dialog" aria-modal="true" aria-labelledby="poph">
+  <div class="phd"><span class="sic">${I('bld',20)}</span><div class="grow"><b id="poph">Managed by ${esc(v.name)}</b><span>${esc(v.space)} · ${esc(v.address)}</span></div><button class="xbtn" data-act="closepop" aria-label="Close" id="popx">${I('x',18)}</button></div>
+  <p style="color:var(--mu)">You were invited to plan this event by ${esc(v.name)}. Here is who takes care of what.</p>
+  <div class="split">
+   <div><h5>You manage</h5><ul class="y"><li>${I('check',14)}Guests and import</li><li>${I('check',14)}RSVP page</li><li>${I('check',14)}WhatsApp messages</li><li>${I('check',14)}Seating guests at tables</li><li>${I('check',14)}Your team</li></ul></div>
+   <div><h5>${esc(v.name)} manages</h5><ul class="v"><li>${I('bld',14)}Date and time</li><li>${I('bld',14)}Space and address</li><li>${I('bld',14)}Maximum attendees</li><li>${I('bld',14)}The room and tables</li></ul></div>
+  </div>
+  <div><h5 style="font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px">Need a change? Contact the venue</h5>
+  <ul class="ct"><li>${I('mail',16)}<a href="#" data-toast="Opens your email app.">${v.email}</a></li><li>${I('phone',16)}<a href="#" data-toast="Opens your phone app.">${v.phone}</a></li></ul></div>
+ </div>`:'';
+ if(S.pop)$('popx').focus();
+}
+
+/* ---------- events ---------- */
+function closeMenus(){if(!S.menu)return;const m=S.menu;S.menu=null;if(m.startsWith('dd-'))rerenderDD(m.slice(3));else{renderSide();renderTop()}}
+document.addEventListener('click',ev=>{
+ const t=ev.target.closest('button,a,[data-act]');
+ const inMenu=ev.target.closest('.menu');
+ if(!t){closeMenus();return}
+ const d=t.dataset;
+ if(t.id==='burger'){$('app').classList.add('drawer');return}
+ if(t.id==='close'){$('app').classList.remove('drawer');return}
+ if(t.id==='bell'){toast('Notifications use the existing bell.');return}
+ if(t.id==='evbtn'){const o=S.menu==='evs';closeMenus();S.menu=o?null:'evs';renderSide();return}
+ if(t.id==='who'){const o=S.menu==='who';closeMenus();S.menu=o?null:'who';renderTop();return}
+ if(d.dd){const id='dd-'+d.dd,o=S.menu===id;closeMenus();S.menu=o?null:id;rerenderDD(d.dd);if(!o)$('dd-'+d.dd).querySelector('.mi.sel')?.focus();return}
+ if(d.opt){const [id,val]=d.opt.split(':');if(id==='lang')F.lang=val;else F.country=val;S.menu=null;rerenderDD(id);syncDirty();$('dd-'+id).querySelector('.ddb').focus();return}
+ if(t.id==='mgdbtn'){closeMenus();S.pop=true;renderPop();return}
+ if(d.act==='closepop'){S.pop=false;renderPop();$('mgdbtn')?.focus();return}
+ if(t.id==='upload'){F.cover=(F.cover+1)%COVERS.length;const c=COVERS[F.cover];const p=$('pcov');p.className='pcov '+c[0];p.innerHTML=I(c[1],36);syncDirty();toast('Photo chosen (simulated). Save to apply it.');return}
+ if(t.id==='save'||t.id==='save2'){save();return}
+ if(t.id==='discard'||t.id==='discard2'){discard();return}
+ if(d.close){closeMenus();return}
+ if(d.here){ev.preventDefault();closeMenus();$('app').classList.remove('drawer');return}
+ if(d.page){ev.preventDefault();closeMenus();$('app').classList.remove('drawer');toast(changes()?`You have unsaved changes. Save or discard them before leaving. (${d.page} isn't part of this mockup.)`:`${d.page} isn't part of this mockup.`);return}
+ if(d.toast){ev.preventDefault();closeMenus();toast(d.toast);return}
+ if(S.menu&&!inMenu)closeMenus();
+});
+document.addEventListener('input',ev=>{
+ const t=ev.target;
+ if(t.id==='in-name'){F.name=t.value;$('cnt-name').textContent=t.value.length+'/80';syncDirty()}
+ if(t.id==='in-pg'){F.perGuest=t.value;syncDirty()}
+});
+document.addEventListener('keydown',ev=>{
+ if(ev.key==='Escape'){if(S.pop){S.pop=false;renderPop();$('mgdbtn')?.focus();return}if(S.menu){const m=S.menu;closeMenus();if(m.startsWith('dd-'))$(m)?.querySelector('.ddb')?.focus();return}$('app').classList.remove('drawer')}
+ if((ev.key==='ArrowDown'||ev.key==='ArrowUp')&&ev.target.closest('.ddm')){ev.preventDefault();const items=[...ev.target.closest('.ddm').querySelectorAll('.mi')];let i=items.indexOf(ev.target)+(ev.key==='ArrowDown'?1:-1);items[(i+items.length)%items.length].focus()}
+ if(ev.key==='Enter'&&ev.target.tagName==='INPUT'){ev.preventDefault();if(!$('save').disabled)save()}
+});
+$('scrim').addEventListener('click',()=>$('app').classList.remove('drawer'));
+renderSide();renderTop();renderPage();
+}
+</script>
+</body></html>

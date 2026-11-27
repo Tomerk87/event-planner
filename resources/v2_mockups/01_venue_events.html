@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Venue My Events desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: the existing Event Planner product, no new styling
+   IDEA: a faithful product screen for screenshotting
+   PICTURE: the screen itself
+   COLOUR and TYPE: DESIGN_GUIDE.md tokens, Inter
+   LAYOUT: fixed-width frames, one per state */
+:root{color-scheme:light;--bg:#F6F7FB;--sf:#fff;--sfm:#F8F9FC;--bd:#E5E8F0;--bds:#CFD4E2;--tx:#0F1433;--mu:#5B6480;--sb:#626B85;--pr:#4F46E5;--prh:#4338CA;--prs:#EEF0FF;--prb:#C9CDFB;--nv1:#0F1535;--nv2:#151C47;--nvr:#1B2350;--nvb:#262E5C;--nvt:#F1F3FB;--nvm:#B4BBD6;--sh:0 1px 2px rgb(15 20 51/6%);--shm:0 8px 24px rgb(15 20 51/12%);--shb:0 -4px 16px rgb(15 20 51/8%)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.5 Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--tx);background:#DCDFE8;overflow-x:auto}
+ul{list-style:none}a{text-decoration:none;color:inherit}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.i{flex:none;display:block}
+.state{padding:24px 16px 8px;font-size:14px;color:var(--mu);font-weight:500}
+.state b{color:var(--tx)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:600;white-space:nowrap}
+.btn.pri{background:var(--pr);color:#fff}
+.btn.sec{background:#fff;color:var(--pr);border:1px solid var(--prb)}
+.btn.sm{height:36px;padding:0 14px}
+.badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.success{color:#15803D;background:#E6F7EC;border-color:#BDE5CB}
+.warning{color:#B45309;background:#FFF4E3;border-color:#F8D8A4}
+.info{color:#4338CA;background:#EEF0FF;border-color:#C9CDFB}
+.neutral{color:#475069;background:#ECEFF5;border-color:#D9DEEA}
+/* sidebar */
+.side{background:linear-gradient(180deg,var(--nv1),var(--nv2));color:var(--nvt);display:flex;flex-direction:column;padding:16px}
+.logo{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;padding:4px 8px 0}
+.logo .mk{width:32px;height:32px;border-radius:8px;background:var(--pr);display:grid;place-items:center;color:#fff}
+.ws{position:relative;margin-top:20px}
+.wsbtn{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--nvr);border:1px solid var(--nvb);text-align:start;color:var(--nvt)}
+.wsbtn.open{border-color:var(--nvm)}
+.tile{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:#fff}
+.tile.v{background:linear-gradient(135deg,#6366F1,#4F46E5)}
+.tile.p{background:var(--prs);color:var(--pr)}
+.wsbtn .nm{font-size:14px;font-weight:600;line-height:1.3}
+.wsbtn .sub{font-size:12px;color:var(--nvm)}
+.wsbtn .grow{flex:1}
+.wsbtn .i:last-child{color:var(--nvm)}
+.nav{margin-top:16px;display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--nvm);text-decoration:none}
+.nav a.on{background:var(--nvr);color:var(--nvt);font-weight:600}
+.navlbl{font-size:12px;color:var(--nvm);padding:20px 12px 4px}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.lang{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--nvb);background:var(--nvr);font-size:14px}
+.lang span{flex:1}
+.out{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;font-size:14px;color:var(--nvm)}
+/* switcher menu */
+.menu{position:absolute;left:0;top:calc(100% + 8px);width:280px;background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:8px;z-index:5}
+.menu h4{font-size:12px;font-weight:500;color:var(--mu);padding:8px 12px 4px}
+.mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;width:100%;text-align:start}
+.mi.sel{background:var(--prs)}
+.mi .tx{flex:1}
+.mi .nm{font-size:14px;font-weight:600;line-height:1.3}
+.mi .sub{font-size:12px;color:var(--mu)}
+.mi .ck{color:var(--pr)}
+.menu .note{border-top:1px solid var(--bd);margin:8px 4px 0;padding:12px 8px 4px;font-size:12px;color:var(--sb)}
+/* top bar */
+.top{height:64px;background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:16px}
+.ibtn{width:44px;height:44px;border:1px solid var(--bd);border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--tx)}
+.bell{position:relative;width:44px;height:44px;display:grid;place-items:center;color:var(--mu)}
+.bell em{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:999px;background:#C81E1E;color:#fff;font-size:11px;font-weight:600;font-style:normal;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
+.av{width:40px;height:40px;border-radius:50%;background:var(--prs);color:var(--pr);font-size:14px;font-weight:600;display:grid;place-items:center;flex:none}
+/* tabs */
+.seg{display:flex;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:4px;gap:4px}
+.seg button{height:36px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:500;color:var(--mu);display:flex;align-items:center;gap:8px;justify-content:center}
+.seg button.on{background:var(--pr);color:#fff;font-weight:600}
+.cnt{min-width:22px;height:20px;padding:0 7px;border-radius:999px;background:var(--neutral-soft,#ECEFF5);color:#475069;font-size:12px;font-weight:600;display:grid;place-items:center}
+.on .cnt{background:#fff;color:var(--pr)}
+.field{height:44px;border:1px solid var(--bd);border-radius:10px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 14px;font-size:14px;color:var(--sb)}
+.field.dd{color:var(--tx);font-weight:500}
+.field.dd .i{color:var(--mu)}
+.field.dd span{flex:1}
+.vt{display:flex;border:1px solid var(--bd);border-radius:10px;background:#fff;padding:4px;gap:4px}
+.vt button{width:36px;height:34px;border-radius:6px;display:grid;place-items:center;color:var(--mu)}
+.vt .on{background:var(--prs);color:var(--pr)}
+/* card bits */
+.meta{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu)}
+.meta li{display:flex;align-items:center;gap:8px}
+.meta .i{color:var(--sb)}
+.await{color:#B45309;font-weight:500}
+.prog .pl{display:flex;justify-content:space-between;font-size:12px;color:var(--mu)}
+.bar{height:6px;border-radius:999px;background:var(--bd);margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pr);border-radius:999px}
+.hint{font-size:12px;color:var(--sb);line-height:1.5}
+.dots{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--tx);box-shadow:var(--sh)}
+</style></head><body>
+<style>
+.frame{width:1440px;display:flex;background:var(--bg);box-shadow:0 2px 12px rgb(15 20 51/10%);position:relative}
+.frame .side{width:248px;flex:none;min-height:1180px}
+.main{flex:1;min-width:0}
+.top{padding:0 32px}
+.top .sp{flex:1}
+.who{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
+.who .i{color:var(--mu)}
+.content{padding:24px 32px 40px;max-width:1280px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+.ph h1{font-size:32px;line-height:1.2;font-weight:700}
+.ph p{color:var(--mu);margin-top:4px}
+.tools{display:flex;align-items:center;gap:12px;margin-top:24px}
+.tools .sp{flex:1}
+.tools .dd{width:200px}
+.tools .srch{width:300px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:24px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column}
+.cov{height:152px;position:relative;display:grid;place-items:center;color:#fff}
+.cov .badge{position:absolute;top:12px;left:12px}
+.cov .dots{position:absolute;top:12px;right:12px}
+.cb{padding:20px;display:flex;flex-direction:column;gap:16px;flex:1}
+.cb h3{font-size:18px;font-weight:600;line-height:1.3}
+.cb .btn{align-self:flex-start;margin-top:auto}
+.cb .prog,.cb .hint{min-height:32px}
+.shade{position:absolute;inset:0;background:transparent}
+</style>
+<div id="app"></div>
+<script>
+const P={
+cal:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>',
+logo:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18m-12 6 2 2 4-4"/>',
+bld:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+pin:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+ccheck:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+updown:'<path d="m7 15 5 5 5-5M7 9l5-5 5 5"/>',
+down:'<path d="m6 9 6 6 6-6"/>',
+right:'<path d="m9 18 6-6-6-6"/>',
+search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+plus:'<path d="M5 12h14M12 5v14"/>',
+grid:'<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+list:'<path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+menu:'<path d="M4 12h16M4 6h16M4 18h16"/>',
+dots:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+arrow:'<path d="M5 12h14M12 5l7 7-7 7"/>',
+gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+map:'<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15M9 3.236v15"/>',
+alert:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',
+hist:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/>',
+glass:'<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>',
+cake:'<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/>',
+brief:'<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>'
+};
+const I=(n,s=20)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const COVERS={a:'linear-gradient(135deg,#8B5CF6,#EC4899)',b:'linear-gradient(135deg,#10B981,#3B82F6)',c:'linear-gradient(135deg,#0EA5E9,#6366F1)'};
+const ST={
+ await:{t:'Awaiting client',c:'warning',i:'clock'},
+ sent:{t:'Invitation sent',c:'info',i:'mail'},
+ expired:{t:'Invitation expired',c:'warning',i:'alert'},
+ joined:{t:'Client joined',c:'success',i:'ccheck'},
+ past:{t:'Past',c:'neutral',i:'hist'}};
+const EVENTS=[
+ {n:"Dana & Yossi's Wedding",d:'Dec 17, 2026',t:'19:30',sp:'Main Hall',cl:'Dana Levi',max:350,st:'joined',conf:212,cov:'b',ic:'glass'},
+ {n:'Cohen Bar Mitzvah',d:'Jan 8, 2027',t:'18:00',sp:'Garden',cl:'Rachel Cohen',max:180,st:'sent',sent:'Nov 24',cov:'c',ic:'cake'},
+ {n:"Noa & Amit's Wedding",d:'Feb 11, 2027',t:'19:00',sp:'Main Hall',cl:null,max:400,st:'await',cov:'a',ic:'glass'},
+ {n:'Peretz Engagement Party',d:'Jan 28, 2027',t:'20:30',sp:'Garden',cl:'Yael Peretz',max:150,st:'expired',exp:'Nov 20',cov:'b',ic:'glass'},
+ {n:'Brightline Year-End Party',d:'Mar 4, 2027',t:'20:00',sp:'Garden',cl:'Tal Mizrahi',max:220,st:'joined',conf:96,cov:'c',ic:'brief'},
+ {n:"Shira & Ben's Wedding",d:'Oct 22, 2026',t:'19:00',sp:'Main Hall',cl:'Shira Katz',max:300,st:'past',conf:268,cov:'a',ic:'glass'},
+ {n:"Miriam's 60th Birthday",d:'Sep 10, 2026',t:'12:30',sp:'Garden',cl:'Miriam Levi',max:120,st:'past',conf:104,cov:'b',ic:'cake'}];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const badge=k=>{const s=ST[k];return `<span class="badge ${s.c}">${I(s.i,12)}${s.t}</span>`};
+const clientLine=e=>e.cl?`<li>${I('user',16)}<span>Client: ${esc(e.cl)}</span></li>`:`<li>${I('user',16)}<span class="await">Awaiting client</span></li>`;
+const progress=e=>{
+ if(e.conf!=null){const p=Math.round(e.conf/e.max*100);return `<div class="prog"><div class="pl"><span>${e.conf} confirmed</span><span>${e.max} capacity</span></div><div class="bar"><i style="width:${p}%"></i></div></div>`}
+ if(e.st==='expired')return `<p class="hint">Invitation expired on ${e.exp}. Resend it from the event's Permissions page.</p>`;
+ if(e.st==='sent')return `<p class="hint">Invitation sent on ${e.sent}. Guests appear once the client accepts.</p>`;
+ return `<p class="hint">No client invited yet. Invite one from the event's Permissions page.</p>`};
+
+const WS=[{n:'Grand Garden Hall',r:'Owner'},{n:'Seaside Terrace',r:'Manager'}];
+const wsMenu=(cur)=>`<div class="menu" role="listbox" aria-label="Switch workspace"><h4>Switch workspace</h4>
+<button class="mi" role="option" aria-selected="false"><span class="tile p">${I('user',20)}</span><span class="tx"><span class="nm" style="display:block">Personal</span><span class="sub">Your own events</span></span></button>
+${WS.map(w=>`<button class="mi${w.n===cur?' sel':''}" role="option" aria-selected="${w.n===cur}"><span class="tile v">${I('bld',20)}</span><span class="tx"><span class="nm" style="display:block">${esc(w.n)}</span><span class="sub">${w.r}</span></span>${w.n===cur?`<span class="ck">${I('check',18)}</span>`:''}</button>`).join('')}</div>`;
+const wsButton=(open,name,role,cls='')=>`<button class="wsbtn${open?' open':''}" aria-haspopup="listbox" aria-expanded="${open}"><span class="tile v">${I('bld',20)}</span><span class="grow"><span class="nm" style="display:block">${esc(name)}</span><span class="sub">Venue · ${role}</span></span>${I('updown',18)}</button>`;
+const navItems=role=>`<a class="on" href="#">${I('cal')}My Events</a><a href="#">${I('map')}My Spaces</a><a href="#">${I('users')}Team</a>${role==='Owner'?`<a href="#">${I('gear')}Settings</a>`:''}`;
+const pastBtn=e=>e.st==='past'?`<a class="btn sec" href="#">View Event</a>`:`<a class="btn pri" href="#">Open Event ${I('arrow',18)}</a>`;
+{
+const side=(open,role='Owner')=>`<aside class="side"><div class="logo"><span class="mk">${I('logo',20)}</span>Event Planner</div>
+<div class="ws">${wsButton(open,'Grand Garden Hall',role)}${open?wsMenu('Grand Garden Hall'):''}</div>
+<nav class="nav" aria-label="Venue">${navItems(role)}</nav>
+<div class="foot"><div class="lang">${I('globe',18)}<span>English</span>${I('down',18)}</div><div class="out">${I('logout')}Log out</div></div></aside>`;
+const card=e=>`<article class="card"><div class="cov" style="background:${COVERS[e.cov]}">${badge(e.st)}<button class="dots" aria-label="More actions">${I('dots',18)}</button>${I(e.ic,48)}</div>
+<div class="cb"><h3>${esc(e.n)}</h3><ul class="meta"><li>${I('cal',16)}${e.d}</li><li>${I('clock',16)}${e.t}</li><li>${I('pin',16)}${esc(e.sp)}</li>${clientLine(e)}<li>${I('users',16)}${e.max} maximum attendees</li></ul>
+${progress(e)}${pastBtn(e)}</div></article>`;
+const page=(ini='AG',who='Avi Golan')=>`<div class="main"><header class="top"><button class="ibtn" aria-label="Menu">${I('menu')}</button><span class="sp"></span><span class="bell" aria-label="3 notifications">${I('bell')}<em>3</em></span><span class="who"><span class="av">${ini}</span>${who}${I('down',18)}</span></header>
+<div class="content"><div class="ph"><div><h1>My Events</h1><p>Create events in your spaces and share each one with your client.</p></div><a class="btn pri" href="#">${I('plus',18)}Create Event</a></div>
+<div class="tools"><div class="seg" role="tablist"><button class="on">All Events <span class="cnt">7</span></button><button>Upcoming <span class="cnt">5</span></button><button>Past <span class="cnt">2</span></button></div><span class="sp"></span>
+<div class="field dd" role="button" aria-label="Filter by space">${I('pin',18)}<span>All spaces</span>${I('down',18)}</div>
+<div class="field srch">${I('search',18)}Search events...</div>
+<div class="vt"><button class="on" aria-label="Grid view">${I('grid',18)}</button><button aria-label="List view">${I('list',18)}</button></div></div>
+<div class="cards">${EVENTS.map(card).join('')}</div></div></div>`;
+document.getElementById('app').innerHTML=
+`<p class="state"><b>State 1 · venue_events.png</b> · Venue workspace, My Events, All Events tab</p><div class="frame">${side(false)}${page()}</div>
+<p class="state"><b>State 2 · venue_workspace_switcher.png</b> · Workspace switcher open: Personal first, then each venue A–Z with the person's role there. Only people who belong to a venue see the switcher; everyone else sees today's sidebar.</p><div class="frame">${side(true)}${page()}</div>
+<p class="state"><b>State 3 · Manager view</b> · Same page for a Venue Manager (Noa Barak): Settings is hidden, Team opens read-only.</p><div class="frame">${side(false,'Manager')}${page('NB','Noa Barak')}</div><div style="height:40px"></div>`;
+}
+</script></body></html>
