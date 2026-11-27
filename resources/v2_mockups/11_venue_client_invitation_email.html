@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venue Client Invitation Email</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- Mockup chrome (not part of the email) ---------- */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#F6F7FB;color:#0F1433;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans Hebrew',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.mk-bar{position:sticky;top:0;z-index:5;background:#FFFFFF;border-bottom:1px solid #E5E8F0}
+.mk-bar-in{max-width:1280px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mk-title{font-size:14px;font-weight:600;color:#0F1433;display:flex;align-items:center;gap:8px}
+.mk-title small{font-size:12px;font-weight:400;color:#5B6480}
+.seg{display:inline-flex;background:#F8F9FC;border:1px solid #E5E8F0;border-radius:10px;padding:4px;gap:4px}
+.seg button{font:inherit;font-size:14px;font-weight:600;color:#5B6480;background:transparent;border:0;border-radius:6px;height:36px;min-width:52px;padding:0 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#4F46E5;color:#FFFFFF}
+.seg button:focus-visible,.mk-link:focus-visible{outline:none;box-shadow:0 0 0 2px #FFFFFF,0 0 0 4px #4F46E5}
+.mk-meta{max-width:640px;margin:24px auto 0;padding:0 16px}
+.mk-meta-card{background:#FFFFFF;border:1px solid #E5E8F0;border-radius:14px;box-shadow:0 1px 2px rgba(15,20,51,.06);padding:16px 20px;font-size:14px}
+.mk-meta-row{display:flex;gap:12px;padding:4px 0}
+.mk-meta-row b{flex:0 0 72px;font-weight:500;color:#5B6480}
+.mk-meta-row span{min-width:0;overflow-wrap:anywhere}
+.mk-meta-cap{font-size:12px;color:#626B85;margin:8px 4px 0}
+.ltr{direction:ltr;unicode-bidi:isolate}
+@media (max-width:767px){
+  .mk-bar-in{padding:12px 16px}
+  .mk-meta{margin-top:16px}
+  .mk-meta-card{padding:12px 16px}
+  .mk-meta-row{flex-direction:column;gap:0}
+  .mk-meta-row b{flex:none;font-size:12px}
+}
+
+/* ---------- Email styles (as they would ship in the <head> of the email) ---------- */
+.em-wrap{width:100%}
+@media only screen and (max-width:600px){
+  .em-outer{padding:16px 0 24px !important}
+  .em-container{width:100% !important}
+  .em-card{border-radius:0 !important;border-left:0 !important;border-right:0 !important}
+  .em-pad{padding-left:16px !important;padding-right:16px !important}
+  .em-h1{font-size:22px !important;line-height:1.25 !important}
+  .em-row-l,.em-row-v{display:block !important;width:100% !important}
+  .em-row-l{padding-bottom:0 !important;border-bottom:0 !important}
+  .em-row-v{padding-top:2px !important}
+  .em-btn-t{width:100% !important}
+  .em-btn-a{display:block !important;width:100% !important}
+}
+</style>
+</head>
+<body>
+
+<!-- Mockup toolbar: switch the email language. Not part of the email. -->
+<div class="mk-bar">
+  <div class="mk-bar-in">
+    <div class="mk-title">#11 Invitation email to the client <small>venue_client_invitation_email</small></div>
+    <div class="seg" role="group" aria-label="Email language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="he" aria-pressed="false">HE</button>
+      <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Inbox header, as the client sees it in their mail app. Not part of the email body. -->
+<div class="mk-meta" id="meta"></div>
+
+<!-- The email itself -->
+<div id="email"></div>
+
+<script>
+/* Sample data, consistent with venue_event_client.html (#10): sent Nov 27, 2026 by Avi Golan, expires after 7 days. */
+const D={venue:'Grand Garden Hall',event:"Dana & Yossi's Wedding",client:'Dana',email:'dana.levi@example.com',
+  inviter:'Avi Golan',inviterEmail:'avi.golan@example.com',space:'Main Hall',address:'12 Orchard Lane, Ramat Gan',
+  time:'19:30',link:'https://app.example.com/invite/k7Q2-mX9p-4fRt'};
+
+const T={
+ en:{dir:'ltr',lang:'en',
+  from:'Grand Garden Hall via Event Planner',
+  subject:`${D.venue} invited you to plan ${D.event}`,
+  pre:'Accept the invitation to manage your guests, RSVPs, messages and seating.',
+  m:{from:'From',to:'To',subject:'Subject'},
+  cap:'The email goes out in the event’s language. Use the toggle above to see EN / HE / PT.',
+  badge:'Event invitation',
+  dateShort:'Dec 17, 2026', dateLong:'Thursday, December 17, 2026', exp:'Friday, December 4, 2026',
+  title:(v,e,d)=>`${v} invited you to plan ${e} on ${d}`,
+  hi:`Hi ${D.client},`,
+  intro:(i,v)=>`${i} from ${v} has set up your event in Event Planner. Accept the invitation to start planning it.`,
+  lbl:{event:'Event',date:'Date & Time',space:'Space',addr:'Address'},
+  canTitle:'What You Can Do',
+  can:[
+   ['users','Guests','Add your guests, or import them from a spreadsheet.'],
+   ['send','Invitations and RSVP','Send WhatsApp invitations and follow the replies on your RSVP page.'],
+   ['armchair','Seating','Seat your guests at the tables the venue has arranged.'],
+   ['userPlus','Your Team','Invite family or a planner to help, as an Editor or Viewer.']],
+  venueNote:v=>`${v} looks after the room, the tables and the event details (date, time, address and max people).`,
+  btn:'Accept invitation',
+  forEmail:(e,x)=>`This invitation is for ${e} and expires on ${x}.`,
+  sameEmail:'Sign in or create an account with this email address to accept it.',
+  fallback:'Button not working? Paste this link into your browser:',
+  ignore:'Not expecting this invitation? You can ignore this email. Nothing happens unless you accept.',
+  sentBy:v=>`Sent by Event Planner on behalf of ${v}.`,
+  questions:(i,e)=>`Questions about your event? Contact ${i} at ${e}.`},
+
+ he:{dir:'rtl',lang:'he',
+  from:'Grand Garden Hall באמצעות Event Planner',
+  subject:`${D.venue} הזמינו אותך לתכנן את ${D.event}`,
+  pre:'אפשר לאשר את ההזמנה ולנהל את האורחים, אישורי ההגעה, ההודעות וההושבה.',
+  m:{from:'מאת',to:'אל',subject:'נושא'},
+  cap:'האימייל נשלח בשפת האירוע. אפשר להחליף שפה בסרגל למעלה.',
+  badge:'הזמנה לאירוע',
+  dateShort:'17 בדצמבר 2026', dateLong:'יום חמישי, 17 בדצמבר 2026', exp:'יום שישי, 4 בדצמבר 2026',
+  title:(v,e,d)=>`${v} הזמינו אותך לתכנן את ${e} ב־${d}`,
+  hi:`שלום ${D.client},`,
+  intro:(i,v)=>`${i} מ־${v} הקים/ה את האירוע שלך ב־Event Planner. אפשר לאשר את ההזמנה ולהתחיל לתכנן.`,
+  lbl:{event:'אירוע',date:'תאריך ושעה',space:'אולם',addr:'כתובת'},
+  canTitle:'מה אפשר לעשות',
+  can:[
+   ['users','אורחים','הוספת האורחים שלך, או ייבוא שלהם מגיליון.'],
+   ['send','הזמנות ואישורי הגעה','שליחת הזמנות בוואטסאפ ומעקב אחרי התשובות בדף אישור ההגעה.'],
+   ['armchair','הושבה','הושבת האורחים בשולחנות שהאולם סידר.'],
+   ['userPlus','הצוות שלך','הזמנת בני משפחה או מפיק/ה לעזור, בתור עורך או צופה.']],
+  venueNote:v=>`באחריות ${v}: האולם, השולחנות ופרטי האירוע (תאריך, שעה, כתובת ומספר משתתפים מרבי).`,
+  btn:'אישור ההזמנה',
+  forEmail:(e,x)=>`ההזמנה נשלחה אל ${e} ותפוג ב${x}.`,
+  sameEmail:'כדי לאשר אותה, יש להתחבר או ליצור חשבון עם כתובת האימייל הזו.',
+  fallback:'הכפתור לא עובד? אפשר להדביק את הקישור הזה בדפדפן:',
+  ignore:'לא ציפית להזמנה הזו? אפשר להתעלם מהאימייל. שום דבר לא קורה בלי אישור.',
+  sentBy:v=>`נשלח מ־Event Planner בשם ${v}.`,
+  questions:(i,e)=>`שאלות על האירוע? אפשר לפנות אל ${i} בכתובת ${e}.`},
+
+ pt:{dir:'ltr',lang:'pt-BR',
+  from:'Grand Garden Hall via Event Planner',
+  subject:`${D.venue} convidou você para planejar ${D.event}`,
+  pre:'Aceite o convite para gerenciar convidados, RSVPs, mensagens e lugares.',
+  m:{from:'De',to:'Para',subject:'Assunto'},
+  cap:'O e-mail é enviado no idioma do evento. Use o seletor acima para ver EN / HE / PT.',
+  badge:'Convite para evento',
+  dateShort:'17 de dez. de 2026', dateLong:'quinta-feira, 17 de dezembro de 2026', exp:'sexta-feira, 4 de dezembro de 2026',
+  title:(v,e,d)=>`${v} convidou você para planejar ${e} em ${d}`,
+  hi:`Olá, ${D.client}!`,
+  intro:(i,v)=>`${i}, de ${v}, criou o seu evento no Event Planner. Aceite o convite para começar a planejar.`,
+  lbl:{event:'Evento',date:'Data e Horário',space:'Espaço',addr:'Endereço'},
+  canTitle:'O que você pode fazer',
+  can:[
+   ['users','Convidados','Adicione seus convidados ou importe-os de uma planilha.'],
+   ['send','Convites e RSVP','Envie convites pelo WhatsApp e acompanhe as respostas na sua página de RSVP.'],
+   ['armchair','Distribuição de Mesas','Acomode seus convidados nas mesas organizadas pelo espaço.'],
+   ['userPlus','Sua Equipe','Convide familiares ou um cerimonialista para ajudar, como Editor ou Visualizador.']],
+  venueNote:v=>`${v} cuida do salão, das mesas e dos detalhes do evento (data, horário, endereço e número máximo de pessoas).`,
+  btn:'Aceitar convite',
+  forEmail:(e,x)=>`Este convite é para ${e} e expira em ${x}.`,
+  sameEmail:'Para aceitar, entre ou crie uma conta com este mesmo e-mail.',
+  fallback:'O botão não funciona? Cole este link no navegador:',
+  ignore:'Não esperava este convite? Pode ignorar este e-mail. Nada acontece se você não aceitar.',
+  sentBy:v=>`Enviado pelo Event Planner em nome de ${v}.`,
+  questions:(i,e)=>`Dúvidas sobre o evento? Fale com ${i}: ${e}.`}
+};
+
+/* Lucide icons (2px stroke, round caps). In the shipped email these become small PNGs, since some mail apps drop inline SVG. */
+const P={
+ logo:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18m-12 6 2 2 4-4"/>',
+ mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+ building:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+ send:'<path d="M14.54 21.69a.5.5 0 0 0 .94-.03l6.5-19a.5.5 0 0 0-.64-.64l-19 6.5a.5.5 0 0 0-.03.94l7.93 3.18a2 2 0 0 1 1.11 1.11z"/><path d="m21.85 2.15-10.94 10.94"/>',
+ armchair:'<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2M19 18v2"/>',
+ userPlus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'
+};
+const I=(n,s=20,c='currentColor')=>`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block">${P[n]}</svg>`;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* User data (names, emails, links) is isolated so it reads correctly inside Hebrew text. */
+const B=s=>`<bdi>${esc(s)}</bdi>`;
+const L=s=>`<span dir="ltr" style="unicode-bidi:isolate;white-space:nowrap">${esc(s)}</span>`;
+const F="Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans Hebrew',Arial,sans-serif";
+
+function render(k){
+ const t=T[k], rtl=t.dir==='rtl', S=rtl?'right':'left';
+ document.documentElement.lang=t.lang;
+ document.title='Venue Client Invitation Email ('+k.toUpperCase()+')';
+ document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===k));
+
+ const m=document.getElementById('meta');
+ m.dir=t.dir;
+ m.innerHTML=`<div class="mk-meta-card">
+   <div class="mk-meta-row"><b>${t.m.from}</b><span><strong style="font-weight:600">${esc(t.from)}</strong> ${L('<no-reply@example.com>')}</span></div>
+   <div class="mk-meta-row"><b>${t.m.to}</b><span>${L(D.email)}</span></div>
+   <div class="mk-meta-row"><b>${t.m.subject}</b><span style="font-weight:600">${esc(t.subject)}</span></div>
+ </div><div class="mk-meta-cap">${t.cap}</div>`;
+
+ const row=(lab,val,last)=>`<tr>
+   <td class="em-row-l" valign="top" width="128" style="padding:10px 0;${last?'':'border-bottom:1px solid #E5E8F0;'}font-family:${F};font-size:14px;line-height:1.5;color:#5B6480;text-align:${S}">${lab}</td>
+   <td class="em-row-v" valign="top" style="padding:10px 0;${last?'':'border-bottom:1px solid #E5E8F0;'}font-family:${F};font-size:14px;line-height:1.5;font-weight:500;color:#0F1433;text-align:${S}">${val}</td></tr>`;
+ // On phone the label and value stack, so the label row loses its divider and the value keeps it.
+ const can=t.can.map(([ic,h,d],i)=>`<tr>
+   <td valign="top" width="40" style="padding:${i?'16px':'0'} 0 0 0">
+     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="40" height="40" align="center" valign="middle" style="width:40px;height:40px;border-radius:999px;background:#EEF0FF;color:#4F46E5">${I(ic,20,'#4F46E5')}</td></tr></table>
+   </td>
+   <td valign="top" style="padding:${i?'16px':'0'} ${rtl?'12px 0 0':'0 0 12px'};font-family:${F};text-align:${S}">
+     <div style="font-size:14px;line-height:1.5;font-weight:600;color:#0F1433">${h}</div>
+     <div style="font-size:14px;line-height:1.5;color:#5B6480">${d}</div>
+   </td></tr>`).join('');
+
+ document.getElementById('email').innerHTML=`
+<!-- Hidden preheader: the line mail apps show after the subject -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all">${esc(t.pre)}</div>
+<table role="presentation" class="em-wrap" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${t.dir}" lang="${t.lang}" style="background:#F6F7FB">
+ <tr><td class="em-outer" align="center" style="padding:24px 16px 40px">
+  <table role="presentation" class="em-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px">
+
+   <!-- Logo -->
+   <tr><td class="em-pad" align="${S}" style="padding:8px 0 20px">
+     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+       <td width="32" height="32" align="center" valign="middle" style="width:32px;height:32px;border-radius:8px;background:#4F46E5">${I('logo',20,'#FFFFFF')}</td>
+       <td style="padding:0 12px;font-family:${F};font-size:18px;font-weight:700;color:#0F1433;white-space:nowrap">Event Planner</td>
+     </tr></table>
+   </td></tr>
+
+   <!-- Card -->
+   <tr><td class="em-card" style="background:#FFFFFF;border:1px solid #E5E8F0;border-radius:14px;box-shadow:0 1px 2px rgba(15,20,51,.06)">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+
+     <!-- Badge + title -->
+     <tr><td class="em-pad" style="padding:32px 40px 0;text-align:${S}">
+       <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="${S}"><tr>
+         <td style="background:#EEF0FF;border:1px solid #C9CDFB;border-radius:999px;padding:4px 12px;font-family:${F};font-size:12px;line-height:1.5;font-weight:600;color:#4338CA;white-space:nowrap">
+           <span style="display:inline-block;vertical-align:-2px">${I('mail',14,'#4338CA')}</span>&nbsp;${t.badge}
+         </td></tr></table>
+     </td></tr>
+     <tr><td class="em-pad" style="padding:16px 40px 0;text-align:${S}">
+       <h1 class="em-h1" style="margin:0;font-family:${F};font-size:24px;line-height:1.3;font-weight:700;color:#0F1433">${t.title(B(D.venue),B(D.event),t.dateShort)}</h1>
+     </td></tr>
+     <tr><td class="em-pad" style="padding:16px 40px 0;font-family:${F};font-size:16px;line-height:1.5;color:#0F1433;text-align:${S}">
+       <p style="margin:0 0 8px">${t.hi}</p>
+       <p style="margin:0;color:#5B6480">${t.intro(B(D.inviter),B(D.venue))}</p>
+     </td></tr>
+
+     <!-- Event details -->
+     <tr><td class="em-pad" style="padding:24px 40px 0">
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8F9FC;border:1px solid #E5E8F0;border-radius:10px">
+        <tr><td style="padding:6px 20px">
+         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${row(t.lbl.event,B(D.event))}
+          ${row(t.lbl.date,`${t.dateLong} · ${L(D.time)}`)}
+          ${row(t.lbl.space,B(D.space))}
+          ${row(t.lbl.addr,B(D.address),true)}
+         </table>
+        </td></tr>
+       </table>
+     </td></tr>
+
+     <!-- What you can do -->
+     <tr><td class="em-pad" style="padding:32px 40px 0;text-align:${S}">
+       <h2 style="margin:0 0 16px;font-family:${F};font-size:18px;line-height:1.2;font-weight:600;color:#0F1433">${t.canTitle}</h2>
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${can}</table>
+     </td></tr>
+
+     <!-- Venue responsibility note (Info tone, building icon) -->
+     <tr><td class="em-pad" style="padding:24px 40px 0">
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EEF0FF;border:1px solid #C9CDFB;border-radius:10px">
+        <tr>
+         <td valign="top" width="20" style="padding:12px 0 12px 16px;${rtl?'padding:12px 16px 12px 0;':''}">${I('building',20,'#4338CA')}</td>
+         <td valign="top" style="padding:12px 16px 12px 12px;${rtl?'padding:12px 12px 12px 16px;':''}font-family:${F};font-size:14px;line-height:1.5;color:#0F1433;text-align:${S}">${t.venueNote(`<strong style="font-weight:600;color:#4338CA">${B(D.venue)}</strong>`)}</td>
+        </tr>
+       </table>
+     </td></tr>
+
+     <!-- Button (bulletproof: a table cell with a fill, works without images) -->
+     <tr><td class="em-pad" align="center" style="padding:32px 40px 0">
+       <table role="presentation" class="em-btn-t" cellpadding="0" cellspacing="0" border="0"><tr>
+         <td align="center" bgcolor="#4F46E5" style="border-radius:10px;background:#4F46E5">
+           <a class="em-btn-a" href="${D.link}" onclick="return false" style="display:inline-block;min-width:200px;padding:14px 32px;font-family:${F};font-size:16px;line-height:24px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:10px;text-align:center">${t.btn}</a>
+         </td></tr></table>
+     </td></tr>
+
+     <!-- Expiry -->
+     <tr><td class="em-pad" align="center" style="padding:16px 40px 0;font-family:${F};font-size:14px;line-height:1.5;color:#5B6480;text-align:center">
+       <div><span style="display:inline-block;vertical-align:-3px">${I('clock',16,'#5B6480')}</span>&nbsp;${t.forEmail(L(D.email),`<strong style="font-weight:600;color:#0F1433">${t.exp}</strong>`)}</div>
+       <div style="margin-top:4px">${t.sameEmail}</div>
+     </td></tr>
+
+     <!-- Fallback link + ignore -->
+     <tr><td class="em-pad" style="padding:32px 40px 32px">
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-top:1px solid #E5E8F0;padding-top:20px;font-family:${F};font-size:12px;line-height:1.5;color:#626B85;text-align:${S}">
+         <div>${t.fallback}</div>
+         <div style="margin:4px 0 12px;word-break:break-all"><a href="${D.link}" onclick="return false" dir="ltr" style="color:#4F46E5;text-decoration:underline">${D.link}</a></div>
+         <div>${t.ignore}</div>
+       </td></tr></table>
+     </td></tr>
+
+    </table>
+   </td></tr>
+
+   <!-- Footer -->
+   <tr><td class="em-pad" style="padding:20px 24px 0;font-family:${F};font-size:12px;line-height:1.5;color:#626B85;text-align:center">
+     <div>${t.sentBy(B(D.venue))}</div>
+     <div style="margin-top:4px">${t.questions(B(D.inviter),`<a href="mailto:${D.inviterEmail}" onclick="return false" style="color:#4F46E5;text-decoration:underline">${L(D.inviterEmail)}</a>`)}</div>
+     <div style="margin-top:12px;color:#626B85">Event Planner · ${L('example.com')}</div>
+   </td></tr>
+
+  </table>
+ </td></tr>
+</table>`;
+}
+
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  render(b.dataset.lang);
+  history.replaceState(null,'','#'+b.dataset.lang);
+}));
+render(['en','he','pt'].includes(location.hash.slice(1))?location.hash.slice(1):'en');
+</script>
+</body>
+</html>

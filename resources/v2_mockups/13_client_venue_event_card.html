@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Client: Managed by venue (mockup #13)</title>
+<style>
+/* Mockup #13, client_venue_event_card: the client's Personal "My Events" with a venue event marked "Managed by Grand Garden Hall",
+   and the same badge inside the event (Dashboard header + event selector).
+   Tokens: DESIGN_GUIDE.md / tokens.css. Layout: sidebar at 1024px+, drawer below, phone layout below 768px.
+   Routes: #events (My Events) and #dashboard (inside Dana & Yossi's Wedding). */
+:root{color-scheme:light;--bg:#F6F7FB;--sf:#fff;--sfm:#F8F9FC;--bd:#E5E8F0;--bds:#CFD4E2;--tx:#0F1433;--mu:#5B6480;--sb:#626B85;--pr:#4F46E5;--prh:#4338CA;--prs:#EEF0FF;--prb:#C9CDFB;--nv1:#0F1535;--nv2:#151C47;--nvr:#1B2350;--nvb:#262E5C;--nvt:#F1F3FB;--nvm:#B4BBD6;--own:#D97706;--sh:0 1px 2px rgb(15 20 51/6%);--shm:0 8px 24px rgb(15 20 51/12%)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.5 Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans Hebrew',Arial,sans-serif;color:var(--tx);background:var(--bg)}
+ul{list-style:none}a{text-decoration:none;color:inherit}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit}
+:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.i{flex:none;display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:600;white-space:nowrap}
+.btn.pri{background:var(--pr);color:#fff}.btn.pri:hover{background:var(--prh)}
+.btn.sec{background:#fff;color:var(--pr);border:1px solid var(--prb)}.btn.sec:hover{border-color:var(--pr)}
+.btn.soft{background:var(--prs);color:var(--pr)}
+.btn.sm{height:36px;padding:0 14px}
+.badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.badge.lg{height:28px;padding:0 12px;gap:6px}
+.success{color:#15803D;background:#E6F7EC;border-color:#BDE5CB}
+.warning{color:#B45309;background:#FFF4E3;border-color:#F8D8A4}
+.danger{color:#C81E1E;background:#FDECEC;border-color:#F6C4C4}
+.info{color:#4338CA;background:#EEF0FF;border-color:#C9CDFB}
+.neutral{color:#475069;background:#ECEFF5;border-color:#D9DEEA}
+/* "Managed by" badge: Info tone + building-2 (DESIGN_GUIDE §12). Wraps instead of overflowing for long venue names / PT text. */
+.mgd{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.4;border:1px solid #C9CDFB;background:#EEF0FF;color:#4338CA;text-align:start;max-width:100%}
+button.mgd:hover{border-color:#4338CA}
+.mgd .i{flex:none}
+/* shell */
+.app{display:flex;min-height:100vh}
+.side{width:248px;flex:none;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:30;background:linear-gradient(180deg,var(--nv1),var(--nv2));color:var(--nvt);display:flex;flex-direction:column;padding:16px}
+.dh{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;padding:4px 8px 0}
+.logo .mk{width:32px;height:32px;border-radius:8px;background:var(--pr);display:grid;place-items:center;color:#fff}
+.xb{display:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--nvb);place-items:center;color:var(--nvt)}
+.evs{position:relative;margin-top:20px}
+.evbtn{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--nvr);border:1px solid var(--nvb);text-align:start;color:var(--nvt)}
+.evbtn.open{border-color:var(--nvm)}
+.evbtn .nm{font-size:14px;font-weight:600;line-height:1.3;display:block}
+.evbtn .sub{font-size:12px;color:var(--nvm);display:block;margin-top:2px;line-height:1.4}
+.evbtn .sub .i{display:inline-block;vertical-align:-2px;margin-right:4px}
+.evbtn .grow{flex:1;min-width:0}
+.evbtn>.i{color:var(--nvm)}
+.cov{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:#fff}
+.g1{background:linear-gradient(135deg,#8B5CF6,#EC4899)}.g2{background:linear-gradient(135deg,#10B981,#3B82F6)}.g3{background:linear-gradient(135deg,#0EA5E9,#6366F1)}.g4{background:linear-gradient(135deg,#F59E0B,#EC4899)}
+.nav{margin-top:16px;display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--nvm)}
+.nav a:hover{background:var(--nvr)}
+.nav a.on{background:var(--nvr);color:var(--nvt);font-weight:600}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:16px}
+.lang{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--nvb);background:var(--nvr);font-size:14px;width:100%;color:var(--nvt)}
+.lang span{flex:1;text-align:start}
+.out{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;font-size:14px;color:var(--nvm);width:100%}
+.out:hover{color:var(--nvt)}
+/* dropdown menus (product list design) */
+.menu{position:absolute;background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:8px;z-index:50}
+.menu h4{font-size:12px;font-weight:500;color:var(--mu);padding:8px 12px 4px}
+.mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;width:100%;text-align:start;font-size:14px;font-weight:500}
+.mi:hover{background:var(--sfm)}
+.mi.sel{background:var(--prs)}
+.mi .tx{flex:1;min-width:0}.mi .nm{font-size:14px;font-weight:600;line-height:1.3;display:block}.mi .sub{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:4px}
+.mi .ck{color:var(--pr)}
+.mi>.i{color:var(--mu)}
+.msep{height:1px;background:var(--bd);margin:8px 0}
+.mnote{display:flex;gap:8px;padding:8px 12px 4px;font-size:12px;color:var(--mu);line-height:1.5}
+.mnote .i{color:#4338CA;margin-top:2px}
+.evs .menu{left:0;top:calc(100% + 8px);width:100%;min-width:248px}
+.scrim{display:none}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:64px;background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:20}
+.ibtn{width:44px;height:44px;border:1px solid var(--bd);border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--tx)}
+.ibtn.on{background:var(--prs);color:var(--pr);border-color:var(--prb)}
+.top .mk{display:none;width:40px;height:40px;border-radius:10px;background:var(--pr);place-items:center;color:#fff}
+.top .sp{flex:1}
+.bell{position:relative;width:44px;height:44px;display:grid;place-items:center;color:var(--mu)}
+.bell em{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:999px;background:#C81E1E;color:#fff;font-size:11px;font-weight:600;font-style:normal;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
+.rolei{width:36px;height:44px;display:grid;place-items:center;color:var(--own)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--prs);color:var(--pr);font-size:14px;font-weight:600;display:grid;place-items:center;flex:none}
+.whob{position:relative}
+.who{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}.who .i{color:var(--mu)}
+.whob .menu{right:0;top:calc(100% + 8px);width:260px}
+.ume{padding:8px 12px 4px}.ume b{display:block;font-size:14px}.ume span{font-size:12px;color:var(--mu)}
+/* page */
+.content{padding:24px 32px 40px;width:100%;max-width:1344px;display:flex;flex-direction:column;gap:24px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+.ph h1{font-size:32px;line-height:1.2;font-weight:700}
+.ph p{color:var(--mu);margin-top:4px}
+.phm{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-top:12px;position:relative}
+.phm .ctx{font-size:14px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.phm .ctx .i{color:var(--sb)}
+.card{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:20px}
+.chd h2{font-size:18px;font-weight:600;line-height:1.3}
+.chd p{font-size:14px;color:var(--mu);margin-top:4px}
+.chd{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+/* My Events toolbar */
+.tb{display:flex;align-items:center;gap:16px;justify-content:space-between}
+.tabs{display:flex;gap:4px;padding:4px;background:#fff;border:1px solid var(--bd);border-radius:14px}
+.tabs button{height:36px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:500;color:var(--mu);display:flex;align-items:center;gap:8px}
+.tabs button em{font-style:normal;min-width:22px;height:20px;padding:0 7px;border-radius:999px;background:#ECEFF5;color:#475069;font-size:12px;font-weight:600;display:grid;place-items:center}
+.tabs button.on{background:var(--pr);color:#fff;font-weight:600}
+.tabs button.on em{background:#fff;color:var(--pr)}
+.tbr{display:flex;align-items:center;gap:12px}
+.srch{position:relative;width:352px}
+.srch .i{position:absolute;left:14px;top:13px;color:var(--sb);pointer-events:none}
+.srch input{display:block;height:44px;width:100%;border:1px solid var(--bd);border-radius:10px;background:#fff;padding:0 16px 0 42px;font-size:14px;color:var(--tx)}
+.srch input::placeholder{color:var(--sb)}
+.srch input:focus{outline:none;border-color:var(--pr);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.sbtn{display:none}
+.vt{display:flex;gap:4px;padding:4px;background:#fff;border:1px solid var(--bd);border-radius:10px}
+.vt button{width:36px;height:36px;border-radius:6px;display:grid;place-items:center;color:var(--mu)}
+.vt button.on{background:var(--prs);color:var(--pr)}
+.mcta{display:none}
+/* event cards */
+.evgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.ec{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);overflow:visible;display:flex;flex-direction:column;position:relative}
+.ec.venue{border-color:var(--prb)}
+.ecov{height:152px;border-radius:13px 13px 0 0;position:relative;display:grid;place-items:center;color:#fff;flex:none}
+.stp{position:absolute;left:12px;top:12px;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:#E6F7EC;color:#15803D;font-size:12px;font-weight:600}
+.stp::before{content:"";width:7px;height:7px;border-radius:50%;background:#15803D}
+.stp.past{background:#ECEFF5;color:#475069}.stp.past::before{background:#475069}
+.dots{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;background:#fff;color:var(--tx);display:grid;place-items:center}
+.ec .menu{right:12px;top:52px;width:280px}
+.ebody{padding:20px;display:flex;flex-direction:column;gap:12px;flex:1}
+.ebody h3{font-size:18px;font-weight:600;line-height:1.3}
+.meta{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mu)}
+.meta li{display:flex;align-items:center;gap:8px}
+.meta li .i{color:var(--sb)}
+.meta .crown{color:var(--own)}
+.prog{margin-top:auto;padding-top:4px}
+.prog .row{display:flex;justify-content:space-between;font-size:12px;color:var(--mu)}
+.bar{height:6px;border-radius:999px;background:#ECEFF5;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pr);border-radius:999px}
+.ebody .btn{align-self:flex-start;margin-top:4px}
+.chev{display:none}
+/* list view */
+.evgrid.list{grid-template-columns:1fr;gap:16px}
+.evgrid.list .ec{flex-direction:row;padding:20px;gap:20px;align-items:stretch}
+.evgrid.list .ecov{width:200px;height:auto;min-height:180px;border-radius:10px}
+.evgrid.list .stp{top:auto;bottom:12px}
+.evgrid.list .ebody{padding:0}
+.evgrid.list .ec .menu{left:20px;right:auto;top:60px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:40px 16px}
+.empty .ic{width:56px;height:56px;border-radius:50%;background:var(--prs);color:var(--pr);display:grid;place-items:center}
+.empty p{font-size:14px;color:var(--mu)}
+/* venue popover */
+.pop{position:absolute;left:0;top:calc(100% + 8px);width:400px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:20px;z-index:40;display:flex;flex-direction:column;gap:16px;font-size:14px}
+.pop .phd{display:flex;gap:12px;align-items:flex-start}
+.pop .phd .grow{flex:1;min-width:0}
+.pop .phd b{display:block;font-size:16px;font-weight:600;line-height:1.3}
+.pop .phd span{color:var(--mu);font-size:14px}
+.sic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--prs);color:var(--pr)}
+.xbtn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--mu);margin:-6px -8px 0 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.split div{padding:12px;border-radius:10px;background:var(--sfm);border:1px solid var(--bd)}
+.split h5{font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px}
+.split li{display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:1.4;padding:2px 0}
+.split li .i{margin-top:1px}
+.split .y .i{color:#15803D}.split .v .i{color:#4338CA}
+.ct{display:flex;flex-direction:column;gap:6px;color:var(--mu)}
+.ct li{display:flex;gap:8px;align-items:center}.ct .i{color:var(--sb)}
+.ct a{color:var(--pr);font-weight:500;direction:ltr}
+/* Dashboard */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:134px}
+.kpi .l{font-size:14px;color:var(--mu);line-height:1.5}
+.kpi .n{font-size:24px;font-weight:700;line-height:1.2;margin-top:2px}
+.kpi .u{font-size:12px;color:var(--sb)}
+.kic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.t-pr{background:#EEF0FF;color:#4F46E5}.t-ok{background:#E6F7EC;color:#15803D}.t-wa{background:#FFF4E3;color:#B45309}.t-da{background:#FDECEC;color:#C81E1E}.t-ne{background:#ECEFF5;color:#475069}
+.notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ncard{display:flex;gap:12px;align-items:flex-start;padding:20px;border-radius:14px;border:1px solid;text-align:start;width:100%}
+.ncard .grow{flex:1;min-width:0}
+.ncard b{display:block;font-size:14px;font-weight:600}
+.ncard p{font-size:14px;color:var(--mu);margin-top:4px}
+.ncard>.i:last-child{align-self:center;color:var(--mu)}
+.ncard.warning b,.ncard.warning>.i:first-child{color:#B45309}
+.ncard.danger b,.ncard.danger>.i:first-child{color:#C81E1E}
+.ncard.info b,.ncard.info>.i:first-child{color:#4338CA}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rsvp{display:flex;align-items:center;gap:28px;margin-top:20px}
+.donut{width:152px;height:152px;border-radius:50%;flex:none;display:grid;place-items:center}
+.donut div{width:100px;height:100px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut b{font-size:24px;font-weight:700;line-height:1.2}.donut span{font-size:14px;color:var(--mu)}
+.leg{flex:1;font-size:14px}
+.leg li{display:grid;grid-template-columns:1fr 48px 48px;align-items:center;height:38px;border-bottom:1px solid var(--bd)}
+.leg li:last-child{border-bottom:0}
+.leg .k{display:flex;align-items:center;gap:8px;font-weight:500}
+.leg .k i{width:10px;height:10px;border-radius:50%}
+.leg .c{text-align:end;font-weight:600}.leg .p{text-align:end;color:var(--mu)}
+.cap{margin-top:20px;display:flex;flex-direction:column;gap:24px;font-size:14px}
+.cap .row{display:flex;justify-content:space-between;color:var(--mu)}
+.cap .tr{position:relative;height:12px;border-radius:999px;background:#ECEFF5;margin-top:8px}
+.cap .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:999px}
+.cap .tr::after{content:"";position:absolute;right:0;top:-6px;bottom:-6px;border-right:2px dashed var(--mu)}
+.cap small{font-size:12px;color:var(--mu)}
+.act{margin-top:12px}
+.act li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.act li:last-child{border-bottom:0}
+.act .grow{flex:1;min-width:0}
+.act b{display:block;font-size:14px;font-weight:600}.act span{font-size:14px;color:var(--mu)}
+.act time{font-size:12px;color:var(--mu);white-space:nowrap}
+.aic{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none}
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.qa button{display:flex;align-items:center;gap:12px;padding:16px;border:1px solid var(--bd);border-radius:14px;text-align:start}
+.qa button:hover{border-color:var(--bds)}
+.qa .grow{flex:1;min-width:0}
+.qa b{display:block;font-size:14px;font-weight:600}.qa .grow span{font-size:12px;color:var(--mu);line-height:1.5;display:block}
+.qa button>.i:last-child{color:var(--mu)}
+.toast{position:fixed;right:24px;bottom:24px;background:var(--tx);color:#fff;font-size:14px;padding:12px 16px;border-radius:10px;box-shadow:var(--shm);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:70;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:none}
+.hidden{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:1279px){.evgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* compact: drawer */
+@media (max-width:1023px){
+ .side{position:fixed;left:0;top:0;bottom:0;height:auto;width:min(320px,85vw);transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shm)}
+ .app.drawer .side{transform:none}
+ .scrim{display:block;position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:25;opacity:0;pointer-events:none;transition:opacity .2s}
+ .app.drawer .scrim{opacity:1;pointer-events:auto}
+ .xb,.top .mk{display:grid}
+ .top{padding:0 16px;gap:12px}
+ .notes{grid-template-columns:1fr}
+ .two{grid-template-columns:1fr}
+}
+/* phone */
+@media (max-width:767px){
+ .who .nm,.who .i{display:none}
+ .content{padding:24px 16px 40px;gap:20px}
+ .ph{flex-direction:column;gap:16px}
+ .ph h1{font-size:28px}
+ .ph .act-r{width:100%}.ph .act-r .btn{width:100%}
+ .card{padding:16px}
+ .tb{flex-direction:column;align-items:stretch;gap:16px}
+ .tabs button{flex:1;justify-content:center;padding:0 8px}
+ .tbr{justify-content:flex-end}
+ .srch{display:none;width:100%}
+ .tbr.searching .srch{display:block}
+ .tbr.searching .vt,.tbr.searching .sbtn{display:none}
+ .sbtn{display:grid;color:var(--pr);border-color:var(--prb)}
+ .ph .cta{display:none}
+ .mcta{display:flex;width:100%}
+ .evgrid,.evgrid.list{grid-template-columns:1fr;gap:16px}
+ .evgrid.list .ec{padding:16px;gap:16px}
+ .evgrid.list .ecov{width:116px;min-height:0}
+ .evgrid.list .ecov>svg{width:36px;height:36px}
+ .evgrid.list .stp{left:8px;right:8px;bottom:8px;justify-content:center;padding:0 6px}
+ .evgrid.list .dots{right:8px;top:8px}
+ .evgrid.list .ebody .btn{display:none}
+ .evgrid.list .ebody{gap:8px}
+ .evgrid.list .ebody h3{font-size:16px;padding-right:24px}
+ .evgrid.list .chev{display:block;position:absolute;right:12px;top:18px;color:var(--mu)}
+ .evgrid.list .ec .menu{left:16px;right:16px;width:auto;top:56px}
+ .evgrid.list .meta{gap:4px}
+ .ec .menu{left:12px;right:12px;width:auto}
+ .kpis{grid-template-columns:1fr 1fr;gap:12px}
+ .kpi{padding:16px;min-height:0;align-items:center}
+ .kic{width:40px;height:40px}
+ .ncard{padding:16px}
+ .rsvp{flex-direction:column;align-items:stretch}
+ .donut{align-self:center}
+ .act li{flex-wrap:nowrap}
+ .qa{grid-template-columns:1fr}
+ .pop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-width:none;border-radius:14px 14px 0 0;padding:20px 16px 24px;max-height:85vh;overflow-y:auto}
+  .split{grid-template-columns:1fr}
+ .toast{left:16px;right:16px;bottom:16px}
+}
+.popscrim{position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:39}
+.pop.center{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)}
+@media (min-width:768px){.popscrim:not(.all){display:none}}
+@media (max-width:767px){.pop.center{left:0;top:auto;transform:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="app" id="app">
+ <aside class="side" id="side" aria-label="Main navigation">
+  <div class="dh"><div class="logo"><span class="mk" id="lg"></span>Event Planner</div><button class="xb" id="close" aria-label="Close menu"></button></div>
+  <div class="evs" id="evs"></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="foot" id="foot"></div>
+ </aside>
+ <div class="scrim" id="scrim"></div>
+ <div class="main">
+  <header class="top"><button class="ibtn" id="burger" aria-label="Menu"></button><span class="mk" id="lg2"></span><span class="sp"></span><button class="bell" id="bell" aria-label="2 notifications"></button><span class="rolei hidden" id="rolei" title="Your role: Client lead" aria-label="Your role: Client lead"></span><div class="whob" id="whob"></div></header>
+  <main class="content" id="content"></main>
+ </div>
+ <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* Preview-safe address updates: sandboxed previews block history changes, so ignore that error. */
+(function(){try{['replaceState','pushState'].forEach(function(m){var o=history[m];if(typeof o!=='function')return;history[m]=function(){try{return o.apply(history,arguments)}catch(e){}}})}catch(e){}})();
+</script>
+<script>
+{
+const P={
+"logo": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18m-12 6 2 2 4-4\"/>",
+"home": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>",
+"users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/>",
+"user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>",
+"userplus": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M19 8v6M22 11h-6\"/>",
+"layout": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M3 9h18M9 21V9\"/>",
+"gear": "<path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>",
+"shield": "<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>",
+"crown": "<path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\"/><path d=\"M5 21h14\"/>",
+"mail": "<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\"/><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\"/>",
+"clock": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>",
+"alertc": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4M12 16h.01\"/>",
+"info": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4M12 8h.01\"/>",
+"lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>",
+"check": "<path d=\"M20 6 9 17l-5-5\"/>",
+"minus": "<path d=\"M5 12h14\"/>",
+"pencil": "<path d=\"M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z\"/><path d=\"m15 5 4 4\"/>",
+"bld": "<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"/><path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"/><path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"/><path d=\"M10 6h4M10 10h4M10 14h4M10 18h4\"/>",
+"heart": "<path d=\"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z\"/>",
+"resend": "<path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/>",
+"swap": "<path d=\"m17 2 4 4-4 4\"/><path d=\"M3 11v-1a4 4 0 0 1 4-4h14\"/><path d=\"m7 22-4-4 4-4\"/><path d=\"M21 13v1a4 4 0 0 1-4 4H3\"/>",
+"ban": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m4.9 4.9 14.2 14.2\"/>",
+"history": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/><path d=\"M12 7v5l4 2\"/>",
+"send": "<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\"/><path d=\"m21.854 2.147-10.94 10.939\"/>",
+"updown": "<path d=\"m7 15 5 5 5-5M7 9l5-5 5 5\"/>",
+"down": "<path d=\"m6 9 6 6 6-6\"/>",
+"right": "<path d=\"m9 18 6-6-6-6\"/>",
+"back": "<path d=\"m12 19-7-7 7-7M19 12H5\"/>",
+"bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\"/><path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\"/>",
+"globe": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20\"/>",
+"menu": "<path d=\"M4 12h16M4 6h16M4 18h16\"/>",
+"x": "<path d=\"M18 6 6 18M6 6l12 12\"/>",
+"cal": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/>",
+"pin": "<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>",
+"logout": "<path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"/><path d=\"m16 17 5-5-5-5M21 12H9\"/>",
+"arrow": "<path d=\"M5 12h14M12 5l7 7-7 7\"/>",
+"left": "<path d=\"m15 18-6-6 6-6\"/>",
+"map": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\"/><path d=\"M15 5.764v15M9 3.236v15\"/>",
+"alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4M12 17h.01\"/>",
+"image": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><circle cx=\"9\" cy=\"9\" r=\"2\"/><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\"/>",
+"upload": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12\"/>",
+"trash": "<path d=\"M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"/>",
+"chair": "<path d=\"M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3\"/><path d=\"M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\"/><path d=\"M5 18v2M19 18v2\"/>",
+"table": "<path d=\"M12 3v18\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M3 9h18M3 15h18\"/>",
+"copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/>",
+"type": "<path d=\"M4 7V4h16v3M9 20h6M12 4v16\"/>",
+"party": "<path d=\"M5.8 11.3 2 22l10.7-3.79M4 3h.01M22 8h.01M15 2h.01M22 20h.01M22 2l-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10M22 13l-.82-.33c-.86-.34-1.82.2-1.98 1.11-.11.7-.72 1.22-1.43 1.22H17M11 2l.33.82c.34.86-.2 1.82-1.11 1.98-.7.1-1.22.72-1.22 1.43V7\"/><path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\"/>",
+"plus": "<path d=\"M5 12h14M12 5v14\"/>",
+"search": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/>",
+"dots": "<circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/>",
+"archive": "<rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\"/><path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4\"/>",
+"undo": "<path d=\"M3 7v6h6\"/><path d=\"M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13\"/>",
+"calplus": "<path d=\"M8 2v4M16 2v4M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8M3 10h18M16 19h6M19 16v6\"/>",
+"eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>",
+"checkc": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>",
+"zin": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3M11 8v6M8 11h6\"/>",
+"zout": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3M8 11h6\"/>",
+"fit": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2\"/>",
+"max": "<path d=\"M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7\"/>",
+"min": "<path d=\"M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7\"/>",
+"dl": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m7 10 5 5 5-5M12 15V3\"/>",
+"save": "<path d=\"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\"/><path d=\"M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7M7 3v4a1 1 0 0 0 1 1h7\"/>",
+"shapes": "<path d=\"M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><circle cx=\"17.5\" cy=\"17.5\" r=\"3.5\"/>",
+"round": "<circle cx=\"12\" cy=\"12\" r=\"9\"/>',square:'<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/>',rect:'<rect x=\"2\" y=\"7\" width=\"20\" height=\"10\" rx=\"2\"/>",
+"monitor": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\"/><path d=\"M8 21h8M12 17v4\"/>",
+"glass": "<path d=\"M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z\"/><path d=\"M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0\"/>",
+"cake": "<path d=\"M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8\"/><path d=\"M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1\"/><path d=\"M2 21h20\"/><path d=\"M7 8v3M12 8v3M17 8v3\"/><path d=\"M7 4h.01M12 4h.01M17 4h.01\"/>",
+"grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\"/><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\"/>",
+"list": "<path d=\"M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13\"/>",
+"cc": "<path d=\"M18 6 7 17l-5-5\"/><path d=\"m22 10-7.5 7.5L13 16\"/>",
+"help": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01\"/>",
+"userx": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"m17 8 5 5M22 8l-5 5\"/>",
+"userck": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"m16 11 2 2 4-4\"/>",
+"msg": "<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>",
+"wa": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\"/>",
+"phone": "<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"/>"
+};
+const I=(n,s=20,c='')=>`<svg class="i ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const $=id=>document.getElementById(id);
+const VENUE='Grand Garden Hall';
+const EVENTS=[
+ {id:'wed',name:"Dana & Yossi's Wedding",date:'Jun 18, 2027',time:'19:30',max:350,conf:264,role:'Client lead',roleIcon:'crown',g:'g1',ic:'glass',past:false,venue:{name:VENUE,space:'Main Hall',address:'12 Garden Rd, Tel Aviv'}},
+ {id:'henna',name:'Henna Night',date:'May 27, 2027',time:'20:00',max:120,conf:46,role:'Owner',roleIcon:'crown',g:'g2',ic:'party',past:false},
+ {id:'ruth',name:"Grandma Ruth's 80th",date:'Mar 6, 2027',time:'13:00',max:60,conf:38,role:'Admin',roleIcon:'shield',g:'g3',ic:'cake',past:false},
+ {id:'yb',name:"Yossi's 30th Birthday",date:'Aug 14, 2026',time:'21:00',max:80,conf:71,role:'Owner',roleIcon:'crown',g:'g4',ic:'cake',past:true},
+];
+// upcoming sorted by date
+const ORDER=['ruth','henna','wed','yb'];
+const S={view:'events',tab:'up',q:'',layout:null,menu:null,pop:false};
+const isPhone=()=>matchMedia('(max-width:767px)').matches;
+const isCompact=()=>matchMedia('(max-width:1023px)').matches;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600)}
+
+$('lg').innerHTML=I('logo',18);$('lg2').innerHTML=I('logo',20);
+$('close').innerHTML=I('x',20);$('burger').innerHTML=I('menu',20);
+$('bell').innerHTML=I('bell',22)+'<em>2</em>';$('rolei').innerHTML=I('crown',22);
+
+function mgdBadge(v,tag='span',extra=''){return `<${tag} class="mgd" ${extra}>${I('bld',14)}<span>Managed by ${esc(v.name)}</span></${tag}>`}
+
+/* ---------- sidebar ---------- */
+function renderSide(){
+ if(S.view==='events'){
+  $('evs').innerHTML='';
+  $('nav').innerHTML=`<a href="#events" class="on" aria-current="page">${I('cal',20)}My Events</a>`;
+  $('nav').setAttribute('aria-label','Personal');
+  $('foot').innerHTML=`<button class="lang">${I('globe',18)}<span>English</span>${I('down',16)}</button><button class="out" data-act="logout">${I('logout',20)}Log out</button>`;
+ }else{
+  const e=EVENTS[0];
+  $('evs').innerHTML=`<button class="evbtn ${S.menu==='evs'?'open':''}" id="evbtn" aria-haspopup="menu" aria-expanded="${S.menu==='evs'}"><span class="cov ${e.g}">${I(e.ic,20)}</span><span class="grow"><span class="nm">${esc(e.name)}</span><span class="sub">${I('bld',12)}Managed by ${VENUE}</span></span>${I('down',16)}</button>`+
+  (S.menu==='evs'?`<div class="menu" role="menu"><h4>Switch event</h4>${ORDER.filter(id=>!EVENTS.find(x=>x.id===id).past).map(id=>{const x=EVENTS.find(y=>y.id===id);return `<button class="mi ${x.id==='wed'?'sel':''}" role="menuitem" data-ev="${x.id}"><span class="cov ${x.g}" style="width:32px;height:32px;border-radius:8px">${I(x.ic,16)}</span><span class="tx"><span class="nm">${esc(x.name)}</span><span class="sub">${x.venue?I('bld',12)+'Managed by '+esc(x.venue.name):esc(x.date)}</span></span>${x.id==='wed'?I('check',18,'ck'):''}</button>`}).join('')}<div class="msep"></div><button class="mi" role="menuitem" data-go="events">${I('back',18)}Back to My Events</button></div>`:'');
+  const items=[['home','Dashboard'],['users','Guests'],['mail','RSVP'],['msg','Messages'],['layout','Event Layout'],['gear','Event Settings'],['shield','Permissions']];
+  $('nav').innerHTML=items.map(([ic,l],k)=>`<a href="#dashboard" ${k===0?'class="on" aria-current="page"':`data-page="${l}"`}>${I(ic,20)}${l}</a>`).join('');
+  $('nav').setAttribute('aria-label','Event');
+  $('foot').innerHTML=`<button class="lang">${I('globe',18)}<span>English</span>${I('down',16)}</button><a class="out" href="#events">${I('back',20)}Back to My Events</a>`;
+ }
+}
+function renderTop(){
+ $('rolei').classList.toggle('hidden',S.view!=='event');
+ $('whob').innerHTML=`<button class="who" id="who" aria-haspopup="menu" aria-expanded="${S.menu==='who'}"><span class="av">DL</span><span class="nm">Dana Levi</span>${I('down',16)}</button>`+
+ (S.menu==='who'?`<div class="menu" role="menu"><div class="ume"><b>Dana Levi</b><span>dana.levi@example.com</span></div><div class="msep"></div><button class="mi" role="menuitem" data-act="toast" data-msg="Profile isn't part of this mockup.">${I('user',18)}Profile</button><button class="mi" role="menuitem" data-act="logout">${I('logout',18)}Log out</button></div>`:'');
+}
+
+/* ---------- My Events ---------- */
+function cardMenu(e){
+ if(e.venue) return `<div class="menu" role="menu"><button class="mi" role="menuitem" data-open="${e.id}">${I('arrow',18)}Open Event</button><button class="mi" role="menuitem" data-pop="1">${I('bld',18)}Venue Details</button><div class="msep"></div><div class="mnote">${I('info',14)}<span>Editing details, duplicating and deleting aren't available here. ${esc(e.venue.name)} manages this event.</span></div></div>`;
+ return `<div class="menu" role="menu"><button class="mi" role="menuitem" data-act="toast" data-msg="Opening ${esc(e.name)} isn't part of this mockup.">${I('arrow',18)}Open Event</button><button class="mi" role="menuitem" data-act="toast" data-msg="Edit isn't part of this mockup.">${I('pencil',18)}Edit</button><button class="mi" role="menuitem" data-act="toast" data-msg="Duplicate isn't part of this mockup.">${I('copy',18)}Duplicate</button><div class="msep"></div><button class="mi" role="menuitem" style="color:#C81E1E" data-act="toast" data-msg="Delete isn't part of this mockup.">${I('trash',18)}Delete</button></div>`;
+}
+function card(e){
+ const pct=Math.round(e.conf/e.max*100);
+ return `<article class="ec ${e.venue?'venue':''}" aria-label="${esc(e.name)}">
+  <div class="ecov ${e.g}">${I(e.ic,48)}<span class="stp ${e.past?'past':''}">${e.past?'Past':'Upcoming'}</span><button class="dots" data-menu="c-${e.id}" aria-label="More actions for ${esc(e.name)}" aria-haspopup="menu" aria-expanded="${S.menu==='c-'+e.id}">${I('dots',18)}</button></div>
+  ${S.menu==='c-'+e.id?cardMenu(e):''}
+  <div class="ebody">
+   <h3>${esc(e.name)}</h3>
+   ${e.venue?`<div>${mgdBadge(e.venue)}</div>`:''}
+   <ul class="meta">
+    <li>${I('cal',16)}${e.date}</li>
+    <li>${I('clock',16)}${e.time}</li>
+    ${e.venue?`<li>${I('pin',16)}${esc(e.venue.space)}, ${esc(e.venue.name)}</li>`:''}
+    <li>${I('users',16)}${e.max} maximum attendees</li>
+    <li>${I(e.roleIcon,16,e.roleIcon==='crown'?'crown':'')}${e.role}</li>
+   </ul>
+   <div class="prog"><div class="row"><span>${e.conf} confirmed</span><span>${e.max} capacity</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>
+   <button class="btn pri" data-open="${e.id}">Open Event ${I('arrow',18)}</button>
+  </div>
+  <span class="chev">${I('right',20)}</span>
+ </article>`;
+}
+function renderEvents(){
+ const up=EVENTS.filter(e=>!e.past).length,past=EVENTS.length-up;
+ const lay=S.layout||(isPhone()?'list':'grid');
+ let list=ORDER.map(id=>EVENTS.find(e=>e.id===id)).filter(e=>S.tab==='all'||(S.tab==='up'?!e.past:e.past));
+ if(S.q) list=list.filter(e=>(e.name+' '+(e.venue?e.venue.name+' '+e.venue.space:'')).toLowerCase().includes(S.q.toLowerCase()));
+ $('content').innerHTML=`
+ <div class="ph"><div><h1>My Events</h1><p>Manage your events, guests, and RSVPs all in one place.</p></div><button class="btn pri cta" data-act="toast" data-msg="Create Event opens the existing event dialog.">${I('plus',18)}Create Event</button></div>
+ <div class="tb">
+  <div class="tabs" role="tablist">${[['all','All Events',EVENTS.length],['up','Upcoming',up],['past','Past',past]].map(([k,l,n])=>`<button role="tab" aria-selected="${S.tab===k}" class="${S.tab===k?'on':''}" data-tab="${k}">${l}<em>${n}</em></button>`).join('')}</div>
+  <div class="tbr ${S.searching?'searching':''}" id="tbr">
+   <label class="srch"><span class="sr">Search events</span>${I('search',18)}<input id="q" type="search" placeholder="Search events..." value="${esc(S.q)}"></label>
+   <button class="ibtn sbtn" id="sbtn" aria-label="Search events">${I('search',20)}</button>
+   <div class="vt" role="group" aria-label="View"><button class="${lay==='grid'?'on':''}" data-lay="grid" aria-label="Grid view" aria-pressed="${lay==='grid'}">${I('grid',18)}</button><button class="${lay==='list'?'on':''}" data-lay="list" aria-label="List view" aria-pressed="${lay==='list'}">${I('list',18)}</button></div>
+  </div>
+  <button class="btn pri mcta" data-act="toast" data-msg="Create Event opens the existing event dialog.">${I('plus',18)}Create Event</button>
+ </div>
+ ${list.length?`<div class="evgrid ${lay==='list'?'list':''}">${list.map(card).join('')}</div>`:`<div class="card empty"><span class="ic">${I('search',24)}</span><p>No events match "${esc(S.q)}".</p><button class="btn sec" data-act="clearq">Clear search</button></div>`}
+ ${S.pop?venuePop(true):''}`;
+}
+
+/* ---------- venue popover / sheet ---------- */
+function venuePop(standalone){
+ const v=EVENTS[0].venue;
+ return `<div class="popscrim ${standalone?'all':''}" data-act="closepop"></div>
+ <div class="pop ${standalone?'center':''}" role="dialog" aria-labelledby="poph">
+  <div class="phd"><span class="sic">${I('bld',20)}</span><div class="grow"><b id="poph">Managed by ${esc(v.name)}</b><span>${esc(v.space)} · ${esc(v.address)}</span></div><button class="xbtn" data-act="closepop" aria-label="Close">${I('x',18)}</button></div>
+  <p style="color:var(--mu)">You were invited to plan this event by ${esc(v.name)}. Here is who takes care of what.</p>
+  <div class="split">
+   <div><h5>You manage</h5><ul class="y"><li>${I('check',14)}Guests and import</li><li>${I('check',14)}RSVP page</li><li>${I('check',14)}WhatsApp messages</li><li>${I('check',14)}Seating guests at tables</li><li>${I('check',14)}Your team</li></ul></div>
+   <div><h5>${esc(v.name)} manages</h5><ul class="v"><li>${I('bld',14)}Date and time</li><li>${I('bld',14)}Space and address</li><li>${I('bld',14)}Maximum attendees</li><li>${I('bld',14)}The room and tables</li></ul></div>
+  </div>
+  <div><h5 style="font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px">Need a change? Contact the venue</h5>
+  <ul class="ct"><li>${I('mail',16)}<a href="#" data-act="toast" data-msg="Opens your email app.">events@grandgardenhall.example.com</a></li><li>${I('phone',16)}<a href="#" data-act="toast" data-msg="Opens your phone app.">03-000-0000</a></li></ul></div>
+ </div>`;
+}
+
+/* ---------- Dashboard ---------- */
+function renderDash(){
+ const e=EVENTS[0],v=e.venue;
+ const K=[['Total Guests',162,'invitations','users','t-pr'],['Invitations Sent',140,'invitations','mail','t-pr'],['Invitations Not Sent',22,'invitations','send','t-ne'],['Awaiting Response',24,'invitations','clock','t-wa'],['RSVP Approved',98,'invitations','cc','t-ok'],
+  ['RSVP Not Sure',6,'invitations','help','t-wa'],['RSVP Declined',12,'invitations','x','t-da'],['Confirmed Attendees',264,'people','userck','t-ok'],['Seating Capacity',280,'chairs','chair','t-pr'],['Unassigned Confirmed Attendees',38,'people','userx','t-wa']];
+ const R=[['Approved',98,60,'#22C55E'],['Declined',12,7,'#EF4444'],['Not Sure',6,4,'#F59E0B'],['Awaiting Response',24,15,'#94A3B8'],['Not Sent',22,14,'#CBD5E1']];
+ let acc=0;const grad=R.map(r=>{const s=acc;acc+=r[2];return `${r[3]} ${s}% ${acc}%`}).join(',');
+ $('content').innerHTML=`
+ <div class="ph"><div><h1>Dashboard</h1><p>Overview of your event guests and RSVPs.</p>
+   <div class="phm" id="phm">${mgdBadge(v,'button',`id="mgdbtn" aria-haspopup="dialog" aria-expanded="${S.pop}"`)}<span class="ctx">${I('pin',16)}${esc(v.space)} · ${esc(v.address)}</span><span class="ctx">${I('cal',16)}${e.date}, ${e.time}</span>${S.pop?venuePop(false):''}</div>
+  </div><div class="act-r"><button class="btn sec" data-page="Event Settings">${I('gear',18)}Event Settings</button></div></div>
+ <div class="kpis">${K.map(([l,n,u,ic,t])=>`<div class="kpi"><div><div class="l">${l}</div><div class="n">${n}</div><div class="u">${u}</div></div><span class="kic ${t}">${I(ic,22)}</span></div>`).join('')}</div>
+ <div class="notes">
+  <button class="ncard danger" data-page="Event Layout">${I('users',20)}<span class="grow"><b>Tables over capacity: 1</b><p>Table 9 is over its capacity by 2. Move guests to another table.</p></span>${I('right',18)}</button>
+  <button class="ncard info" data-page="Event Layout">${I('chair',20)}<span class="grow"><b>Confirmed attendees without a table</b><p>38 confirmed attendees are not assigned to a table yet.</p></span>${I('right',18)}</button>
+  <button class="ncard info" data-act="openpop">${I('bld',20)}<span class="grow"><b>Grand Garden Hall updated the room</b><p>2 tables were added in the Main Hall yesterday. Your seating was not changed.</p></span>${I('right',18)}</button>
+ </div>
+ <div class="two">
+  <section class="card"><div class="chd"><div><h2>RSVP Status</h2><p>Breakdown of guest responses.</p></div></div>
+   <div class="rsvp"><div class="donut" style="background:conic-gradient(${grad})" role="img" aria-label="162 guests"><div><b>162</b><span>Guests</span></div></div>
+   <ul class="leg">${R.map(r=>`<li><span class="k"><i style="background:${r[3]}"></i>${r[0]}</span><span class="c">${r[1]}</span><span class="p">${r[2]}%</span></li>`).join('')}</ul></div></section>
+  <section class="card"><div class="chd"><div><h2>Attendance vs Capacity</h2><p>Confirmed attendees and table seats compared to your event maximum.</p></div></div>
+   <div class="cap"><div><div class="row"><span>Confirmed Attendees</span><span>264 / 350</span></div><div class="tr"><i style="width:75%;background:#4F46E5"></i></div></div>
+   <div><div class="row"><span>Seating Capacity (Tables)</span><span>280 / 350</span></div><div class="tr"><i style="width:80%;background:#A5B4FC"></i></div></div>
+   <small>The dashed line marks the event maximum of 350 attendees, set by ${VENUE}.</small></div></section>
+ </div>
+ <div class="two">
+  <section class="card"><div class="chd"><div><h2>Recent Guest Activity</h2><p>Latest RSVP responses and invitation activity.</p></div><button class="btn sec sm" data-page="Guests">View All</button></div>
+   <ul class="act">${[['cc','t-ok','Noa Shapiro','RSVP approved, 2 attending','Today, 13:49'],['help','t-wa','Amit Cohen','RSVP submitted: not sure','Today, 11:41'],['x','t-da','Lior Ben-David','RSVP declined','Today, 10:07'],['cc','t-ok','Tamar Katz','RSVP approved, 4 attending','Today, 03:15'],['cc','t-ok','Eitan Mizrahi','RSVP approved, 2 attending','Today, 00:41']].map(([ic,t,n,s,tm])=>`<li><span class="aic ${t}">${I(ic,16)}</span><span class="grow"><b>${n}</b><span>${s}</span></span><time>${tm}</time></li>`).join('')}</ul></section>
+  <section class="card"><div class="chd"><div><h2>Quick Actions</h2><p>Common tasks for your event.</p></div></div>
+   <div class="qa">
+    <button data-page="Guests"><span class="kic t-pr">${I('users',20)}</span><span class="grow"><b>Manage Guests</b><span>Add, edit or import guests</span></span>${I('right',18)}</button>
+    <button data-page="Messages"><span class="kic t-ok">${I('wa',20)}</span><span class="grow"><b>Send WhatsApp Messages</b><span>Open WhatsApp with your template</span></span>${I('right',18)}</button>
+    <button data-page="RSVP"><span class="kic t-pr">${I('mail',20)}</span><span class="grow"><b>RSVP Settings</b><span>Copy link and customize messages</span></span>${I('right',18)}</button>
+    <button data-page="Event Layout"><span class="kic t-wa">${I('layout',20)}</span><span class="grow"><b>Seat Guests</b><span>Assign guests to the venue's tables</span></span>${I('right',18)}</button>
+   </div></section>
+ </div>`;
+}
+
+/* ---------- render + routing ---------- */
+function render(){
+ renderSide();renderTop();
+ if(S.view==='events')renderEvents();else renderDash();
+ document.title=(S.view==='events'?'My Events':'Dashboard')+' · Client: Managed by venue (mockup #13)';
+}
+let HASH=null;const curHash=()=>HASH!==null?HASH:location.hash;
+const go=h=>{try{location.hash=h}catch(e){}if(location.hash===h){HASH=null}else{HASH=h;route()}};
+function route(){S.view=curHash()==='#dashboard'?'event':'events';S.menu=null;S.pop=false;$('app').classList.remove('drawer');render();scrollTo(0,0)}
+addEventListener('hashchange',route);
+/* In a preview, '#…' links resolve against the host page and would reload the frame, so route them in place. */
+document.addEventListener('click',ev=>{const a=ev.target.closest('a[href^="#"]');if(!a)return;ev.preventDefault();const h=a.getAttribute('href'),d=a.dataset;if(h.length>1&&!d.page&&!d.act&&!d.open&&!d.go)go(h)},true);
+let lastPhone=isPhone();addEventListener('resize',()=>{if(isPhone()!==lastPhone){lastPhone=isPhone();render()}});
+
+document.addEventListener('click',ev=>{
+ const t=ev.target.closest('button,a,[data-act]');
+ const inMenu=ev.target.closest('.menu,.pop');
+ if(!t){if(S.menu||(S.pop&&!inMenu)){S.menu=null;if(!inMenu)S.pop=false;render()}return}
+ const d=t.dataset;
+ if(t.id==='burger'){$('app').classList.add('drawer');return}
+ if(t.id==='close'){$('app').classList.remove('drawer');return}
+ if(t.id==='bell'){toast('Notifications use the existing bell.');return}
+ if(t.id==='evbtn'){S.menu=S.menu==='evs'?null:'evs';render();return}
+ if(t.id==='who'){S.menu=S.menu==='who'?null:'who';render();return}
+ if(t.id==='mgdbtn'){S.pop=!S.pop;S.menu=null;render();return}
+ if(t.id==='sbtn'){S.searching=true;render();$('q').focus();return}
+ if(d.menu){S.menu=S.menu===d.menu?null:d.menu;render();return}
+ if(d.tab){S.tab=d.tab;S.menu=null;render();return}
+ if(d.lay){S.layout=d.lay;render();return}
+ if(d.open){ev.preventDefault();if(d.open==='wed'){go('#dashboard')}else{S.menu=null;render();toast('Opening this event isn\'t part of this mockup.')}return}
+ if(d.ev){if(d.ev==='wed'){S.menu=null;render()}else{S.menu=null;render();toast('Switching events isn\'t part of this mockup.')}return}
+ if(d.go){go('#'+d.go);return}
+ if(d.pop){S.menu=null;S.pop=true;render();return}
+ if(d.page){ev.preventDefault();S.menu=null;render();$('app').classList.remove('drawer');toast(d.page+' isn\'t part of this mockup (see #14–#16 for the client\'s Event Settings, Permissions and Event Layout).');return}
+ if(d.act==='openpop'){S.pop=true;render();return}
+ if(d.act==='closepop'){S.pop=false;render();return}
+ if(d.act==='clearq'){S.q='';render();return}
+ if(d.act==='logout'){toast('Log out isn\'t part of this mockup.');return}
+ if(d.act==='toast'){ev.preventDefault();S.menu=null;render();toast(d.msg);return}
+ if(t.tagName==='A'&&t.getAttribute('href')?.startsWith('#')){$('app').classList.remove('drawer');if(S.menu){S.menu=null}return}
+ if(S.menu&&!inMenu){S.menu=null;render()}
+});
+document.addEventListener('input',ev=>{if(ev.target.id==='q'){S.q=ev.target.value;const pos=ev.target.selectionStart;render();const q=$('q');q.focus();q.setSelectionRange(pos,pos)}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if(S.menu||S.pop){S.menu=null;S.pop=false;render()}$('app').classList.remove('drawer')}});
+$('scrim').addEventListener('click',()=>$('app').classList.remove('drawer'));
+route();
+}
+</script>
+</body></html>

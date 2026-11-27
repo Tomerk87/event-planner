@@ -1,0 +1,707 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Permissions (mockup #15)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Mockup #15, venue_event_permissions + client_event_permissions: the event Permissions page, split by side.
+   One file: "View as" (mockup controls at the bottom) switches between the venue owner, the client lead and a client editor.
+   Venue view reuses mockup #10. Client shell and "Managed by" badge reuse mockups #13/#14. Tokens: DESIGN_GUIDE.md / tokens.css. */
+:root{color-scheme:light;--bg:#F6F7FB;--sf:#fff;--sfm:#F8F9FC;--bd:#E5E8F0;--bds:#CFD4E2;--tx:#0F1433;--mu:#5B6480;--sb:#626B85;--pr:#4F46E5;--prh:#4338CA;--prs:#EEF0FF;--prb:#C9CDFB;--nv1:#0F1535;--nv2:#151C47;--nvr:#1B2350;--nvb:#262E5C;--nvt:#F1F3FB;--nvm:#B4BBD6;--own:#D97706;--sh:0 1px 2px rgb(15 20 51/6%);--shm:0 8px 24px rgb(15 20 51/12%);--shb:0 -4px 16px rgb(15 20 51/8%)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.5 Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--tx);background:var(--bg)}
+ul{list-style:none}a{text-decoration:none;color:inherit}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.i{flex:none;display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:600;white-space:nowrap}
+.btn.pri{background:var(--pr);color:#fff}.btn.pri:hover{background:var(--prh)}
+.btn.sec{background:#fff;color:var(--pr);border:1px solid var(--prb)}.btn.sec:hover{border-color:var(--pr)}
+.btn.soft{background:var(--prs);color:var(--pr)}
+.btn.ghost{color:var(--mu)}.btn.ghost:hover{background:var(--sfm)}
+.btn.dan{background:#C81E1E;color:#fff}.btn.dan:hover{background:#A51616}
+.btn.sm{height:36px;padding:0 14px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.icb{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none}
+.icb.dan{background:#FDECEC;color:#C81E1E;border:1px solid #F6C4C4}.icb.dan:hover{border-color:#C81E1E}
+.badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.badge.lg{height:28px;padding:0 12px;gap:6px}
+.success{color:#15803D;background:#E6F7EC;border-color:#BDE5CB}
+.warning{color:#B45309;background:#FFF4E3;border-color:#F8D8A4}
+.info{color:#4338CA;background:#EEF0FF;border-color:#C9CDFB}
+.neutral{color:#475069;background:#ECEFF5;border-color:#D9DEEA}
+.badge.owner .i{color:var(--own)}
+/* shell */
+.app{display:flex;min-height:100vh}
+.side{width:248px;flex:none;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:30;background:linear-gradient(180deg,var(--nv1),var(--nv2));color:var(--nvt);display:flex;flex-direction:column;padding:16px}
+.app.collapsed .side{display:none}
+.dh{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;padding:4px 8px 0}
+.logo .mk{width:32px;height:32px;border-radius:8px;background:var(--pr);display:grid;place-items:center;color:#fff}
+.xb{display:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--nvb);place-items:center;color:var(--nvt)}
+.evs{position:relative;margin-top:20px}
+.evbtn{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--nvr);border:1px solid var(--nvb);text-align:start;color:var(--nvt)}
+.evbtn.open{border-color:var(--nvm)}
+.cov{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex:none;color:#fff;font-size:13px;font-weight:700}
+.cov.a{background:linear-gradient(135deg,#8B5CF6,#EC4899)}.cov.b{background:linear-gradient(135deg,#10B981,#3B82F6)}
+.evbtn .nm{font-size:14px;font-weight:600;line-height:1.3;display:block}
+.evbtn .sub{font-size:12px;color:var(--nvm)}
+.evbtn .grow{flex:1;min-width:0}
+.evbtn>.i{color:var(--nvm)}
+.nav{margin-top:16px;display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--nvm)}
+.nav a:hover{background:var(--nvr)}
+.nav a.on{background:var(--nvr);color:var(--nvt);font-weight:600}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:16px}
+.lang{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--nvb);background:var(--nvr);font-size:14px;width:100%;color:var(--nvt)}
+.lang span{flex:1;text-align:start}
+.out{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;font-size:14px;color:var(--nvm)}
+.menu{position:absolute;left:0;top:calc(100% + 8px);width:100%;min-width:232px;background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:8px;z-index:5}
+.menu h4{font-size:12px;font-weight:500;color:var(--mu);padding:8px 12px 4px}
+.mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;width:100%;text-align:start}
+.mi.sel{background:var(--prs)}
+.mi .tx{flex:1;min-width:0}.mi .nm{font-size:14px;font-weight:600;line-height:1.3;display:block}.mi .sub{font-size:12px;color:var(--mu)}
+.mi .ck{color:var(--pr)}
+.mi:hover{background:var(--sfm)}.mi.sel:hover{background:var(--prs)}
+.msep{height:1px;background:var(--bd);margin:8px 0}
+.mlink{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:600;color:var(--pr);width:100%}
+.mlink:hover{background:var(--sfm)}
+.scrim{display:none}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:64px;background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:10}
+.ibtn{width:44px;height:44px;border:1px solid var(--bd);border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--tx)}
+.top .mk{display:none;width:40px;height:40px;border-radius:10px;background:var(--pr);place-items:center;color:#fff}
+.top .sp{flex:1}
+.bell{position:relative;width:44px;height:44px;display:grid;place-items:center;color:var(--mu)}
+.bell em{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:999px;background:#C81E1E;color:#fff;font-size:11px;font-weight:600;font-style:normal;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
+.rolei{width:36px;height:44px;display:grid;place-items:center;color:var(--own)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--prs);color:var(--pr);font-size:14px;font-weight:600;display:grid;place-items:center;flex:none}
+.av.sm{width:32px;height:32px;font-size:12px}
+.av.lg{width:48px;height:48px;font-size:16px}
+.av.nacc{background:#ECEFF5;color:#475069}
+.who{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}.who .i{color:var(--mu)}
+/* page */
+.content{padding:24px 32px 40px;width:100%;max-width:1344px;display:flex;flex-direction:column;gap:24px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+.ph h1{font-size:32px;line-height:1.2;font-weight:700}
+.ph p{color:var(--mu);margin-top:4px}
+.note{display:flex;gap:12px;padding:16px 20px;border-radius:14px;border:1px solid}
+.note.info{background:#EEF0FF;border-color:#C9CDFB}.note.info>.i{color:#4338CA}
+.note.warning{background:#FFF4E3;border-color:#F8D8A4}.note.warning>.i{color:#B45309}
+.note.neutral{background:#ECEFF5;border-color:#D9DEEA}.note.neutral>.i{color:#475069}
+.note>.i{margin-top:2px}
+.note b{display:block;font-size:14px;font-weight:600}
+.note.info b{color:#4338CA}.note.warning b{color:#B45309}.note.neutral b{color:#475069}
+.note p{font-size:14px;color:var(--tx);margin-top:4px}
+.note.info p{color:var(--mu)}
+.note p strong{font-weight:600}
+.note.sm{padding:12px 16px;border-radius:10px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:20px}
+.chd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.chd .grow{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.sic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none}
+.sic.c{background:var(--prs);color:var(--pr)}.sic.v{background:#ECEFF5;color:#475069}
+.chd h2{font-size:18px;font-weight:600;line-height:1.3;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chd p{font-size:14px;color:var(--mu);margin-top:4px}
+.chd .right{display:flex;align-items:center;gap:12px;flex:none}
+.ro{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+/* client card */
+.cbody{margin-top:20px;display:flex;flex-direction:column;gap:16px}
+.person{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
+.person .pl{display:flex;align-items:center;gap:16px;min-width:0}
+.person h3{font-size:16px;font-weight:600;line-height:1.3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow-wrap:anywhere}
+.person .em{font-size:14px;color:var(--mu);overflow-wrap:anywhere}
+.person .pa{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:16px 20px;border-radius:10px;background:var(--sfm);border:1px solid var(--bd)}
+.facts div>span{display:block;font-size:12px;color:var(--mu)}
+.facts div>b{display:block;font-size:14px;font-weight:600;margin-top:2px}
+.facts div>b.wk{color:#B45309}
+.can{display:flex;gap:8px 24px;flex-wrap:wrap;font-size:14px;color:var(--mu)}
+.can li{display:flex;gap:8px;align-items:flex-start}
+.can .y .i{color:#15803D;margin-top:2px}.can .n .i{color:var(--sb);margin-top:2px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:24px 16px 8px}
+.empty .ic{width:56px;height:56px;border-radius:50%;background:#FFF4E3;color:#B45309;display:grid;place-items:center}
+.empty h3{font-size:16px;font-weight:600}
+.empty p{font-size:14px;color:var(--mu);max-width:520px}
+.empty.sm{padding:8px 16px}
+.empty.sm .ic{background:#ECEFF5;color:#475069;width:48px;height:48px}
+.muted-line{display:flex;gap:8px;font-size:14px;color:var(--mu)}
+.muted-line .i{color:var(--sb);margin-top:2px}
+/* tables */
+.tbl{margin-top:16px;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{white-space:nowrap;background:var(--sfm);font-weight:500;color:var(--mu);text-align:center;height:46px;padding:0 16px;border-bottom:1px solid var(--bd)}
+th.s{text-align:start}
+td{height:60px;padding:8px 16px;border-bottom:1px solid var(--bd)}
+tr:last-child td{border-bottom:0}
+td.c{text-align:center;white-space:nowrap}
+.nmc{display:flex;align-items:center;gap:12px;font-weight:500}
+.nmc .na{color:var(--mu);font-weight:400}
+.you{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:#ECEFF5;color:#475069;font-size:12px;font-weight:600}
+.mut{color:var(--mu)}
+.mcards{display:none}
+.mc{border:1px solid var(--bd);border-radius:14px;padding:16px;background:#fff;display:flex;flex-direction:column;gap:12px}
+.mtop{display:flex;gap:12px;align-items:flex-start}
+.mtop .grow{flex:1;min-width:0}
+.mtop h3{font-size:16px;font-weight:600;line-height:1.3;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nrow{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.nrow .badge{margin-top:1px}
+.mtop .em{font-size:14px;color:var(--mu);overflow-wrap:anywhere}
+.mfig{display:flex;gap:16px;font-size:14px;color:var(--mu);flex-wrap:wrap}
+.mfig b{color:var(--tx);font-weight:600}
+/* dialogs */
+.ov{position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:60;display:none;align-items:center;justify-content:center;padding:24px}
+.ov.open{display:flex}
+.dlg{width:512px;max-width:100%;max-height:calc(100vh - 48px);background:#fff;border-radius:14px;box-shadow:var(--shm);display:flex;flex-direction:column;overflow:hidden}
+.dlg:focus{outline:none}
+.dhd{display:flex;align-items:flex-start;gap:16px;padding:20px 24px 16px;border-bottom:1px solid var(--bd)}
+.dhd .grow{flex:1;min-width:0}
+.dhd h2{font-size:18px;font-weight:600;line-height:1.3}
+.dhd p{font-size:14px;color:var(--mu);margin-top:4px}
+.dhd .icb{color:var(--mu);margin:-6px -8px 0 0}
+.dbody{padding:20px 24px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:20px;flex:1;font-size:14px}
+.dbody>p{color:var(--mu)}.dbody>p strong{color:var(--tx);font-weight:600}
+.dft{display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;border-top:1px solid var(--bd)}
+.lbl{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
+.icn{position:relative}.icn .i{position:absolute;left:14px;top:13px;color:var(--sb);pointer-events:none}
+.inp{display:block;height:44px;width:100%;border:1px solid var(--bd);border-radius:10px;background:#fff;padding:0 16px 0 42px;font:inherit;font-size:14px;color:var(--tx)}
+.inp::placeholder{color:var(--sb)}.inp:hover{border-color:var(--bds)}
+.inp:focus{outline:none;border-color:var(--pr);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pr)}
+.help{font-size:12px;color:var(--mu);margin-top:8px;line-height:1.5}
+.err .inp{border-color:#C81E1E}.err .help{color:#C81E1E}
+.pts{display:flex;flex-direction:column;gap:8px;color:var(--mu)}
+.pts li{display:flex;gap:8px}.pts .i{color:var(--sb);margin-top:2px}.pts .y .i{color:#15803D}
+.pts strong{color:var(--tx);font-weight:600}
+.box{padding:16px;border-radius:10px;background:var(--sfm);border:1px solid var(--bd);display:flex;flex-direction:column;gap:8px}
+.box h4{font-size:14px;font-weight:600}
+/* mockup state switcher (not part of the product) */
+.mock{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:40;display:flex;align-items:center;gap:8px;background:#fff;border:1px dashed var(--bds);border-radius:14px;box-shadow:var(--shm);padding:6px 6px 6px 14px;font-size:12px;color:var(--mu)}
+.seg{display:flex;background:#fff;border-radius:14px;gap:4px}
+.seg button{height:32px;padding:0 12px;border-radius:10px;font-size:12px;font-weight:500;color:var(--mu)}
+.seg button.on{background:var(--pr);color:#fff;font-weight:600}
+.mock .hx{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;color:var(--mu)}
+.toast{position:fixed;right:24px;bottom:24px;background:var(--tx);color:#fff;font-size:14px;padding:12px 16px;border-radius:10px;box-shadow:var(--shm);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:70;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:none}
+.app.withmock .toast{bottom:80px}
+.app.withmock .content{padding-bottom:96px}
+.hidden{display:none!important}
+/* compact: drawer */
+@media (max-width:1023px){
+ .side{position:fixed;left:0;top:0;bottom:0;height:auto;width:min(320px,85vw);transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shm)}
+ .app.collapsed .side{display:flex}
+ .app.drawer .side{transform:none}
+ .scrim{display:block;position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:25;opacity:0;pointer-events:none;transition:opacity .2s}
+ .app.drawer .scrim{opacity:1;pointer-events:auto}
+ .xb,.top .mk{display:grid}
+ .top{padding:0 16px;gap:12px}
+ .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* phone */
+@media (max-width:767px){
+ .who .nm,.who .i{display:none}
+ .content{padding:24px 16px 40px;gap:20px}
+ .ph h1{font-size:28px}
+ .note{padding:16px}
+ .card{padding:16px}
+ .chd{flex-direction:column;gap:12px}
+ .chd .right{width:100%;justify-content:space-between}
+ .chd .right .btn{flex:1}
+ .person{flex-direction:column;align-items:stretch}
+ .person .pa{gap:12px}
+ .person .pa .btn{height:44px;flex:1 1 auto}
+ .person .pa .icb{width:44px;height:44px}
+ .person .pa .btn.wide{order:3;flex-basis:100%}
+ .facts{grid-template-columns:1fr 1fr;padding:16px}
+ .can{flex-direction:column}
+ .empty .btn{width:100%}
+ .card.list{background:none;border:0;box-shadow:none;padding:0}
+ .card.list .tbl{display:none}
+ .card.list .mcards{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+ .card.list .chd .right .btn{flex:none}
+ .ov{padding:0;align-items:stretch}
+ .ov.sheet{align-items:flex-end}
+ .dlg{width:100%;max-height:none;height:100%;border-radius:0}
+ .ov.sheet .dlg{height:auto;max-height:90vh;border-radius:14px 14px 0 0}
+ .dhd{padding:16px;align-items:center}
+ .dbody{padding:20px 16px 24px}
+ .dft{padding:12px 16px;box-shadow:var(--shb);border-top:0}
+ .dft .btn{flex:1}
+ .toast{left:16px;right:16px;bottom:16px}
+ .app.withmock .toast{bottom:72px}
+ .mock{left:8px;right:8px;transform:none;justify-content:space-between;padding:6px}
+ .mock>span{display:none}
+ .seg button{padding:0 8px}
+ .app.dlgopen .mock{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ---------- added for mockup #15 ---------- */
+.danger{color:#C81E1E;background:#FDECEC;border-color:#F6C4C4}
+/* "Managed by" badge, from mockups #13/#14 */
+.mgd{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.4;border:1px solid #C9CDFB;background:#EEF0FF;color:#4338CA;text-align:start;max-width:100%}
+button.mgd:hover{border-color:#4338CA}
+.mgd .i{flex:none}
+.evbtn .sub{display:block;margin-top:2px;line-height:1.4}
+.evbtn .sub .i{display:inline-block;vertical-align:-2px;margin-right:4px}
+.cov.g1{background:linear-gradient(135deg,#8B5CF6,#EC4899)}.cov.g2{background:linear-gradient(135deg,#10B981,#3B82F6)}.cov.g3{background:linear-gradient(135deg,#0EA5E9,#6366F1)}
+.mi .sub .i{display:inline-block;vertical-align:-2px;margin-right:4px}
+.rolei.ed{color:var(--pr)}
+.whob{position:relative}
+.whob .menu{left:auto;right:0;width:260px;min-width:0}
+.ume{padding:8px 12px 4px}.ume b{display:block;font-size:14px}.ume span{font-size:12px;color:var(--mu)}
+.phm{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-top:12px}
+.phm .ctx{font-size:14px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.phm .ctx .i{color:var(--sb)}
+/* KPI row, as on today's Permissions page */
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kpi .l{font-size:14px;color:var(--mu)}
+.kpi .n{font-size:24px;font-weight:700;line-height:1.2;margin-top:2px}
+.kpi .u{font-size:12px;color:var(--sb)}
+.kic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+.t-pr{background:#EEF0FF;color:#4F46E5}.t-wa{background:#FFF4E3;color:#D97706}.t-ne{background:#ECEFF5;color:#475069}
+/* search + role filter */
+.tools{display:flex;gap:12px;margin-top:16px}
+.tools .icn{flex:1;min-width:0}
+.ddw{position:relative;flex:none}
+.ddb{height:44px;border:1px solid var(--bd);border-radius:10px;padding:0 12px 0 16px;display:flex;align-items:center;gap:8px;font-size:14px;background:#fff;white-space:nowrap}
+.ddb:hover{border-color:var(--bds)}
+.ddb .i{color:var(--mu)}
+.ddw .menu{left:auto;right:0;width:220px;min-width:0}
+td.act{text-align:end;white-space:nowrap;width:1%}
+.acts{display:inline-flex;gap:8px;align-items:center}
+.mact{display:flex;gap:12px}
+.mact .btn{flex:1;height:44px}
+.mact .icb{width:44px;height:44px}
+.nores{padding:32px 16px;text-align:center;font-size:14px;color:var(--mu)}
+.mcards .nores{border:1px dashed var(--bds);border-radius:14px}
+/* side marker inside section titles */
+.side-tag{font-size:12px;font-weight:500;color:var(--mu)}
+/* radio list in dialogs */
+.radios{display:flex;flex-direction:column;gap:8px;border:0}
+.radios legend{font-size:14px;font-weight:500;margin-bottom:8px}
+.rad{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border:1px solid var(--bd);border-radius:10px;cursor:pointer}
+.rad:hover{border-color:var(--bds)}
+.rad:has(input:checked){border-color:var(--pr);background:var(--prs)}
+.rad input{accent-color:var(--pr);width:18px;height:18px;margin-top:2px;flex:none}
+.rad .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rad b{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.rad .d{font-size:12px;color:var(--mu);line-height:1.5}
+.dmember{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;background:var(--sfm);border:1px solid var(--bd)}
+.dmember b{display:block;font-size:14px;font-weight:600}.dmember span{font-size:12px;color:var(--mu)}
+/* venue popover, from mockup #14 */
+.popscrim{position:fixed;inset:0;background:rgb(15 20 51/55%);z-index:39}
+.pop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:440px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--shm);padding:20px;z-index:41;display:flex;flex-direction:column;gap:16px;font-size:14px}
+.pop .phd{display:flex;gap:12px;align-items:flex-start}
+.pop .phd .grow{flex:1;min-width:0}
+.pop .phd b{display:block;font-size:16px;font-weight:600;line-height:1.3}
+.pop .phd span{color:var(--mu);font-size:14px}
+.xbtn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--mu);margin:-6px -8px 0 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.split>div{padding:12px;border-radius:10px;background:var(--sfm);border:1px solid var(--bd)}
+.split h5{font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px}
+.split li{display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:1.4;padding:2px 0}
+.split li .i{margin-top:1px}
+.split .y .i{color:#15803D}.split .v .i{color:#4338CA}
+.ct{display:flex;flex-direction:column;gap:6px;color:var(--mu)}
+.ct li{display:flex;gap:8px;align-items:center}.ct .i{color:var(--sb)}
+.ct a{color:var(--pr);font-weight:500;direction:ltr}
+/* mockup controls: view switch + client status menu */
+.mock .lab{white-space:nowrap}
+.seg .sf{display:none}
+.mst{position:relative}
+.mstb{height:32px;padding:0 10px;border-radius:10px;border:1px solid var(--bd);font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px;color:var(--tx);white-space:nowrap}
+.mstb .i{color:var(--mu)}
+.mst .menu{left:auto;right:0;top:auto;bottom:calc(100% + 8px);width:200px;min-width:0}
+.mst .menu .mi{font-size:14px;font-weight:500;padding:8px 12px}
+.mdiv{width:1px;height:24px;background:var(--bd)}
+@media (max-width:767px){
+ .ph{flex-direction:column;align-items:stretch;gap:16px}
+ .ph>.btn{width:100%}
+ .kpis{gap:8px}
+ .kpi{padding:12px;flex-direction:column;align-items:flex-start;gap:0}
+ .kpi .kic{display:none}
+ .kpi .l{font-size:12px}
+ .tools{gap:8px}
+ .ddb{padding:0 10px 0 12px}
+ .split{grid-template-columns:1fr}
+ .pop{left:0;right:0;top:auto;bottom:0;transform:none;width:auto;max-width:none;border-radius:14px 14px 0 0;padding:20px 16px 24px;max-height:85vh;overflow-y:auto}
+ .seg .lf{display:none}.seg .sf{display:inline}
+ .mock .lab{display:none}
+ .mstb .stl{display:none}
+ .dft .btn.ghost{flex:0 1 auto}
+}
+</style></head><body>
+<div class="app withmock" id="app">
+ <aside class="side" id="side" aria-label="Main navigation">
+  <div class="dh"><div class="logo"><span class="mk" id="lg"></span>Event Planner</div><button class="xb" id="close" aria-label="Close menu"></button></div>
+  <div class="evs" id="evs"></div>
+  <nav class="nav" id="nav" aria-label="Event"></nav>
+  <div class="foot" id="foot"></div>
+ </aside>
+ <div class="scrim" id="scrim"></div>
+ <div class="main">
+  <header class="top" id="top"></header>
+  <main class="content" id="content"></main>
+ </div>
+ <div id="popwrap"></div>
+ <div class="ov" id="ov" role="presentation"><div class="dlg" id="dlg" role="dialog" aria-modal="true" aria-labelledby="dtitle" tabindex="-1"></div></div>
+ <div class="mock" id="mock" aria-label="Mockup controls (not part of the product)"><span class="lab">View as</span><div class="seg" id="vseg"></div><span class="mdiv" id="mdiv"></span><div class="mst" id="mst"></div><button class="hx" id="mhide" aria-label="Hide mockup controls"></button></div>
+ <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* Preview-safe address updates: sandboxed previews block history changes, so ignore that error. */
+(function(){try{['replaceState','pushState'].forEach(function(m){var o=history[m];if(typeof o!=='function')return;history[m]=function(){try{return o.apply(history,arguments)}catch(e){}}})}catch(e){}})();
+</script>
+<script>
+{
+const P={
+logo:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18m-12 6 2 2 4-4"/>',
+home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+userplus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+plus:'<path d="M5 12h14M12 5v14"/>',
+layout:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/>',
+gear:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+crown:'<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>',
+mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+alertc:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+minus:'<path d="M5 12h14"/>',
+pencil:'<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>',
+bld:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+glass:'<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>',
+cake:'<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/>',
+resend:'<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+swap:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+ban:'<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+send:'<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+trash:'<path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+eye:'<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+down:'<path d="m6 9 6 6 6-6"/>',
+up:'<path d="m18 15-6-6-6 6"/>',
+right:'<path d="m9 18 6-6-6-6"/>',
+back:'<path d="m12 19-7-7 7-7M19 12H5"/>',
+bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>',
+menu:'<path d="M4 12h16M4 6h16M4 18h16"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',
+cal:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'
+};
+const I=(n,s=20,c='')=>`<svg class="i ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const VENUE={name:'Grand Garden Hall',space:'Main Hall',address:'12 Garden Rd, Tel Aviv',email:'events@grandgardenhall.example.com',phone:'03-000-0000'};
+const EV={n:"Dana & Yossi's Wedding",d:'Dec 17, 2026',space:'Main Hall'};
+const TODAY='Nov 27, 2026';
+
+/* ---------- people ---------- */
+/* Viewers of this mockup: the venue owner, the client lead, and a client editor */
+const VIEWS=[['venue','Venue owner','Venue'],['lead','Client lead','Lead'],['editor','Client editor','Editor']];
+const ME={venue:{n:'Avi Golan',e:'avi.golan@example.com'},lead:{n:'Dana Levi',e:'dana.levi@example.com'},editor:{n:'Yossi Cohen',e:'yossi.cohen@example.com'}};
+/* client team is shared state: what the lead changes shows up in the venue view too */
+let CTEAM=[
+ {id:1,n:'Dana Levi',e:'dana.levi@example.com',r:'Lead',since:'Nov 25, 2026'},
+ {id:2,n:'Yossi Cohen',e:'yossi.cohen@example.com',r:'Editor',since:'Nov 25, 2026'},
+ {id:3,n:'Miriam Levi',e:'miriam.levi@example.com',r:'Viewer',since:'Nov 26, 2026'},
+ {id:4,n:'Ruth Cohen',e:'ruth.cohen@example.com',r:'Viewer',since:'Nov 26, 2026'},
+ {id:5,e:'orly.events@example.com',r:'Editor',pending:1,since:'Nov 26, 2026'}];
+let nextId=6;
+const VTEAM=[
+ {n:'Avi Golan',e:'avi.golan@example.com',r:'Owner'},
+ {n:'Noa Levi',e:'noa.levi@example.com',r:'Manager'},
+ {n:'Eitan Shapiro',e:'eitan.shapiro@example.com',r:'Manager'},
+ {n:'Rina Katz',e:'rina.katz@example.com',r:'Manager'}];
+
+/* client invitation record (venue side, from mockup #10). Links stay valid for 7 days. */
+const STATES=[['await','Awaiting client'],['sent','Invitation sent'],['expired','Invitation expired'],['joined','Client joined'],['past','Past']];
+const BASE={
+ await:{st:'await',email:null},
+ sent:{st:'sent',email:'dana.levi@example.com',sent:'Nov 24, 2026',by:'Avi Golan',exp:'Dec 1, 2026',times:1},
+ expired:{st:'expired',email:'dana.levi@example.com',sent:'Nov 12, 2026',by:'Noa Levi',exp:'Nov 19, 2026',times:1},
+ joined:{st:'joined',email:'dana.levi@example.com',name:'Dana Levi',sent:'Nov 24, 2026',by:'Avi Golan',joined:'Nov 25, 2026'},
+ past:{st:'past',email:'dana.levi@example.com',name:'Dana Levi',sent:'Sep 2, 2026',by:'Avi Golan',joined:'Sep 3, 2026'}};
+
+const S={view:'venue',c:{...BASE.joined},menu:null,dlg:null,pop:false,q:'',rf:'all'};
+let tt;const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200)};
+const initials=n=>n.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const first=n=>n.split(' ')[0];
+const isClient=()=>S.view!=='venue';
+const lead=()=>CTEAM.find(m=>m.r==='Lead');
+
+/* ---------- badges ---------- */
+const BADGE={
+ await:`<span class="badge lg warning">${I('clock',14)}Awaiting client</span>`,
+ sent:`<span class="badge lg info">${I('mail',14)}Invitation sent</span>`,
+ expired:`<span class="badge lg warning">${I('alertc',14)}Invitation expired</span>`,
+ joined:`<span class="badge lg success">${I('check',14)}Client joined</span>`,
+ past:`<span class="badge lg neutral">${I('history',14)}Past</span>`};
+/* client roles: Lead (crown, amber like Owner), Editor, Viewer. Venue roles carry the word "Venue" so the side is never in doubt. */
+const cRole=r=>r==='Lead'?`<span class="badge warning owner">${I('crown',12)}Client Lead</span>`:r==='Editor'?`<span class="badge info">${I('pencil',12)}Editor</span>`:`<span class="badge neutral">${I('users',12)}Viewer</span>`;
+const vRole=r=>r==='Owner'?`<span class="badge warning owner">${I('crown',12)}Venue Owner</span>`:`<span class="badge info">${I('shield',12)}Venue Manager</span>`;
+const pend=`<span class="badge neutral">${I('clock',12)}Pending</span>`;
+const youP='<span class="you">You</span>';
+const mgdBadge=(tag='span',extra='')=>`<${tag} class="mgd" ${extra}>${I('bld',14)}<span>Managed by ${esc(VENUE.name)}</span></${tag}>`;
+const hasClient=()=>S.c.st==='joined'||S.c.st==='past';
+const ROLE_TXT={
+ Editor:'Manages guests, RSVP, messages and seating. Can\'t change your team.',
+ Viewer:'Views the event and downloads exports. Can\'t change anything.'};
+
+/* ---------- shell ---------- */
+$('lg').innerHTML=I('logo',20);$('close').innerHTML=I('x');$('mhide').innerHTML=I('x',16);
+const renderSide=()=>{
+ const open=S.menu==='evs';
+ if(!isClient()){
+  /* venue side: same as mockup #10. RSVP and Messages are hidden from the venue (list #19) */
+  $('evs').innerHTML=`<button class="evbtn${open?' open':''}" id="evb" aria-haspopup="listbox" aria-expanded="${open}"><span class="cov a">DY</span><span class="grow"><span class="nm">${esc(EV.n)}</span><span class="sub">${EV.space}</span></span>${I('down',18)}</button>`+
+  (open?`<div class="menu" role="listbox" aria-label="Switch event"><h4>${esc(VENUE.name)} events</h4>
+  <button class="mi sel" role="option" aria-selected="true"><span class="cov a">DY</span><span class="tx"><span class="nm">${esc(EV.n)}</span><span class="sub">${EV.d} · ${EV.space}</span></span><span class="ck">${I('check',18)}</span></button>
+  <button class="mi" role="option" aria-selected="false" data-soon="other"><span class="cov b">SB</span><span class="tx"><span class="nm">Shapiro 40th Birthday</span><span class="sub">Feb 11, 2027 · Main Hall</span></span></button>
+  <div class="msep"></div><button class="mlink" data-soon="back">${I('cal',18)}All venue events</button></div>`:'');
+  $('nav').innerHTML=[['home','Dashboard'],['users','Guests'],['layout','Event Layout'],['gear','Event Settings']].map(([i,l])=>`<a href="#" data-soon="${l}">${I(i)}${l}</a>`).join('')+`<a class="on" href="#" aria-current="page">${I('shield')}Permissions</a>`;
+ }else{
+  /* client side: same as mockups #13 / #14 */
+  $('evs').innerHTML=`<button class="evbtn${open?' open':''}" id="evb" aria-haspopup="listbox" aria-expanded="${open}"><span class="cov g1">${I('glass',20)}</span><span class="grow"><span class="nm">${esc(EV.n)}</span><span class="sub">${I('bld',12)}Managed by ${esc(VENUE.name)}</span></span>${I('down',18)}</button>`+
+  (open?`<div class="menu" role="listbox" aria-label="Switch event"><h4>Switch event</h4>
+  <button class="mi" role="option" aria-selected="false" data-soon="other"><span class="cov g3" style="width:32px;height:32px;border-radius:8px">${I('cake',16)}</span><span class="tx"><span class="nm">Grandma Ruth's 80th</span><span class="sub">Mar 6, 2027</span></span></button>
+  <button class="mi sel" role="option" aria-selected="true"><span class="cov g1" style="width:32px;height:32px;border-radius:8px">${I('glass',16)}</span><span class="tx"><span class="nm">${esc(EV.n)}</span><span class="sub">${I('bld',12)}Managed by ${esc(VENUE.name)}</span></span><span class="ck">${I('check',18)}</span></button>
+  <div class="msep"></div><button class="mlink" data-soon="back">${I('back',18)}Back to My Events</button></div>`:'');
+  $('nav').innerHTML=[['home','Dashboard'],['users','Guests'],['mail','RSVP'],['msg','Messages'],['layout','Event Layout'],['gear','Event Settings']].map(([i,l])=>`<a href="#" data-soon="${l}">${I(i)}${l}</a>`).join('')+`<a class="on" href="#" aria-current="page">${I('shield')}Permissions</a>`;
+ }
+ $('foot').innerHTML=`<button class="lang" data-soon="lang">${I('globe',18)}<span>English</span>${I('down',18)}</button><a href="#" class="out" data-soon="back">${I('back')}Back to My Events</a>`;
+};
+const renderTop=()=>{
+ const v=S.view,me=ME[v],open=S.menu==='who';
+ const role=v==='venue'?['crown','','Owner of '+VENUE.name]:v==='lead'?['crown','','Client lead']:['pencil',' ed','Editor'];
+ const bell=v==='venue'?3:2;
+ $('top').innerHTML=`<button class="ibtn" id="burger" aria-label="Menu">${I('menu')}</button><span class="mk">${I('logo',20)}</span><span class="sp"></span>
+ <span class="bell" aria-label="${bell} notifications">${I('bell')}<em>${bell}</em></span>
+ <span class="rolei${role[1]}" title="Your role: ${role[2]}" aria-label="Your role: ${role[2]}">${I(role[0],20)}</span>
+ <div class="whob"><button class="who" id="who" aria-haspopup="menu" aria-expanded="${open}"><span class="av">${initials(me.n)}</span><span class="nm">${me.n}</span>${I('down',18)}</button>
+ ${open?`<div class="menu" role="menu"><div class="ume"><b>${me.n}</b><span>${me.e}</span></div><div class="msep"></div><button class="mi" role="menuitem" data-soon="profile">${I('user',18)}Profile</button><button class="mi" role="menuitem" data-soon="logout">${I('logout',18)}Log out</button></div>`:''}</div>`;
+};
+
+/* ---------- venue view (mockup #10, unchanged apart from role names) ---------- */
+const canList=`<ul class="can" aria-label="What the client can do"><li class="y">${I('check',16)}<span>Guests, RSVP, WhatsApp messages and seating</span></li><li class="y">${I('check',16)}<span>Invite family or a planner as Editor or Viewer</span></li><li class="n">${I('minus',16)}<span>The date, address, room and tables stay with ${VENUE.name}</span></li></ul>`;
+const clientBody=()=>{const c=S.c;
+ if(c.st==='await')return `<div class="empty"><span class="ic">${I('userplus',26)}</span><h3>No client yet</h3><p>Invite your client by email. Until they accept, the guest list, RSVP and seating stay empty, and only your team can open this event.</p><button class="btn pri" data-a="invite">${I('mail',18)}Invite Client</button></div>
+  <div class="box"><h4>What the client can do</h4>${canList}</div>`;
+ if(c.st==='sent'||c.st==='expired'){const ex=c.st==='expired';
+  return `<div class="person"><div class="pl"><span class="av lg nacc">${c.email[0].toUpperCase()}</span><div><h3><span dir="ltr">${esc(c.email)}</span></h3><div class="em">${ex?'Did not accept in time':'Hasn\'t accepted yet'}</div></div></div>
+   <div class="pa">${ex?'':`<button class="btn sec sm" data-a="resend">${I('resend',18)}Resend</button>`}<button class="btn sec sm${ex?'':' wide'}" data-a="different">${I('swap',18)}Invite a Different Client</button><button class="icb dan" data-a="revoke" aria-label="Revoke invitation" title="Revoke invitation">${I('ban',18)}</button></div></div>
+  <div class="facts"><div><span>Invitation sent on</span><b>${c.sent}</b></div><div><span>Sent by</span><b>${esc(c.by)}</b></div><div><span>${ex?'Link expired on':'Link expires on'}</span><b${ex?' class="wk"':''}>${c.exp}</b></div><div><span>Times sent</span><b>${c.times}</b></div></div>
+  ${ex?`<div class="note warning sm">${I('alertc',18)}<div><b>The invitation link expired</b><p>Nobody accepted it within 7 days. Resend it to send a new link to the same address, or invite a different client.</p></div></div>`
+     :`<p class="muted-line">${I('info',16)}<span>The event shows <b style="color:var(--tx);font-weight:600">Invitation sent</b> in your My Events until the client accepts. Each link works once and expires after 7 days.</span></p>`}`}
+ const past=c.st==='past';
+ return `<div class="person"><div class="pl"><span class="av lg">${initials(c.name)}</span><div><h3>${esc(c.name)} ${cRole('Lead')}</h3><div class="em" dir="ltr">${esc(c.email)}</div></div></div>
+  <div class="pa"><a class="btn sec sm" href="#" data-a="email">${I('mail',18)}Email ${esc(first(c.name))}</a></div></div>
+ <div class="facts"><div><span>Joined on</span><b>${c.joined}</b></div><div><span>Invited by</span><b>${esc(c.by)}</b></div><div><span>Client team</span><b>${CTEAM.length} people</b></div><div><span>Guests on the list</span><b>${past?'148 guests':'142 guests'}</b></div></div>
+ ${past?`<div class="note neutral sm">${I('history',18)}<div><b>This event has ended</b><p>Everything is read-only for you and for ${esc(first(c.name))}. Both sides can still view the event and download exports.</p></div></div>`
+  :`<p class="muted-line">${I('info',16)}<span>${esc(first(c.name))} now runs guests, RSVP, messages and seating. The date, room and tables stay with ${VENUE.name}. To hand the event to someone else after they joined, contact Event Planner support.</span></p>`}`};
+const clientCard=()=>{const c=S.c;
+ const right=BADGE[c.st]+(c.st==='expired'?`<button class="btn pri sm" data-a="resend">${I('resend',18)}Resend</button>`:'');
+ return `<section class="card" aria-labelledby="h-client"><div class="chd"><div class="grow"><span class="sic c">${I('heart',20)}</span><div><h2 id="h-client">Client <span class="side-tag">· Client side</span></h2><p>The person you shared this event with. They manage the guest side of the event.</p></div></div><div class="right">${right}</div></div>
+ <div class="cbody">${clientBody()}</div></section>`};
+
+/* read-only member table + phone cards (venue team anywhere, client team on the venue side) */
+const roTable=(rows,kind)=>{
+ const role=kind==='c'?cRole:vRole,meE=ME[S.view].e;
+ const nm=m=>m.pending?`<span class="na">No account yet</span>${pend}`:esc(m.n)+(m.e===meE?' '+youP:'');
+ const tb=rows.map(m=>`<tr><td><div class="nmc"><span class="av sm${m.pending?' nacc':''}">${m.pending?m.e[0].toUpperCase():initials(m.n)}</span>${nm(m)}</div></td><td dir="ltr" style="text-align:left">${esc(m.e)}</td><td class="c">${role(m.r)}</td>${kind==='c'?`<td class="c">${m.pending?`<span class="mut">Invited ${m.since}</span>`:m.since}</td>`:''}</tr>`).join('');
+ const cards=rows.map(m=>`<article class="mc"><div class="mtop"><span class="av${m.pending?' nacc':''}">${m.pending?m.e[0].toUpperCase():initials(m.n)}</span><div class="grow"><div class="nrow"><h3>${m.pending?'No account yet '+pend:esc(m.n)+(m.e===meE?' '+youP:'')}</h3>${role(m.r)}</div><div class="em" dir="ltr">${esc(m.e)}</div></div></div>${kind==='c'?`<div class="mfig"><span>${m.pending?'Invited':'Member since'} <b>${m.since}</b></span></div>`:''}</article>`).join('');
+ return `<div class="tbl"><table><thead><tr><th class="s" style="width:32%">Name</th><th class="s">Email</th><th style="width:220px">Role</th>${kind==='c'?'<th style="width:200px">Member Since</th>':''}</tr></thead><tbody>${tb}</tbody></table></div><div class="mcards">${cards}</div>`};
+
+const venueClientTeam=()=>{const c=S.c,on=hasClient();
+ return `<section class="card list" aria-labelledby="h-cteam"><div class="chd"><div class="grow"><span class="sic c">${I('users',20)}</span><div><h2 id="h-cteam">Client Team <span class="side-tag">· Client side</span></h2><p>${on?`People ${esc(first(c.name))} invited to help with guests, RSVP and seating. Managed by the client.`:'The client invites their own team after they join.'}</p></div></div><div class="right"><span class="badge neutral ro">${I('lock',12)}View only</span></div></div>
+ ${on?roTable(CTEAM,'c'):`<div class="card" style="margin-top:16px;box-shadow:none"><div class="empty sm"><span class="ic">${I('users',22)}</span><p>The client's team appears here after the client joins.</p></div></div>`}</section>`};
+
+const venueTeamVenueSide=()=>`<section class="card list" aria-labelledby="h-vteam"><div class="chd"><div class="grow"><span class="sic v">${I('bld',20)}</span><div><h2 id="h-vteam">Venue Team <span class="side-tag">· Venue side</span></h2><p>Everyone on the ${VENUE.name} team can open this event. Managed on the Team page.</p></div></div><div class="right"><a href="#" class="btn sec sm" data-soon="team">Open Team${I('right',18)}</a></div></div>${roTable(VTEAM,'v')}</section>`;
+
+const venueMain=()=>`<div class="ph"><div><h1>Permissions</h1><p>See who works on this event and manage your client.</p></div></div>
+ <div class="note info">${I('info')}<div><b>Two sides work on this event</b><p><strong>${VENUE.name}</strong> controls the date, address, room and tables. <strong>The client</strong> manages guests, RSVP, messages and seating, and invites their own team.</p></div></div>
+ ${clientCard()}${venueClientTeam()}${venueTeamVenueSide()}`;
+
+/* ---------- client view: "Your Team" ---------- */
+const RF=[['all','All Roles'],['Lead','Client Lead'],['Editor','Editor'],['Viewer','Viewer']];
+const canManage=()=>S.view==='lead';
+const filtered=()=>{const q=S.q.trim().toLowerCase();
+ return CTEAM.filter(m=>(S.rf==='all'||m.r===S.rf)&&(!q||(m.n||'').toLowerCase().includes(q)||m.e.includes(q)))};
+const rowActs=m=>{
+ if(m.e===ME[S.view].e)return youP;
+ if(!canManage()||m.r==='Lead')return '';
+ const who=m.pending?m.e:m.n;
+ return `<span class="acts"><button class="btn sec sm" data-a="role" data-id="${m.id}">${I('pencil',18)}Change Role</button><button class="icb dan" data-a="remove" data-id="${m.id}" aria-label="${m.pending?'Cancel invitation to':'Remove'} ${esc(who)}" title="${m.pending?'Cancel invitation':'Remove from your team'}">${I('trash',18)}</button></span>`};
+const teamRows=()=>{const rows=filtered(),meE=ME[S.view].e;
+ const none=`<div class="nores">No one matches “${esc(S.q)}”${S.rf!=='all'?' in this role':''}.</div>`;
+ const tb=rows.map(m=>`<tr><td><div class="nmc"><span class="av sm${m.pending?' nacc':''}">${m.pending?m.e[0].toUpperCase():initials(m.n)}</span>${m.pending?`<span class="na">No account yet</span>${pend}`:esc(m.n)}</div></td><td dir="ltr" style="text-align:left">${esc(m.e)}</td><td class="c">${cRole(m.r)}</td><td class="c">${m.pending?`<span class="mut">Invited ${m.since}</span>`:m.since}</td><td class="act">${rowActs(m)}</td></tr>`).join('');
+ const cards=rows.map(m=>{const acts=m.e!==meE&&canManage()&&m.r!=='Lead';
+  return `<article class="mc"><div class="mtop"><span class="av${m.pending?' nacc':''}">${m.pending?m.e[0].toUpperCase():initials(m.n)}</span><div class="grow"><div class="nrow"><h3>${m.pending?'No account yet '+pend:esc(m.n)+(m.e===meE?' '+youP:'')}</h3>${cRole(m.r)}</div><div class="em" dir="ltr">${esc(m.e)}</div></div></div><div class="mfig"><span>${m.pending?'Invited':'Member since'} <b>${m.since}</b></span></div>
+  ${acts?`<div class="mact"><button class="btn sec" data-a="role" data-id="${m.id}">${I('pencil',18)}Change Role</button><button class="icb dan" data-a="remove" data-id="${m.id}" aria-label="${m.pending?'Cancel invitation to '+esc(m.e):'Remove '+esc(m.n)}">${I('trash',18)}</button></div>`:''}</article>`}).join('');
+ return `<div class="tbl">${rows.length?`<table><thead><tr><th class="s" style="width:28%">Name</th><th class="s">Email</th><th style="width:180px">Role</th><th style="width:180px">Member Since</th><th><span class="hidden">Actions</span></th></tr></thead><tbody>${tb}</tbody></table>`:none}</div><div class="mcards">${rows.length?cards:none}</div>`};
+const rfDD=()=>{const open=S.menu==='rf',cur=RF.find(r=>r[0]===S.rf);
+ return `<button class="ddb" id="rfb" aria-haspopup="listbox" aria-expanded="${open}" aria-label="Filter by role: ${cur[1]}">${cur[1]}${I('down',18)}</button>
+ ${open?`<div class="menu" role="listbox" aria-label="Filter by role">${RF.map(r=>`<button class="mi${r[0]===S.rf?' sel':''}" role="option" aria-selected="${r[0]===S.rf}" data-rf="${r[0]}"><span class="tx">${r[1]}</span>${r[0]===S.rf?`<span class="ck">${I('check',18)}</span>`:''}</button>`).join('')}</div>`:''}`};
+const kpis=()=>{const n=r=>CTEAM.filter(m=>m.r===r).length;
+ const k=(l,v,u,ic,t)=>`<div class="kpi"><div><div class="l">${l}</div><div class="n">${v}</div><div class="u">${u}</div></div><span class="kic ${t}">${I(ic,22)}</span></div>`;
+ return `<div class="kpis" aria-label="Your team in numbers">${k('Client Lead',n('Lead'),'person','crown','t-wa')}${k('Editors',n('Editor'),n('Editor')===1?'person':'people','pencil','t-pr')}${k('Viewers',n('Viewer'),n('Viewer')===1?'person':'people','users','t-ne')}</div>`};
+const yourTeam=()=>{const L=lead();
+ return `<section class="card list" aria-labelledby="h-yteam"><div class="chd"><div class="grow"><span class="sic c">${I('heart',20)}</span><div><h2 id="h-yteam">Your Team <span class="side-tag">· Client side</span></h2><p>${canManage()?'The people helping you plan. You decide who joins and what they can do.':`People ${esc(first(L.n))} invited to help plan. Only ${esc(L.n)}, the client lead, can invite people or change roles.`}</p></div></div>${canManage()?'':`<div class="right"><span class="badge neutral ro">${I('lock',12)}View only</span></div>`}</div>
+ <div class="tools"><div class="icn">${I('search',18)}<input class="inp" id="q" type="search" placeholder="Search by name or email…" value="${esc(S.q)}" aria-label="Search your team"></div><div class="ddw" id="rfw">${rfDD()}</div></div>
+ <div id="trows" style="margin-top:0">${teamRows()}</div></section>`};
+const venueTeamClientSide=()=>`<section class="card list" aria-labelledby="h-vteam"><div class="chd"><div class="grow"><span class="sic v">${I('bld',20)}</span><div><h2 id="h-vteam">${VENUE.name} Team <span class="side-tag">· Venue side</span></h2><p>The venue's people who can open this event. They are managed by ${VENUE.name}, not by you.</p></div></div><div class="right"><span class="badge neutral ro">${I('lock',12)}View only</span></div></div>
+ ${roTable(VTEAM,'v')}
+ <p class="muted-line" style="margin-top:16px">${I('eye',16)}<span>They see guest names, RSVP status, attendees and tables so they can prepare the room. They never see phone numbers or your messages.</span></p></section>`;
+const clientMain=()=>`<div class="ph"><div><h1>Permissions</h1><p>Manage who can help you plan this event and what they can do.</p>
+ <div class="phm">${mgdBadge('button','id="mgdbtn" aria-haspopup="dialog"')}</div></div>
+ ${canManage()?`<button class="btn pri" data-a="minvite">${I('plus',18)}Invite User</button>`:''}</div>
+ <div class="note info">${I('info')}<div><b>About roles on your side</b><p>The <strong>Client Lead</strong> manages guests, RSVP, messages and seating, and decides who is on the team. An <strong>Editor</strong> can do the same, but can't change the team. A <strong>Viewer</strong> can view the event and download exports. The date, room and tables are managed by ${VENUE.name}.</p></div></div>
+ ${kpis()}${yourTeam()}${venueTeamClientSide()}`;
+
+/* ---------- popover: who manages what (from mockup #14) ---------- */
+const renderPop=()=>{const v=VENUE;
+ $('popwrap').innerHTML=S.pop?`<div class="popscrim" data-a="closepop"></div>
+ <div class="pop" role="dialog" aria-modal="true" aria-labelledby="poph">
+  <div class="phd"><span class="sic c">${I('bld',20)}</span><div class="grow"><b id="poph">Managed by ${esc(v.name)}</b><span>${esc(v.space)} · ${esc(v.address)}</span></div><button class="xbtn" data-a="closepop" aria-label="Close" id="popx">${I('x',18)}</button></div>
+  <p style="color:var(--mu)">You were invited to plan this event by ${esc(v.name)}. Here is who takes care of what.</p>
+  <div class="split">
+   <div><h5>You manage</h5><ul class="y"><li>${I('check',14)}Guests and import</li><li>${I('check',14)}RSVP page</li><li>${I('check',14)}WhatsApp messages</li><li>${I('check',14)}Seating guests at tables</li><li>${I('check',14)}Your team</li></ul></div>
+   <div><h5>${esc(v.name)} manages</h5><ul class="v"><li>${I('bld',14)}Date and time</li><li>${I('bld',14)}Space and address</li><li>${I('bld',14)}Maximum attendees</li><li>${I('bld',14)}The room and tables</li><li>${I('bld',14)}Their own team</li></ul></div>
+  </div>
+  <div><h5 style="font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px">Need a change? Contact the venue</h5>
+  <ul class="ct"><li>${I('mail',16)}<a href="#" data-soon="mailv">${v.email}</a></li><li>${I('phone',16)}<a href="#" data-soon="callv">${v.phone}</a></li></ul></div>
+ </div>`:'';
+ if(S.pop)$('popx').focus()};
+
+/* ---------- mockup controls ---------- */
+const renderMock=()=>{
+ $('vseg').innerHTML=VIEWS.map(([k,l,s])=>`<button data-view="${k}" class="${S.view===k?'on':''}" aria-pressed="${S.view===k}"><span class="lf">${l}</span><span class="sf">${s}</span></button>`).join('');
+ const showSt=!isClient();$('mdiv').classList.toggle('hidden',!showSt);$('mst').classList.toggle('hidden',!showSt);
+ const open=S.menu==='mst',cur=STATES.find(s=>s[0]===S.c.st);
+ $('mst').innerHTML=`<button class="mstb" id="mstb" aria-haspopup="listbox" aria-expanded="${open}"><span class="stl">Client:</span> ${cur[1]}${I(open?'down':'up',14)}</button>
+ ${open?`<div class="menu" role="listbox" aria-label="Client status"><h4>Client status (mockup)</h4>${STATES.map(([k,l])=>`<button class="mi${k===S.c.st?' sel':''}" role="option" aria-selected="${k===S.c.st}" data-st="${k}"><span class="tx">${l}</span>${k===S.c.st?`<span class="ck">${I('check',16)}</span>`:''}</button>`).join('')}</div>`:''}`};
+
+const renderMain=()=>{$('content').innerHTML=isClient()?clientMain():venueMain();document.title=isClient()?'Client: Permissions (mockup #15)':'Venue: Permissions (mockup #15)'};
+/* the page may run in a sandboxed frame where history is blocked: the URL hash is a nice-to-have */
+const setHash=(a,b,h)=>{try{history.replaceState(null,'',h)}catch(e){}};
+const render=()=>{renderSide();renderTop();renderMain();renderMock()};
+const setView=v=>{S.view=v;S.menu=null;S.q='';S.rf='all';S.pop=false;renderPop();
+ /* the client only has this page once they joined */
+ if(v!=='venue'&&!hasClient())S.c={...BASE.joined};
+ setHash(null,'','#'+(v==='venue'&&S.c.st!=='joined'?'venue-'+S.c.st:v));render();window.scrollTo(0,0)};
+
+/* ---------- dialogs ---------- */
+let lastFocus=null;
+const hd=(t,p)=>`<div class="dhd"><div class="grow"><h2 id="dtitle">${t}</h2>${p?`<p>${p}</p>`:''}</div><button class="icb" data-a="close" aria-label="Close">${I('x')}</button></div>`;
+const openDlg=(type,id)=>{S.dlg={type,id:+id||null,err:'',role:'Editor'};if(type==='role')S.dlg.role=CTEAM.find(m=>m.id===S.dlg.id).r;
+ lastFocus=document.activeElement;S.menu=null;drawDlg();
+ $('ov').classList.add('open');$('ov').classList.toggle('sheet',['resend','revoke','remove'].includes(type));$('app').classList.add('dlgopen');
+ setTimeout(()=>{const f=$('dlg').querySelector('input[type=email],input:checked')||$('dlg');f.focus()},0)};
+const closeDlg=()=>{S.dlg=null;$('ov').classList.remove('open');$('app').classList.remove('dlgopen');if(lastFocus&&document.body.contains(lastFocus))lastFocus.focus()};
+const roleRadios=(sel,name)=>`<fieldset class="radios"><legend>Role</legend>${['Editor','Viewer'].map(r=>`<label class="rad"><input type="radio" name="${name}" value="${r}"${sel===r?' checked':''}><span class="t"><b>${cRole(r)}</b><span class="d">${ROLE_TXT[r]}</span></span></label>`).join('')}</fieldset>`;
+const drawDlg=()=>{const d=S.dlg,c=S.c;let h='';
+ /* venue side: client invitation dialogs (mockup #10) */
+ if(d.type==='invite'||d.type==='different'){const v=$('em')?$('em').value:'',dif=d.type==='different';
+  h=hd(dif?'Invite a Different Client':'Invite Client',`They'll get an email from ${VENUE.name} with a link to join ${esc(EV.n)}.`)+`<div class="dbody">
+  ${dif?`<div class="note warning sm">${I('alertc',18)}<div><b>The current invitation stops working</b><p>The link sent to <strong dir="ltr">${esc(c.email)}</strong> is cancelled as soon as you send this one.</p></div></div>`:''}
+  <div class="${d.err?'err':''}"><label class="lbl" for="em">Client Email</label><div class="icn">${I('mail',18)}<input class="inp" id="em" type="email" inputmode="email" placeholder="name@example.com" value="${esc(v)}" autocomplete="off" aria-describedby="emh"${d.err?' aria-invalid="true"':''}></div><p class="help" id="emh">${d.err||'Use the email they sign in with, or will sign up with. Only this address can accept.'}</p></div>
+  <div class="box"><h4>What the client can do</h4>${canList}</div>
+  <p class="help" style="margin:0">The link works once and expires after 7 days. The email is sent in the event's language (English).</p></div>
+  <div class="dft"><button class="btn ghost" data-a="close">Cancel</button><button class="btn pri" data-a="send">${I('send',18)}Send Invitation</button></div>`}
+ if(d.type==='resend'){const ex=c.st==='expired';
+  h=hd('Resend the invitation?')+`<div class="dbody"><p>We'll email a new link to <strong dir="ltr">${esc(c.email)}</strong>.${ex?'':' The link sent on '+c.sent+' stops working.'}</p>
+  <ul class="pts"><li>${I('clock',16)}<span>The new link expires on <strong>Dec 4, 2026</strong> (7 days).</span></li><li>${I('mail',16)}<span>It's the same email as before, sent in English.</span></li></ul></div>
+  <div class="dft"><button class="btn ghost" data-a="close">Cancel</button><button class="btn pri" data-a="doresend">${I('resend',18)}Resend Invitation</button></div>`}
+ if(d.type==='revoke'){
+  h=hd('Revoke the invitation?')+`<div class="dbody"><p>The link sent to <strong dir="ltr">${esc(c.email)}</strong> stops working right away, and they can't join this event.</p>
+  <ul class="pts"><li>${I('clock',16)}<span>The event goes back to <strong>Awaiting client</strong>.</span></li><li>${I('userplus',16)}<span>You can invite this or another client at any time.</span></li></ul></div>
+  <div class="dft"><button class="btn ghost" data-a="close">Cancel</button><button class="btn dan" data-a="dorevoke">${I('ban',18)}Revoke Invitation</button></div>`}
+ /* client side: team dialogs */
+ if(d.type==='minvite'){const v=$('em')?$('em').value:'';
+  h=hd('Invite to Your Team',`They'll get an email with a link to help plan ${esc(EV.n)}.`)+`<div class="dbody">
+  <div class="${d.err?'err':''}"><label class="lbl" for="em">Email</label><div class="icn">${I('mail',18)}<input class="inp" id="em" type="email" inputmode="email" placeholder="name@example.com" value="${esc(v)}" autocomplete="off" aria-describedby="emh"${d.err?' aria-invalid="true"':''}></div><p class="help" id="emh">${d.err||'They can sign in or create an account with this email.'}</p></div>
+  ${roleRadios(d.role,'nr')}
+  <p class="muted-line" style="margin:0">${I('bld',16)}<span>Your team works on the client side only. They can't change the date, room or tables, which stay with ${VENUE.name}.</span></p></div>
+  <div class="dft"><button class="btn ghost" data-a="close">Cancel</button><button class="btn pri" data-a="msend">${I('send',18)}Send Invitation</button></div>`}
+ if(d.type==='role'){const m=CTEAM.find(x=>x.id===d.id);
+  h=hd('Change Role',m.pending?`The invitation to ${esc(m.e)} hasn't been accepted yet. The new role applies when they join.`:'')+`<div class="dbody">
+  <div class="dmember"><span class="av sm${m.pending?' nacc':''}">${m.pending?m.e[0].toUpperCase():initials(m.n)}</span><div><b>${m.pending?'No account yet':esc(m.n)}</b><span dir="ltr">${esc(m.e)}</span></div></div>
+  ${roleRadios(d.role,'cr')}
+  <p class="help" style="margin:0">Only one person can be the client lead. To hand the lead to someone else, contact Event Planner support.</p></div>
+  <div class="dft"><button class="btn ghost" data-a="close">Cancel</button><button class="btn pri" data-a="dorole"${d.role===m.r?' disabled':''}>Save Role</button></div>`}
+ if(d.type==='remove'){const m=CTEAM.find(x=>x.id===d.id);
+  h=m.pending?hd('Cancel the invitation?')+`<div class="dbody"><p>The link sent to <strong dir="ltr">${esc(m.e)}</strong> stops working right away.</p>
+   <ul class="pts"><li>${I('userplus',16)}<span>You can invite them again at any time.</span></li></ul></div>
+   <div class="dft"><button class="btn ghost" data-a="close">Keep</button><button class="btn dan" data-a="doremove">${I('ban',18)}Cancel Invitation</button></div>`
+  :hd(`Remove ${esc(m.n)}?`)+`<div class="dbody"><p><strong>${esc(m.n)}</strong> loses access to ${esc(EV.n)} right away.</p>
+   <ul class="pts"><li>${I('check',16)}<span>Guests, messages and seating they changed stay as they are.</span></li><li>${I('userplus',16)}<span>You can invite them again at any time.</span></li></ul></div>
+   <div class="dft"><button class="btn ghost" data-a="close">Cancel</button><button class="btn dan" data-a="doremove">${I('trash',18)}Remove</button></div>`}
+ $('dlg').innerHTML=h};
+
+const setDrawer=o=>{$('app').classList.toggle('drawer',o);if(!o&&S.menu==='evs'){S.menu=null;renderSide()}};
+const SOON={Dashboard:'Opens the event Dashboard.',Guests:'Opens Guests.',RSVP:'Opens RSVP.',Messages:'Opens Messages.','Event Layout':'Opens the Event Layout.','Event Settings':'Opens Event Settings.',team:'Opens the venue Team page (mockup #7).',back:'Goes back to My Events.',other:'Switching events isn\'t part of this mockup.',lang:'Language: English, עברית, Português.',profile:'Profile isn\'t part of this mockup.',logout:'Log out isn\'t part of this mockup.',mailv:'Opens your email app.',callv:'Opens your phone app.'};
+const closeMenus=()=>{if(!S.menu)return;const m=S.menu;S.menu=null;if(m==='evs')renderSide();else if(m==='who')renderTop();else if(m==='rf')$('rfw').innerHTML=rfDD();else renderMock()};
+const toggleMenu=(k,fn)=>{const o=S.menu===k;closeMenus();S.menu=o?null:k;fn()};
+const valEmail=v=>!v?'Enter an email address.':!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)?'Enter a valid email, like name@example.com.':'';
+
+document.addEventListener('click',ev=>{const t=ev.target.closest('button,a,[data-a]');
+ if(ev.target===$('ov')){closeDlg();return}
+ if(ev.target===$('scrim')){setDrawer(false);return}
+ if(S.menu&&!(t&&(t.closest('.menu')||['evb','who','rfb','mstb'].includes(t.id))))closeMenus();
+ if(!t||t.disabled)return;
+ if(t.tagName==='A')ev.preventDefault();
+ const d=t.dataset,c=S.c;
+ if(t.id==='evb'){toggleMenu('evs',renderSide);return}
+ if(t.id==='who'){toggleMenu('who',renderTop);return}
+ if(t.id==='rfb'){toggleMenu('rf',()=>$('rfw').innerHTML=rfDD());return}
+ if(t.id==='mstb'){toggleMenu('mst',renderMock);return}
+ if(d.rf){S.rf=d.rf;S.menu=null;$('rfw').innerHTML=rfDD();$('trows').innerHTML=teamRows();$('rfb').focus();return}
+ if(d.st){S.menu=null;S.c={...BASE[d.st]};setHash(null,'','#venue'+(d.st==='joined'?'':'-'+d.st));render();return}
+ if(d.view){setView(d.view);return}
+ if(d.soon){closeMenus();toast(SOON[d.soon]||'Drawn in its own mockup.');return}
+ if(t.id==='burger'){if(matchMedia('(max-width:1023px)').matches)setDrawer(true);else $('app').classList.toggle('collapsed');return}
+ if(t.id==='close'){setDrawer(false);return}
+ if(t.id==='mhide'){$('app').classList.remove('withmock');$('mock').classList.add('hidden');return}
+ if(t.id==='mgdbtn'){S.pop=true;renderPop();return}
+ switch(d.a){
+  case 'closepop':S.pop=false;renderPop();$('mgdbtn')?.focus();return;
+  case 'invite':case 'different':case 'resend':case 'revoke':case 'minvite':case 'role':case 'remove':openDlg(d.a,d.id);return;
+  case 'close':closeDlg();return;
+  case 'email':toast(`Opens your email app, addressed to ${c.email}.`);return;
+  case 'send':{const v=$('em').value.trim().toLowerCase();
+   const err=valEmail(v)||((S.dlg.type==='different'&&v===c.email)?'This is the current invitation. Use Resend instead.':VTEAM.some(m=>m.e===v)?'This person is on your venue team. Invite the client\'s own email.':'');
+   if(err){S.dlg.err=err;drawDlg();$('em').focus();return}
+   S.c={st:'sent',email:v,sent:TODAY,by:'Avi Golan',exp:'Dec 4, 2026',times:1};closeDlg();render();toast(`Invitation sent to ${v}.`);return}
+  case 'doresend':S.c={st:'sent',email:c.email,sent:TODAY,by:'Avi Golan',exp:'Dec 4, 2026',times:(c.times||1)+1};closeDlg();render();toast(`A new invitation link was sent to ${c.email}.`);return;
+  case 'dorevoke':{const e=c.email;S.c={...BASE.await};closeDlg();render();toast(`The invitation to ${e} was revoked.`);return}
+  case 'msend':{const v=$('em').value.trim().toLowerCase();
+   const err=valEmail(v)||(CTEAM.some(m=>m.e===v)?'This person is already on your team.':VTEAM.some(m=>m.e===v)?`This person is on the ${VENUE.name} team. They already open the event from the venue side.`:'');
+   if(err){S.dlg.err=err;drawDlg();$('em').focus();return}
+   const r=S.dlg.role;CTEAM.push({id:nextId++,e:v,r,pending:1,since:TODAY});closeDlg();S.q='';S.rf='all';renderMain();toast(`Invitation sent to ${v} as ${r==='Editor'?'an Editor':'a Viewer'}.`);return}
+  case 'dorole':{const m=CTEAM.find(x=>x.id===S.dlg.id);m.r=S.dlg.role;closeDlg();renderMain();toast(`${m.pending?m.e:m.n} is now ${m.r==='Editor'?'an Editor':'a Viewer'}.`);return}
+  case 'doremove':{const m=CTEAM.find(x=>x.id===S.dlg.id);CTEAM=CTEAM.filter(x=>x!==m);closeDlg();renderMain();toast(m.pending?`The invitation to ${m.e} was cancelled.`:`${m.n} was removed from your team.`);return}
+ }
+});
+/* role radios keep their value across redraws (validation errors) */
+document.addEventListener('change',e=>{if(e.target.name==='nr'||e.target.name==='cr'){S.dlg.role=e.target.value;if(e.target.name==='cr'){const m=CTEAM.find(x=>x.id===S.dlg.id);$('dlg').querySelector('[data-a="dorole"]').disabled=S.dlg.role===m.r}}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;$('trows').innerHTML=teamRows()}});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){if(S.dlg)closeDlg();else if(S.pop){S.pop=false;renderPop();$('mgdbtn')?.focus()}else if(S.menu)closeMenus();else setDrawer(false)}
+ if(e.key==='Enter'&&S.dlg&&e.target.id==='em'){e.preventDefault();$('dlg').querySelector('.dft .btn.pri').click()}
+ if(e.key==='Tab'&&S.dlg){const f=[...$('dlg').querySelectorAll('button:not([disabled]),input')];if(!f.length)return;const a=f[0],z=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
+});
+/* deep links: #venue, #venue-sent (any client status), #lead, #editor */
+const fromHash=()=>{const h=location.hash.slice(1);
+ if(h==='lead'||h==='editor'){S.view=h;S.c={...BASE.joined}}
+ else{S.view='venue';const st=h.split('-')[1];S.c={...BASE[BASE[st]?st:'joined']}}
+ S.menu=null;S.pop=false;renderPop();render()};
+window.addEventListener('hashchange',fromHash);
+fromHash();
+}
+</script>
+</body></html>
