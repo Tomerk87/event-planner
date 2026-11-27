@@ -127,6 +127,15 @@ jobs:
       - name: Install the browser
         working-directory: frontend
         run: npx playwright install --with-deps chromium
+      - name: Install Inter, the product's typeface
+        # The app asks for Inter and otherwise uses the system font. Without
+        # it, Linux falls back to DejaVu Sans, which is much wider than the
+        # system fonts of macOS, Windows, iOS and Android, so the layout
+        # checks (no sideways scroll) would measure a font no visitor sees.
+        run: |
+          sudo apt-get install -y --no-install-recommends fonts-inter
+          fc-match Inter
+          fc-match system-ui
       - name: API contract tests (mock and real providers agree)
         working-directory: frontend
         run: npm run test:api
