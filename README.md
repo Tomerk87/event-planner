@@ -119,6 +119,7 @@ Read when the site is built (`frontend/.env.local` locally, `netlify.toml` or Ne
 |---|---|---|
 | `VITE_DEMO_ENABLED` | true | `false` hides Try Demo; nothing else changes |
 | `VITE_ACCOUNTS_ENABLED` | true | `false` makes a demo-only site with no accounts and no server (the Netlify build) |
+| `VITE_VENUES_ENABLED` | false | `true` adds the venues of V2.2 to the demo: the workspace switcher and a venue's pages (PRD §20, D116). Real accounts have no venues until the backend does |
 | `VITE_GOOGLE_MAPS_KEY` | empty | A Google Maps browser key for place suggestions in location fields; empty leaves them plain text (`docs/DEPLOYMENT.md`, "Google location suggestions") |
 | `API_URL` | http://localhost:3000 | Where the development server forwards `/api` (an environment variable of `npm run dev`) |
 

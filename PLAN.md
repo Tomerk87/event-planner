@@ -734,10 +734,28 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] The mock services check the same actions. An event update needs the action of each part it changes.
 
 ### Phase 25 — Venue workspace (mockups #1–5, #7, #8)
-- [ ] Contracts and mock services for organizations, members, spaces and layout templates. A deterministic demo venue: Grand Garden Hall and a second venue, spaces, layouts, events, fictional clients.
-- [ ] Workspace switcher (D112), venue My Events (D115 statuses, space filter), My Spaces with the empty state, space dialog and details, archive and restore.
+Delivered in two pull requests.
+
+**25a: venue data, switcher, venue My Events (#1, #2)**
+- [x] `domain/venues.ts`: organizations, members (Owner, Manager), spaces, venue events with the client invitation, `venueEventStatus` (D115, seven-day invitations) and `venueCan` (D112).
+- [x] Contract `VenuesService` (`listWorkspaces`, `getWorkspace`, `listSpaces`, `listEvents`). `services.venues` is null for real accounts and while `VITE_VENUES_ENABLED` is off.
+- [x] Deterministic demo venues for each market (D103):
+  - Grand Garden Hall, where the demo user is Owner: 2 spaces, 7 events covering every status;
+  - Seaside Terrace, where the demo user is Manager: 1 space, 1 event;
+  - fictional clients and a colleague per venue;
+  - Brazilian equivalents in Portuguese.
+
+  Venue events are ordinary events with guests, tables and floor plans. They stay out of the personal My Events and don't count against the demo's event limit. The dataset version is now 10.
+- [x] Workspace switcher (mockup #1), shown only to venue members.
+- [x] Venue My Events (mockup #2): All / Upcoming / Past with counts, a space filter, search by event or client name, grid/list, status badges, attendance or a note per status.
+- [x] `/venues/:organizationId/events` under `VenueLayout`; another venue, or any venue while venues are off, is not found.
+- [x] All behind `VITE_VENUES_ENABLED` (off by default), shown only in Demo Mode.
+- [ ] Open Event on a venue event is disabled until Phase 29, when an event opens with its venue and client sides.
+- [ ] Create Event on a venue's My Events: Phase 27 (the wizard).
+
+**25b: spaces, team and settings (#3–5, #7, #8)**
+- [ ] My Spaces with the empty state, the space dialog and details, archive and restore. Layout templates are listed here; the editor is Phase 26.
 - [ ] Team (Owner manages, Manager read-only), Venue Settings (D117, Owner only).
-- [ ] All behind `VITE_VENUES_DEMO`, shown only in Demo Mode.
 
 ### Phase 26 — Layout template editor (mockup #6)
 - [ ] Reuse `FloorPlan` / `ArrangementTab` through a "layout source" interface (event or template). Existing Event Layout tests unchanged.
@@ -771,7 +789,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 
 ### Phase 32 — Demo review and release
 - [ ] Owner clicks through the whole venue → client flow, in EN/HE/PT, desktop and phone.
-- [ ] Merge `v2_ui_demo` into `main`; turn `VITE_VENUES_DEMO` on for Netlify; check the live demo.
+- [ ] Merge `v2_ui_demo` into `main`; turn `VITE_VENUES_ENABLED` on for Netlify; check the live demo.
 
 ### Phase 33+ — Backend (after the demo; D116)
 - [ ] Server side of the permission split, with the matrix test.
@@ -1619,6 +1637,26 @@ Validation:
 Mockups reviewed: none (no visible change).
 Follow-ups/risks: the actor carries only personal roles; Phase 25 gives it the venue and client roles when venue events exist in the demo.
 Next: Phase 25, the venue workspace.
+```
+
+```text
+2026-11-27 — Phase 25a (V2.2) — Venue data, workspace switcher, venue My Events (mockups #1, #2).
+- domain/venues.ts and its tests.
+- VenuesService contract, with services.venues null for real accounts.
+- mock/mockVenues.ts.
+- Demo venues per market in generator.ts (dataset version 10).
+- WorkspaceSwitcher in the shell; VenueLayout and the /venues/:organizationId/events route.
+- features/venues: VenueEventsPage and VenueEventCard.
+- EN/HE/PT texts; VITE_VENUES_ENABLED (off by default).
+- Venue events stay out of the personal My Events and the demo's event limit.
+Validation:
+- frontend: lint, typecheck, format, build, test:coverage (1571 passed, 95.2% statements);
+- backend unit: 818 passed (no backend change);
+- test:api 65 passed / 2 skipped;
+- Playwright: all projects, including the new venues-desktop and venues-mobile (13 venue tests in EN/HE/PT: switcher, filters across a reload, not found, axe, no sideways scroll at 320px). 540 passed / 33 skipped / 1 failed: the mobile guests "filters … across a reload" test. It passed 5 of 5 times when run alone, so it is flaky under the load of the extra dev server, unrelated to venues.
+Mockups reviewed: resources/mockups/v2/02_venue_events*.png, desktop and phone, EN and HE screenshots compared.
+Follow-ups/risks: Open Event on venue events waits for Phase 29; Create Event for Phase 27. Watch the flaky guests test on GitHub.
+Next: Phase 25b, spaces, team and settings.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

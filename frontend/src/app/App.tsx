@@ -9,6 +9,7 @@ import { readDemoSettings } from '../services/demoSettings.ts'
 import {
   parseAccountsEnabled,
   parseDemoEnabled,
+  parseVenuesEnabled,
 } from '../services/providerConfig.ts'
 import styles from '../shared/StandalonePage.module.css'
 import { Card } from '../shared/ui/Card.tsx'
@@ -41,6 +42,7 @@ function createAppBackend(): Backend | null {
       accountsEnabled: parseAccountsEnabled(
         import.meta.env.VITE_ACCOUNTS_ENABLED,
       ),
+      venuesEnabled: parseVenuesEnabled(import.meta.env.VITE_VENUES_ENABLED),
       location: window.location,
       storage: window.localStorage,
       language: getCurrentLanguage,

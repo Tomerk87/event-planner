@@ -5,7 +5,9 @@ import { expect, type Locator, type Page } from '@playwright/test'
  * behind the menu button, so the drawer is opened first.
  */
 export async function openNavigation(page: Page): Promise<Locator> {
-  const menuButton = page.getByRole('button', { name: /Open menu|פתיחת תפריט/ })
+  const menuButton = page.getByRole('button', {
+    name: /Open menu|פתיחת תפריט|Abrir menu/,
+  })
   // The page is loaded on first visit: wait for its menu, of either kind.
   await expect(
     menuButton.or(page.getByRole('complementary')).first(),

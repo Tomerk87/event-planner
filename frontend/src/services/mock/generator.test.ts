@@ -3,11 +3,20 @@ import { isEventPast } from '../../domain/eventTime.ts'
 import { EVENT_LIMITS } from '../../domain/events.ts'
 import { findTableConflicts, tableOccupancy } from '../../domain/seating.ts'
 import { generateDemoState } from './generator.ts'
-import { DATASET_VERSION } from './state.ts'
+import { DATASET_VERSION, type DemoState } from './state.ts'
 
 const NOW = new Date('2026-10-12T09:00:00.000Z')
 const state = generateDemoState(NOW)
-const main = state.events[0]!
+
+/** The demo user's own events, without the venues' (V2.2). */
+function personal(data: DemoState) {
+  const managed = new Set(
+    (data.venueEvents ?? []).map((venueEvent) => venueEvent.eventId),
+  )
+  return data.events.filter((event) => !managed.has(event.id))
+}
+
+const main = personal(state)[0]!
 const guestsOf = (eventId: string) =>
   state.guests.filter((guest) => guest.eventId === eventId)
 const tablesOf = (eventId: string) =>
@@ -25,21 +34,23 @@ describe('demo dataset generator', () => {
       state.guests.map((guest) => guest.firstName),
     )
     expect(later.tables).toEqual(state.tables)
-    expect(later.events[0]?.startsAt).not.toBe(main.startsAt)
+    expect(personal(later)[0]?.startsAt).not.toBe(main.startsAt)
   })
 
   it('has four upcoming and two past events, whenever it is generated', () => {
     for (const now of [NOW, new Date('2031-02-28T23:30:00.000Z')]) {
       const generated = generateDemoState(now)
-      const past = generated.events.filter((event) => isEventPast(event, now))
+      const past = personal(generated).filter((event) =>
+        isEventPast(event, now),
+      )
 
-      expect(generated.events).toHaveLength(6)
+      expect(personal(generated)).toHaveLength(6)
       expect(past).toHaveLength(2)
     }
   })
 
   it('keeps event settings within the product limits', () => {
-    for (const event of state.events) {
+    for (const event of personal(state)) {
       expect(event.maxAttendees).toBeGreaterThanOrEqual(
         EVENT_LIMITS.maxAttendees.min,
       )
@@ -49,7 +60,7 @@ describe('demo dataset generator', () => {
       expect(event.defaultAllowedAttendees).toBe(5)
       expect(event.timeZone).toBe('Asia/Jerusalem')
     }
-    expect(new Set(state.events.map((event) => event.rsvpSlug)).size).toBe(6)
+    expect(new Set(personal(state).map((event) => event.rsvpSlug)).size).toBe(6)
   })
 
   it('starts the main event at 18:30 local time, sixty days ahead', () => {
@@ -82,7 +93,7 @@ describe('demo dataset generator', () => {
   })
 
   it('gives every guest a phone that is unique within their event', () => {
-    for (const event of state.events) {
+    for (const event of personal(state)) {
       const phones = [
         ...guestsOf(event.id),
         ...state.unknownRsvps.filter((unknown) => unknown.eventId === event.id),
@@ -93,7 +104,7 @@ describe('demo dataset generator', () => {
   })
 
   it('gives every guest a full name that is unique within their event', () => {
-    for (const event of state.events) {
+    for (const event of personal(state)) {
       const names = guestsOf(event.id).map(
         (guest) => `${guest.firstName} ${guest.lastName}`,
       )
@@ -146,7 +157,7 @@ describe('demo dataset generator', () => {
   })
 
   it('numbers tables uniquely within each event', () => {
-    for (const event of state.events) {
+    for (const event of personal(state)) {
       const numbers = tablesOf(event.id).map((table) => table.number)
 
       expect(new Set(numbers).size).toBe(numbers.length)
@@ -180,7 +191,7 @@ describe('demo dataset generator', () => {
   })
 
   it('gives every event an Owner and the demo user a different role in different events', () => {
-    for (const event of state.events) {
+    for (const event of personal(state)) {
       const roles = state.memberships
         .filter((membership) => membership.eventId === event.id)
         .map((membership) => membership.role)
@@ -202,7 +213,7 @@ describe('demo dataset generator', () => {
   })
 
   it('gives every event RSVP settings and a message template in its own language', () => {
-    for (const event of state.events) {
+    for (const event of personal(state)) {
       const template = state.messageTemplates.find(
         (item) => item.eventId === event.id,
       )
@@ -219,7 +230,7 @@ describe('demo dataset generator', () => {
   })
 
   it('gives the Hebrew event Hebrew guest names', () => {
-    const hebrew = state.events.find((event) => event.rsvpLanguage === 'he')!
+    const hebrew = personal(state).find((event) => event.rsvpLanguage === 'he')!
 
     for (const guest of guestsOf(hebrew.id)) {
       expect(guest.firstName).toMatch(/[֐-׿]/)
@@ -271,7 +282,7 @@ describe('demo dataset generator', () => {
   })
 
   it('has an over-capacity table in another event too, and none in the rest', () => {
-    const conflicts = state.events.map(
+    const conflicts = personal(state).map(
       (event) =>
         findTableConflicts(tablesOf(event.id), guestsOf(event.id)).length,
     )
@@ -295,15 +306,15 @@ describe('Brazil’s sample events (D103)', () => {
   it('are in Portuguese, in Brazil, with Brazilian names and places', () => {
     expect(brazil.market).toBe('BR')
     expect(state.market).toBe('IL')
-    expect(brazil.events).toHaveLength(6)
-    for (const event of brazil.events) {
+    expect(personal(brazil)).toHaveLength(6)
+    for (const event of personal(brazil)) {
       expect(event).toMatchObject({
         rsvpLanguage: 'pt',
         country: 'BR',
         timeZone: 'America/Sao_Paulo',
       })
     }
-    expect(brazil.events[0]?.name).toBe('Casamento de Mariana & Rafael')
+    expect(personal(brazil)[0]?.name).toBe('Casamento de Mariana & Rafael')
     expect(brazil.users[0]?.name).toBe('Ana Oliveira')
     expect(brazil.users[0]?.email).toBe('ana.oliveira@example.com')
     expect(brazil.guests.some((guest) => guest.group === 'Família')).toBe(true)
@@ -320,8 +331,8 @@ describe('Brazil’s sample events (D103)', () => {
   })
 
   it('share no RSVP link with Israel’s, so a link names one set of events', () => {
-    const israel = new Set(state.events.map((event) => event.rsvpSlug))
-    expect(brazil.events.some((event) => israel.has(event.rsvpSlug))).toBe(
+    const israel = new Set(personal(state).map((event) => event.rsvpSlug))
+    expect(personal(brazil).some((event) => israel.has(event.rsvpSlug))).toBe(
       false,
     )
   })
@@ -330,6 +341,94 @@ describe('Brazil’s sample events (D103)', () => {
     expect(brazil.guests.length).toBe(state.guests.length)
     expect(brazil.tables.length).toBe(state.tables.length)
     expect(brazil.unknownRsvps.length).toBe(state.unknownRsvps.length)
-    expect(brazil.layouts).toHaveLength(6)
+    expect(brazil.layouts).toHaveLength(state.layouts.length)
+  })
+})
+
+describe('the demo venues (V2.2)', () => {
+  const venueEvents = state.venueEvents ?? []
+
+  it('has two venues: one the demo user owns and one they manage', () => {
+    const roles = (state.venueMembers ?? [])
+      .filter((member) => member.userId === state.currentUserId)
+      .map((member) => member.role)
+    expect(state.organizations?.map((venue) => venue.name)).toEqual([
+      'Grand Garden Hall',
+      'Seaside Terrace',
+    ])
+    expect(roles).toEqual(['VENUE_OWNER', 'VENUE_MANAGER'])
+  })
+
+  it('gives each venue a colleague with the other role', () => {
+    for (const venue of state.organizations ?? []) {
+      const roles = (state.venueMembers ?? [])
+        .filter((member) => member.organizationId === venue.id)
+        .map((member) => member.role)
+        .sort()
+      expect(roles).toEqual(['VENUE_MANAGER', 'VENUE_OWNER'])
+    }
+  })
+
+  it('makes each venue event an ordinary event in one of its spaces', () => {
+    expect(venueEvents).toHaveLength(8)
+    for (const venueEvent of venueEvents) {
+      const event = state.events.find((item) => item.id === venueEvent.eventId)
+      const space = state.venueSpaces?.find(
+        (item) => item.id === venueEvent.spaceId,
+      )
+      expect(event).toBeDefined()
+      expect(space?.organizationId).toBe(venueEvent.organizationId)
+      expect(event?.location).toBe(space?.address)
+      expect(event?.maxAttendees).toBeLessThanOrEqual(space?.maxPeople ?? 0)
+      expect(state.tables.some((table) => table.eventId === event?.id)).toBe(
+        true,
+      )
+    }
+  })
+
+  it('gives the demo user no personal role in a venue event', () => {
+    for (const venueEvent of venueEvents) {
+      expect(
+        state.memberships.some(
+          (membership) => membership.eventId === venueEvent.eventId,
+        ),
+      ).toBe(false)
+    }
+  })
+
+  it('has guests only where the client has joined', () => {
+    for (const venueEvent of venueEvents) {
+      const guests = guestsOf(venueEvent.eventId).length
+      if (venueEvent.client?.acceptedAt) {
+        expect(guests).toBeGreaterThan(0)
+      } else {
+        expect(guests).toBe(0)
+      }
+    }
+  })
+
+  it('leaves the personal sample data as it was', () => {
+    expect(personal(state).map((event) => event.id)).toEqual([
+      'evt-1',
+      'evt-2',
+      'evt-3',
+      'evt-4',
+      'evt-5',
+      'evt-6',
+    ])
+  })
+
+  it('has Brazilian venues in Portuguese', () => {
+    const brazil = generateDemoState(NOW, 'BR')
+    expect(brazil.organizations?.[0]?.name).toBe('Espaço Jardim Imperial')
+    expect(brazil.organizations?.[0]?.defaultLanguage).toBe('pt')
+    const names = new Set(
+      (brazil.venueEvents ?? []).map(
+        (venueEvent) =>
+          brazil.events.find((event) => event.id === venueEvent.eventId)
+            ?.rsvpLanguage,
+      ),
+    )
+    expect([...names]).toEqual(['pt'])
   })
 })

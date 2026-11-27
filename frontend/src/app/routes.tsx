@@ -4,6 +4,7 @@ import { RouteError } from '../shared/RouteError.tsx'
 import { LoadingState } from '../shared/ui/States.tsx'
 import { EventLayout } from './EventLayout.tsx'
 import { HomeLayout } from './HomeLayout.tsx'
+import { VenueLayout } from './VenueLayout.tsx'
 import { RouteFocus } from './RouteFocus.tsx'
 import {
   AccountsOnly,
@@ -84,6 +85,22 @@ export const routes: RouteObject[] = [
                     }),
                   },
                 ],
+              },
+            ],
+          },
+          {
+            // A venue's workspace (V2.2); not found while venues are off.
+            path: '/venues/:organizationId',
+            element: <VenueLayout />,
+            children: [
+              { index: true, element: <Navigate to="events" replace /> },
+              {
+                path: 'events',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueEventsPage.tsx')
+                  ).VenueEventsPage,
+                }),
               },
             ],
           },

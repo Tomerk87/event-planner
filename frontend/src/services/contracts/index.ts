@@ -35,6 +35,12 @@ import type {
 import type { EventRole } from '../../domain/roles.ts'
 import type { PublicRsvpInput } from '../../domain/rsvp.ts'
 import type { TableInput } from '../../domain/seating.ts'
+import type {
+  VenueEventStatus,
+  VenueMemberRole,
+  VenueOrganization,
+  VenueSpace,
+} from '../../domain/venues.ts'
 
 /**
  * The data operations the application depends on. Pages use these interfaces
@@ -497,6 +503,40 @@ export interface DemoTime {
   consumeEndedAtStart(): DemoEndReason | null
 }
 
+/** A venue the user belongs to, with their role in it (D112). */
+export interface VenueWorkspace {
+  organization: VenueOrganization
+  role: VenueMemberRole
+}
+
+/** One event of a venue, as its My Events page shows it (D115). */
+export interface VenueEventSummary {
+  event: Event
+  space: Pick<VenueSpace, 'id' | 'name'>
+  status: VenueEventStatus
+  /** The invited client, accepted or not; null before anyone is invited. */
+  client: { name: string; email: string } | null
+  invitationSentAt: IsoDateTime | null
+  /** When the invitation stops (or stopped) being accepted. */
+  invitationExpiresAt: IsoDateTime | null
+  confirmedAttendees: number
+  isPast: boolean
+}
+
+/**
+ * Venues (V2.2, PRD section 20). Only members of a venue reach its data;
+ * anything else is "not found", so a venue's existence is not revealed.
+ */
+export interface VenuesService {
+  /** The venues the current user belongs to, by name. */
+  listWorkspaces(): Promise<VenueWorkspace[]>
+  getWorkspace(organizationId: Id): Promise<VenueWorkspace>
+  /** The venue's spaces, archived ones included, by name. */
+  listSpaces(organizationId: Id): Promise<VenueSpace[]>
+  /** The venue's events: upcoming soonest first, then past most recent first. */
+  listEvents(organizationId: Id): Promise<VenueEventSummary[]>
+}
+
 /** The data operations of one session. */
 export interface Services {
   session: SessionService
@@ -515,4 +555,9 @@ export interface Services {
   preferences: PreferencesService
   /** Present only when the application runs on demo data. */
   demo: DemoControl | null
+  /**
+   * Venues (V2.2); present only in the demo with `VITE_VENUES_ENABLED`, until
+   * the backend has them (D116).
+   */
+  venues: VenuesService | null
 }

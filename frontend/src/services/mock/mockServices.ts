@@ -89,6 +89,7 @@ import { readSpreadsheet, spreadsheetBlob } from '../spreadsheets.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { generateDemoState } from './generator.ts'
 import { messageValuesFor, SAMPLE_GUEST } from './messageValues.ts'
+import { createMockVenues } from './mockVenues.ts'
 import {
   createMemoryPersistence,
   type DemoPersistence,
@@ -127,6 +128,8 @@ export interface MockOptions {
   preferencesPersistence?: Persistence<StoredPreferences>
   /** Demo Mode's limits (D109); none when left out, as in tests. */
   limits?: DemoLimits
+  /** Offer the venues of V2.2 (`VITE_VENUES_ENABLED`); off when left out. */
+  venues?: boolean
 }
 
 /**
@@ -174,6 +177,7 @@ export function createMockServices(options: MockOptions): Services {
     dataVersion = DATASET_VERSION,
     preferencesPersistence = createMemoryPersistence<StoredPreferences>(),
     limits,
+    venues = false,
   } = options
 
   let regenerated = false
@@ -269,9 +273,16 @@ export function createMockServices(options: MockOptions): Services {
     if (!limits) {
       return
     }
+    // A venue's sample events do not use up the visitor's own (V2.2).
+    const personalCount = (data: DemoState) => {
+      const managed = new Set(
+        (data.venueEvents ?? []).map((venueEvent) => venueEvent.eventId),
+      )
+      return data.events.filter((event) => !managed.has(event.id)).length
+    }
     if (
-      next.events.length > limits.events &&
-      next.events.length > state.events.length
+      personalCount(next) > limits.events &&
+      personalCount(next) > personalCount(state)
     ) {
       throw new DomainError('DEMO_EVENT_LIMIT', { max: limits.events })
     }
@@ -365,6 +376,12 @@ export function createMockServices(options: MockOptions): Services {
       throw new DomainError('DEMO_STORAGE_FULL')
     }
     state = next
+  }
+
+  function isVenueManaged(eventId: Id): boolean {
+    return (state.venueEvents ?? []).some(
+      (venueEvent) => venueEvent.eventId === eventId,
+    )
   }
 
   function newId(prefix: string): Id {
@@ -589,6 +606,17 @@ export function createMockServices(options: MockOptions): Services {
         run('events.list', () =>
           state.events
             .filter((event) => effectiveRole(actorFor(event.id)) !== null)
+            // A venue's events are in its own workspace (V2.2); one is a
+            // personal event too only for someone with a role in it.
+            .filter(
+              (event) =>
+                !isVenueManaged(event.id) ||
+                state.memberships.some(
+                  (membership) =>
+                    membership.eventId === event.id &&
+                    membership.userId === currentUserId(),
+                ),
+            )
             .map((event) => ({
               ...accessInfo(contextFor(event.id)),
               confirmedAttendees: computeDashboardMetrics(
@@ -1561,5 +1589,14 @@ export function createMockServices(options: MockOptions): Services {
             return result
           },
         },
+
+    venues: venues
+      ? createMockVenues({
+          state: () => state,
+          run: (operation, action) => run(operation, action),
+          currentUserId,
+          now,
+        })
+      : null,
   }
 }

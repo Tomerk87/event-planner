@@ -29,6 +29,11 @@ import { tableOccupancy } from '../../domain/seating.ts'
 import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { messageValuesFor } from './messageValues.ts'
 import type { DemoState } from './state.ts'
+import type {
+  VenueEvent,
+  VenueMemberRole,
+  VenueSpace,
+} from '../../domain/venues.ts'
 
 /**
  * Generates the demo dataset. Everything in it is fictional: names are drawn
@@ -942,6 +947,538 @@ function createLayout(
 }
 
 /** The market whose sample events a visitor gets (D103): by language. */
+/** A venue event's client in the sample data (D115). */
+interface ClientSpec {
+  name: string
+  email: string
+  /** Joined accepted; sent is still open; expired is past its seven days. */
+  state: 'joined' | 'sent' | 'expired'
+  sentDaysAgo: number
+}
+
+interface VenueEventSpec extends Omit<EventSpec, 'roles' | 'location'> {
+  /** Index into the venue's spaces. */
+  space: number
+  client: ClientSpec | null
+}
+
+interface VenueSpec {
+  name: string
+  /** The demo user's role in this venue (D112). */
+  role: VenueMemberRole
+  contactEmail: string
+  contactPhone: string
+  spaces: Pick<VenueSpace, 'name' | 'address' | 'maxPeople' | 'maxTables'>[]
+  events: VenueEventSpec[]
+}
+
+/** The venue part of a market's sample data (V2.2). */
+interface VenuePack {
+  seed: number
+  /** The other venue members, beside the demo user. */
+  members: string[]
+  venues: VenueSpec[]
+}
+
+const venueEvent = (
+  spec: Omit<
+    VenueEventSpec,
+    'unknownRsvps' | 'deletedGuests' | 'overCapacityTables' | 'rsvpTitle'
+  > &
+    Partial<VenueEventSpec>,
+): VenueEventSpec => ({
+  unknownRsvps: 0,
+  deletedGuests: 0,
+  overCapacityTables: 0,
+  rsvpTitle: null,
+  ...spec,
+})
+
+// The mix of the venue mockups: every status of D115, upcoming and past
+// events, and a venue where the demo user is a Manager rather than the Owner.
+const VENUE_PACKS: Record<Country, VenuePack> = {
+  IL: {
+    seed: 20261127,
+    members: ['Noa Barak', 'Eitan Shalev'],
+    venues: [
+      {
+        name: 'Grand Garden Hall',
+        role: 'VENUE_OWNER',
+        contactEmail: 'events@grandgardenhall.example.com',
+        contactPhone: '03-000-0000',
+        spaces: [
+          {
+            name: 'Main Hall',
+            address: '12 Orchard Lane, Ramat Gan',
+            maxPeople: 400,
+            maxTables: 45,
+          },
+          {
+            name: 'Garden',
+            address: '12 Orchard Lane, Ramat Gan',
+            maxPeople: 250,
+            maxTables: 25,
+          },
+        ],
+        events: [
+          venueEvent({
+            name: 'Dana & Yossi’s Wedding',
+            language: 'en',
+            daysFromNow: 20,
+            hour: 19,
+            minute: 30,
+            maxAttendees: 350,
+            space: 0,
+            guests: 120,
+            tables: 16,
+            overCapacityTables: 1,
+            unknownRsvps: 2,
+            client: {
+              name: 'Dana Levi',
+              email: 'dana.levi@example.com',
+              state: 'joined',
+              sentDaysAgo: 40,
+            },
+          }),
+          venueEvent({
+            name: 'Cohen Bar Mitzvah',
+            language: 'en',
+            daysFromNow: 42,
+            hour: 18,
+            minute: 0,
+            maxAttendees: 180,
+            space: 1,
+            guests: 0,
+            tables: 12,
+            client: {
+              name: 'Rachel Cohen',
+              email: 'rachel.cohen@example.com',
+              state: 'sent',
+              sentDaysAgo: 3,
+            },
+          }),
+          venueEvent({
+            name: 'Noa & Amit’s Wedding',
+            language: 'en',
+            daysFromNow: 76,
+            hour: 19,
+            minute: 0,
+            maxAttendees: 400,
+            space: 0,
+            guests: 0,
+            tables: 20,
+            client: null,
+          }),
+          venueEvent({
+            name: 'Peretz Engagement Party',
+            language: 'en',
+            daysFromNow: 62,
+            hour: 20,
+            minute: 30,
+            maxAttendees: 150,
+            space: 1,
+            guests: 0,
+            tables: 8,
+            client: {
+              name: 'Yael Peretz',
+              email: 'yael.peretz@example.com',
+              state: 'expired',
+              sentDaysAgo: 10,
+            },
+          }),
+          venueEvent({
+            name: 'Brightline Year-End Party',
+            language: 'en',
+            daysFromNow: 97,
+            hour: 20,
+            minute: 0,
+            maxAttendees: 220,
+            space: 1,
+            guests: 50,
+            tables: 10,
+            client: {
+              name: 'Tal Mizrahi',
+              email: 'tal.mizrahi@example.com',
+              state: 'joined',
+              sentDaysAgo: 21,
+            },
+          }),
+          venueEvent({
+            name: 'Shira & Ben’s Wedding',
+            language: 'en',
+            daysFromNow: -36,
+            hour: 19,
+            minute: 0,
+            maxAttendees: 300,
+            space: 0,
+            guests: 90,
+            tables: 12,
+            client: {
+              name: 'Shira Katz',
+              email: 'shira.katz@example.com',
+              state: 'joined',
+              sentDaysAgo: 120,
+            },
+          }),
+          venueEvent({
+            name: 'Miriam’s 60th Birthday',
+            language: 'en',
+            daysFromNow: -78,
+            hour: 12,
+            minute: 30,
+            maxAttendees: 120,
+            space: 1,
+            guests: 36,
+            tables: 6,
+            client: {
+              name: 'Miriam Levi',
+              email: 'miriam.levi@example.com',
+              state: 'joined',
+              sentDaysAgo: 140,
+            },
+          }),
+        ],
+      },
+      {
+        name: 'Seaside Terrace',
+        role: 'VENUE_MANAGER',
+        contactEmail: 'hello@seasideterrace.example.com',
+        contactPhone: '09-000-0000',
+        spaces: [
+          {
+            name: 'Terrace',
+            address: '5 Promenade Street, Herzliya',
+            maxPeople: 180,
+            maxTables: 18,
+          },
+        ],
+        events: [
+          venueEvent({
+            name: 'Ofir & Lior’s Wedding',
+            language: 'en',
+            daysFromNow: 50,
+            hour: 19,
+            minute: 30,
+            maxAttendees: 160,
+            space: 0,
+            guests: 40,
+            tables: 8,
+            client: {
+              name: 'Ofir Ben-David',
+              email: 'ofir.bendavid@example.com',
+              state: 'joined',
+              sentDaysAgo: 30,
+            },
+          }),
+        ],
+      },
+    ],
+  },
+  BR: {
+    seed: 20261128,
+    members: ['Camila Rocha', 'Bruno Alves'],
+    venues: [
+      {
+        name: 'Espaço Jardim Imperial',
+        role: 'VENUE_OWNER',
+        contactEmail: 'eventos@jardimimperial.example.com',
+        contactPhone: '(11) 0000-0000',
+        spaces: [
+          {
+            name: 'Salão Principal',
+            address: 'Rua das Laranjeiras, 120, São Paulo',
+            maxPeople: 400,
+            maxTables: 45,
+          },
+          {
+            name: 'Jardim',
+            address: 'Rua das Laranjeiras, 120, São Paulo',
+            maxPeople: 250,
+            maxTables: 25,
+          },
+        ],
+        events: [
+          venueEvent({
+            name: 'Casamento de Ana & Pedro',
+            language: 'pt',
+            daysFromNow: 20,
+            hour: 19,
+            minute: 30,
+            maxAttendees: 350,
+            space: 0,
+            guests: 120,
+            tables: 16,
+            overCapacityTables: 1,
+            unknownRsvps: 2,
+            client: {
+              name: 'Ana Souza',
+              email: 'ana.souza@example.com',
+              state: 'joined',
+              sentDaysAgo: 40,
+            },
+          }),
+          venueEvent({
+            name: 'Festa de 15 anos da Júlia',
+            language: 'pt',
+            daysFromNow: 42,
+            hour: 20,
+            minute: 0,
+            maxAttendees: 180,
+            space: 1,
+            guests: 0,
+            tables: 12,
+            client: {
+              name: 'Patrícia Lima',
+              email: 'patricia.lima@example.com',
+              state: 'sent',
+              sentDaysAgo: 3,
+            },
+          }),
+          venueEvent({
+            name: 'Casamento de Bia & Lucas',
+            language: 'pt',
+            daysFromNow: 76,
+            hour: 19,
+            minute: 0,
+            maxAttendees: 400,
+            space: 0,
+            guests: 0,
+            tables: 20,
+            client: null,
+          }),
+          venueEvent({
+            name: 'Noivado de Carla & Diego',
+            language: 'pt',
+            daysFromNow: 62,
+            hour: 20,
+            minute: 30,
+            maxAttendees: 150,
+            space: 1,
+            guests: 0,
+            tables: 8,
+            client: {
+              name: 'Carla Mendes',
+              email: 'carla.mendes@example.com',
+              state: 'expired',
+              sentDaysAgo: 10,
+            },
+          }),
+          venueEvent({
+            name: 'Confraternização Horizonte',
+            language: 'pt',
+            daysFromNow: 97,
+            hour: 20,
+            minute: 0,
+            maxAttendees: 220,
+            space: 1,
+            guests: 50,
+            tables: 10,
+            client: {
+              name: 'Renata Costa',
+              email: 'renata.costa@example.com',
+              state: 'joined',
+              sentDaysAgo: 21,
+            },
+          }),
+          venueEvent({
+            name: 'Casamento de Fernanda & Tiago',
+            language: 'pt',
+            daysFromNow: -36,
+            hour: 19,
+            minute: 0,
+            maxAttendees: 300,
+            space: 0,
+            guests: 90,
+            tables: 12,
+            client: {
+              name: 'Fernanda Dias',
+              email: 'fernanda.dias@example.com',
+              state: 'joined',
+              sentDaysAgo: 120,
+            },
+          }),
+          venueEvent({
+            name: 'Aniversário de 60 anos da Helena',
+            language: 'pt',
+            daysFromNow: -78,
+            hour: 12,
+            minute: 30,
+            maxAttendees: 120,
+            space: 1,
+            guests: 36,
+            tables: 6,
+            client: {
+              name: 'Helena Martins',
+              email: 'helena.martins@example.com',
+              state: 'joined',
+              sentDaysAgo: 140,
+            },
+          }),
+        ],
+      },
+      {
+        name: 'Terraço Beira-Mar',
+        role: 'VENUE_MANAGER',
+        contactEmail: 'contato@terracobeiramar.example.com',
+        contactPhone: '(21) 0000-0000',
+        spaces: [
+          {
+            name: 'Terraço',
+            address: 'Avenida Atlântica, 500, Rio de Janeiro',
+            maxPeople: 180,
+            maxTables: 18,
+          },
+        ],
+        events: [
+          venueEvent({
+            name: 'Casamento de Luiza & André',
+            language: 'pt',
+            daysFromNow: 50,
+            hour: 19,
+            minute: 30,
+            maxAttendees: 160,
+            space: 0,
+            guests: 40,
+            tables: 8,
+            client: {
+              name: 'Luiza Ferreira',
+              email: 'luiza.ferreira@example.com',
+              state: 'joined',
+              sentDaysAgo: 30,
+            },
+          }),
+        ],
+      },
+    ],
+  },
+}
+
+/**
+ * Adds the market's venues to a generated demo (V2.2): the organizations, the
+ * demo user's membership of each, their spaces, and their events. A venue
+ * event is an ordinary event with guests, tables and a floor plan, plus its
+ * venue record; the demo user reaches it through the venue, not a personal
+ * role, so it is not among their personal events. Its own random sequence
+ * leaves the personal sample data exactly as before.
+ */
+function addDemoVenues(
+  state: DemoState,
+  pack: DemoPack,
+  market: Country,
+  now: Date,
+): void {
+  const venuePack = VENUE_PACKS[market]
+  const random = createRandom(venuePack.seed)
+  const firstIndex = state.events.length
+  const memberIds = venuePack.members.map((_name, index) => `usr-v${index + 1}`)
+  state.users.push(
+    ...createUsers({ ...pack, users: venuePack.members }).map(
+      (user, index) => ({
+        ...user,
+        id: memberIds[index] ?? user.id,
+      }),
+    ),
+  )
+  state.organizations = []
+  state.venueMembers = []
+  state.venueSpaces = []
+  state.venueEvents = []
+
+  let eventIndex = firstIndex
+  venuePack.venues.forEach((venue, venueNumber) => {
+    const organizationId = `org-${venueNumber + 1}`
+    state.organizations?.push({
+      id: organizationId,
+      name: venue.name,
+      defaultLanguage: market === 'BR' ? 'pt' : 'en',
+      contactEmail: venue.contactEmail,
+      contactPhone: venue.contactPhone,
+    })
+    // The demo user, and one colleague with the other role.
+    const colleague = memberIds[venueNumber % memberIds.length]
+    state.venueMembers?.push({
+      organizationId,
+      userId: state.currentUserId,
+      role: venue.role,
+    })
+    if (colleague) {
+      state.venueMembers?.push({
+        organizationId,
+        userId: colleague,
+        role: venue.role === 'VENUE_OWNER' ? 'VENUE_MANAGER' : 'VENUE_OWNER',
+      })
+    }
+    const spaces: VenueSpace[] = venue.spaces.map((space, spaceNumber) => ({
+      id: `spc-${venueNumber + 1}-${spaceNumber + 1}`,
+      organizationId,
+      ...space,
+      timeZone: pack.timeZone,
+      photo: null,
+      archived: false,
+    }))
+    state.venueSpaces?.push(...spaces)
+
+    for (const spec of venue.events) {
+      const space = spaces[spec.space]
+      if (!space) {
+        throw new Error(`no space ${spec.space} in ${venue.name}`)
+      }
+      const eventSpec: EventSpec = {
+        ...spec,
+        location: space.address,
+        roles: ['OWNER'],
+      }
+      const event = createEvent(
+        pack,
+        market,
+        eventSpec,
+        eventIndex,
+        now,
+        random,
+      )
+      const data = createEventData(
+        pack,
+        eventSpec,
+        event,
+        eventIndex,
+        now,
+        random,
+      )
+      const { client } = spec
+      const sentAt =
+        client && new Date(now.getTime() - client.sentDaysAgo * DAY_MS)
+      const record: VenueEvent = {
+        eventId: event.id,
+        organizationId,
+        spaceId: space.id,
+        templateId: null,
+        client:
+          client && sentAt
+            ? {
+                name: client.name,
+                email: client.email,
+                sentAt: sentAt.toISOString(),
+                acceptedAt:
+                  client.state === 'joined'
+                    ? new Date(sentAt.getTime() + DAY_MS).toISOString()
+                    : null,
+              }
+            : null,
+      }
+      state.events.push(event)
+      state.venueEvents?.push(record)
+      state.guests.push(...data.guests)
+      state.tables.push(...data.tables)
+      state.layouts.push(createLayout(event, data.tables, true))
+      state.unknownRsvps.push(...data.unknownRsvps)
+      state.messageSends.push(...data.sends)
+      state.rsvpSettings.push(defaultRsvpSettings(event))
+      state.messageTemplates.push(defaultMessageTemplate(event))
+      eventIndex += 1
+    }
+  })
+}
+
 export function demoMarketFor(language: string): Country {
   return language === 'pt' ? 'BR' : 'IL'
 }
@@ -1010,5 +1547,6 @@ export function generateDemoState(
     state.messageTemplates.push(defaultMessageTemplate(event))
   })
 
+  addDemoVenues(state, pack, market, now)
   return state
 }

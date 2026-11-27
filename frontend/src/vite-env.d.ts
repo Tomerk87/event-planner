@@ -1,6 +1,7 @@
 interface ImportMetaEnv {
   readonly VITE_DEMO_ENABLED?: string
   readonly VITE_ACCOUNTS_ENABLED?: string
+  readonly VITE_VENUES_ENABLED?: string
   readonly VITE_GOOGLE_MAPS_KEY?: string
   /** The demo's limits, VITE_TABLE_MAX_SEATS_DEMO and others (D110). */
   readonly [name: `VITE_${string}_DEMO`]: string | undefined

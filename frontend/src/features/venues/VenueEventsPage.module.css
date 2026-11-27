@@ -1,0 +1,11 @@
+/* The space filter beside the search on a venue's My Events (mockup #2). */
+.space {
+  min-inline-size: 12rem;
+}
+
+@media (max-width: 767px) {
+  .space {
+    flex: 1;
+    min-inline-size: 0;
+  }
+}

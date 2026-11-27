@@ -401,6 +401,8 @@ export function createApiServices(
     preferences,
 
     demo: null,
+    // Venues come to the server with the V2.2 backend (D116).
+    venues: null,
   }
 }
 

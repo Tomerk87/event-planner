@@ -149,6 +149,8 @@ export function createServices(options: {
   demoEnabled: boolean
   /** False for a demo-only site, which makes no request to the API (D102). */
   accountsEnabled?: boolean
+  /** The venues of V2.2 in the demo (`VITE_VENUES_ENABLED`); off by default. */
+  venuesEnabled?: boolean
   location: Pick<Location, 'search' | 'origin'>
   storage: Storage
   apiUrl?: string
@@ -160,6 +162,7 @@ export function createServices(options: {
   const {
     demoEnabled,
     accountsEnabled = true,
+    venuesEnabled = false,
     location,
     storage,
     apiUrl = '/api',
@@ -200,6 +203,7 @@ export function createServices(options: {
           (params.get('demoFail') ?? '').split(',').filter(Boolean),
         ),
         baseUrl: location.origin,
+        venues: venuesEnabled,
         // Brazil's sample events for a visitor using Portuguese (D103).
         market: () => demoMarketFor(language?.() ?? 'en'),
       })

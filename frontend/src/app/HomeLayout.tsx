@@ -8,6 +8,7 @@ import { useSignOut } from './session/useSignOut.ts'
 import { EmailVerificationNotice } from './shell/EmailVerificationNotice.tsx'
 import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
 import { NotificationBell } from './notifications/NotificationBell.tsx'
+import { useVenueWorkspaces } from '../features/venues/venueQueries.ts'
 
 export function HomeLayout() {
   const { t } = useTranslation()
@@ -15,6 +16,7 @@ export function HomeLayout() {
   const signOut = useSignOut()
   const sidebar = useSidebarCollapsed()
   const { session } = useSession()
+  const venues = useVenueWorkspaces()
   // The System page is for Super Users of real accounts (D91).
   const showSystem =
     session?.workspace === 'account' && user.data?.isSuperUser === true
@@ -24,6 +26,7 @@ export function HomeLayout() {
       collapsed={sidebar.collapsed}
       onToggleCollapsed={sidebar.toggle}
       navLabel={t('nav.main')}
+      workspaces={{ currentVenueId: null, workspaces: venues.data ?? [] }}
       navItems={[
         {
           to: '/events',

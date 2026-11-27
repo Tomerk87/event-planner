@@ -29,3 +29,16 @@ export function parseDemoEnabled(value: string | undefined): boolean {
 export function parseAccountsEnabled(value: string | undefined): boolean {
   return parseSwitch('VITE_ACCOUNTS_ENABLED', value)
 }
+
+/**
+ * Whether the demo offers the venues of V2.2 (`VITE_VENUES_ENABLED`). Off
+ * unless set to "true", until the venue demo is reviewed (D116). Real accounts
+ * have no venues until the backend does.
+ */
+export function parseVenuesEnabled(value: string | undefined): boolean {
+  return (
+    value !== undefined &&
+    value !== '' &&
+    parseSwitch('VITE_VENUES_ENABLED', value)
+  )
+}

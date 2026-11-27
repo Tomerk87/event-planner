@@ -1,0 +1,17 @@
+/* A venue event card (mockup #2), on top of the personal card's styles. */
+
+.listStatus {
+  display: inline-flex;
+}
+
+/* "Awaiting client" in place of a client name, in the warning colour. */
+.awaiting {
+  color: var(--color-warning);
+  font-weight: var(--font-weight-medium);
+}
+
+.note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+}
