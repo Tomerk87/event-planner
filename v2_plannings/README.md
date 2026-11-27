@@ -9,6 +9,7 @@ Planning for V2.2. Nothing here is built yet. The real `docs/PRD.md`, `PLAN.md` 
 | `Event_Planner_V2.2_B2B2B2C_Claude_Code.md` | ChatGPT's hand-off spec, the full target |
 | `V2.2_IMPLEMENTATION_PLAN.md` | **The plan we follow**: review of the documents above against the owner's requirements, decisions, trimmed scope, phases, tests, estimates |
 | `V2.2_MOCKUPS.md` | The list of mockups to draw, with priorities and which phase needs each |
+| `../resources/DESIGN_GUIDE.md` | The design guide for the designer; the end of it lists which files to hand over |
 | `HOSTING_PLAN.md` | Hosting and email options (not decided yet) |
 
 **Status (2026-11-26):** the owner is drawing the mockups. Implementation will go one phase at a time, starting with Phase 0. Development is local, and the demo stays on Netlify.

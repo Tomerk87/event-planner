@@ -212,3 +212,4 @@ The production stack (Nginx, the API and PostgreSQL in Docker Compose on one sma
 - `docs/FUTURE_FEATURES.md` — features left out of the MVP
 - `resources/mockups/README.md` — page-to-mockup mapping
 - `resources/screenshots/` — the application as built, every page and tab, desktop and mobile
+- `resources/DESIGN_GUIDE.md` — the visual language, for designers drawing new mockups
