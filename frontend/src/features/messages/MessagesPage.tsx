@@ -17,7 +17,7 @@ import {
 import { useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { canEditEvent } from '../../domain/access.ts'
+import { canPerform } from '../../domain/access.ts'
 import { guestFullName } from '../../domain/guestList.ts'
 import {
   buildWhatsAppUrl,
@@ -291,7 +291,8 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
   const format = useFormatters()
   const { showToast } = useToast()
   const access = useEventAccess()
-  const canEdit = access !== null && canEditEvent(access)
+  const canEdit = access !== null && canPerform(access, 'EDIT_MESSAGE')
+  const canSend = access !== null && canPerform(access, 'SEND_MESSAGE')
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const guests = useGuests(eventId)
   const save = useSaveTemplate(eventId)
@@ -683,7 +684,7 @@ function Messages({ eventId, saved }: { eventId: string; saved: string }) {
       title={t('messages.sent.title')}
       subtitle={t('messages.sent.subtitle')}
     >
-      <SentMessages eventId={eventId} canSend={canEdit} />
+      <SentMessages eventId={eventId} canSend={canSend} />
     </Card>
   )
 

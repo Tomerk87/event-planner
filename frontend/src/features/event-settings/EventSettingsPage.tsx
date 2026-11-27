@@ -2,7 +2,7 @@ import { Armchair, FileText, Save, UserCheck, UserX, Users } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { canEditEvent } from '../../domain/access.ts'
+import { canPerform } from '../../domain/access.ts'
 import { EVENT_LIMITS, maxAttendeesRange } from '../../domain/events.ts'
 import type { Event } from '../../domain/models.ts'
 import { COUNTRIES, isCountry } from '../../domain/phone.ts'
@@ -142,7 +142,13 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
   const formRef = useRef<HTMLFormElement>(null)
   const { event, isPast } = info
   const access = useEventAccess()
-  const canEdit = access !== null && canEditEvent(access)
+  // The schedule and the settings can belong to different sides of a
+  // venue-managed event (D113).
+  const canEditSchedule =
+    access !== null && canPerform(access, 'EDIT_EVENT_SCHEDULE')
+  const canEditSettings =
+    access !== null && canPerform(access, 'EDIT_EVENT_SETTINGS')
+  const canEdit = canEditSchedule || canEditSettings
   const update = useUpdateEvent(event.id)
   const [values, setValues] = useState(() => toFormValues(event))
   const [timeZones] = useState(() => listTimeZones(event.timeZone))
@@ -241,7 +247,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
     values.time !== savedValues.time ||
     values.timeZone !== savedValues.timeZone
   const startsAtError =
-    canEdit && startChanged && isTypedStartPast(values)
+    canEditSchedule && startChanged && isTypedStartPast(values)
       ? t('events.form.errors.startsAtPast')
       : message('startsAt')
   const earliest = earliestStart(values.timeZone)
@@ -292,7 +298,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   label={t('settings.general.name')}
                   required
                   maxLength={120}
-                  disabled={!canEdit}
+                  disabled={!canEditSettings}
                   value={values.name}
                   error={message('name')}
                   onChange={(change) => set('name', change.target.value)}
@@ -300,7 +306,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                 <PlaceField
                   label={t('settings.general.location')}
                   maxLength={120}
-                  disabled={!canEdit}
+                  disabled={!canEditSchedule}
                   value={values.location}
                   country={values.country}
                   hint={t('settings.general.locationHint')}
@@ -309,7 +315,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                 <CoverPhotoField
                   eventId={event.id}
                   value={values.coverImage}
-                  disabled={!canEdit}
+                  disabled={!canEditSettings}
                   onChange={(image) => set('coverImage', image)}
                 />
                 <TextField
@@ -319,7 +325,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   required
                   min={allowedMax.min}
                   max={allowedMax.max}
-                  disabled={!canEdit}
+                  disabled={!canEditSchedule}
                   value={values.maxAttendees}
                   hint={
                     confirmed > EVENT_LIMITS.maxAttendees.min
@@ -347,7 +353,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                     label={t('settings.general.date')}
                     type="date"
                     required
-                    disabled={!canEdit}
+                    disabled={!canEditSchedule}
                     value={values.date}
                     min={earliest?.date}
                     aria-describedby={startsAtError ? dateErrorId : undefined}
@@ -358,7 +364,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                     label={t('settings.general.time')}
                     type="time"
                     required
-                    disabled={!canEdit}
+                    disabled={!canEditSchedule}
                     value={values.time}
                     min={
                       values.date === earliest?.date ? earliest.time : undefined
@@ -376,7 +382,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                 <SelectField
                   label={t('settings.general.timeZone')}
                   required
-                  disabled={!canEdit}
+                  disabled={!canEditSchedule}
                   value={values.timeZone}
                   error={message('timeZone')}
                   searchable
@@ -429,7 +435,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                   required
                   min={EVENT_LIMITS.allowedAttendees.min}
                   max={EVENT_LIMITS.allowedAttendees.max}
-                  disabled={!canEdit}
+                  disabled={!canEditSettings}
                   value={values.defaultAllowedAttendees}
                   hint={t(
                     'settings.guestDefaults.allowedHint',
@@ -443,7 +449,7 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
                 <SelectField
                   label={t('events.form.country')}
                   required
-                  disabled={!canEdit}
+                  disabled={!canEditSettings}
                   value={values.country}
                   hint={t('events.form.countryHint')}
                   onChange={(change) => {

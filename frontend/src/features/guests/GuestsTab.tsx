@@ -97,7 +97,14 @@ interface GuestsTabProps {
   event: Event
   guests: readonly Guest[]
   tables: readonly TableWithOccupancy[]
+  /** Guests, RSVP answers, groups (EDIT_GUESTS). */
   canEdit: boolean
+  /** Choosing a guest's table (ASSIGN_SEATING). */
+  canSeat: boolean
+  /** Starting a WhatsApp send (SEND_MESSAGE). */
+  canSend: boolean
+  /** Exporting guests with their phone numbers (EXPORT_GUESTS). */
+  canExport: boolean
   onAdd: () => void
   onExport: (format: FileFormat, guests: readonly Guest[]) => void
 }
@@ -108,6 +115,9 @@ export function GuestsTab({
   guests,
   tables,
   canEdit,
+  canSeat,
+  canSend,
+  canExport,
   onAdd,
   onExport,
 }: GuestsTabProps) {
@@ -235,7 +245,7 @@ export function GuestsTab({
     if (guest.rsvpStatus !== 'APPROVED') {
       return <span className={styles.muted}>{NONE}</span>
     }
-    if (!canEdit) {
+    if (!canSeat) {
       return tableLabel(guest) ?? t('guests.table.noTable')
     }
     return (
@@ -258,15 +268,17 @@ export function GuestsTab({
     const name = guestFullName(guest)
     return (
       <div className={styles.rowActions}>
+        {canSend && (
+          <IconButton
+            label={t('guests.row.whatsapp', { name })}
+            className={styles.whatsapp}
+            onClick={() => setPanel({ kind: 'send', guestId: guest.id })}
+          >
+            <MessageCircle />
+          </IconButton>
+        )}
         {canEdit && (
           <>
-            <IconButton
-              label={t('guests.row.whatsapp', { name })}
-              className={styles.whatsapp}
-              onClick={() => setPanel({ kind: 'send', guestId: guest.id })}
-            >
-              <MessageCircle />
-            </IconButton>
             <Button
               variant="secondary"
               size="sm"
@@ -455,7 +467,7 @@ export function GuestsTab({
                 })}
           </li>
         </ul>
-        {canEdit && guest.rsvpStatus === 'APPROVED' && tableControl(guest)}
+        {canSeat && guest.rsvpStatus === 'APPROVED' && tableControl(guest)}
         {rowActions(guest)}
       </div>
     )
@@ -694,15 +706,17 @@ export function GuestsTab({
                   count: format.number(selectedGuests.length),
                 })}
               </p>
-              <Menu
-                label={t('guests.bulk.export')}
-                align="start"
-                triggerClassName={styles.bulkButton}
-                items={exportItems(selectedGuests)}
-              >
-                <Download aria-hidden="true" />
-                <span aria-hidden="true">{t('guests.bulk.export')}</span>
-              </Menu>
+              {canExport && (
+                <Menu
+                  label={t('guests.bulk.export')}
+                  align="start"
+                  triggerClassName={styles.bulkButton}
+                  items={exportItems(selectedGuests)}
+                >
+                  <Download aria-hidden="true" />
+                  <span aria-hidden="true">{t('guests.bulk.export')}</span>
+                </Menu>
+              )}
               {canEdit && (
                 <Button
                   variant="secondary"

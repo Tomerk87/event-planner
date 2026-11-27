@@ -23,7 +23,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { canEditEvent } from '../../domain/access.ts'
+import { canPerform } from '../../domain/access.ts'
 import { isDomainError } from '../../domain/errors.ts'
 import {
   isRsvpLanguage,
@@ -196,7 +196,7 @@ function RsvpSettingsForm({
   const fileRef = useRef<HTMLInputElement>(null)
   const { event, isPast } = info
   const access = useEventAccess()
-  const canEdit = access !== null && canEditEvent(access)
+  const canEdit = access !== null && canPerform(access, 'EDIT_RSVP_SETTINGS')
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
   const save = useSaveRsvpSettings(event.id)
   const saved = toValues(settings, event)

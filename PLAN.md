@@ -707,19 +707,31 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] These phases added to `PLAN.md`.
 
 ### Phase 23 — Safety net (Step A2)
-- [ ] GitHub Actions on every pull request to `v2_ui_demo` and `main`:
-  - frontend lint, typecheck, unit tests with the 80% minimum, build;
-  - Playwright demo tests (desktop, mobile);
-  - backend lint, typecheck, unit, and e2e against a Postgres service.
-- [ ] Backend coverage minimum, set at today's level and only raised.
-- [ ] Protect `main` and `v2_ui_demo`: pull requests only, tests must pass. This needs the owner's OK in GitHub.
+- [x] GitHub Actions on every pull request to `v2_ui_demo` and `main` (`.github/workflows/tests.yml`):
+  - frontend lint, typecheck, format, unit tests with the 80% minimum, build;
+  - backend lint, typecheck, format, unit and integration tests with the coverage minimum (PostgreSQL service), build;
+  - the API contract suite and Playwright desktop, phone and email (PostgreSQL and Mailpit services);
+  - "All tests passed" as the single required check (PR #41).
+- [x] Backend coverage minimum, set at today's level and only raised (`npm run test:coverage`: 95 / 88 / 97 / 96).
+- [x] Known vulnerable dependencies fixed (body-parser, multer, effect through an override, and others). `npm audit` now fails the run on high or critical issues.
+- [x] The browser tests install Inter on Linux; the fallback font there (DejaVu Sans) is much wider than any visitor's system font.
+- [ ] Require "All tests passed" before merging into `v2_ui_demo` (owner to choose: set by the agent, or by hand). `main` already requires pull requests (ruleset). Requiring the check there would block the Version workflow's own bump pull requests, so it needs a separate decision.
 
 ### Phase 24 — Split permissions in the frontend (Step B, demo part)
-- [ ] The frontend's copy of the domain permissions splits `EDIT` into smaller actions:
-  - `EDIT_EVENT_DETAILS`, `EDIT_LAYOUT`, `EDIT_TABLES`;
-  - `EDIT_GUESTS`, `ASSIGN_SEATING`, `EDIT_RSVP_SETTINGS`, `EDIT_MESSAGE`, `EXPORT_GUESTS_FULL`.
-- [ ] A matrix test proves every personal role behaves exactly as before.
-- [ ] Venue and client capabilities are added (D112, D113). Every page asks for the action it needs.
+- [x] The domain permissions split `EDIT` into smaller actions:
+  - `EDIT_EVENT_SCHEDULE`, `EDIT_EVENT_SETTINGS`, `EDIT_LAYOUT`, `EDIT_TABLES`;
+  - `EDIT_GUESTS`, `ASSIGN_SEATING`, `EDIT_RSVP_SETTINGS`, `EDIT_MESSAGE`, `EXPORT_GUESTS`.
+  - One role table (`ROLE_ACTIONS`) replaces the ranking.
+  - `EDIT` stays for the backend until Phase 33.
+  - The backend's copy of `domain/` is updated, as `sameAsFrontend.test.ts` requires; backend services are unchanged.
+- [x] A matrix test proves every personal role behaves exactly as before: every role (and the Super User) × every action × upcoming/past, compared with a frozen copy of the earlier rules.
+- [x] Venue and client roles are added to the role table (D112, D113), with tests that neither side can change the other's part; the actor gets them in Phase 25.
+- [x] Every page asks for the action it needs (`canPerform`):
+  - Event Settings: schedule and settings fields;
+  - Event Layout: tables, floor plan, seating;
+  - Guests: guests, seating, WhatsApp, export;
+  - Messages, RSVP Settings, the event card, Permissions.
+- [x] The mock services check the same actions. An event update needs the action of each part it changes.
 
 ### Phase 25 — Venue workspace (mockups #1–5, #7, #8)
 - [ ] Contracts and mock services for organizations, members, spaces and layout templates. A deterministic demo venue: Grand Garden Hall and a second venue, spaces, layouts, events, fictional clients.
@@ -1580,6 +1592,33 @@ Validation: every PNG and HTML file named in resources/mockups/README.md exists 
 Mockups reviewed: all 19 pages in resources/mockups/v2/html/.
 Follow-ups/risks: O-H1 (hosting and email) is open and blocks only the backend release. Two mockup items are not built as drawn: the PDF export (#17), and the step-3 wording (#9).
 Next: Phase 23, the safety net.
+```
+
+```text
+2026-11-27 — Phase 23 (V2.2 Step A2) — Safety net. Merged as PR #41.
+- Tests workflow on every pull request.
+- Backend coverage minimum.
+- Vulnerable dependencies fixed; the audit blocks.
+- Inter installed for the browser tests on Linux.
+Validation: all local checks and the GitHub run green.
+Follow-ups/risks: requiring "All tests passed" before merging is still the owner's choice (v2_ui_demo now; main needs a decision because of the Version workflow).
+```
+
+```text
+2026-11-27 — Phase 24 (V2.2 Step B, demo part) — Permissions split into actions; every page asks for its own.
+- domain/permissions.ts: specific actions, the ROLE_ACTIONS table (personal + venue/client roles), assertRoleCan/roleCan, eventUpdateActions.
+- domain/access.ts: canPerform replaces canEditEvent; the permission helpers use the table.
+- Pages: Event Settings, Event Layout, Guests, Messages, RSVP Settings, the event card, EditGate.
+- Mock services: each operation checks its action.
+- Backend: domain/ copy updated (sameAsFrontend); backend services unchanged and still check EDIT until Phase 33.
+Validation:
+- frontend: lint, typecheck, format, test:coverage (1534 passed, 219 new; 95.3% statements);
+- backend: lint, typecheck, format, test:coverage (1122 passed, the same 219 through the shared copy; 96.3% lines);
+- test:api 65 passed / 2 skipped;
+- Playwright desktop + mobile + email 528 passed / 32 skipped, as before. The matrix test compares 170 role × action × event-state cases with a frozen copy of the earlier rules.
+Mockups reviewed: none (no visible change).
+Follow-ups/risks: the actor carries only personal roles; Phase 25 gives it the venue and client roles when venue events exist in the demo.
+Next: Phase 25, the venue workspace.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

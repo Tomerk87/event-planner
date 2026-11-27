@@ -83,9 +83,12 @@ interface ArrangementTabProps {
   chosenId: string | null
   /** Chooses a table, or clears the choice when it is the chosen one. */
   onChooseTable: (tableId: string) => void
+  /** Whether the floor plan may be edited (EDIT_LAYOUT). */
   canEdit: boolean
   isPhone: boolean
   onAddTable: () => void
+  /** Whether tables may be added from the editor (EDIT_TABLES). */
+  canAddTable: boolean
   /** The Selected Table card, or its hint; beside the plan in View mode. */
   side: ReactNode
 }
@@ -116,6 +119,7 @@ export function ArrangementTab({
   canEdit,
   isPhone,
   onAddTable,
+  canAddTable,
   side,
 }: ArrangementTabProps) {
   const { t } = useTranslation()
@@ -857,14 +861,16 @@ export function ArrangementTab({
                   ))}
                 </ul>
               )}
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={<Plus />}
-                onClick={onAddTable}
-              >
-                {t('layout.actions.add')}
-              </Button>
+              {canAddTable && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<Plus />}
+                  onClick={onAddTable}
+                >
+                  {t('layout.actions.add')}
+                </Button>
+              )}
             </div>
           </Card>
           <Card title={t('layout.arrangement.palette.objects')}>

@@ -1,7 +1,8 @@
 import { Eye, Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { canEditEvent, getReadOnlyReason } from '../../domain/access.ts'
+import { canPerform, getReadOnlyReason } from '../../domain/access.ts'
+import type { EventAction } from '../../domain/permissions.ts'
 import { Badge } from '../ui/Badge.tsx'
 import { Notice } from '../ui/Notice.tsx'
 import { useEventAccess } from './eventAccessContext.ts'
@@ -47,16 +48,19 @@ export function ReadOnlyBadge() {
 }
 
 interface EditGateProps {
+  /** The action the controls perform. */
+  action: EventAction
   children: ReactNode
   fallback?: ReactNode
 }
 
 /**
- * Renders editing controls only when the current user may edit the event.
- * This is a convenience for the interface; the data layer enforces the rule.
+ * Renders controls only when the current user may take their action in the
+ * event. This is a convenience for the interface; the data layer enforces the
+ * rule.
  */
-export function EditGate({ children, fallback = null }: EditGateProps) {
+export function EditGate({ action, children, fallback = null }: EditGateProps) {
   const access = useEventAccess()
 
-  return access && canEditEvent(access) ? children : fallback
+  return access && canPerform(access, action) ? children : fallback
 }

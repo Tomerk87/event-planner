@@ -16,7 +16,7 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { canEditEvent } from '../../domain/access.ts'
+import { canPerform } from '../../domain/access.ts'
 import { guestFullName } from '../../domain/guestList.ts'
 import {
   computeDashboardMetrics,
@@ -114,7 +114,11 @@ export function EventLayoutPage() {
   // Search, filter, sorting and paging live in the address.
   const { params, update: setParam } = useQueryParams()
   const access = useEventAccess()
-  const canEdit = access !== null && canEditEvent(access)
+  // Tables, the floor plan and seating can belong to different sides of a
+  // venue-managed event (D113).
+  const canEditTables = access !== null && canPerform(access, 'EDIT_TABLES')
+  const canEditLayout = access !== null && canPerform(access, 'EDIT_LAYOUT')
+  const canSeat = access !== null && canPerform(access, 'ASSIGN_SEATING')
   // The layout has already loaded the event, so this read comes from the cache.
   const info = useEventAccessInfo(eventId)
   const guests = useGuests(eventId)
@@ -143,7 +147,7 @@ export function EventLayoutPage() {
 
   const actions = (
     <>
-      {canEdit && (
+      {canEditTables && (
         <Button
           icon={<Plus />}
           disabled={!ready}
@@ -233,13 +237,13 @@ export function EventLayoutPage() {
     return (
       <div className={guestStyles.rowActions}>
         <IconButton
-          label={t(canEdit ? 'layout.row.manage' : 'layout.row.view', { name })}
+          label={t(canSeat ? 'layout.row.manage' : 'layout.row.view', { name })}
           variant="ghost"
           onClick={() => setPanel({ kind: 'guests', tableId: item.table.id })}
         >
           <Users />
         </IconButton>
-        {canEdit && editButton(item)}
+        {canEditTables && editButton(item)}
       </div>
     )
   }
@@ -312,7 +316,7 @@ export function EventLayoutPage() {
         <div className={styles.cardTop}>
           <p className={styles.cardNumber}>{name}</p>
           {status(item)}
-          {canEdit && editButton(item)}
+          {canEditTables && editButton(item)}
         </div>
         <div className={styles.cardFacts}>
           <ShapeLabel shape={item.table.shape} />
@@ -336,7 +340,7 @@ export function EventLayoutPage() {
             variant="secondary"
             size="sm"
             icon={<Users />}
-            aria-label={t(canEdit ? 'layout.row.manage' : 'layout.row.view', {
+            aria-label={t(canSeat ? 'layout.row.manage' : 'layout.row.view', {
               name,
             })}
             onClick={() => setPanel({ kind: 'guests', tableId: item.table.id })}
@@ -431,34 +435,40 @@ export function EventLayoutPage() {
             ))}
           </ul>
         )}
-        {canEdit && (
+        {(canEditTables || canSeat) && (
           <div className={styles.selectedActions}>
-            <Button
-              variant="secondary"
-              icon={<Pencil />}
-              onClick={() =>
-                setPanel({ kind: 'edit', tableId: selected.table.id })
-              }
-            >
-              {t('layout.selected.edit')}
-            </Button>
-            <Button
-              icon={<Users />}
-              onClick={() =>
-                setPanel({ kind: 'guests', tableId: selected.table.id })
-              }
-            >
-              {t('layout.selected.manage')}
-            </Button>
-            <Button
-              variant="danger"
-              icon={<Trash2 />}
-              onClick={() =>
-                setPanel({ kind: 'delete', tableId: selected.table.id })
-              }
-            >
-              {t('layout.selected.delete')}
-            </Button>
+            {canEditTables && (
+              <Button
+                variant="secondary"
+                icon={<Pencil />}
+                onClick={() =>
+                  setPanel({ kind: 'edit', tableId: selected.table.id })
+                }
+              >
+                {t('layout.selected.edit')}
+              </Button>
+            )}
+            {canSeat && (
+              <Button
+                icon={<Users />}
+                onClick={() =>
+                  setPanel({ kind: 'guests', tableId: selected.table.id })
+                }
+              >
+                {t('layout.selected.manage')}
+              </Button>
+            )}
+            {canEditTables && (
+              <Button
+                variant="danger"
+                icon={<Trash2 />}
+                onClick={() =>
+                  setPanel({ kind: 'delete', tableId: selected.table.id })
+                }
+              >
+                {t('layout.selected.delete')}
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -509,10 +519,10 @@ export function EventLayoutPage() {
           icon={<Table2 />}
           title={t('layout.empty.title')}
           description={t(
-            canEdit ? 'layout.empty.body' : 'layout.empty.bodyReadOnly',
+            canEditTables ? 'layout.empty.body' : 'layout.empty.bodyReadOnly',
           )}
           action={
-            canEdit && (
+            canEditTables && (
               <Button icon={<Plus />} onClick={() => setPanel({ kind: 'add' })}>
                 {t('layout.actions.add')}
               </Button>
@@ -708,7 +718,8 @@ export function EventLayoutPage() {
               tables={tableList}
               chosenId={chosen?.table.id ?? null}
               onChooseTable={chooseTable}
-              canEdit={canEdit}
+              canEdit={canEditLayout}
+              canAddTable={canEditTables}
               isPhone={isPhone}
               onAddTable={() => setPanel({ kind: 'add' })}
               side={side}
@@ -752,7 +763,7 @@ export function EventLayoutPage() {
         item={panel?.kind === 'guests' ? panelItem : null}
         tables={tableList}
         guests={guestList}
-        canEdit={canEdit}
+        canEdit={canSeat}
       />
     </>
   )
