@@ -171,6 +171,19 @@ Found while building (Phase 6):
 
 - The Guests (Guests / Unknown Guests) and My Events (All / Upcoming / Past) tabs are drawn as underlined tabs. They use the segmented buttons of Event Layout instead, so a row of tabs never scrolls sideways on a phone, in Hebrew either (D98).
 
+## V2.2 venue mockups
+
+Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `v2_plannings/V2.2_MOCKUPS.md` and decisions D111–D118. Every screen on the list is covered, apart from #8, #18 and #21, which are built from existing patterns as the list allows. Rule R1 applies: build what the mockups show; the decisions and the PRD (§20) set the rules.
+
+- **The "Mockup state" bar** at the bottom of most pages switches between drawn states. It is a mockup tool and is not built.
+- **Combined screens:** #1 (the workspace switcher) is drawn inside `02_venue_events.html`, and #4 (the create/edit space dialog) inside `05_venue_space_details.html`.
+- **Decided (2026-11-27), the event name and photo:** #9 step 3 says the client "sees these details but can't change them", which would include the name, while #14 lets the client edit the name and photo. The owner chose #14 (D113): the venue sets the first name, then the name and photo are the client's. The step-3 wording is built as covering only the date, time, space and maximum people.
+- **Not built, the PDF seating export:** #17 offers Excel or PDF for the venue's seating export. PDF export is a future feature (`docs/FUTURE_FEATURES.md`), so the venue gets the existing CSV and Excel formats, still without phone numbers (D118).
+- **Adopted, the venue's contact details:** the client's "Need a change? Contact the venue" note (#13, #14, #16) shows a contact email and phone. They come from Venue Settings (#8), which therefore holds them (D117).
+- **Drafts removed:** three early versions of #2 (`01_venue_events.html`, `venue_events_mobile.html`, `venue_events_mobile_and_desktop.html`) were deleted; `02_venue_events.html` replaces them.
+- **Phone width, #3 and #5:** a hidden "For information" tooltip sticks out past the right edge at 390px. This is a mockup quirk; the built page has no sideways scroll.
+- **Languages:** all mockups are English; Hebrew and Portuguese follow the existing rules (`AGENTS.md`, `resources/DESIGN_GUIDE.md` §9).
+
 ## Found while building the design system (Phase 2)
 
 - **User menu.** The mockups draw a chevron beside the user name, implying a menu, but never show its contents. Since Phase 4 it holds Log out.

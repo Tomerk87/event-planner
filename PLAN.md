@@ -680,6 +680,98 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] System page: Versions card with both versions (Super Users only).
 - [ ] After the merge: the workflow tags `frontend-v1.0` and `backend-v1.0`; the next code pull request raises its side to 1.1.
 
+## V2.2 — Venues (D111–D118)
+
+**Goal:** venues set up spaces and table layouts, create events from them, and share each event with a client, who runs guests, RSVP, messages and seating. Personal events stay exactly as they are.
+
+**Sources:**
+- PRD §20;
+- decisions D111–D118;
+- mockups in `resources/mockups/v2/` (mapping in `resources/mockups/README.md`);
+- the plan and its reasoning in `v2_plannings/V2.2_IMPLEMENTATION_PLAN.md` (§7 merge and safety rules).
+
+**Order and branches (D116):**
+- **Demo first.** Every demo phase branches from `v2_ui_demo` and returns by pull request. `v2_ui_demo` merges into `main`, and so into the Netlify demo, when Phase 32 passes.
+- **The backend comes after,** on its own branch. It merges into `main` only when every test passes.
+
+**Every phase:**
+- tests reach ≥ 80% on new logic;
+- the whole existing suite stays green;
+- new screens are compared with the mapped mockup PNGs at desktop and phone width, in EN/HE/PT.
+
+### Phase 22 — Documents and mockups (Step A)
+- [x] Mockups filed: HTML in `resources/mockups/v2/html/` (3 early drafts deleted); PNGs of every state at 1440px and 390px in `resources/mockups/v2/` (134 images).
+- [x] V2.2 screens mapped in `resources/mockups/README.md`.
+- [x] Decisions D111–D118, the V2.2 terms and open decision O-H1 (hosting and email) in `docs/DOMAIN.md`.
+- [x] PRD §20 (approved, not built); `docs/FUTURE_FEATURES.md` "Venues (after V2.2)"; `docs/MOCKUP_NOTES.md` "V2.2 venue mockups".
+- [x] These phases added to `PLAN.md`.
+
+### Phase 23 — Safety net (Step A2)
+- [ ] GitHub Actions on every pull request to `v2_ui_demo` and `main`:
+  - frontend lint, typecheck, unit tests with the 80% minimum, build;
+  - Playwright demo tests (desktop, mobile);
+  - backend lint, typecheck, unit, and e2e against a Postgres service.
+- [ ] Backend coverage minimum, set at today's level and only raised.
+- [ ] Protect `main` and `v2_ui_demo`: pull requests only, tests must pass. This needs the owner's OK in GitHub.
+
+### Phase 24 — Split permissions in the frontend (Step B, demo part)
+- [ ] The frontend's copy of the domain permissions splits `EDIT` into smaller actions:
+  - `EDIT_EVENT_DETAILS`, `EDIT_LAYOUT`, `EDIT_TABLES`;
+  - `EDIT_GUESTS`, `ASSIGN_SEATING`, `EDIT_RSVP_SETTINGS`, `EDIT_MESSAGE`, `EXPORT_GUESTS_FULL`.
+- [ ] A matrix test proves every personal role behaves exactly as before.
+- [ ] Venue and client capabilities are added (D112, D113). Every page asks for the action it needs.
+
+### Phase 25 — Venue workspace (mockups #1–5, #7, #8)
+- [ ] Contracts and mock services for organizations, members, spaces and layout templates. A deterministic demo venue: Grand Garden Hall and a second venue, spaces, layouts, events, fictional clients.
+- [ ] Workspace switcher (D112), venue My Events (D115 statuses, space filter), My Spaces with the empty state, space dialog and details, archive and restore.
+- [ ] Team (Owner manages, Manager read-only), Venue Settings (D117, Owner only).
+- [ ] All behind `VITE_VENUES_DEMO`, shown only in Demo Mode.
+
+### Phase 26 — Layout template editor (mockup #6)
+- [ ] Reuse `FloorPlan` / `ArrangementTab` through a "layout source" interface (event or template). Existing Event Layout tests unchanged.
+- [ ] Template editor: rename, back to space, no guests, warning when chairs and maximum people differ.
+
+### Phase 27 — Create venue event (mockup #9)
+- [ ] Wizard: space → layout → details → review, with the same-day warning and an optional client email.
+- [ ] The mock copies the layout with new table ids; no guests, RSVP or seating copied (D111).
+
+### Phase 28 — Client invitation in the demo (mockups #10, #12)
+- [ ] The client card with all statuses (Resend, Revoke, Invite a different client) and the accept page with all its states, simulated in the mock. No real email is sent from the demo.
+
+### Phase 29 — The shared event, two sides (mockups #13–17, #19; #18)
+- [ ] Client side:
+  - "Managed by" badge;
+  - locked venue details with the contact note;
+  - name and photo editable (D113);
+  - map view-only with seating active;
+  - Permissions: the lead invites Editors and Viewers.
+- [ ] Venue side:
+  - Dashboard warnings;
+  - Guests read-only without phones;
+  - seating export in CSV/Excel without phones (D118);
+  - table and map editing.
+
+### Phase 30 — Changes that affect the client (mockup #20; #21)
+- [ ] Delete or shrink an occupied table: the affected parties are listed, a checkbox confirms, the guests are unassigned, and the client gets a notice in the bell and on the Dashboard (D114).
+
+### Phase 31 — Demo entry and landing (mockups #22–24)
+- [ ] "Try Demo" choice, the venue/client switcher in the venue demo, and the landing page's "For venues" section. Venue demo isolation, reset and persistence tests.
+
+### Phase 32 — Demo review and release
+- [ ] Owner clicks through the whole venue → client flow, in EN/HE/PT, desktop and phone.
+- [ ] Merge `v2_ui_demo` into `main`; turn `VITE_VENUES_DEMO` on for Netlify; check the live demo.
+
+### Phase 33+ — Backend (after the demo; D116)
+- [ ] Server side of the permission split, with the matrix test.
+- [ ] Database migration that only adds; existing events become personal; tested on a database with today's data shapes.
+- [ ] Organization, member, space and template APIs, with cross-organization tests.
+- [ ] Event creation that copies the layout in one transaction.
+- [ ] Client invitations with `EmailToken`-style links and the email from mockup #11 in EN/HE/PT.
+- [ ] The venue/client split enforced on every endpoint, with allowed-field tests (no phones to the venue).
+- [ ] Notifications.
+- [ ] Switch the frontend to the real API.
+- [ ] Release: blocked on O-H1 (hosting and email). Back up before migrating.
+
 ---
 
 ## Deferred / future backlog
@@ -689,7 +781,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [ ] WhatsApp Business API, actual delivery/read/failure tracking and automated reminders.
 - [ ] RSVP configurable deadline before event start.
 - [ ] Individual attendee identities and split groups across tables.
-- [ ] Per-seat assignment and venue templates.
+- [ ] Per-seat assignment. (Venue templates: V2.2, Phases 22+.)
 - [ ] Translation of organizer-written RSVP texts, guest-facing languages beyond English and Hebrew, and guest-specific invitation URLs.
 - [ ] Advanced analytics, audit history, reusable event templates.
 - [ ] Server-backed expiring demos only if browser-local Demo Mode proves insufficient.
@@ -1475,6 +1567,19 @@ Owner decisions: the core limits only; the screens read the server's limits; the
 - Docs: README.md rewritten around the demo, every setting with its default, the fixed limits, versions and translations; D110; ARCHITECTURE; AGENTS (limits read from `limits.ts`, never written as numbers); DEPLOYMENT ("Change a limit", demo settings on Netlify).
 Validation: frontend typecheck, lint, format; unit 1315 passed (new: `limits.test.ts`, `demoSettings.test.ts`, applying limits per session, the clock's settings); backend typecheck, format; unit 599; integration 304 (new: a server with TABLE_MAX_SEATS=40 accepts 40 seats and reports it; the database's safety ranges). Playwright desktop, mobile and email, on an idle computer: 528 passed, 32 skipped (3.9 min), for both D109 and D110. By hand: a demo built with VITE_TABLE_MAX_SEATS_DEMO=12 and VITE_EVENTS_MAX_DEMO=8 has both in its bundle, and its Add Table form says "up to 12" and refuses 13.
 Next: owner review.
+```
+
+```text
+2026-11-27 — Phase 22 (V2.2 Step A) — V2.2 mockups filed and documented.
+- Removed the 3 early drafts of #2.
+- Moved 19 HTML mockups to resources/mockups/v2/html/.
+- Took PNGs of every mockup state at 1440px and 390px (134 images, mockup-state bar hidden) into resources/mockups/v2/.
+- Mapped them in resources/mockups/README.md.
+- Wrote D111–D118, the V2.2 terms and O-H1 in docs/DOMAIN.md, PRD §20, FUTURE_FEATURES "Venues (after V2.2)", MOCKUP_NOTES "V2.2 venue mockups", and these PLAN phases.
+Validation: every PNG and HTML file named in resources/mockups/README.md exists (script check); no reference to the deleted drafts remains outside the history notes; PNGs spot-checked by eye (switcher open, space dialog on a phone, delete warning, client Tables on a phone). No product code changed, so no test run was needed.
+Mockups reviewed: all 19 pages in resources/mockups/v2/html/.
+Follow-ups/risks: O-H1 (hosting and email) is open and blocks only the backend release. Two mockup items are not built as drawn: the PDF export (#17), and the step-3 wording (#9).
+Next: Phase 23, the safety net.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

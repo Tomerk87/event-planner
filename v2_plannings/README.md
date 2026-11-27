@@ -12,4 +12,8 @@ Planning for V2.2. Nothing here is built yet. The real `docs/PRD.md`, `PLAN.md` 
 | `../resources/DESIGN_GUIDE.md` | The design guide for the designer; the end of it lists which files to hand over |
 | `HOSTING_PLAN.md` | Hosting and email options (not decided yet) |
 
-**Status (2026-11-26):** the owner is drawing the mockups. Implementation will go one phase at a time, starting with Phase 0. Development is local, and the demo stays on Netlify.
+**Status (2026-11-27):**
+- The mockups are drawn and filed in `resources/mockups/v2/`.
+- The decisions are D111–D118 in `docs/DOMAIN.md`, and the product description is PRD §20.
+- Progress is tracked in `PLAN.md` (Phases 22+).
+- The demo is built first, on the `v2_ui_demo` branch.

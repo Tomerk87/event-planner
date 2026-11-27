@@ -6,7 +6,8 @@
 **Supported languages:** English, Hebrew and Brazilian Portuguese  
 **Supported devices:** Desktop and mobile browsers (tablets receive the desktop or mobile layout that fits their width; dedicated tablet layouts are deferred)  
 **Implementation reference:** `AGENTS.md` and `PLAN.md`  
-**Visual reference:** `resources/mockups/README.md` and the mapped images in `resources/mockups/`
+**Visual reference:** `resources/mockups/README.md` and the mapped images in `resources/mockups/`  
+**Next version:** V2.2 (venues) is approved and being built, demo first. Section 20 describes it; nothing in section 20 is built yet.
 
 ## 1. Product vision
 
@@ -511,3 +512,82 @@ These do not block creation of the PRD, but should be resolved at the relevant i
 - `docs/FUTURE_FEATURES.md` lists features left out of the MVP.
 
 If technical implementation uncovers a conflict or unspecified product behavior, record the decision and update this PRD rather than silently changing functionality. Keep completed plan steps and implementation notes in `PLAN.md`, not here.
+
+## 20. V2.2 — Venues (approved, not built)
+
+**Status (2026-11-27):** approved for implementation, frontend and demo first (D116). Until it is built and checked, sections 1–19 describe the product as it is.
+
+**Sources:**
+- decisions D111–D118 in `docs/DOMAIN.md`;
+- mockups in `resources/mockups/v2/` (`resources/mockups/README.md`, "V2.2 — Venues");
+- plan in `v2_plannings/V2.2_IMPLEMENTATION_PLAN.md`;
+- the full proposal it was trimmed from: `v2_plannings/Event_Planner_V2.2_Venue_Product_Design.pdf`.
+
+### 20.1 Purpose
+
+A venue (a hall or garden business) sets up its spaces and table layouts once. It creates each event from them and shares the event with its **client** (for example, the couple):
+- the client manages guests, RSVP, WhatsApp messages and seating;
+- the venue manages the room, the tables and the event's date, address and capacity;
+- both see the same, current guest and seating picture, with no spreadsheet hand-offs.
+
+**Personal events, where one organizer controls everything, stay exactly as they are.**
+
+### 20.2 Venue workspace
+
+- **Workspace switcher:** shown only to venue members, at the top of the sidebar: Personal, then each venue (D112).
+- **Venue navigation:** My Events, My Spaces, Team, Settings.
+- **My Events:** All / Upcoming / Past, search, a filter by space, and one card per event with its status (D115).
+- **My Spaces:** one card per space, with an empty state.
+  - Create and edit: name, address, maximum people, maximum tables (for information), time zone, optional photo.
+  - Archive and restore.
+- **Space details:** the space's layout templates, with Edit, Rename, Duplicate, Archive and Create event from this layout, plus the space's upcoming events.
+- **Layout template editor:** the existing floor-plan editor, without guests. It warns when chairs and maximum people differ.
+- **Team:** members and roles. The Owner manages it; Managers see it read-only.
+- **Settings (Owner only):** organization name, default language, contact email and phone (D117).
+
+### 20.3 Venue-managed events
+
+- **Create-event wizard:** choose a space → choose a layout → name, date and time → review (with a same-day warning and an optional client email).
+- **The event gets its own copy** of the layout, address and maximum people (D111).
+- **Client invitation by email, explicitly accepted by the account with that verified address:**
+  - it can be resent and revoked, and it expires;
+  - the accept page handles the right account, signed out, a different account, and expired, revoked or used links.
+- **Ownership of fields (D113):**
+  - the venue owns the date, time, space, address, maximum people, floor plan and tables;
+  - the client owns guests, RSVP settings, messages, seating and the client team;
+  - the venue sets the first event name; afterwards the name and photo are the client's.
+- **The client's view:**
+  - a "Managed by <venue>" badge;
+  - the venue details shown as text with a contact note;
+  - the map is view-only, and Manage Guests (seating) is fully active;
+  - Permissions: the lead invites Editors and Viewers.
+- **The venue's view:**
+  - Dashboard with warnings (awaiting client, confirmed guests without a table, over-capacity tables);
+  - Guests read-only, **with no phone numbers**, no editing and no WhatsApp;
+  - seating export in CSV or Excel, without phones;
+  - full table and map editing.
+- **Changes that affect seating (D114):** the venue confirms first, the affected guests are unassigned, and the client is notified.
+
+### 20.4 Roles
+
+Venue roles are **Owner** and **Manager** (D112). Client roles are **Client lead**, **Client editor** and **Client viewer**. The personal roles Owner, Admin and Viewer, and the Super User, are unchanged. **The server enforces every rule;** hiding something on screen is not security.
+
+### 20.5 Demo
+
+- **Try Demo** asks "I'm planning my event" (the current demo) or "I own a venue" (the venue demo).
+- In the venue demo, a switch moves between the venue owner's view and the client's view. It runs entirely in the browser with fictional data, like the current demo.
+- The landing page gets a "For venues" section.
+
+### 20.6 Not in V2.2
+
+These are listed in `docs/FUTURE_FEATURES.md`:
+- venue Staff with assigned events;
+- layout revisions;
+- booking times with setup and cleanup buffers;
+- billing and subscriptions;
+- a change-log viewer;
+- replacing a client lead;
+- duplicating venue events;
+- moving an event between venues;
+- PDF export.
+
