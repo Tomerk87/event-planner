@@ -12,6 +12,12 @@ import type {
   UnknownRsvp,
   User,
 } from '../../domain/models.ts'
+import type {
+  VenueEvent,
+  VenueMember,
+  VenueOrganization,
+  VenueSpace,
+} from '../../domain/venues.ts'
 import type { Country } from '../../domain/phone.ts'
 import type { DemoRole } from '../contracts/index.ts'
 
@@ -20,7 +26,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 9
+export const DATASET_VERSION = 10
 
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {
@@ -47,6 +53,14 @@ export interface DemoState {
    * generated as a demo.
    */
   market?: Country
+  /**
+   * Venues (V2.2): the organizations, who belongs to them, their spaces, and
+   * which events they manage. Absent in a workspace without venues.
+   */
+  organizations?: VenueOrganization[]
+  venueMembers?: VenueMember[]
+  venueSpaces?: VenueSpace[]
+  venueEvents?: VenueEvent[]
 }
 
 export interface StoredDemo {

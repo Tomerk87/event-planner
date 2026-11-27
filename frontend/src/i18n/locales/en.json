@@ -1468,5 +1468,49 @@
       "accessRemoved": "{{actor}} removed your access to {{event}}.",
       "unknownRsvp": "New RSVP answers from phones not on the guest list wait for review in {{event}}."
     }
+  },
+  "workspace": {
+    "label": "Workspace: {{name}}. Switch workspace",
+    "switch": "Switch workspace",
+    "personal": "Personal",
+    "personalHint": "Your own events",
+    "venueHint": "Venue · {{role}}",
+    "current": "Current workspace"
+  },
+  "venueRoles": {
+    "VENUE_OWNER": "Owner",
+    "VENUE_MANAGER": "Manager"
+  },
+  "venueNav": {
+    "label": "Venue navigation"
+  },
+  "venueEvents": {
+    "subtitle": "Create events in your spaces and share each one with your client.",
+    "allSpaces": "All spaces",
+    "spaceFilter": "Space",
+    "status": {
+      "AWAITING_CLIENT": "Awaiting client",
+      "INVITATION_SENT": "Invitation sent",
+      "INVITATION_EXPIRED": "Invitation expired",
+      "CLIENT_JOINED": "Client joined",
+      "PAST": "Past"
+    },
+    "space": "Space:",
+    "client": "Client: {{name}}",
+    "awaitingClient": "Awaiting client",
+    "note": {
+      "INVITATION_SENT": "Invitation sent on {{date}}. Guests appear once the client accepts.",
+      "INVITATION_EXPIRED": "Invitation expired on {{date}}. Resend it from the event’s Permissions page.",
+      "AWAITING_CLIENT": "No client invited yet. Invite one from the event’s Permissions page."
+    },
+    "soon": "Opening a venue event comes soon",
+    "empty": {
+      "title": "No events yet",
+      "body": "Events you create in your spaces appear here."
+    },
+    "noMatch": {
+      "title": "No matching events",
+      "body": "Try another search, space or filter."
+    }
   }
 }

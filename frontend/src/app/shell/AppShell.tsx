@@ -19,6 +19,8 @@ import { useModalDialog } from '../../shared/ui/useModalDialog.ts'
 import styles from './AppShell.module.css'
 import { EventSelector } from './EventSelector.tsx'
 import { LanguageSwitcher } from './LanguageSwitcher.tsx'
+import { WorkspaceSwitcher } from './WorkspaceSwitcher.tsx'
+import type { VenueWorkspace } from '../../services/contracts/index.ts'
 
 export interface ShellNavItem {
   to: string
@@ -42,8 +44,17 @@ export interface ShellUser {
   role?: EventRole
 }
 
+/** The workspace switcher's contents (V2.2); shown to venue members only. */
+export interface ShellWorkspaces {
+  /** The venue shown now, or null for the personal workspace. */
+  currentVenueId: string | null
+  workspaces: readonly VenueWorkspace[]
+}
+
 interface AppShellProps {
   navLabel: string
+  /** The workspace switcher at the top of the side menu (V2.2). */
+  workspaces?: ShellWorkspaces
   navItems: ShellNavItem[]
   footerLink?: ShellNavItem
   event?: ShellEvent
@@ -121,6 +132,7 @@ type SidebarContentProps = Omit<
 
 function SidebarContent({
   navLabel,
+  workspaces,
   navItems,
   footerLink,
   event,
@@ -135,6 +147,13 @@ function SidebarContent({
 
   return (
     <>
+      {workspaces && (
+        <WorkspaceSwitcher
+          currentVenueId={workspaces.currentVenueId}
+          workspaces={workspaces.workspaces}
+          onNavigate={onNavigate}
+        />
+      )}
       {event && (
         <EventSelector
           current={event}

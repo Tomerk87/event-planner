@@ -1469,5 +1469,49 @@
       "accessRemoved": "{{actor}} removeu seu acesso a {{event}}.",
       "unknownRsvp": "Novas respostas de telefones que não estão na lista de convidados aguardam análise em {{event}}."
     }
+  },
+  "workspace": {
+    "label": "Espaço de trabalho: {{name}}. Trocar espaço de trabalho",
+    "switch": "Trocar espaço de trabalho",
+    "personal": "Pessoal",
+    "personalHint": "Seus próprios eventos",
+    "venueHint": "Local · {{role}}",
+    "current": "Espaço de trabalho atual"
+  },
+  "venueRoles": {
+    "VENUE_OWNER": "Proprietário",
+    "VENUE_MANAGER": "Gerente"
+  },
+  "venueNav": {
+    "label": "Navegação do local"
+  },
+  "venueEvents": {
+    "subtitle": "Crie eventos nos seus espaços e compartilhe cada um com o seu cliente.",
+    "allSpaces": "Todos os espaços",
+    "spaceFilter": "Espaço",
+    "status": {
+      "AWAITING_CLIENT": "Aguardando cliente",
+      "INVITATION_SENT": "Convite enviado",
+      "INVITATION_EXPIRED": "Convite expirado",
+      "CLIENT_JOINED": "Cliente entrou",
+      "PAST": "Passado"
+    },
+    "space": "Espaço:",
+    "client": "Cliente: {{name}}",
+    "awaitingClient": "Aguardando cliente",
+    "note": {
+      "INVITATION_SENT": "Convite enviado em {{date}}. Os convidados aparecem quando o cliente aceitar.",
+      "INVITATION_EXPIRED": "O convite expirou em {{date}}. Reenvie pela página Permissões do evento.",
+      "AWAITING_CLIENT": "Nenhum cliente convidado ainda. Convide um pela página Permissões do evento."
+    },
+    "soon": "Abrir um evento do local chega em breve",
+    "empty": {
+      "title": "Nenhum evento ainda",
+      "body": "Os eventos que você criar nos seus espaços aparecem aqui."
+    },
+    "noMatch": {
+      "title": "Nenhum evento encontrado",
+      "body": "Tente outra busca, espaço ou filtro."
+    }
   }
 }

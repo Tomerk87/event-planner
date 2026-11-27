@@ -14,6 +14,10 @@ const baseURL = `http://localhost:${port}`
 const emailPort = 5175
 const emailApiPort = 3103
 const emailBaseURL = `http://localhost:${emailPort}`
+// The demo with the venues of V2.2 switched on (VITE_VENUES_ENABLED), for the
+// venue tests only; every other test runs with venues off.
+const venuesPort = 5176
+const venuesBaseURL = `http://localhost:${venuesPort}`
 
 /** The backend's test database; the real-account tests write to it. */
 function testDatabaseUrl(): string {
@@ -38,12 +42,22 @@ export default defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: /(email|performance)\.spec\.ts/,
+      testIgnore: /(email|performance|venues)\.spec\.ts/,
     },
     {
       name: 'mobile',
       use: { ...devices['Pixel 7'] },
-      testIgnore: /(email|performance)\.spec\.ts/,
+      testIgnore: /(email|performance|venues)\.spec\.ts/,
+    },
+    {
+      name: 'venues-desktop',
+      use: { ...devices['Desktop Chrome'], baseURL: venuesBaseURL },
+      testMatch: /venues\.spec\.ts/,
+    },
+    {
+      name: 'venues-mobile',
+      use: { ...devices['Pixel 7'], baseURL: venuesBaseURL },
+      testMatch: /venues\.spec\.ts/,
     },
     {
       // Run on request: npm run test:performance.
@@ -111,6 +125,15 @@ export default defineConfig({
       url: emailBaseURL,
       reuseExistingServer: !process.env.CI,
       env: { API_URL: `http://localhost:${emailApiPort}` },
+    },
+    {
+      command: `npm run dev -- --port ${venuesPort} --strictPort`,
+      url: venuesBaseURL,
+      reuseExistingServer: !process.env.CI,
+      env: {
+        API_URL: `http://localhost:${apiPort}`,
+        VITE_VENUES_ENABLED: 'true',
+      },
     },
   ],
 })
