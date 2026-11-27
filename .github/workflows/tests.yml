@@ -1,0 +1,166 @@
+# Runs every check on each pull request (D116, PLAN.md Phase 23): lint,
+# typecheck, formatting, unit and integration tests with their coverage
+# minimums, a dependency security audit, the API contract suite, and the
+# Playwright suite (desktop, phone and email). The last job, "All tests passed", is the one to require before
+# merging.
+name: Tests
+
+on:
+  pull_request:
+    branches: [main, v2_ui_demo]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A new push to the same pull request replaces the run in progress.
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '26'
+  # The same names and passwords as backend/.env.example; the database exists
+  # only inside the job.
+  DATABASE_URL: postgresql://event_planner:event_planner_dev@localhost:5432/event_planner
+  TEST_DATABASE_URL: postgresql://event_planner:event_planner_dev@localhost:5432/event_planner_test
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - name: Unit tests with the coverage minimum (80%)
+        run: npm run test:coverage
+      - run: npm run build
+      - name: Security audit (fails on high or critical)
+        run: npm audit --audit-level=high
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: event_planner
+          POSTGRES_PASSWORD: event_planner_dev
+          POSTGRES_DB: event_planner_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U event_planner -d event_planner_test"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - name: Unit and integration tests with the coverage minimum
+        run: npm run test:coverage
+      - run: npm run build
+      - name: Security audit (fails on high or critical)
+        run: npm audit --audit-level=high
+
+  e2e:
+    name: Browser and API contract tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: event_planner
+          POSTGRES_PASSWORD: event_planner_dev
+          POSTGRES_DB: event_planner_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U event_planner -d event_planner_test"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+      # Catches the emails of the email tests (D88); nothing leaves the job.
+      mailpit:
+        image: axllent/mailpit:v1.31.3
+        ports: ['1025:1025', '8025:8025']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+      - name: Install
+        run: |
+          npm ci --prefix backend
+          npm ci --prefix frontend
+      - name: Settings for the test servers
+        # The contract suite and the Playwright config read backend/.env.
+        run: |
+          cp backend/.env.example backend/.env
+          sed -i "s|^TEST_DATABASE_URL=.*|TEST_DATABASE_URL=$TEST_DATABASE_URL|" backend/.env
+      - name: Prepare the test database
+        working-directory: backend
+        run: DATABASE_URL="$TEST_DATABASE_URL" npx prisma migrate deploy
+      - name: Install the browser
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Install Inter, the product's typeface
+        # The app asks for Inter and otherwise uses the system font. Without
+        # it, Linux falls back to DejaVu Sans, which is much wider than the
+        # system fonts of macOS, Windows, iOS and Android, so the layout
+        # checks (no sideways scroll) would measure a font no visitor sees.
+        run: |
+          sudo apt-get install -y --no-install-recommends fonts-inter
+          fc-match Inter
+          fc-match system-ui
+      - name: API contract tests (mock and real providers agree)
+        working-directory: frontend
+        run: npm run test:api
+      - name: Playwright (desktop, phone, email)
+        working-directory: frontend
+        run: npm run test:e2e
+        env:
+          CI: 'true'
+      - name: Keep the Playwright report of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7
+
+  all-passed:
+    name: All tests passed
+    if: always()
+    needs: [frontend, backend, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check every job
+        run: |
+          echo "frontend=${{ needs.frontend.result }} backend=${{ needs.backend.result }} e2e=${{ needs.e2e.result }}"
+          test "${{ needs.frontend.result }}" = success
+          test "${{ needs.backend.result }}" = success
+          test "${{ needs.e2e.result }}" = success

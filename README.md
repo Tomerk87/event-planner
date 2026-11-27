@@ -193,6 +193,8 @@ Run from `frontend/`.
 | `npm run email-images` | Redraw the pictures inside the server's emails (`backend/src/email/images.ts`) |
 | `npm run test:api` | Builds the backend and runs the provider contract suite on the real API, against the test database |
 
+Every pull request to `main` or `v2_ui_demo` runs all of these automatically (`.github/workflows/tests.yml`, docs/DEVELOPMENT.md "Tooling"). In `backend/`, `npm run test:coverage` runs the unit and integration tests together with their coverage minimum.
+
 The first end-to-end run needs a browser: `npx playwright install chromium`. `npm run test:e2e` and `npm run test:api` need the development database and Mailpit running (`npm run db:up` in `backend/`). The end-to-end suite takes a few minutes; run it with the computer awake and not busy, since a pause can drop its servers' connections.
 
 ## Deploy
