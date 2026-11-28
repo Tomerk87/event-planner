@@ -954,6 +954,14 @@ interface ClientSpec {
   /** Joined accepted; sent is still open; expired is past its seven days. */
   state: 'joined' | 'sent' | 'expired'
   sentDaysAgo: number
+  /** The people a joined client invited (mockup #10). */
+  team?: {
+    name: string
+    email: string
+    role: 'CLIENT_EDITOR' | 'CLIENT_VIEWER'
+  }[]
+  /** Invited by the client, with no account yet. */
+  pending?: { email: string; role: 'CLIENT_EDITOR' | 'CLIENT_VIEWER' }[]
 }
 
 interface VenueEventSpec extends Omit<EventSpec, 'roles' | 'location'> {
@@ -1072,6 +1080,21 @@ const VENUE_PACKS: Record<Country, VenuePack> = {
               email: 'dana.levi@example.com',
               state: 'joined',
               sentDaysAgo: 40,
+              team: [
+                {
+                  name: 'Yossi Cohen',
+                  email: 'yossi.cohen@example.com',
+                  role: 'CLIENT_EDITOR',
+                },
+                {
+                  name: 'Miriam Levi',
+                  email: 'miriam.levi@example.com',
+                  role: 'CLIENT_VIEWER',
+                },
+              ],
+              pending: [
+                { email: 'orly.events@example.com', role: 'CLIENT_EDITOR' },
+              ],
             },
           }),
           venueEvent({
@@ -1273,6 +1296,21 @@ const VENUE_PACKS: Record<Country, VenuePack> = {
               email: 'ana.souza@example.com',
               state: 'joined',
               sentDaysAgo: 40,
+              team: [
+                {
+                  name: 'Pedro Lima',
+                  email: 'pedro.lima@example.com',
+                  role: 'CLIENT_EDITOR',
+                },
+                {
+                  name: 'Lúcia Souza',
+                  email: 'lucia.souza@example.com',
+                  role: 'CLIENT_VIEWER',
+                },
+              ],
+              pending: [
+                { email: 'cerimonial.bela@example.com', role: 'CLIENT_EDITOR' },
+              ],
             },
           }),
           venueEvent({
@@ -1445,6 +1483,28 @@ function addDemoVenues(
   state.venueEvents = []
   state.layoutTemplates = []
   state.venueMemberInvitations = []
+  state.clientInvitationLinks = []
+  state.clientTeam = []
+  state.clientTeamInvitations = []
+  // A sequence of its own, so the tokens leave the rest of the data as it was.
+  const tokenRandom = createRandom(venuePack.seed + 7)
+  const token = () =>
+    Array.from({ length: 4 }, () =>
+      Math.floor(tokenRandom() * 4_294_967_296)
+        .toString(16)
+        .padStart(8, '0'),
+    ).join('')
+  let clientNumber = 0
+  const clientUser = (name: string, email: string): string => {
+    const existing = state.users.find((user) => user.email === email)
+    if (existing) {
+      return existing.id
+    }
+    clientNumber += 1
+    const id = `usr-c${clientNumber}`
+    state.users.push({ id, name, email, isSuperUser: false })
+    return id
+  }
 
   let eventIndex = state.events.length
   venuePack.venues.forEach((venue, venueNumber) => {
@@ -1528,6 +1588,11 @@ function addDemoVenues(
       const { client } = spec
       const sentAt =
         client && new Date(now.getTime() - client.sentDaysAgo * DAY_MS)
+      // The demo user sent most invitations; a colleague sent every third.
+      const sentBy =
+        eventIndex % 3 === 2
+          ? (colleagues[0] ?? state.currentUserId)
+          : state.currentUserId
       state.events.push(event)
       state.venueEvents?.push({
         eventId: event.id,
@@ -1544,9 +1609,45 @@ function addDemoVenues(
                   client.state === 'joined'
                     ? new Date(sentAt.getTime() + DAY_MS).toISOString()
                     : null,
+                sentBy,
+                timesSent: 1,
               }
             : null,
       })
+      if (client && sentAt) {
+        state.clientInvitationLinks?.push({
+          token: token(),
+          eventId: event.id,
+          email: client.email,
+          sentAt: sentAt.toISOString(),
+          status: client.state === 'joined' ? 'USED' : 'OPEN',
+        })
+      }
+      if (client?.state === 'joined' && sentAt) {
+        const joined = new Date(sentAt.getTime() + DAY_MS)
+        state.clientTeam?.push({
+          eventId: event.id,
+          userId: clientUser(client.name, client.email),
+          role: 'CLIENT_LEAD',
+          since: joined.toISOString(),
+        })
+        for (const member of client.team ?? []) {
+          state.clientTeam?.push({
+            eventId: event.id,
+            userId: clientUser(member.name, member.email),
+            role: member.role,
+            since: joined.toISOString(),
+          })
+        }
+        for (const pending of client.pending ?? []) {
+          state.clientTeamInvitations?.push({
+            eventId: event.id,
+            email: pending.email,
+            role: pending.role,
+            sentAt: new Date(joined.getTime() + DAY_MS).toISOString(),
+          })
+        }
+      }
       state.guests.push(...data.guests)
       state.tables.push(...data.tables)
       state.layouts.push(createLayout(event, data.tables, true))

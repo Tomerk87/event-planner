@@ -167,3 +167,40 @@ export function useCreateVenueEvent(organizationId: string) {
     venues.createEvent(organizationId, input),
   )
 }
+
+export function useInviteClient(organizationId: string, eventId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation((email: string) =>
+    venues.inviteClient(organizationId, eventId, email),
+  )
+}
+
+export function useResendClientInvitation(
+  organizationId: string,
+  eventId: string,
+) {
+  const venues = useVenuesService()
+  return useVenueMutation(() =>
+    venues.resendClientInvitation(organizationId, eventId),
+  )
+}
+
+export function useRevokeClientInvitation(
+  organizationId: string,
+  eventId: string,
+) {
+  const venues = useVenuesService()
+  return useVenueMutation(() =>
+    venues.revokeClientInvitation(organizationId, eventId),
+  )
+}
+
+/** Accepting, as the signed-in account or (demo) as the invited client. */
+export function useAcceptClientInvitation(token: string) {
+  const venues = useVenuesService()
+  return useVenueMutation((asInvitee: boolean) =>
+    asInvitee && venues.acceptClientInvitationAsInvitee
+      ? venues.acceptClientInvitationAsInvitee(token)
+      : venues.acceptClientInvitation(token),
+  )
+}

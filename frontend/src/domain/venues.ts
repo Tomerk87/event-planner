@@ -1,4 +1,4 @@
-import { assertEmail } from './accounts.ts'
+import { assertEmail, normalizeEmail } from './accounts.ts'
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
 import { isEventPast, isValidTimeZone, toLocalDateTime } from './eventTime.ts'
 import { EVENT_LIMITS, validateCoverImage } from './events.ts'
@@ -91,6 +91,44 @@ export interface ClientInvitation {
   sentAt: IsoDateTime
   /** The client accepted with the account of this address (D113). */
   acceptedAt: IsoDateTime | null
+  /** The venue member who sent the latest link. */
+  sentBy: Id | null
+  /** How many links went to this address: the first, then each Resend. */
+  timesSent: number
+}
+
+/**
+ * One emailed link to accept a client invitation (#11, #12). Each works once
+ * and for seven days; a Resend, a different client or a Revoke replaces it.
+ */
+export interface ClientInvitationLink {
+  /** Long and random; the only thing the link carries. */
+  token: string
+  eventId: Id
+  email: string
+  sentAt: IsoDateTime
+  status: 'OPEN' | 'USED' | 'REVOKED'
+}
+
+/** How a link stands when someone opens it. */
+export type ClientLinkState = 'OPEN' | 'EXPIRED' | 'REVOKED' | 'USED'
+
+/** The client side of a venue-managed event (D113). */
+export type ClientTeamRole = 'CLIENT_LEAD' | 'CLIENT_EDITOR' | 'CLIENT_VIEWER'
+
+export interface ClientTeamMember {
+  eventId: Id
+  userId: Id
+  role: ClientTeamRole
+  since: IsoDateTime
+}
+
+/** Someone the client lead invited who has no account yet. */
+export interface ClientTeamInvitation {
+  eventId: Id
+  email: string
+  role: Exclude<ClientTeamRole, 'CLIENT_LEAD'>
+  sentAt: IsoDateTime
 }
 
 /** What makes an event venue-managed: the venue, the space and the client. */
@@ -580,4 +618,59 @@ export function copyTemplateToEvent(
       version: 0,
     },
   }
+}
+
+/** When a link stops working: seven days after it was sent (D115). */
+export function clientLinkExpiresAt(
+  link: Pick<ClientInvitationLink, 'sentAt'>,
+): Date {
+  return new Date(
+    new Date(link.sentAt).getTime() + CLIENT_INVITATION_DAYS * DAY_MS,
+  )
+}
+
+/**
+ * How a link stands: used and revoked links never work again; an open one
+ * expires after seven days, or when the event has started (PRD 5.2).
+ */
+export function clientLinkState(
+  link: ClientInvitationLink,
+  event: { startsAt: IsoDateTime },
+  now: Date,
+): ClientLinkState {
+  if (link.status !== 'OPEN') {
+    return link.status
+  }
+  return now < clientLinkExpiresAt(link) && !isEventPast(event, now)
+    ? 'OPEN'
+    : 'EXPIRED'
+}
+
+/**
+ * Whether this user may accept the link: it must be open, and the account's
+ * email must be the invited one (D113). Throws LINK_EXPIRED (with the
+ * link's state) or FORBIDDEN.
+ */
+export function assertCanAcceptClientLink(
+  link: ClientInvitationLink,
+  event: { startsAt: IsoDateTime },
+  user: { email: string },
+  now: Date,
+): void {
+  const state = clientLinkState(link, event, now)
+  if (state !== 'OPEN') {
+    throw new DomainError('LINK_EXPIRED', { state })
+  }
+  if (normalizeEmail(user.email) !== normalizeEmail(link.email)) {
+    throw new DomainError('FORBIDDEN', { reason: 'email' })
+  }
+}
+
+/** A token no one can guess: 128 random bits. */
+export function newClientLinkToken(): string {
+  const bytes = new Uint8Array(16)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(
+    '',
+  )
 }

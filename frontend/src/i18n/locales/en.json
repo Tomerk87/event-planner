@@ -1514,7 +1514,9 @@
     "noMatch": {
       "title": "No matching events",
       "body": "Try another search, space or filter."
-    }
+    },
+    "manageClient": "Client",
+    "manageClientNamed": "Client: {{name}}"
   },
   "venueSpaces": {
     "title": "My Spaces",
@@ -1929,5 +1931,176 @@
     },
     "next": "Next",
     "backStep": "Back"
+  },
+  "clientRoles": {
+    "CLIENT_LEAD": "Client Lead",
+    "CLIENT_EDITOR": "Editor",
+    "CLIENT_VIEWER": "Viewer"
+  },
+  "venueEventPeople": {
+    "title": "Permissions",
+    "subtitle": "See who works on this event and manage your client.",
+    "breadcrumb": "Breadcrumb",
+    "back": "My Events",
+    "twoSides": {
+      "title": "Two sides work on this event",
+      "body": "{{venue}} controls the date, address, room and tables. The client manages guests, RSVP, messages and seating, and invites their own team."
+    },
+    "client": {
+      "title": "Client",
+      "subtitle": "The person you shared this event with. They manage the guest side of the event.",
+      "noneTitle": "No client yet",
+      "noneBody": "Invite your client by email. Until they accept, the guest list, RSVP and seating stay empty, and only your team can open this event.",
+      "invite": "Invite Client",
+      "canDo": "What the client can do",
+      "can1": "Guests, RSVP, WhatsApp messages and seating",
+      "can2": "Invite family or a planner as Editor or Viewer",
+      "cannot": "The date, address, room and tables stay with {{venue}}",
+      "notAccepted": "Hasn’t accepted yet",
+      "didNotAccept": "Did not accept in time",
+      "resend": "Resend",
+      "different": "Invite a Different Client",
+      "revoke": "Revoke Invitation",
+      "sentOn": "Invitation sent on",
+      "sentBy": "Sent by",
+      "expiresOn": "Link expires on",
+      "expiredOn": "Link expired on",
+      "timesSent": "Times sent",
+      "sentNote": "The event shows Invitation sent in your My Events until the client accepts. Each link works once and expires after 7 days.",
+      "expiredTitle": "The invitation link expired",
+      "expiredBody": "Nobody accepted it within 7 days. Resend it to send a new link to the same address, or invite a different client.",
+      "demoLink": "The demo sends no email. Open the link your client would get:",
+      "openLink": "Open Invitation Link",
+      "email": "Email {{name}}",
+      "joinedOn": "Joined on",
+      "invitedBy": "Invited by",
+      "clientTeam": "Client team",
+      "people_one": "{{count}} person",
+      "people_other": "{{count}} people",
+      "guests": "Guests on the list",
+      "guestsCount_one": "{{count}} guest",
+      "guestsCount_other": "{{count}} guests",
+      "joinedNote": "{{name}} now runs guests, RSVP, messages and seating. The date, room and tables stay with {{venue}}. To hand the event to someone else after they joined, contact Event Planner support.",
+      "pastTitle": "This event has ended",
+      "pastBody": "Everything is read-only for you and for {{name}}. Both sides can still view the event and download exports.",
+      "pastNoClient": "The event ended without a client.",
+      "unknown": "—"
+    },
+    "clientTeam": {
+      "title": "Client Team",
+      "subtitle": "The client invites their own team after they join.",
+      "subtitleJoined": "People {{name}} invited to help with guests, RSVP and seating. Managed by the client.",
+      "viewOnly": "View only",
+      "empty": "The client’s team appears here after the client joins.",
+      "caption": "The client’s team",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "since": "Member Since",
+      "noAccount": "No account yet",
+      "pending": "Pending",
+      "invited": "Invited {{date}}"
+    },
+    "venueTeam": {
+      "title": "Venue Team",
+      "subtitle": "Everyone on the {{venue}} team can open this event. Managed on the Team page.",
+      "open": "Open Team",
+      "caption": "The venue’s team",
+      "you": "You"
+    },
+    "inviteDialog": {
+      "title": "Invite Client",
+      "titleDifferent": "Invite a Different Client",
+      "intro": "They get an email and sign in with this address to accept.",
+      "introDifferent": "The link sent to {{email}} stops working, and a new one goes to this address.",
+      "email": "Client Email",
+      "send": "Send Invitation",
+      "sent": "Invitation sent to {{email}}",
+      "demoNote": "The demo sends no email; open the link from the client card.",
+      "joined": "The client already joined; this can’t be changed."
+    },
+    "revokeDialog": {
+      "title": "Revoke the invitation?",
+      "body": "The link sent to {{email}} stops working, and the event waits for a client again. You can invite someone later.",
+      "confirm": "Revoke Invitation",
+      "done": "The invitation was revoked"
+    },
+    "resent": "A new link was sent to {{email}}"
+  },
+  "acceptInvitation": {
+    "managedBy": "Managed by {{venue}}",
+    "invitedYou": "{{venue}} invited you to plan",
+    "date": "Date",
+    "time": "Time",
+    "space": "Space",
+    "spaceValue": "{{space}} · {{venue}}",
+    "address": "Address",
+    "invitedBy": "Invited by {{name}}, {{venue}}",
+    "expires": "Expires {{date}}",
+    "canDo": {
+      "title": "What You Can Do",
+      "subtitle": "After you accept, the event appears in your My Events.",
+      "guests": "Guests",
+      "guestsBody": "Add your guests, or import them from a spreadsheet.",
+      "rsvp": "Invitations and RSVP",
+      "rsvpBody": "Send WhatsApp invitations and follow the replies.",
+      "seating": "Seating",
+      "seatingBody": "Seat your guests at the tables the venue arranged.",
+      "team": "Your Team",
+      "teamBody": "Invite family or a planner as an Editor or Viewer.",
+      "maintained": "Maintained by {{venue}}: the room, the tables and the event details (date, time, address and max people)."
+    },
+    "accept": {
+      "title": "Accept Invitation",
+      "subtitle": "You’ll join as the event’s lead. You can invite your own team afterwards.",
+      "signedInAs": "Signed in as",
+      "matches": "Email matches",
+      "different": "Different email",
+      "button": "Accept Invitation",
+      "notYou": "Not you?",
+      "switch": "Switch account",
+      "expiresNote": "This invitation expires on {{date}}.",
+      "otherTitle": "This invitation is for another email",
+      "otherBody": "It was sent to {{invited}}. You can’t accept it while signed in as {{current}}.",
+      "otherHelp": "Switch to the account that uses {{invited}}, or create one with that email. If the invitation should go to {{current}}, ask {{name}} at {{venue}} to send a new one.",
+      "signInTitle": "Sign in to accept",
+      "signInBody": "This invitation is for {{email}}. Sign in with that address, or create an account with it.",
+      "signIn": "Sign In",
+      "createAccount": "Create Account",
+      "venueMember": "You’re on the {{venue}} team, so you can’t be this event’s client too. The client needs an account of their own.",
+      "demoTitle": "Demo",
+      "demoBody": "The demo has one account, so it can’t sign in as {{email}}. See what happens when the client accepts:",
+      "demoAccept": "Accept as the Client"
+    },
+    "goToEvents": "Go to My Events",
+    "accepted": {
+      "title": "Invitation Accepted",
+      "body": "{{name}} is now in your My Events. Start with your guest list whenever you’re ready.",
+      "bodyDemo": "{{email}} accepted, and {{venue}} sees the client joined. Opening the event as the client comes with the event’s two sides.",
+      "next": "Next Steps",
+      "guests": "Add your guests",
+      "guestsBody": "Guests: add them one by one or import a spreadsheet",
+      "rsvp": "Set up your RSVP page",
+      "rsvpBody": "RSVP: the page your guests answer on",
+      "team": "Invite your team",
+      "teamBody": "Permissions: add family or a planner",
+      "backToVenue": "Back to {{venue}}"
+    },
+    "used": {
+      "title": "This Invitation Was Already Used",
+      "body": "The invitation to plan {{name}} was accepted, and each link works once. If that was you, the event is in your My Events."
+    },
+    "expired": {
+      "title": "This Invitation Has Expired",
+      "body": "The invitation to plan {{name}} expired on {{date}}. Invitations last 7 days. Ask {{venue}} to send you a new one."
+    },
+    "revoked": {
+      "title": "This Invitation Is No Longer Valid",
+      "body": "{{venue}} withdrew the invitation to plan {{name}}, or sent a newer link. Ask them for the latest one."
+    },
+    "contact": "{{name}}, {{venue}}",
+    "contactRole": "Your contact at the venue",
+    "emailVenue": "Email {{venue}}",
+    "notFound": "This invitation link isn’t valid. Check that you copied the whole link from the email."
   }
 }

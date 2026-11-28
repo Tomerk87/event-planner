@@ -1515,7 +1515,9 @@
     "noMatch": {
       "title": "Nenhum evento encontrado",
       "body": "Tente outra busca, espaço ou filtro."
-    }
+    },
+    "manageClient": "Cliente",
+    "manageClientNamed": "Cliente: {{name}}"
   },
   "venueSpaces": {
     "title": "Meus Espaços",
@@ -1930,5 +1932,176 @@
     },
     "next": "Próximo",
     "backStep": "Voltar"
+  },
+  "clientRoles": {
+    "CLIENT_LEAD": "Cliente Principal",
+    "CLIENT_EDITOR": "Editor",
+    "CLIENT_VIEWER": "Visualizador"
+  },
+  "venueEventPeople": {
+    "title": "Permissões",
+    "subtitle": "Veja quem trabalha neste evento e gerencie o seu cliente.",
+    "breadcrumb": "Trilha de navegação",
+    "back": "Meus Eventos",
+    "twoSides": {
+      "title": "Dois lados trabalham neste evento",
+      "body": "{{venue}} controla a data, o endereço, o espaço e as mesas. O cliente cuida dos convidados, do RSVP, das mensagens e da distribuição nas mesas, e convida a própria equipe."
+    },
+    "client": {
+      "title": "Cliente",
+      "subtitle": "A pessoa com quem você compartilhou o evento. Ela cuida do lado dos convidados.",
+      "noneTitle": "Ainda sem cliente",
+      "noneBody": "Convide o seu cliente por e-mail. Até ele aceitar, a lista de convidados, o RSVP e as mesas ficam vazios, e só a sua equipe pode abrir o evento.",
+      "invite": "Convidar Cliente",
+      "canDo": "O que o cliente pode fazer",
+      "can1": "Convidados, RSVP, mensagens de WhatsApp e mesas",
+      "can2": "Convidar família ou um cerimonialista como Editor ou Visualizador",
+      "cannot": "A data, o endereço, o espaço e as mesas ficam com {{venue}}",
+      "notAccepted": "Ainda não aceitou",
+      "didNotAccept": "Não aceitou a tempo",
+      "resend": "Reenviar",
+      "different": "Convidar Outro Cliente",
+      "revoke": "Cancelar Convite",
+      "sentOn": "Convite enviado em",
+      "sentBy": "Enviado por",
+      "expiresOn": "O link vence em",
+      "expiredOn": "O link venceu em",
+      "timesSent": "Vezes enviado",
+      "sentNote": "O evento aparece como Convite enviado em Meus Eventos até o cliente aceitar. Cada link funciona uma vez e vence em 7 dias.",
+      "expiredTitle": "O link do convite venceu",
+      "expiredBody": "Ninguém aceitou em 7 dias. Reenvie para mandar um novo link ao mesmo endereço, ou convide outro cliente.",
+      "demoLink": "A demonstração não envia e-mail. Abra o link que o seu cliente receberia:",
+      "openLink": "Abrir o Link do Convite",
+      "email": "E-mail para {{name}}",
+      "joinedOn": "Entrou em",
+      "invitedBy": "Convidado por",
+      "clientTeam": "Equipe do cliente",
+      "people_one": "{{count}} pessoa",
+      "people_other": "{{count}} pessoas",
+      "guests": "Convidados na lista",
+      "guestsCount_one": "{{count}} convidado",
+      "guestsCount_other": "{{count}} convidados",
+      "joinedNote": "{{name}} agora cuida dos convidados, do RSVP, das mensagens e das mesas. A data, o espaço e as mesas ficam com {{venue}}. Para passar o evento a outra pessoa depois que o cliente entrou, fale com o suporte do Event Planner.",
+      "pastTitle": "Este evento terminou",
+      "pastBody": "Tudo está só para leitura para você e para {{name}}. Os dois lados ainda podem ver o evento e baixar exportações.",
+      "pastNoClient": "O evento terminou sem cliente.",
+      "unknown": "—"
+    },
+    "clientTeam": {
+      "title": "Equipe do Cliente",
+      "subtitle": "O cliente convida a própria equipe depois de entrar.",
+      "subtitleJoined": "Pessoas que {{name}} convidou para ajudar com convidados, RSVP e mesas. Gerenciada pelo cliente.",
+      "viewOnly": "Só leitura",
+      "empty": "A equipe do cliente aparece aqui depois que ele entrar.",
+      "caption": "A equipe do cliente",
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Função",
+      "since": "Membro desde",
+      "noAccount": "Ainda sem conta",
+      "pending": "Pendente",
+      "invited": "Convidado em {{date}}"
+    },
+    "venueTeam": {
+      "title": "Equipe do Espaço",
+      "subtitle": "Toda a equipe de {{venue}} pode abrir este evento. Gerenciada na página Equipe.",
+      "open": "Abrir Equipe",
+      "caption": "A equipe do espaço",
+      "you": "Você"
+    },
+    "inviteDialog": {
+      "title": "Convidar Cliente",
+      "titleDifferent": "Convidar Outro Cliente",
+      "intro": "Ele recebe um e-mail e entra com este endereço para aceitar.",
+      "introDifferent": "O link enviado para {{email}} para de funcionar, e um novo vai para este endereço.",
+      "email": "E-mail do Cliente",
+      "send": "Enviar Convite",
+      "sent": "Convite enviado para {{email}}",
+      "demoNote": "A demonstração não envia e-mail; abra o link no cartão do cliente.",
+      "joined": "O cliente já entrou; isto não pode ser mudado."
+    },
+    "revokeDialog": {
+      "title": "Cancelar o convite?",
+      "body": "O link enviado para {{email}} para de funcionar, e o evento volta a aguardar um cliente. Você pode convidar alguém depois.",
+      "confirm": "Cancelar Convite",
+      "done": "O convite foi cancelado"
+    },
+    "resent": "Um novo link foi enviado para {{email}}"
+  },
+  "acceptInvitation": {
+    "managedBy": "Gerenciado por {{venue}}",
+    "invitedYou": "{{venue}} convidou você para planejar",
+    "date": "Data",
+    "time": "Horário",
+    "space": "Espaço",
+    "spaceValue": "{{space}} · {{venue}}",
+    "address": "Endereço",
+    "invitedBy": "Convidado por {{name}}, {{venue}}",
+    "expires": "Vence em {{date}}",
+    "canDo": {
+      "title": "O Que Você Pode Fazer",
+      "subtitle": "Depois de aceitar, o evento aparece em Meus Eventos.",
+      "guests": "Convidados",
+      "guestsBody": "Adicione os seus convidados, ou importe de uma planilha.",
+      "rsvp": "Convites e RSVP",
+      "rsvpBody": "Envie convites pelo WhatsApp e acompanhe as respostas.",
+      "seating": "Mesas",
+      "seatingBody": "Distribua os convidados nas mesas que o espaço montou.",
+      "team": "Sua Equipe",
+      "teamBody": "Convide família ou um cerimonialista como Editor ou Visualizador.",
+      "maintained": "Mantido por {{venue}}: o espaço, as mesas e os detalhes do evento (data, horário, endereço e máximo de pessoas)."
+    },
+    "accept": {
+      "title": "Aceitar Convite",
+      "subtitle": "Você entra como responsável pelo evento. Depois pode convidar a sua equipe.",
+      "signedInAs": "Conectado como",
+      "matches": "O e-mail confere",
+      "different": "Outro e-mail",
+      "button": "Aceitar Convite",
+      "notYou": "Não é você?",
+      "switch": "Trocar de conta",
+      "expiresNote": "Este convite vence em {{date}}.",
+      "otherTitle": "Este convite é para outro e-mail",
+      "otherBody": "Ele foi enviado para {{invited}}. Não é possível aceitar conectado como {{current}}.",
+      "otherHelp": "Entre na conta que usa {{invited}}, ou crie uma com esse e-mail. Se o convite deveria ir para {{current}}, peça a {{name}}, de {{venue}}, para enviar um novo.",
+      "signInTitle": "Entre para aceitar",
+      "signInBody": "Este convite é para {{email}}. Entre com esse endereço, ou crie uma conta com ele.",
+      "signIn": "Entrar",
+      "createAccount": "Criar Conta",
+      "venueMember": "Você faz parte da equipe de {{venue}}, por isso não pode ser também o cliente deste evento. O cliente precisa de uma conta própria.",
+      "demoTitle": "Demonstração",
+      "demoBody": "A demonstração tem uma conta só, então não pode entrar como {{email}}. Veja o que acontece quando o cliente aceita:",
+      "demoAccept": "Aceitar como o Cliente"
+    },
+    "goToEvents": "Ir para Meus Eventos",
+    "accepted": {
+      "title": "Convite Aceito",
+      "body": "{{name}} já está em Meus Eventos. Comece pela lista de convidados quando quiser.",
+      "bodyDemo": "{{email}} aceitou, e {{venue}} vê que o cliente entrou. Abrir o evento como o cliente vem com os dois lados do evento.",
+      "next": "Próximos Passos",
+      "guests": "Adicione os convidados",
+      "guestsBody": "Convidados: um a um ou importando uma planilha",
+      "rsvp": "Configure a página de RSVP",
+      "rsvpBody": "RSVP: a página em que os convidados respondem",
+      "team": "Convide a sua equipe",
+      "teamBody": "Permissões: família ou um cerimonialista",
+      "backToVenue": "Voltar para {{venue}}"
+    },
+    "used": {
+      "title": "Este Convite Já Foi Usado",
+      "body": "O convite para planejar {{name}} foi aceito, e cada link funciona uma vez. Se foi você, o evento está em Meus Eventos."
+    },
+    "expired": {
+      "title": "Este Convite Venceu",
+      "body": "O convite para planejar {{name}} venceu em {{date}}. Os convites valem 7 dias. Peça a {{venue}} para enviar um novo."
+    },
+    "revoked": {
+      "title": "Este Convite Não Vale Mais",
+      "body": "{{venue}} cancelou o convite para planejar {{name}}, ou enviou um link mais novo. Peça o link mais recente."
+    },
+    "contact": "{{name}}, {{venue}}",
+    "contactRole": "Seu contato no espaço",
+    "emailVenue": "E-mail para {{venue}}",
+    "notFound": "Este link de convite não é válido. Confira se você copiou o link inteiro do e-mail."
   }
 }

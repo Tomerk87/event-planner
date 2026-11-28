@@ -39,6 +39,8 @@ import type {
   LayoutTemplate,
   OrganizationInput,
   SpaceInput,
+  ClientLinkState,
+  ClientTeamRole,
   TemplateFigures,
   VenueEventInput,
   VenueEventStatus,
@@ -577,6 +579,58 @@ export interface VenueTeam {
   invitations: VenueMemberInvitation[]
 }
 
+/** Someone on the client side of a venue event (mockup #10). */
+export interface ClientTeamEntry {
+  /** Null for someone invited who has no account yet. */
+  name: string | null
+  email: string
+  role: ClientTeamRole
+  /** Joined, or (pending) invited, on this date. */
+  since: IsoDateTime
+  pending: boolean
+}
+
+/** Who works on a venue event, as the venue sees it (mockup #10). */
+export interface VenueEventPeople {
+  summary: VenueEventSummary
+  venue: VenueOrganization
+  client: {
+    name: string
+    email: string
+    sentAt: IsoDateTime
+    acceptedAt: IsoDateTime | null
+    sentByName: string | null
+    timesSent: number
+    expiresAt: IsoDateTime
+  } | null
+  /**
+   * The demo sends no email, so it shows the open link instead (D116). The
+   * real service never returns it: only the client's inbox has the link.
+   */
+  demoLinkToken: string | null
+  /** The client lead first, then their team; empty before the client joins. */
+  clientTeam: ClientTeamEntry[]
+  guestCount: number
+  venueTeam: VenueMemberSummary[]
+}
+
+/** A client invitation link, as whoever opens it sees it (mockup #12). */
+export interface ClientInvitationView {
+  state: ClientLinkState
+  email: string
+  expiresAt: IsoDateTime
+  event: Pick<Event, 'id' | 'name' | 'startsAt' | 'timeZone' | 'coverImage'>
+  venueId: Id
+  venueName: string
+  space: Pick<VenueSpace, 'name' | 'address'>
+  invitedBy: { name: string; email: string } | null
+  /** The signed-in account, or null when no one is signed in. */
+  signedInAs: { name: string; email: string } | null
+  emailMatches: boolean
+  /** The signed-in account is the event's client lead. */
+  isYours: boolean
+}
+
 /**
  * Venues (V2.2, PRD section 20). Only members of a venue reach its data;
  * anything else is "not found", so a venue's existence is not revealed.
@@ -663,6 +717,26 @@ export interface VenuesService {
    * client is invited at once.
    */
   createEvent(organizationId: Id, input: VenueEventInput): Promise<Event>
+  /** Who works on a venue event: the client, their team and the venue team. */
+  getEventPeople(organizationId: Id, eventId: Id): Promise<VenueEventPeople>
+  /**
+   * Invites a client, or a different one in place of a client who hasn't
+   * joined; the earlier link stops working. Refused once a client joined.
+   */
+  inviteClient(organizationId: Id, eventId: Id, email: string): Promise<void>
+  /** A new seven-day link to the same address; the earlier one stops working. */
+  resendClientInvitation(organizationId: Id, eventId: Id): Promise<void>
+  /** Withdraws an invitation not yet accepted; the event awaits a client. */
+  revokeClientInvitation(organizationId: Id, eventId: Id): Promise<void>
+  /** What a link shows to whoever opens it; an unknown token is not found. */
+  getClientInvitation(token: string): Promise<ClientInvitationView>
+  /** Accepts as the signed-in account, which must have the invited email. */
+  acceptClientInvitation(token: string): Promise<void>
+  /**
+   * Demo only: the invited client accepts, since the demo has one account.
+   * Absent from the real service.
+   */
+  acceptClientInvitationAsInvitee?: (token: string) => Promise<void>
   /** Members and pending invitations; every member can see them. */
   getTeam(organizationId: Id): Promise<VenueTeam>
   /** Invites someone by email (the Owner only). */

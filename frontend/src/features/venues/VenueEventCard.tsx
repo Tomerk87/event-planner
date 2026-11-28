@@ -11,11 +11,13 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import type { VenueEventStatus } from '../../domain/venues.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import type { VenueEventSummary } from '../../services/contracts/index.ts'
 import { Badge, type Tone } from '../../shared/ui/Badge.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
+import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { cx } from '../../shared/ui/cx.ts'
 import { EventCover } from '../../shared/ui/EventCover.tsx'
 import type { EventsView } from '../events/EventCard.tsx'
@@ -77,7 +79,15 @@ export function VenueEventCard({ summary, view }: VenueEventCardProps) {
       </div>
 
       <div className={styles.body}>
-        <h2 className={styles.name}>{event.name}</h2>
+        <h2 className={styles.name}>
+          {view === 'list' ? (
+            <Link className={venueStyles.nameLink} to={event.id}>
+              {event.name}
+            </Link>
+          ) : (
+            event.name
+          )}
+        </h2>
         {view === 'list' && (
           <span className={venueStyles.listStatus}>
             <VenueStatusBadge status={status} />
@@ -150,7 +160,15 @@ export function VenueEventCard({ summary, view }: VenueEventCardProps) {
           </p>
         )}
         {view === 'grid' && (
-          <div className={styles.footer}>
+          <div className={cx(styles.footer, venueStyles.footer)}>
+            <ButtonLink
+              to={event.id}
+              variant="secondary"
+              icon={<User />}
+              label={t('venueEvents.manageClientNamed', { name: event.name })}
+            >
+              {t('venueEvents.manageClient')}
+            </ButtonLink>
             {/* Opening a venue event comes with its two sides (PLAN.md Phase 29). */}
             <Button
               variant={isPast ? 'secondary' : 'primary'}

@@ -635,3 +635,265 @@ describe('creating a venue event (Phase 27, mockup #9)', () => {
     expect(event.name).toBe(input.name)
   })
 })
+
+describe('the client invitation (Phase 28, mockups #10 and #12)', () => {
+  async function setup() {
+    const persistence = createMemoryPersistence<StoredDemo>({
+      version: DATASET_VERSION,
+      state: generateDemoState(NOW),
+    })
+    const services = createMockServices({
+      persistence,
+      now: () => NOW,
+      venues: true,
+    })
+    const venues = services.venues!
+    const events = await venues.listEvents('org-1')
+    const withStatus = (status: string) =>
+      events.find((summary) => summary.status === status)!.event.id
+    const stored = () => (persistence.load() as StoredDemo).state
+    return { venues, withStatus, stored }
+  }
+
+  it('shows the joined client, their team and the venue team', async () => {
+    const { venues, withStatus } = await setup()
+    const people = await venues.getEventPeople(
+      'org-1',
+      withStatus('CLIENT_JOINED'),
+    )
+    expect(people.client).toMatchObject({ name: 'Dana Levi', timesSent: 1 })
+    expect(people.client?.acceptedAt).not.toBeNull()
+    expect(people.demoLinkToken).toBeNull()
+    expect(
+      people.clientTeam.map((entry) => [entry.role, entry.pending]),
+    ).toEqual([
+      ['CLIENT_LEAD', false],
+      ['CLIENT_EDITOR', false],
+      ['CLIENT_VIEWER', false],
+      ['CLIENT_EDITOR', true],
+    ])
+    expect(people.guestCount).toBeGreaterThan(0)
+    expect(people.venueTeam[0]?.role).toBe('VENUE_OWNER')
+    // The venue never sees guests' phone numbers (D111, Q2).
+    expect(JSON.stringify(people)).not.toMatch(/\+972|\(?0\d\)? ?0000/)
+  })
+
+  it('resends a new link and stops the earlier one', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('INVITATION_SENT')
+    const before = await venues.getEventPeople('org-1', eventId)
+    const oldToken = before.demoLinkToken!
+    expect((await venues.getClientInvitation(oldToken)).state).toBe('OPEN')
+
+    await venues.resendClientInvitation('org-1', eventId)
+    const after = await venues.getEventPeople('org-1', eventId)
+    expect(after.client?.timesSent).toBe(2)
+    expect(after.client?.sentAt).toBe(NOW.toISOString())
+    expect(after.demoLinkToken).not.toBe(oldToken)
+    expect((await venues.getClientInvitation(oldToken)).state).toBe('REVOKED')
+  })
+
+  it('a resend brings an expired invitation back', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('INVITATION_EXPIRED')
+    const token = (await venues.getEventPeople('org-1', eventId)).demoLinkToken!
+    expect((await venues.getClientInvitation(token)).state).toBe('EXPIRED')
+    await venues.resendClientInvitation('org-1', eventId)
+    const events = await venues.listEvents('org-1')
+    expect(events.find((s) => s.event.id === eventId)?.status).toBe(
+      'INVITATION_SENT',
+    )
+  })
+
+  it('invites a different client, or revokes, before anyone joins', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('INVITATION_SENT')
+    const oldToken = (await venues.getEventPeople('org-1', eventId))
+      .demoLinkToken!
+
+    await venues.inviteClient('org-1', eventId, 'New.Client@Example.com')
+    const changed = await venues.getEventPeople('org-1', eventId)
+    expect(changed.client?.email).toBe('new.client@example.com')
+    expect(changed.client?.timesSent).toBe(1)
+    expect((await venues.getClientInvitation(oldToken)).state).toBe('REVOKED')
+
+    const newToken = changed.demoLinkToken!
+    await venues.revokeClientInvitation('org-1', eventId)
+    expect((await venues.getEventPeople('org-1', eventId)).client).toBeNull()
+    expect((await venues.getClientInvitation(newToken)).state).toBe('REVOKED')
+  })
+
+  it('invites a client to an event awaiting one', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('AWAITING_CLIENT')
+    await venues.inviteClient('org-1', eventId, 'couple@example.com')
+    const people = await venues.getEventPeople('org-1', eventId)
+    expect(people.summary.status).toBe('INVITATION_SENT')
+    expect(people.client?.sentByName).toBe('Alex Morgan')
+  })
+
+  it('keeps a joined client and a past event as they are', async () => {
+    const { venues, withStatus } = await setup()
+    const joined = withStatus('CLIENT_JOINED')
+    expect(
+      await codeOf(venues.inviteClient('org-1', joined, 'x@example.com')),
+    ).toBe('VALIDATION')
+    expect(await codeOf(venues.revokeClientInvitation('org-1', joined))).toBe(
+      'VALIDATION',
+    )
+    expect(await codeOf(venues.resendClientInvitation('org-1', joined))).toBe(
+      'VALIDATION',
+    )
+    expect(
+      await codeOf(
+        venues.inviteClient('org-1', withStatus('PAST'), 'x@example.com'),
+      ),
+    ).toBe('EVENT_READ_ONLY')
+    expect(
+      await codeOf(
+        venues.inviteClient('org-1', withStatus('AWAITING_CLIENT'), 'nope'),
+      ),
+    ).toBe('VALIDATION')
+  })
+
+  it('reaches no other venue’s event, and no unknown link', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('INVITATION_SENT')
+    // org-2 is a venue the demo user is in, but the event isn't its.
+    expect(await codeOf(venues.getEventPeople('org-2', eventId))).toBe(
+      'NOT_FOUND',
+    )
+    expect(await codeOf(venues.getEventPeople('org-9', eventId))).toBe(
+      'NOT_FOUND',
+    )
+    expect(await codeOf(venues.revokeClientInvitation('org-2', eventId))).toBe(
+      'NOT_FOUND',
+    )
+    expect(await codeOf(venues.getClientInvitation('not-a-token'))).toBe(
+      'NOT_FOUND',
+    )
+  })
+
+  it('accepts only with the invited email, never as a venue member', async () => {
+    const { venues, withStatus, stored } = await setup()
+    const eventId = withStatus('INVITATION_SENT')
+    const token = (await venues.getEventPeople('org-1', eventId)).demoLinkToken!
+
+    const view = await venues.getClientInvitation(token)
+    expect(view).toMatchObject({
+      state: 'OPEN',
+      emailMatches: false,
+      isYours: false,
+      venueName: 'Grand Garden Hall',
+      signedInAs: { name: 'Alex Morgan' },
+    })
+    expect(await codeOf(venues.acceptClientInvitation(token))).toBe('FORBIDDEN')
+
+    await venues.acceptClientInvitationAsInvitee!(token)
+    const people = await venues.getEventPeople('org-1', eventId)
+    expect(people.summary.status).toBe('CLIENT_JOINED')
+    expect(people.clientTeam).toMatchObject([
+      {
+        role: 'CLIENT_LEAD',
+        email: 'rachel.cohen@example.com',
+        pending: false,
+      },
+    ])
+    expect((await venues.getClientInvitation(token)).state).toBe('USED')
+    expect(await codeOf(venues.acceptClientInvitationAsInvitee!(token))).toBe(
+      'LINK_EXPIRED',
+    )
+    // The client is never a member of the personal event records.
+    expect(stored().memberships.some((m) => m.eventId === eventId)).toBe(false)
+  })
+
+  it('refuses a venue member who has the invited email', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('AWAITING_CLIENT')
+    // The demo user's own address: they are the venue's Owner.
+    await venues.inviteClient('org-1', eventId, 'alex.morgan@example.com')
+    const token = (await venues.getEventPeople('org-1', eventId)).demoLinkToken!
+    expect((await venues.getClientInvitation(token)).emailMatches).toBe(true)
+    expect(await codeOf(venues.acceptClientInvitation(token))).toBe('FORBIDDEN')
+  })
+
+  it('a Manager handles the client too (D112)', async () => {
+    const { venues } = await setup()
+    const event = await venues.createEvent('org-2', {
+      spaceId: 'spc-2-1',
+      templateId: 'tpl-2-1-1',
+      name: 'Terrace Dinner',
+      startsAt: '2027-01-14T17:00:00.000Z',
+    })
+    await venues.inviteClient('org-2', event.id, 'c@example.com')
+    await venues.resendClientInvitation('org-2', event.id)
+    const people = await venues.getEventPeople('org-2', event.id)
+    expect(people.client).toMatchObject({
+      email: 'c@example.com',
+      timesSent: 2,
+    })
+  })
+
+  it('refuses a resend or revoke with no client, and shows a past event', async () => {
+    const { venues, withStatus } = await setup()
+    const awaiting = withStatus('AWAITING_CLIENT')
+    expect(await codeOf(venues.resendClientInvitation('org-1', awaiting))).toBe(
+      'NOT_FOUND',
+    )
+    expect(await codeOf(venues.revokeClientInvitation('org-1', awaiting))).toBe(
+      'NOT_FOUND',
+    )
+    const past = await venues.getEventPeople('org-1', withStatus('PAST'))
+    expect(past.summary.isPast).toBe(true)
+    expect(past.demoLinkToken).toBeNull()
+    expect(
+      await codeOf(venues.revokeClientInvitation('org-1', withStatus('PAST'))),
+    ).not.toBe('NO_ERROR')
+  })
+
+  it('shows a joined client’s used link, not as the viewer’s own', async () => {
+    const { venues, withStatus, stored } = await setup()
+    const eventId = withStatus('CLIENT_JOINED')
+    const link = stored().clientInvitationLinks!.find(
+      (l) => l.eventId === eventId,
+    )!
+    const view = await venues.getClientInvitation(link.token)
+    expect(view).toMatchObject({
+      state: 'USED',
+      isYours: false,
+      emailMatches: false,
+    })
+    expect(view.invitedBy?.name).toBeTruthy()
+    expect(await codeOf(venues.acceptClientInvitation(link.token))).toBe(
+      'LINK_EXPIRED',
+    )
+  })
+
+  it('accepts for an invitee who already has an account', async () => {
+    const { venues, withStatus } = await setup()
+    const eventId = withStatus('INVITATION_SENT')
+    // Dana Levi has an account: she leads another event.
+    await venues.inviteClient('org-1', eventId, 'dana.levi@example.com')
+    const token = (await venues.getEventPeople('org-1', eventId)).demoLinkToken!
+    await venues.acceptClientInvitationAsInvitee!(token)
+    const people = await venues.getEventPeople('org-1', eventId)
+    expect(people.client?.name).toBe('Dana Levi')
+    expect(people.clientTeam[0]).toMatchObject({
+      name: 'Dana Levi',
+      role: 'CLIENT_LEAD',
+    })
+  })
+
+  it('a member of no venue reaches no venue event', async () => {
+    const services = create()
+    const venues = services.venues!
+    const events = await venues.listEvents('org-1')
+    const eventId = events[0]!.event.id
+    expect(
+      await codeOf(venues.inviteClient('org-3', eventId, 'a@example.com')),
+    ).toBe('NOT_FOUND')
+    expect(await codeOf(venues.resendClientInvitation('org-3', eventId))).toBe(
+      'NOT_FOUND',
+    )
+  })
+})
