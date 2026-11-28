@@ -94,6 +94,11 @@ const VENUE_PAGES = [
   ['Team', '/venues/org-1/team'],
   ['Settings', '/venues/org-1/settings'],
   ['a layout template', '/venues/org-1/spaces/spc-1-1/layouts/tpl-1-1-3'],
+  ['the create event wizard', '/venues/org-1/events/new'],
+  [
+    'the create event details',
+    '/venues/org-1/events/new?space=spc-1-1&layout=tpl-1-1-1',
+  ],
 ] as const
 
 for (const language of ['en', 'he', 'pt'] as const) {
@@ -209,4 +214,40 @@ test('a new layout gets a table placed on its plan, kept after a reload', async 
   await page.reload()
   await page.getByRole('button', { name: 'Edit Layout' }).click()
   await expect(page.getByText('Every table is on the plan.')).toBeVisible()
+})
+
+test('a venue event is created from a layout and listed for the venue', async ({
+  page,
+}) => {
+  await page.goto(VENUE_EVENTS)
+  await page.getByRole('link', { name: 'Create Event' }).first().click()
+  await page.getByRole('button', { name: /Main Hall/ }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: /Wedding Rounds/ }).click()
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await page.getByRole('textbox', { name: /Event Name/ }).fill('Noa & Ben')
+  const day = new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10)
+  await page.getByLabel(/^Date/).fill(day)
+  await page.getByLabel(/^Start Time/).fill('19:00')
+  await page.getByRole('button', { name: 'Next' }).click()
+
+  await expect(
+    page.getByRole('heading', { name: 'Review and Create' }),
+  ).toBeVisible()
+  await expectNoViolations(page)
+  await expectNoSidewaysScroll(page)
+  await page
+    .getByRole('textbox', { name: /Client Email/ })
+    .fill('noa@example.com')
+  await page.getByRole('button', { name: 'Create Event' }).click()
+  await expect(page.getByText('Event created')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Back to My Events' }).click()
+  const card = page.getByRole('article').filter({ hasText: 'Noa & Ben' })
+  await expect(card).toContainText('Invitation sent')
+
+  // A venue event stays out of the personal My Events.
+  await page.goto('/events')
+  await expect(page.getByText('Noa & Ben')).toHaveCount(0)
 })

@@ -1655,8 +1655,7 @@
       "archivedDone": "Layout archived.",
       "restoredDone": "Layout restored.",
       "createEvent": "Create Event from This Layout",
-      "preview": "Floor plan of {{name}}",
-      "soonCreate": "Creating events comes soon"
+      "preview": "Floor plan of {{name}}"
     },
     "upcoming": {
       "title": "Upcoming Events in This Space",
@@ -1835,5 +1834,100 @@
     },
     "planHint": "Drag to look around; zoom with the buttons or a trackpad pinch. Select a table to see its details.",
     "planHintTouch": "Pinch to zoom and drag to explore the layout. Tap a table to see its details."
+  },
+  "createVenueEvent": {
+    "title": "Create Event",
+    "subtitle": "Set up an event in one of your spaces, then share it with your client.",
+    "back": "My Events",
+    "breadcrumb": "Breadcrumb",
+    "action": "Create Event",
+    "steps": {
+      "label": "Steps",
+      "space": "Space",
+      "spaceHint": "Choose a space",
+      "layout": "Layout",
+      "layoutHint": "Choose a layout",
+      "details": "Details",
+      "detailsHint": "Name, date, time",
+      "review": "Review",
+      "reviewHint": "Check and create",
+      "done": "Done",
+      "current": "Current step"
+    },
+    "space": {
+      "title": "Choose a Space",
+      "subtitle": "Where will the event take place? The event gets this space’s address and max people.",
+      "noLayouts": "No layouts yet",
+      "people": "{{count}} max people",
+      "layouts": "Layouts: {{count}}",
+      "empty": "No active spaces. Create a space and draw a layout first."
+    },
+    "layout": {
+      "title": "Choose a Layout",
+      "subtitle": "The event gets its own copy of this layout. You can change its tables later without touching the saved layout.",
+      "figures": "{{tables}} tables · {{chairs}} chairs",
+      "moreChairs": "{{count}} more chairs than max people"
+    },
+    "details": {
+      "title": "Event Details",
+      "subtitle": "Your client sees the date, time and place but can’t change them. You can change them later in Event Settings.",
+      "summary": "{{address}} · {{people}} max people · {{tables}} tables · {{chairs}} chairs",
+      "change": "Change",
+      "name": "Event Name",
+      "nameHint": "Shown to the client, on the event card and on the public RSVP page. Your client can change it later.",
+      "date": "Date",
+      "time": "Start Time",
+      "timeHint": "In the space’s time zone ({{zone}}).",
+      "photo": "Cover Photo"
+    },
+    "review": {
+      "title": "Review and Create",
+      "subtitle": "Check the details. The event is created with its own copy of the layout, ready for your client.",
+      "space": "Space",
+      "address": "Address",
+      "dateTime": "Date and Time",
+      "layout": "Layout",
+      "ownCopy": "The event gets its own copy",
+      "eventName": "Event Name",
+      "edit": "Edit",
+      "maxPeople": "Max People",
+      "people": "people",
+      "tables": "Tables",
+      "chairs": "Chairs",
+      "client": "Client",
+      "optional": "Optional",
+      "clientIntro": "Invite the person you’re planning with, for example the couple. They get an email and sign in with this address.",
+      "clientEmail": "Client Email",
+      "clientHint": "Leave it empty to invite them later from the event’s Permissions page.",
+      "clientCan1": "Guests, RSVP, WhatsApp messages and seating",
+      "clientCan2": "Invite family or a planner as Editor or Viewer",
+      "clientCannot": "The date, address, room and tables stay with {{venue}}",
+      "copyTitle": "The event gets its own copy of {{layout}}",
+      "copyBody": "Later changes to the saved layout or to {{space}} don’t change this event. No guests are copied.",
+      "willInvite": "An invitation will be emailed to the client",
+      "demoNote": "The demo sends no email.",
+      "create": "Create Event"
+    },
+    "sameDay": {
+      "title": "Same-day booking",
+      "body": "{{space}} already has {{name}} at {{time}} on {{date}}."
+    },
+    "created": {
+      "title": "Event created",
+      "body": "{{name}} is ready in {{space}}, with its own copy of {{layout}}.",
+      "invited": "An invitation is waiting for {{email}}.",
+      "noClient": "Invite the client from the event’s Permissions page when you’re ready.",
+      "toEvents": "Back to My Events",
+      "another": "Create Another"
+    },
+    "errors": {
+      "name": "Enter a name of up to {{max}} characters",
+      "date": "Choose a date",
+      "time": "Choose a start time",
+      "past": "Choose a date and time that haven’t passed",
+      "email": "Enter an email address, or leave it empty"
+    },
+    "next": "Next",
+    "backStep": "Back"
   }
 }

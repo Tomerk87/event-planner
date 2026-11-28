@@ -4,6 +4,7 @@ import type { TableInput } from '../../domain/seating.ts'
 import type {
   OrganizationInput,
   SpaceInput,
+  VenueEventInput,
   VenueMemberRole,
 } from '../../domain/venues.ts'
 import { useServices } from '../../services/servicesContext.ts'
@@ -157,5 +158,12 @@ export function useRemoveTemplateTable(
   const venues = useVenuesService()
   return useVenueMutation((number: number) =>
     venues.removeTemplateTable(organizationId, templateId, number),
+  )
+}
+
+export function useCreateVenueEvent(organizationId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation((input: VenueEventInput) =>
+    venues.createEvent(organizationId, input),
   )
 }

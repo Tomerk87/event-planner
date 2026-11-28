@@ -1656,8 +1656,7 @@
       "archivedDone": "Layout arquivado.",
       "restoredDone": "Layout restaurado.",
       "createEvent": "Criar Evento com Este Layout",
-      "preview": "Planta de {{name}}",
-      "soonCreate": "Criar eventos chega em breve"
+      "preview": "Planta de {{name}}"
     },
     "upcoming": {
       "title": "Próximos Eventos Neste Espaço",
@@ -1836,5 +1835,100 @@
     },
     "planHint": "Arraste para explorar; use os botões ou o gesto de pinça no trackpad para dar zoom. Selecione uma mesa para ver os detalhes dela.",
     "planHintTouch": "Faça o gesto de pinça para dar zoom e arraste para explorar o layout. Toque em uma mesa para ver os detalhes dela."
+  },
+  "createVenueEvent": {
+    "title": "Criar Evento",
+    "subtitle": "Monte um evento em um dos seus espaços e depois compartilhe com o seu cliente.",
+    "back": "Meus Eventos",
+    "breadcrumb": "Trilha de navegação",
+    "action": "Criar Evento",
+    "steps": {
+      "label": "Etapas",
+      "space": "Espaço",
+      "spaceHint": "Escolha um espaço",
+      "layout": "Layout",
+      "layoutHint": "Escolha um layout",
+      "details": "Detalhes",
+      "detailsHint": "Nome, data, horário",
+      "review": "Revisão",
+      "reviewHint": "Conferir e criar",
+      "done": "Concluída",
+      "current": "Etapa atual"
+    },
+    "space": {
+      "title": "Escolha um Espaço",
+      "subtitle": "Onde será o evento? O evento recebe o endereço e o máximo de pessoas deste espaço.",
+      "noLayouts": "Ainda sem layouts",
+      "people": "Máx. de {{count}} pessoas",
+      "layouts": "Layouts: {{count}}",
+      "empty": "Nenhum espaço ativo. Crie um espaço e desenhe um layout antes."
+    },
+    "layout": {
+      "title": "Escolha um Layout",
+      "subtitle": "O evento recebe sua própria cópia deste layout. Você pode mudar as mesas depois sem alterar o layout salvo.",
+      "figures": "{{tables}} mesas · {{chairs}} cadeiras",
+      "moreChairs": "{{count}} cadeiras a mais que o máximo de pessoas"
+    },
+    "details": {
+      "title": "Detalhes do Evento",
+      "subtitle": "Seu cliente vê a data, o horário e o local, mas não pode mudá-los. Você pode mudá-los depois nas Configurações do Evento.",
+      "summary": "{{address}} · máx. de {{people}} pessoas · {{tables}} mesas · {{chairs}} cadeiras",
+      "change": "Mudar",
+      "name": "Nome do Evento",
+      "nameHint": "Mostrado ao cliente, no cartão do evento e na página pública de RSVP. O cliente pode mudá-lo depois.",
+      "date": "Data",
+      "time": "Horário de Início",
+      "timeHint": "No fuso horário do espaço ({{zone}}).",
+      "photo": "Foto de Capa"
+    },
+    "review": {
+      "title": "Revisar e Criar",
+      "subtitle": "Confira os detalhes. O evento é criado com sua própria cópia do layout, pronto para o seu cliente.",
+      "space": "Espaço",
+      "address": "Endereço",
+      "dateTime": "Data e Horário",
+      "layout": "Layout",
+      "ownCopy": "O evento recebe sua própria cópia",
+      "eventName": "Nome do Evento",
+      "edit": "Editar",
+      "maxPeople": "Máx. de Pessoas",
+      "people": "pessoas",
+      "tables": "Mesas",
+      "chairs": "Cadeiras",
+      "client": "Cliente",
+      "optional": "Opcional",
+      "clientIntro": "Convide a pessoa com quem você está planejando, por exemplo o casal. Ela recebe um e-mail e entra com este endereço.",
+      "clientEmail": "E-mail do Cliente",
+      "clientHint": "Deixe em branco para convidar depois pela página Permissões do evento.",
+      "clientCan1": "Convidados, RSVP, mensagens de WhatsApp e mesas",
+      "clientCan2": "Convidar família ou um cerimonialista como Editor ou Visualizador",
+      "clientCannot": "A data, o endereço, o espaço e as mesas ficam com {{venue}}",
+      "copyTitle": "O evento recebe sua própria cópia de {{layout}}",
+      "copyBody": "Mudanças posteriores no layout salvo ou em {{space}} não alteram este evento. Nenhum convidado é copiado.",
+      "willInvite": "Um convite será enviado ao cliente por e-mail",
+      "demoNote": "A demonstração não envia e-mail.",
+      "create": "Criar Evento"
+    },
+    "sameDay": {
+      "title": "Reserva no mesmo dia",
+      "body": "{{space}} já tem {{name}} às {{time}} em {{date}}."
+    },
+    "created": {
+      "title": "Evento criado",
+      "body": "{{name}} está pronto em {{space}}, com sua própria cópia de {{layout}}.",
+      "invited": "Um convite aguarda {{email}}.",
+      "noClient": "Convide o cliente pela página Permissões do evento quando quiser.",
+      "toEvents": "Voltar para Meus Eventos",
+      "another": "Criar Outro"
+    },
+    "errors": {
+      "name": "Digite um nome de até {{max}} caracteres",
+      "date": "Escolha uma data",
+      "time": "Escolha um horário de início",
+      "past": "Escolha uma data e um horário que ainda não passaram",
+      "email": "Digite um e-mail, ou deixe em branco"
+    },
+    "next": "Próximo",
+    "backStep": "Voltar"
   }
 }

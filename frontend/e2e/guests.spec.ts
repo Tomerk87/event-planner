@@ -130,7 +130,12 @@ test('filters, sorting and paging are kept in the address across a reload', asyn
   isMobile,
 }) => {
   await page.goto(GUESTS)
+  const range = page.getByText(/^\d+–\d+ of \d+ guests$/)
+  const everyone = await range.textContent()
   await chooseOption(page.getByLabel('RSVP Status'), 'APPROVED')
+  // The list redraws under the filter; the page size menu below it moves
+  // until it settles, so wait for the filtered count first.
+  await expect(range).not.toHaveText(everyone ?? '')
   await chooseOption(page.getByLabel('Rows per page'), '25')
   await page.getByRole('button', { name: 'Next page' }).click()
   await expect(page.getByText(/^26–50 of \d+ guests$/)).toBeVisible()

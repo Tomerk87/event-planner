@@ -43,6 +43,7 @@
 **Goal:** establish an unambiguous foundation without implementing product backend or Docker services.
 
 ### Checklist
+
 - [x] Confirm root `AGENTS.md`, `CLAUDE.md`, and `PLAN.md` exist; ensure Claude redirects to AGENTS.
 - [x] Confirm `docs/PRD.md` exists and includes Demo Mode, event permissions, guests, RSVP, WhatsApp, tables, exports, and past-event behavior.
 - [x] Confirm `resources/mockups/README.md` indexes actual PNG filenames, pages, breakpoints, and tab variants.
@@ -54,6 +55,7 @@
 - [x] Define code quality, tests, formatting and review workflow; create root `.gitignore` and safe `.env.example` when relevant.
 
 ### Validation and exit criteria
+
 - [x] Instructions and requirements are consistent; conflicts are explicitly recorded.
 - [x] Agent can map each planned page/tab to exact mockups.
 - [x] No real customer data or secrets are committed.
@@ -65,6 +67,7 @@
 **Goal:** run a local React + TypeScript application independently of backend, database and Docker.
 
 ### Checklist
+
 - [x] Scaffold frontend using a lightweight React + TypeScript toolchain (prefer Vite unless existing code dictates otherwise).
 - [x] Set up strict TypeScript, lint, formatting, unit/component test runner, and browser end-to-end testing strategy.
 - [x] Set up frontend routing for Homepage/Events, Dashboard, Guests, Messages, RSVP Settings, Event Layout, Event Settings, Permissions, and public RSVP.
@@ -74,6 +77,7 @@
 - [x] Establish `.env.example` with a safe configuration switch for mock vs API providers (no secrets).
 
 ### Validation and exit criteria
+
 - [x] `npm` scripts for dev, build, typecheck, lint and tests work.
 - [x] App loads locally without NestJS, PostgreSQL or Docker.
 - [x] Unimplemented routes have clear placeholders, not silent crashes.
@@ -85,6 +89,7 @@
 **Goal:** establish one reusable visual language from the actual desktop/mobile mockups before creating feature pages.
 
 ### Checklist
+
 - [x] Read `resources/mockups/README.md`; inspect all supplied screen types to extract common patterns.
 - [x] Define design tokens: colors, typography, borders, radius, spacing, responsive breakpoints and semantic statuses.
 - [x] Create accessible reusable components: buttons, inputs, selects, tables, mobile cards, tabs, headers, dialogs, drawers, KPI cards, badges, notices, toasts, empty/loading/error states.
@@ -98,6 +103,7 @@
 - [x] Document any mockup gaps or conflicts; do not introduce unrelated visual patterns.
 
 ### Validation and exit criteria
+
 - [x] Components render at desktop/mobile widths and in English LTR/Hebrew RTL.
 - [x] Keyboard focus and labels work in common components.
 - [x] UI foundation visually resembles the reference images.
@@ -109,6 +115,7 @@
 **Goal:** build the interactive data engine once so every demo page uses consistent realistic data and behavior.
 
 ### Checklist
+
 - [x] Define TypeScript contracts for User, Event, EventPermission, Guest, Unknown RSVP, RSVP Settings, WhatsApp Settings, Table, Assignment, analytics and relevant export models.
 - [x] Define feature service interfaces for all CRUD and workflows, with Promise-based results and well-defined domain errors.
 - [x] Build deterministic, seeded fictional dataset generator with coherent event dates, permissions, guests, RSVPs, counters, tables and assignments.
@@ -128,6 +135,7 @@
 - [x] Supply the application shell with real data from the services: current event and event list for the selector, and the user's role for the avatar icon and for hiding Permissions (the shell accepts these as props; real pages currently pass none).
 
 ### Validation and exit criteria
+
 - [x] First Demo launch generates data without manual seeding.
 - [x] Demo CRUD affects related views; refresh preserves changes; Reset recreates baseline. Proven at the service level (for example: adding a guest changes the dashboard figures, and both survive a reload) and on screen for what the frame shows. Create and edit screens arrive in Phases 4–10, where this is confirmed page by page.
 - [x] Demo calculations and permissions follow approved product rules.
@@ -140,10 +148,12 @@
 **Goal:** make the first impression and event-selection flow fully interactive using mock services.
 
 ### Mockup mapping
+
 - Landing page — desktop: `landing_page.png`; mobile: `landing_page_mobile.png` (added 2026-10-13).
 - Homepage / My Events — desktop: `homepage.png`; mobile: `homepage_mobile.png`.
 
 ### Checklist
+
 - [x] Build the landing page from the mapped mockups, with the three entry flows: Sign Up → account created → My Events; Sign In → My Events; Try Demo → the populated demo.
 - [x] Build the Homepage/Events UI from the mapped mockups.
 - [x] Show event cards with event name, date/time, active/past state and accessible role where relevant.
@@ -156,6 +166,7 @@
 - [x] Build appropriate empty/loading/error and mobile states.
 
 ### Validation and exit criteria
+
 - [x] Visitor can launch demo without credentials and open a prepopulated event.
 - [x] Event create/open and role restrictions function with mock data.
 - [x] Pages compared against the landing and homepage PNGs, desktop and phone, LTR and RTL, by the agent from screenshots. The owner's own visual review is still to come.
@@ -167,9 +178,11 @@
 **Goal:** match Dashboard mockups while displaying computed statistics from demo state.
 
 ### Mockup mapping
+
 - Desktop: `dashboard.png`; mobile: `dashboard_mobile.png`.
 
 ### Checklist
+
 - [x] Build responsive KPI-card layout consistent with mockups.
 - [x] Compute Total Guests (active only), Invitations Sent (distinct sent guests), Invitations Not Sent, Awaiting Response, RSVP Approved/Not Sure/Declined, Confirmed Attendees, Seating Capacity and Unassigned Confirmed Attendees.
 - [x] Exclude Not Sure from confirmed/expected attendees and all soft-deleted guests from guest counts.
@@ -182,6 +195,7 @@
 - [x] Build Recent Guest Activity from the message history and each guest's latest response (decisions D11, P5).
 
 ### Validation and exit criteria
+
 - [x] Five sends to one guest count as one Invitations Sent guest.
 - [x] Approved party counts vs approved attendee totals are clearly distinct.
 - [x] Mobile/desktop mockups and Hebrew/RTL validated, by the agent from screenshots. The owner's own visual review is still to come.
@@ -193,11 +207,13 @@
 **Goal:** make both guest tabs functional with interactive data.
 
 ### Mockup mapping
+
 - Desktop: `guests.png`; mobile: `guests_mobile.png`.
 - Reuse visual language for Unknown Guests tab if separate mockup is unavailable.
 - Decisions for the controls the mockups do not explain: D13, D14, D31–D36 in `docs/DOMAIN.md`.
 
 ### Checklist
+
 - [x] Build desktop guest table and dedicated mobile card/list layout, with the KPI strip and the Guests / Unknown Guests tabs.
 - [x] Implement guest create/edit/soft-delete, find/search, sort, the three filters (RSVP status, invitation status, table) and pagination with rows per page.
 - [x] Enforce event-scoped normalized phone uniqueness; re-add soft-deleted phone restores its record.
@@ -217,6 +233,7 @@
 - [x] Refresh the event's data after every change, so the Dashboard and the event list show it.
 
 ### Validation and exit criteria
+
 - [x] Realistic guest CRUD, search, phone matching, restoration and Unknown Guest reconciliation work with mock data.
 - [x] Import handles invalid/duplicate rows safely; export opens correctly.
 - [x] Tab behavior, desktop/mobile and Hebrew/RTL validated, by the agent from screenshots and automated checks. The owner's own visual review is still to come.
@@ -228,9 +245,11 @@
 **Goal:** implement event settings interactions before wiring WhatsApp and RSVP pages.
 
 ### Mockup mapping
+
 - Desktop: `event_settings.png`; mobile: `event_settings_mobile.png`.
 
 ### Checklist
+
 - [x] Build Event Settings based on mapped mockups.
 - [x] Support required name, date/time and event timezone, and an optional location (D39). The RSVP language is not edited here; it belongs to RSVP Settings (D19).
 - [x] Enforce event max attendee integer minimum 50, default 300, maximum 3000.
@@ -244,6 +263,7 @@
 - [x] On a phone, put Save Changes in the pinned bottom action bar (`PageHeader` with `compactActions="bar"`), not beside the title as `event_settings_mobile.png` shows.
 
 ### Validation and exit criteria
+
 - [x] All invalid bounds produce clear feedback; valid edits update other demo screens.
 - [x] Mockups validated desktop/mobile, English/Hebrew RTL, by the agent from screenshots and automated checks. The owner's own visual review is still to come.
 
@@ -254,11 +274,13 @@
 **Goal:** implement a complete template editor and the WhatsApp send workflow.
 
 ### Mockup mapping
+
 - Desktop: `whatsapp_message.png`.
 - Mobile Editor tab: `whatsapp_message_editor_mobile.png`.
 - Mobile Preview tab: `whatsapp_message_preview_mobile.png`.
 
 ### Checklist
+
 - [x] Build desktop editor/preview layout and explicit mobile Editor and Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
 - [x] Support configured message template and approved event/guest placeholders; template limits and warnings (D48).
 - [x] Formatting toolbar: Bold, Italic, Strikethrough, Emoji, as WhatsApp marks (D17); Reset to Default; Insert Variable.
@@ -273,6 +295,7 @@
 - [x] Enable the per-row WhatsApp button on the Guests page, which Phase 6 shows disabled (D36).
 
 ### Validation and exit criteria
+
 - [x] Editor and preview stay synchronized; mobile tabs work.
 - [x] Send attempts update counters, Dashboard and Awaiting Response state correctly.
 - [x] English/Hebrew RTL and desktop/mobile mockups validated, by the agent from screenshots and automated checks. The owner's own visual review is still to come.
@@ -284,12 +307,14 @@
 **Goal:** allow demo visitors to configure and exercise the complete guest RSVP flow.
 
 ### Mockup mapping
+
 - Desktop: `rsvp_settings.png`.
 - Mobile Settings tab: `rsvp_settings_settings_mobile.png`.
 - Mobile Preview tab: `rsvp_settings_preview_mobile.png`.
 - The public RSVP experience may require additional visual guidance; follow the approved PRD and established design language.
 
 ### Checklist
+
 - [x] Build desktop RSVP settings and mobile Settings/Preview tabs. On a phone the two actions of each tab go in the pinned bottom action bar, aligned with the content; do not reproduce the over-wide bar drawn in the mockups.
 - [x] Configure Welcome, Approved, Declined, and Not Sure messages; background image and transparency/overlay.
 - [x] Create one shared RSVP URL/identifier per event, not per guest; simulate deep links in mock mode.
@@ -310,6 +335,7 @@
 - [x] The public RSVP form reads a phone by the same rule as the rest of the product (decision D37): local Israeli forms accepted, a number from abroad needs `+` and its country code; say so beside the field.
 
 ### Validation and exit criteria
+
 - [x] Known/unknown flows, invalid counts, repeat RSVP, past event lock and seating conflicts work.
 - [x] UI follows desktop/mobile mockups, including mobile tab separation, LTR and RTL.
 
@@ -320,11 +346,13 @@
 **Goal:** complete the MVP seating workflow with interactive tables and guest assignments.
 
 ### Mockup mapping
+
 - Desktop: `event_layout.png`.
 - Mobile Tables tab: `event_layout_tables_mobile.png`.
 - Mobile Arrangements tab: `event_layout_arrangement_mobile.png` (visual guidance for future editor).
 
 ### Checklist
+
 - [x] Build Event Layout navigation/tabs consistent with mockups.
 - [x] Implement Table CRUD, unique number per event, positive chair capacity and Circle/Rectangle/Square shape. A table has no name (D52), although `event_layout.png` draws one. The tables list follows the table guidelines (D55).
 - [x] Display table occupancy, remaining seats, assigned guest parties and conflicts. Status labels per D22.
@@ -337,6 +365,7 @@
 - [x] Show the Table Arrangement tab with a "Soon" badge, disabled and not selectable, on desktop and mobile. Do not build the Arrangement Preview panel. **Do not claim the full drag/drop editor is implemented**.
 
 ### Validation and exit criteria
+
 - [x] Table rules, deletion, conflicts, assignments and exports work with demo state.
 - [x] Responsive Tables UI and relevant desktop/mobile visuals validated.
 - [x] Visual Arrangement full editor is explicitly tracked as a future phase (Phase 20, `docs/FUTURE_FEATURES.md`).
@@ -348,10 +377,12 @@
 **Goal:** exercise all roles and permission workflows in the demo before enforcing them in backend.
 
 ### Mockup mapping
+
 - Desktop: `permissions.png`; mobile: `permissions_mobile.png`.
 - Follow `docs/PRD.md` for navigation order and scope; the desktop mockup's sidebar shows out-of-scope entries (see `docs/MOCKUP_NOTES.md`).
 
 ### Checklist
+
 - [x] Build Permissions table with name, email, role and available actions, using shared visual design and the table guidelines (D55).
 - [x] Invite User by email: a member at once for an existing account, a pending invitation otherwise, which becomes a membership at sign-up (D4). Change and cancel a pending invitation.
 - [x] Implement Viewer: no Permissions page/API equivalents, read/export only, no mutations or WhatsApp actions.
@@ -364,6 +395,7 @@
 - [x] Ensure past-event read-only rules override normal write privileges. Permissions of a past event are changed by an Owner or Super User only (P1).
 
 ### Validation and exit criteria
+
 - [x] Full role/action matrix tested in mock layer; UI hides/restricts actions appropriately.
 - [x] Permissions cannot be modified by a Viewer or unauthorized Admin.
 - [x] English/Hebrew and desktop/mobile validated.
@@ -375,6 +407,7 @@
 **Goal:** finish a cohesive interactive prototype and obtain explicit acceptance before backend implementation.
 
 ### Checklist
+
 - [x] Walk through every mockup mapped in `resources/mockups/README.md`; compare implemented pages/tabs and record differences. Differences are in `docs/MOCKUP_NOTES.md`.
 - [x] Review all core workflows on desktop and mobile, English/LTR and Hebrew/RTL.
 - [x] Check demo setup, deterministic reset, local persistence and independent visitor data.
@@ -388,6 +421,7 @@
 - [x] **Request and record explicit user approval to proceed to the backend phase.** Approved by the owner on 2026-10-14.
 
 ### Validation and exit criteria
+
 - [x] Interactive frontend demonstrates the MVP without a backend.
 - [x] User has approved the frontend direction or explicitly authorized moving ahead with documented exceptions.
 
@@ -398,6 +432,7 @@
 **Goal:** establish real persistence and API architecture after frontend acceptance.
 
 ### Checklist
+
 - [x] Scaffold NestJS TypeScript backend independently of React UI.
 - [x] Moved to Phase 16, when the frontend uses the backend: when the public RSVP link is served by the backend, remove the "this link opens only in this browser" notice from RSVP Settings and the matching note on the unavailable-link page (D65), and move background images and event photos out of browser storage. Done in Phase 16: notices removed; a real account's pictures are files on the server (the demo keeps its own in the browser by design).
 - [x] Set up PostgreSQL development database (local install or temporary DB-only container is acceptable; full Compose deployment remains later).
@@ -411,6 +446,7 @@
 - [x] Add backend test and migration test setup.
 
 ### Validation and exit criteria
+
 - [x] Fresh database migrations work and schema tests pass.
 - [x] Health endpoint works; backend can access PostgreSQL.
 - [x] Backend can run independently of full Docker Compose packaging.
@@ -422,6 +458,7 @@
 **Goal:** replace the simulated core account/event/security workflows with secure backend services.
 
 ### Checklist
+
 - [x] Implement actual authentication/session handling and account API; no demo credentials accepted as real authentication.
 - [x] Implement Events list, creation, settings, duplicate and delete endpoints with explicit ownership rules.
 - [x] Automatically grant event creator Owner; enforce event max attendees 50–3000/default 300 and default guest allowance 1–10/default 5.
@@ -435,6 +472,7 @@
 - [x] Add authentication, authorization, soft-delete and validation integration tests.
 
 ### Validation and exit criteria
+
 - [x] Direct unauthorized API requests fail, regardless of frontend controls.
 - [x] Multi-event membership, own-role restrictions and restoration behavior pass tests.
 - [x] Demo Mode remains isolated and unaffected.
@@ -446,6 +484,7 @@
 **Goal:** complete event operational APIs and business rules.
 
 ### Checklist
+
 - [x] Implement WhatsApp template settings, placeholder substitution and recorded initiation endpoint.
 - [x] Increment send counter exactly once per accepted initiation; record timestamp and clarify that initiation is not confirmed delivery.
 - [x] Implement one public RSVP URL per event and its default language (the guest may switch, D19).
@@ -459,6 +498,7 @@
 - [x] Add backend unit/integration tests for each key invariant and edge case.
 
 ### Validation and exit criteria
+
 - [x] API behavior matches mock provider contracts and PRD rules. Closed in Phase 16: the shared contract suite passes on the API (`npm run test:api`, 57 tests; the 2 that move the clock run on the mock only).
 - [x] Permission and past-event restrictions hold for public and authenticated endpoints.
 - [x] Dashboard totals, conflicts, imports and exports reconcile with persisted records.
@@ -470,6 +510,7 @@
 **Goal:** make the same React application work with either isolated browser demo data or real backend data.
 
 ### Checklist
+
 - [x] Implement API provider(s) against the existing typed frontend service interfaces.
 - [x] Run the provider contract suite (`frontend/src/services/contracts/servicesContract.ts`) against the API provider (`npm run test:api`).
 - [x] Select Demo mock provider or authenticated API provider at application boundary, not individually within components.
@@ -484,6 +525,7 @@
 - [x] Replace the browser-local accounts workspace (`services/mock/mockBackend.ts`) with the API for Sign Up and Sign In; keep the demo workspace as it is. Remove the "Preview version" notice from the forms.
 
 ### Validation and exit criteria
+
 - [x] All MVP flows work against PostgreSQL-backed APIs.
 - [x] Switching between demo and authenticated real modes never leaks data or permissions.
 - [x] No duplication of page components between modes.
@@ -495,6 +537,7 @@
 **Goal:** validate the integrated product before packaging/deploying.
 
 ### Checklist
+
 - [x] E2E: real sign-in → event creation → Owner membership → invite users with roles.
 - [x] E2E: Admin/Viewer/Owner permissions and attempted forbidden API calls.
 - [x] E2E: Guests CRUD, soft-delete/restore, duplicates and import/export.
@@ -517,10 +560,12 @@
 - [ ] Hebrew texts reviewed by a Hebrew speaker (moved from Phase 12 by the owner, 2026-10-13; D74). **Ask the owner how to do the review before starting it**: a side-by-side sheet of English and Hebrew, or a walk through the pages in Hebrew. The owner chose the side-by-side sheet (2026-10-15): `docs/hebrew-review.xlsx` (`npm run hebrew-review` in `frontend/`) is ready; **waiting for the owner's corrections**, then apply them and re-check the Hebrew screenshots.
 
 ### Validation and exit criteria
+
 - [x] Critical E2E paths and regression tests pass.
 - [x] Known limitations documented; no blocking security or data integrity defects.
 
 ### Owner feedback (2026-10-15)
+
 - [x] RSVP Settings Save did nothing on a real account once a picture was stored (the stored picture's address failed the browser's upload check, and the message was out of view); fixed, and a failed save's message now scrolls into view on RSVP Settings, Event Settings and WhatsApp Messages.
 - [x] "Leave without saving?" offers Save and Leave (D98).
 - [x] Change RSVP: approving starts from the guest's Expected Attendees (D98).
@@ -542,6 +587,7 @@
 Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; the domain bought at GoDaddy, which keeps the DNS records; Amazon SES for email. Guide: `docs/DEPLOYMENT.md`.
 
 ### Checklist
+
 - [x] Build optimized production frontend static assets outside the target VM where practical. (`deploy/web/Dockerfile`, built on the Mac for arm64 by `deploy/scripts/build-images.sh`.)
 - [x] Build production NestJS container image outside the target VM where practical. (`backend/Dockerfile`; images streamed over SSH by `deploy.sh`, no registry.)
 - [x] Configure Nginx to serve React static files and reverse-proxy backend/public RSVP routes.
@@ -560,6 +606,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [ ] Connect email (D88): buy the domain (at GoDaddy, D101: its DNS records are added there by hand, `docs/DEPLOYMENT.md` step 12), verify it in Amazon SES with DKIM, SPF and DMARC, request production access (leave the SES sandbox), create SES SMTP credentials kept only in the server's environment, set `EMAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`, then send a test email from the System page.
 
 ### Validation and exit criteria
+
 - [ ] Entire stack works on chosen small VM within observed resource limits.
 - [ ] HTTPS routes, public RSVP and authenticated app work.
 - [ ] Persistent data survives container restarts and application image updates.
@@ -571,6 +618,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** ensure the deployed public demo remains a safe, complete experience for anyone trying the application.
 
 ### Checklist
+
 - [ ] Confirm Try Demo is reachable without account creation in deployed frontend.
 - [ ] Confirm demo data appears automatically and supports interactive guest, RSVP, message, seating and permission exploration.
 - [ ] Confirm demo mutations persist across browser refresh and Reset restores baseline.
@@ -585,6 +633,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [ ] Demo-only site live on Netlify: the owner connects the repository (`docs/DEPLOYMENT.md`, "Demo-only site"); smoke tests pass against its address; checked on a phone.
 
 ### Validation and exit criteria
+
 - [ ] Public demo and real app can be demonstrated independently.
 - [ ] MVP POC is ready for stakeholder/user testing.
 
@@ -595,6 +644,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** add the persisted editable blueprint after MVP stability, unless scope is explicitly changed.
 
 ### Checklist
+
 - [x] Confirm the editor's scope and review `event_layout.png` and `event_layout_arrangement_mobile.png`. (Owner approved the plan 2026-10-16, adding the floor picture.)
 - [x] Design persisted layout schema/coordinate system and scale/rotation conventions. (D100: centimetres, centre plus 0–359°.)
 - [x] Support View and Edit modes, defaulting to View.
@@ -609,6 +659,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] Add geometry, persistence, permission and responsive tests.
 
 ### Validation and exit criteria
+
 - [ ] Floor plans remain consistent with seating data and survive reloads. (Verified by tests; awaits owner review.)
 
 ---
@@ -618,6 +669,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** make the product usable by Brazilian organizers and their guests, on the full product and the demo site (owner request 2026-10-16, D103). Spanish may follow, so each part is a list a further language or country joins.
 
 ### Checklist
+
 - [x] Portuguese (`pt`, `pt-BR` formatting) in the interface: every text, type-checked against English; languages other than English downloaded on first use; a first visit follows the browser's language.
 - [x] Portuguese on the public RSVP page, with a language menu offering every language; default RSVP and WhatsApp texts in Portuguese.
 - [x] Server: `pt` in the RSVP language enum (migration `20261017090000_portuguese_and_country`), request checks, emails in Portuguese, openapi.json.
@@ -628,6 +680,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [ ] Owner review on the demo site (Netlify preview of the pull request) and merge.
 
 ### Validation and exit criteria
+
 - [ ] A Brazilian organizer and guest can complete every core flow in Portuguese with local numbers, on desktop and phone. (Verified by tests and screenshots; awaits the review above.)
 
 ---
@@ -637,6 +690,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** the five issues reported by people who tried the product (owner, 2026-10-17).
 
 ### Checklist
+
 - [x] Answers limited by the event's Maximum Attendees per Guest, not by a guest's Expected Attendees: public RSVP page, Change RSVP, adding or matching an unknown response; Expected Attendees free of confirmations; lowering the maximum keeps answers given; database check relaxed (migration `20261017100000_confirmed_free_of_expected`).
 - [x] Change RSVP says "Up to N per invitation (Maximum Attendees per Guest in Event Settings)"; the field is named Maximum Attendees per Guest in Create Event and Event Settings.
 - [x] A field's error goes as soon as it is edited, in every form; focus moves only after a refused save.
@@ -651,6 +705,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** the owner's second set of 2026-10-17 requests for the Guests and Event Layout lists. (Item 1, Google location search, was already built in D104 and waits for the key.)
 
 ### Checklist
+
 - [x] Guest table column "RSVP Status" named Status.
 - [x] Status editable by double-click, Enter or F2 (RSVP answers, saved at once; seat-freed notice).
 - [x] Confirmed editable the same way for approved guests (1 to the event's maximum; message clears on typing).
@@ -665,6 +720,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** a tapped option is chosen on an iPhone. The owner found that tapping a Timezone result on an iPhone 16 chose nothing (a Galaxy S22 Ultra worked): Safari blurs the text box before the tap's click, and the blur closed the list.
 
 ### Checklist
+
 - [x] Timezone (searchable Select), Group (Combobox) and Location (PlaceField) keep their list open through a tap (`shared/ui/useListPress.ts`: `mousedown` stopped as well as `pointerdown`; a blur during a press in the list is ignored).
 - [ ] Owner retest on the iPhone 16 (Netlify preview): Timezone, Group, and Location once the Google key is set.
 
@@ -673,6 +729,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** the frontend and the backend each carry a version, starting at 1.0 and raised by one minor step for each merged pull request that changes them; the versions can be checked, by the owner only in the interface.
 
 ### Checklist
+
 - [x] `frontend/VERSION` and `backend/VERSION` at 1.0.
 - [x] Version workflow and `bump-versions.sh`: raise the changed side after a merge (1.9 → 1.10), keep a version set in the pull request, commit and tag.
 - [x] Backend: `GET /api/system/version` (public: version and commit); `VERSION` and `GIT_COMMIT` in the image; openapi.json.
@@ -685,21 +742,25 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 **Goal:** venues set up spaces and table layouts, create events from them, and share each event with a client, who runs guests, RSVP, messages and seating. Personal events stay exactly as they are.
 
 **Sources:**
+
 - PRD §20;
 - decisions D111–D118;
 - mockups in `resources/mockups/v2/` (mapping in `resources/mockups/README.md`);
 - the plan and its reasoning in `v2_plannings/V2.2_IMPLEMENTATION_PLAN.md` (§7 merge and safety rules).
 
 **Order and branches (D116):**
+
 - **Demo first.** Every demo phase branches from `v2_ui_demo` and returns by pull request. `v2_ui_demo` merges into `main`, and so into the Netlify demo, when Phase 32 passes.
 - **The backend comes after,** on its own branch. It merges into `main` only when every test passes.
 
 **Every phase:**
+
 - tests reach ≥ 80% on new logic;
 - the whole existing suite stays green;
 - new screens are compared with the mapped mockup PNGs at desktop and phone width, in EN/HE/PT.
 
 ### Phase 22 — Documents and mockups (Step A)
+
 - [x] Mockups filed: HTML in `resources/mockups/v2/html/` (3 early drafts deleted); PNGs of every state at 1440px and 390px in `resources/mockups/v2/` (134 images).
 - [x] V2.2 screens mapped in `resources/mockups/README.md`.
 - [x] Decisions D111–D118, the V2.2 terms and open decision O-H1 (hosting and email) in `docs/DOMAIN.md`.
@@ -707,6 +768,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] These phases added to `PLAN.md`.
 
 ### Phase 23 — Safety net (Step A2)
+
 - [x] GitHub Actions on every pull request to `v2_ui_demo` and `main` (`.github/workflows/tests.yml`):
   - frontend lint, typecheck, format, unit tests with the 80% minimum, build;
   - backend lint, typecheck, format, unit and integration tests with the coverage minimum (PostgreSQL service), build;
@@ -718,6 +780,7 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [ ] Require "All tests passed" before merging into `v2_ui_demo` (owner to choose: set by the agent, or by hand). `main` already requires pull requests (ruleset). Requiring the check there would block the Version workflow's own bump pull requests, so it needs a separate decision.
 
 ### Phase 24 — Split permissions in the frontend (Step B, demo part)
+
 - [x] The domain permissions split `EDIT` into smaller actions:
   - `EDIT_EVENT_SCHEDULE`, `EDIT_EVENT_SETTINGS`, `EDIT_LAYOUT`, `EDIT_TABLES`;
   - `EDIT_GUESTS`, `ASSIGN_SEATING`, `EDIT_RSVP_SETTINGS`, `EDIT_MESSAGE`, `EXPORT_GUESTS`.
@@ -734,9 +797,11 @@ Owner decisions 2026-10-16 (D101): AWS Free plan, one t4g.small in Frankfurt; th
 - [x] The mock services check the same actions. An event update needs the action of each part it changes.
 
 ### Phase 25 — Venue workspace (mockups #1–5, #7, #8)
+
 Delivered in two pull requests.
 
 **25a: venue data, switcher, venue My Events (#1, #2)**
+
 - [x] `domain/venues.ts`: organizations, members (Owner, Manager), spaces, venue events with the client invitation, `venueEventStatus` (D115, seven-day invitations) and `venueCan` (D112).
 - [x] Contract `VenuesService` (`listWorkspaces`, `getWorkspace`, `listSpaces`, `listEvents`). `services.venues` is null for real accounts and while `VITE_VENUES_ENABLED` is off.
 - [x] Deterministic demo venues for each market (D103):
@@ -746,14 +811,16 @@ Delivered in two pull requests.
   - Brazilian equivalents in Portuguese.
 
   Venue events are ordinary events with guests, tables and floor plans. They stay out of the personal My Events and don't count against the demo's event limit. The dataset version is now 10.
+
 - [x] Workspace switcher (mockup #1), shown only to venue members.
 - [x] Venue My Events (mockup #2): All / Upcoming / Past with counts, a space filter, search by event or client name, grid/list, status badges, attendance or a note per status.
 - [x] `/venues/:organizationId/events` under `VenueLayout`; another venue, or any venue while venues are off, is not found.
 - [x] All behind `VITE_VENUES_ENABLED` (off by default), shown only in Demo Mode.
 - [ ] Open Event on a venue event is disabled until Phase 29, when an event opens with its venue and client sides.
-- [ ] Create Event on a venue's My Events: Phase 27 (the wizard).
+- [x] Create Event on a venue's My Events: Phase 27 (the wizard).
 
 **25b: spaces, team and settings (#3–5, #7, #8)**
+
 - [x] Rules in `domain/venues.ts`:
   - layout templates (`LayoutTemplate`, `templateFigures`, with chairs and tables beyond the space only warning);
   - `validateSpaceInput` (a unique name in the venue; people within the event limits);
@@ -778,15 +845,17 @@ Delivered in two pull requests.
   - the upcoming events table, as cards on phones.
 - [x] Team (#7): roles notice, figures, members and pending invitations, search and role filter, invite / change role / remove / resend / cancel for the Owner. A Manager sees it read-only.
 - [x] Venue Settings (#8, no mockup): name, default language, contact email and phone. Owner only: hidden from a Manager, and "not found" by address.
-- [ ] Edit and Add Layout wait for the layout editor (Phase 26); Create Event from This Layout for the wizard (Phase 27).
+- [x] Edit and Add Layout open the layout editor (Phase 26); Create Event from This Layout opens the wizard (Phase 27).
 
 ### Phase 26 — Layout template editor (mockup #6)
+
 - [x] The plan editor works on any plan:
   - `ArrangementTab` takes a `LayoutSource` (`layoutQueries.ts`), and the event page supplies `useEventLayoutSource`;
   - `TableDialog` takes an optional `TableSaver`;
   - `ArrangementTab` takes optional View-mode hints.
 
   The Event Layout tests are unchanged and pass (49).
+
 - [x] Templates hold the floor picture and a version. `templateAsLayout`, `templateTables` and `applyLayoutToTemplate` (domain/venues.ts) convert between a template and a plan; `validateTemplateName` keeps names unique within a space. Dataset version 12.
 - [x] `VenuesService`: `getTemplate`, `createTemplate`, `renameTemplate`, `saveTemplateLayout` (a stale version is refused, `LAYOUT_CHANGED`), and add/update/remove template tables, checked like an event's. A test proves an event made from a template is untouched (D111).
 - [x] `LayoutTemplatePage` at `/venues/:organizationId/spaces/:spaceId/layouts/:templateId`:
@@ -798,13 +867,19 @@ Delivered in two pull requests.
 - [x] Edit on a layout card and Add Layout (on a space and on My Spaces) are turned on. Add Layout creates an empty template and opens it.
 
 ### Phase 27 — Create venue event (mockup #9)
-- [ ] Wizard: space → layout → details → review, with the same-day warning and an optional client email.
-- [ ] The mock copies the layout with new table ids; no guests, RSVP or seating copied (D111).
+
+- [x] Rules (`domain/venues.ts`): `VenueEventInput`, `sameDayEvents` (the space's own day; a warning only), `copyTemplateToEvent` (new table ids, same places, room, picture and objects; nothing linked after).
+- [x] `VenuesService.createEvent`, Owner and Manager (D112). The space gives the address, time zone and maximum people; an archived layout, one of another space, a past date or a bad email is refused. No guests, RSVP or seating copied (D111). With a client email, the invitation waits as sent (the demo sends no email); without one, the event waits for a client.
+- [x] `VenueCreateEventPage` at `/venues/:organizationId/events/new`: space (spaces with no layouts can't be chosen) → layout (active ones) → details (name, date, time in the space's zone, cover photo; the same-day warning) → review (Edit per row, figures, optional client email, the "own copy" note) → done. Step 3 says only the date, time and place are locked (D113).
+- [x] Create Event on the venue's My Events, and Create Event from This Layout on each layout card (opens at the details step).
+- [x] Tests: domain, mock and page tests; the wizard pages in the venue accessibility checks (EN/HE/PT, desktop and phone); a browser flow that creates an event, invites the client, and checks it stays out of the personal My Events.
 
 ### Phase 28 — Client invitation in the demo (mockups #10, #12)
+
 - [ ] The client card with all statuses (Resend, Revoke, Invite a different client) and the accept page with all its states, simulated in the mock. No real email is sent from the demo.
 
 ### Phase 29 — The shared event, two sides (mockups #13–17, #19; #18)
+
 - [ ] Client side:
   - "Managed by" badge;
   - locked venue details with the contact note;
@@ -818,16 +893,20 @@ Delivered in two pull requests.
   - table and map editing.
 
 ### Phase 30 — Changes that affect the client (mockup #20; #21)
+
 - [ ] Delete or shrink an occupied table: the affected parties are listed, a checkbox confirms, the guests are unassigned, and the client gets a notice in the bell and on the Dashboard (D114).
 
 ### Phase 31 — Demo entry and landing (mockups #22–24)
+
 - [ ] "Try Demo" choice, the venue/client switcher in the venue demo, and the landing page's "For venues" section. Venue demo isolation, reset and persistence tests.
 
 ### Phase 32 — Demo review and release
+
 - [ ] Owner clicks through the whole venue → client flow, in EN/HE/PT, desktop and phone.
 - [ ] Merge `v2_ui_demo` into `main`; turn `VITE_VENUES_ENABLED` on for Netlify; check the live demo.
 
 ### Phase 33+ — Backend (after the demo; D116)
+
 - [ ] Server side of the permission split, with the matrix test.
 - [ ] Database migration that only adds; existing events become personal; tested on a database with today's data shapes.
 - [ ] Organization, member, space and template APIs, with cross-organization tests.
@@ -1731,3 +1810,11 @@ Next: Phase 27, the create-venue-event wizard.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**
+
+```text
+2026-11-28 — Phase 27 (V2.2) — The create-venue-event wizard (#9): space → layout → details → review, with the same-day warning and an optional client email. The event gets its own copy of the layout (copyTemplateToEvent) and the space's address, zone and maximum people.
+Validation: lint, typecheck, format, build; unit tests for the domain, the mock and the page; the venue Playwright tests (desktop and phone) against a local venues dev server, 68 passed.
+Mockups reviewed: 09_venue_create_event (steps 1–4), desktop and phone, EN/HE.
+Follow-ups/risks: the calendar's "dots mark booked days" and the generated-cover colour choice are not built (MOCKUP_NOTES). Phase 26's CI failed twice on a phone Guests test that was already flaky before it (1 in 3 locally on the earlier code): the page-size menu was opened while the filtered list redrew. The test now waits for the filtered count; 10/10 alone and 51/51 for the whole file.
+Next: Phase 28 — client invitation in the demo (#10, #12).
+```

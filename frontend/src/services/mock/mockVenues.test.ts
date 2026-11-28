@@ -530,3 +530,108 @@ describe('editing a layout template (Phase 26)', () => {
     ).toHaveLength(template.tables.length - 1)
   })
 })
+
+describe('creating a venue event (Phase 27, mockup #9)', () => {
+  const input = {
+    spaceId: 'spc-1-1',
+    templateId: 'tpl-1-1-1',
+    name: 'Maya & Daniel’s Wedding',
+    startsAt: '2027-01-14T17:00:00.000Z',
+  }
+
+  it('creates the event from the space and its layout, with its own copy', async () => {
+    const persistence = createMemoryPersistence<StoredDemo>({
+      version: DATASET_VERSION,
+      state: generateDemoState(NOW),
+    })
+    const services = createMockServices({
+      persistence,
+      now: () => NOW,
+      venues: true,
+    })
+    const event = await services.venues!.createEvent('org-1', {
+      ...input,
+      clientEmail: ' Maya.Cohen@Example.com ',
+    })
+    const stored = (persistence.load() as StoredDemo).state
+    const space = stored.venueSpaces!.find((s) => s.id === 'spc-1-1')!
+    const template = stored.layoutTemplates!.find((t) => t.id === 'tpl-1-1-1')!
+
+    expect(event).toMatchObject({
+      name: input.name,
+      location: space.address,
+      maxAttendees: space.maxPeople,
+      timeZone: space.timeZone,
+      rsvpLanguage: 'en',
+    })
+    const tables = stored.tables.filter((table) => table.eventId === event.id)
+    expect(tables.map((table) => table.number)).toEqual(
+      template.tables.map((table) => table.number),
+    )
+    expect(tables.every((table) => !table.id.startsWith('tpl'))).toBe(true)
+    expect(stored.guests.some((guest) => guest.eventId === event.id)).toBe(
+      false,
+    )
+    expect(
+      stored.venueEvents!.find((v) => v.eventId === event.id),
+    ).toMatchObject({
+      templateId: 'tpl-1-1-1',
+      client: { email: 'maya.cohen@example.com', acceptedAt: null },
+    })
+
+    const listed = await services.venues!.listEvents('org-1')
+    expect(listed.find((s) => s.event.id === event.id)?.status).toBe(
+      'INVITATION_SENT',
+    )
+    expect(
+      (await services.events.list()).some((s) => s.event.id === event.id),
+    ).toBe(false)
+  })
+
+  it('waits for a client when no email is given', async () => {
+    const venues = create().venues!
+    const event = await venues.createEvent('org-1', input)
+    const listed = await venues.listEvents('org-1')
+    expect(listed.find((s) => s.event.id === event.id)?.status).toBe(
+      'AWAITING_CLIENT',
+    )
+  })
+
+  it('refuses an archived layout, one of another space, a past date or a bad email', async () => {
+    const venues = create().venues!
+    expect(
+      await codeOf(
+        venues.createEvent('org-1', { ...input, templateId: 'tpl-1-1-4' }),
+      ),
+    ).toBe('VALIDATION')
+    expect(
+      await codeOf(
+        venues.createEvent('org-1', { ...input, templateId: 'tpl-1-2-1' }),
+      ),
+    ).toBe('VALIDATION')
+    expect(
+      await codeOf(
+        venues.createEvent('org-1', {
+          ...input,
+          startsAt: '2026-01-01T10:00:00.000Z',
+        }),
+      ),
+    ).not.toBe('NO_ERROR')
+    expect(
+      await codeOf(
+        venues.createEvent('org-1', { ...input, clientEmail: 'nope' }),
+      ),
+    ).toBe('VALIDATION')
+    expect(await codeOf(venues.createEvent('org-2', input))).toBe('NOT_FOUND')
+  })
+
+  it('lets a Manager create events too (D112)', async () => {
+    const venues = create().venues!
+    const event = await venues.createEvent('org-2', {
+      ...input,
+      spaceId: 'spc-2-1',
+      templateId: 'tpl-2-1-1',
+    })
+    expect(event.name).toBe(input.name)
+  })
+})

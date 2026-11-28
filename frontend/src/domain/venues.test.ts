@@ -3,6 +3,8 @@ import { DomainError } from './errors.ts'
 import {
   applyLayoutToTemplate,
   assertCanChangeVenueMember,
+  copyTemplateToEvent,
+  sameDayEvents,
   emptyTemplate,
   invitationExpiresAt,
   templateAsLayout,
@@ -367,5 +369,70 @@ describe('templates on the floor-plan editor (Phase 26)', () => {
       DomainError,
     )
     expect(() => validateTemplateName('  ', [])).toThrow(DomainError)
+  })
+})
+
+describe('creating a venue event (Phase 27)', () => {
+  it('finds the space’s events on the same local day', () => {
+    const events = [
+      { name: 'evening', startsAt: '2027-01-14T17:00:00.000Z' },
+      { name: 'next day', startsAt: '2027-01-15T10:00:00.000Z' },
+      // 23:30 in Israel on the 14th, the 14th still there (UTC 21:30).
+      { name: 'late', startsAt: '2027-01-14T21:30:00.000Z' },
+    ]
+    expect(
+      sameDayEvents(events, '2027-01-14T08:00:00.000Z', 'Asia/Jerusalem').map(
+        (event) => event.name,
+      ),
+    ).toEqual(['evening', 'late'])
+  })
+
+  it('copies a template with new table ids, in the same places', () => {
+    const template = {
+      ...emptyTemplate('tpl-1', 'spc-1', 'Rounds', '2026-11-01T00:00:00.000Z'),
+      tables: [
+        {
+          number: 1,
+          capacity: 10,
+          shape: 'CIRCLE' as const,
+          x: 300,
+          y: 300,
+          rotation: 0,
+        },
+        {
+          number: 2,
+          capacity: 8,
+          shape: 'SQUARE' as const,
+          x: null,
+          y: null,
+          rotation: 0,
+        },
+      ],
+    }
+    let next = 0
+    const { tables, layout } = copyTemplateToEvent(template, 'evt-9', () => {
+      next += 1
+      return `tbl-new-${next}`
+    })
+    expect(tables).toEqual([
+      {
+        id: 'tbl-new-1',
+        eventId: 'evt-9',
+        number: 1,
+        capacity: 10,
+        shape: 'CIRCLE',
+      },
+      {
+        id: 'tbl-new-2',
+        eventId: 'evt-9',
+        number: 2,
+        capacity: 8,
+        shape: 'SQUARE',
+      },
+    ])
+    expect(layout.placements).toEqual([
+      { tableId: 'tbl-new-1', x: 300, y: 300, rotation: 0 },
+    ])
+    expect(tables.some((table) => table.id.startsWith('tpl-1'))).toBe(false)
   })
 })

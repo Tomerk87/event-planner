@@ -1,10 +1,19 @@
-import { CalendarDays, LayoutGrid, List, Search, SearchX } from 'lucide-react'
+import {
+  CalendarDays,
+  LayoutGrid,
+  List,
+  Plus,
+  Search,
+  SearchX,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import type { VenueEventSummary } from '../../services/contracts/index.ts'
 import { describeError } from '../../shared/errorMessage.ts'
+import { venueCan } from '../../domain/venues.ts'
 import { Button, IconButton } from '../../shared/ui/Button.tsx'
+import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { Card } from '../../shared/ui/Card.tsx'
 import { cx } from '../../shared/ui/cx.ts'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
@@ -21,7 +30,11 @@ import type { EventsView } from '../events/EventCard.tsx'
 import styles from '../events/EventsPage.module.css'
 import { VenueEventCard } from './VenueEventCard.tsx'
 import venueStyles from './VenueEventsPage.module.css'
-import { useVenueEvents, useVenueSpaces } from './venueQueries.ts'
+import {
+  useVenueEvents,
+  useVenueSpaces,
+  useVenueWorkspace,
+} from './venueQueries.ts'
 
 type Filter = 'all' | 'upcoming' | 'past'
 
@@ -44,6 +57,7 @@ export function VenueEventsPage() {
   const { t, i18n } = useTranslation()
   const { organizationId = '' } = useParams()
   const events = useVenueEvents(organizationId)
+  const workspace = useVenueWorkspace(organizationId)
   const spaces = useVenueSpaces(organizationId)
   const isPhone = useMediaQuery(PHONE_QUERY)
   const { params, update, replaceAll } = useQueryParams()
@@ -81,6 +95,14 @@ export function VenueEventsPage() {
   const count = (candidate: Filter) =>
     searched.filter((summary) => matchesFilter(summary, candidate)).length
   const showSearch = !isPhone || searchOpen || query !== ''
+  const createLink = venueCan(
+    workspace.data?.role ?? null,
+    'MANAGE_EVENTS',
+  ) && (
+    <ButtonLink to="new" icon={<Plus />}>
+      {t('createVenueEvent.action')}
+    </ButtonLink>
+  )
 
   const search = (
     <TextField
@@ -99,7 +121,11 @@ export function VenueEventsPage() {
       <PageHeader
         title={t('pages.events')}
         subtitle={t('venueEvents.subtitle')}
+        actions={isPhone ? undefined : createLink || undefined}
       />
+      {isPhone && createLink && (
+        <div className={styles.phoneRow}>{createLink}</div>
+      )}
 
       <div className={styles.toolbar}>
         <div className={styles.tabs}>
