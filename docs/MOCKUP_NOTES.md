@@ -183,6 +183,11 @@ Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `
 - **Drafts removed:** three early versions of #2 (`01_venue_events.html`, `venue_events_mobile.html`, `venue_events_mobile_and_desktop.html`) were deleted; `02_venue_events.html` replaces them.
 - **Phone width, #3 and #5:** a hidden "For information" tooltip sticks out past the right edge at 390px. This is a mockup quirk; the built page has no sideways scroll.
 - **Languages:** all mockups are English; Hebrew and Portuguese follow the existing rules (`AGENTS.md`, `resources/DESIGN_GUIDE.md` §9).
+- **Team (#7), not built: the "Events Created" column.** The product doesn't record who created an event, so the column is left out (Phase 25b). The Owner's and Managers' counts, the pending invitations, search and role filter are built.
+- **My Spaces and space details (#3, #5):**
+  - Add Layout, Edit (a layout) and Create Event from This Layout are shown but disabled until the layout editor (Phase 26) and the create-event wizard (Phase 27).
+  - The layout preview draws the room, its objects and the tables' outlines, without each chair.
+- **The space dialog (#4):** the photo field is the event photo field, with the label "Space Photo" and the space's initials as the placeholder.
 
 ## Found while building the design system (Phase 2)
 

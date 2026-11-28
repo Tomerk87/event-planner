@@ -1593,6 +1593,8 @@ export function createMockServices(options: MockOptions): Services {
     venues: venues
       ? createMockVenues({
           state: () => state,
+          commit,
+          newId,
           run: (operation, action) => run(operation, action),
           currentUserId,
           now,

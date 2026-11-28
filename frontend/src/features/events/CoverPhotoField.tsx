@@ -1,6 +1,12 @@
 import { limits } from '../../domain/limits.ts'
 import { ImageUp, Trash2 } from 'lucide-react'
-import { useId, useRef, useState, type ChangeEvent } from 'react'
+import {
+  useId,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { COVER_IMAGE_MAX_LENGTH } from '../../domain/events.ts'
 import {
@@ -20,6 +26,10 @@ interface CoverPhotoFieldProps {
   value: string | null
   onChange: (value: string | null) => void
   disabled?: boolean
+  /** The field's label; "Event Photo" when left out. */
+  label?: string
+  /** What shows with no photo; the event's generated cover when left out. */
+  placeholder?: ReactNode
 }
 
 /**
@@ -32,6 +42,8 @@ export function CoverPhotoField({
   value,
   onChange,
   disabled = false,
+  label,
+  placeholder,
 }: CoverPhotoFieldProps) {
   const { t } = useTranslation()
   const labelId = useId()
@@ -65,11 +77,15 @@ export function CoverPhotoField({
   return (
     <div className={styles.field} role="group" aria-labelledby={labelId}>
       <p id={labelId} className={styles.label}>
-        {t('events.form.photo.label')}
+        {label ?? t('events.form.photo.label')}
       </p>
       <div className={styles.row}>
         <div className={styles.preview}>
-          <EventCover eventId={eventId} image={value} />
+          {value === null && placeholder ? (
+            placeholder
+          ) : (
+            <EventCover eventId={eventId} image={value} />
+          )}
         </div>
         <div className={styles.controls}>
           {!disabled && (

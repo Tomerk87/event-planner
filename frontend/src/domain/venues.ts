@@ -1,5 +1,8 @@
-import { isEventPast } from './eventTime.ts'
-import type { Id, IsoDateTime } from './models.ts'
+import { assertEmail } from './accounts.ts'
+import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
+import { isEventPast, isValidTimeZone } from './eventTime.ts'
+import { EVENT_LIMITS, validateCoverImage } from './events.ts'
+import type { Id, IsoDateTime, TableShape, VenueObject } from './models.ts'
 import type { VenueEventRole } from './roles.ts'
 
 /**
@@ -36,6 +39,17 @@ export interface VenueMember {
   organizationId: Id
   userId: Id
   role: VenueMemberRole
+  /** When they joined the venue; absent in data saved before Phase 25b. */
+  since?: IsoDateTime
+}
+
+/** Someone invited to a venue's team who has not joined yet (D112). */
+export interface VenueMemberInvitation {
+  organizationId: Id
+  /** Stored normalized: trimmed and in lower case. */
+  email: string
+  role: VenueMemberRole
+  sentAt: IsoDateTime
 }
 
 /** A room or area the venue rents out. */
@@ -146,4 +160,192 @@ export function venueCan(
     return true
   }
   return role === 'VENUE_MANAGER' && MANAGER_ACTIONS.has(action)
+}
+
+/** A table of a layout template: its number, chairs, shape and place. */
+export interface TemplateTable {
+  number: number
+  capacity: number
+  shape: TableShape
+  /** The table's centre in centimetres; null while not placed. */
+  x: number | null
+  y: number | null
+  rotation: number
+}
+
+/**
+ * A named, editable floor plan of a space (D111). An event created from it
+ * gets its own copy, so editing a template never changes an event.
+ */
+export interface LayoutTemplate {
+  id: Id
+  spaceId: Id
+  name: string
+  roomWidth: number
+  roomDepth: number
+  tables: TemplateTable[]
+  objects: VenueObject[]
+  updatedAt: IsoDateTime
+  /** Hidden from new events; events already made from it keep their copy. */
+  archived: boolean
+}
+
+export interface TemplateFigures {
+  tables: number
+  chairs: number
+  /** Chairs beyond the space's maximum people; 0 when within it. */
+  extraChairs: number
+  /** Tables beyond the space's maximum tables (for information); 0 when within or unset. */
+  extraTables: number
+}
+
+/**
+ * A template's tables and chairs against its space. Going beyond only warns
+ * (D111): nothing is blocked.
+ */
+export function templateFigures(
+  template: Pick<LayoutTemplate, 'tables'>,
+  space: Pick<VenueSpace, 'maxPeople' | 'maxTables'>,
+): TemplateFigures {
+  const tables = template.tables.length
+  const chairs = template.tables.reduce((sum, table) => sum + table.capacity, 0)
+  return {
+    tables,
+    chairs,
+    extraChairs: Math.max(0, chairs - space.maxPeople),
+    extraTables:
+      space.maxTables === null ? 0 : Math.max(0, tables - space.maxTables),
+  }
+}
+
+/** What a venue enters to create or change a space (mockup #4). */
+export interface SpaceInput {
+  name: string
+  address: string
+  maxPeople: number
+  maxTables: number | null
+  timeZone: string
+  /** A JPEG or PNG data address; null for the generated cover. Left out, unchanged. */
+  photo?: string | null
+}
+
+export const SPACE_NAME_MAX_LENGTH = 80
+export const SPACE_ADDRESS_MAX_LENGTH = 160
+/** A space can hold at most this many tables, even for information. */
+export const SPACE_MAX_TABLES = 500
+
+/** Checks a space; its name must be new within the venue, ignoring case. */
+export function validateSpaceInput(
+  input: SpaceInput,
+  otherNames: readonly string[],
+): Omit<SpaceInput, 'photo'> {
+  const name = assertNonEmpty(input.name, 'name')
+  if (name.length > SPACE_NAME_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'name' })
+  }
+  if (
+    otherNames.some(
+      (other) => other.trim().toLowerCase() === name.toLowerCase(),
+    )
+  ) {
+    throw new DomainError('VALIDATION', { field: 'name', reason: 'duplicate' })
+  }
+  const address = assertNonEmpty(input.address, 'address')
+  if (address.length > SPACE_ADDRESS_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'address' })
+  }
+  // People, as an event's maximum attendees: the same range (D110).
+  assertIntegerInRange(
+    input.maxPeople,
+    1,
+    EVENT_LIMITS.maxAttendees.max,
+    'maxPeople',
+  )
+  if (input.maxTables !== null) {
+    assertIntegerInRange(input.maxTables, 1, SPACE_MAX_TABLES, 'maxTables')
+  }
+  if (!isValidTimeZone(input.timeZone)) {
+    throw new DomainError('VALIDATION', { field: 'timeZone' })
+  }
+  return {
+    name,
+    address,
+    maxPeople: input.maxPeople,
+    maxTables: input.maxTables,
+    timeZone: input.timeZone,
+  }
+}
+
+/** Checks a space photo, like an event photo. */
+export const validateSpacePhoto = validateCoverImage
+
+/** The venue's own details (Venue Settings, D117). */
+export interface OrganizationInput {
+  name: string
+  defaultLanguage: VenueLanguage
+  contactEmail: string | null
+  contactPhone: string | null
+}
+
+export const ORGANIZATION_NAME_MAX_LENGTH = 80
+export const CONTACT_PHONE_MAX_LENGTH = 30
+
+export function validateOrganizationInput(
+  input: OrganizationInput,
+): OrganizationInput {
+  const name = assertNonEmpty(input.name, 'name')
+  if (name.length > ORGANIZATION_NAME_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'name' })
+  }
+  if (!['en', 'he', 'pt'].includes(input.defaultLanguage)) {
+    throw new DomainError('VALIDATION', { field: 'defaultLanguage' })
+  }
+  const email = input.contactEmail?.trim() ?? ''
+  const phone = input.contactPhone?.trim() ?? ''
+  if (phone.length > CONTACT_PHONE_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'contactPhone' })
+  }
+  let contactEmail: string | null = null
+  if (email !== '') {
+    try {
+      contactEmail = assertEmail(email)
+    } catch {
+      throw new DomainError('VALIDATION', { field: 'contactEmail' })
+    }
+  }
+  return {
+    name,
+    defaultLanguage: input.defaultLanguage,
+    contactEmail,
+    contactPhone: phone === '' ? null : phone,
+  }
+}
+
+/**
+ * Checks a change to a venue's team (D112): only the Owner manages it, nobody
+ * changes or removes themselves, and a venue always keeps an Owner.
+ */
+export function assertCanChangeVenueMember(
+  actor: { userId: Id; role: VenueMemberRole | null },
+  members: readonly Pick<VenueMember, 'userId' | 'role'>[],
+  change: { userId: Id; newRole: VenueMemberRole | null },
+): void {
+  if (!venueCan(actor.role, 'MANAGE_TEAM')) {
+    throw new DomainError('FORBIDDEN', { action: 'MANAGE_TEAM' })
+  }
+  const current = members.find((member) => member.userId === change.userId)
+  if (!current) {
+    throw new DomainError('NOT_FOUND', { entity: 'member' })
+  }
+  if (change.userId === actor.userId) {
+    throw new DomainError('SELF_PERMISSION')
+  }
+  const owners = members.filter((member) => member.role === 'VENUE_OWNER')
+  if (
+    current.role === 'VENUE_OWNER' &&
+    change.newRole !== 'VENUE_OWNER' &&
+    owners.length <= 1
+  ) {
+    throw new DomainError('LAST_OWNER')
+  }
 }

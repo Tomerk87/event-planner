@@ -359,14 +359,53 @@ describe('the demo venues (V2.2)', () => {
     expect(roles).toEqual(['VENUE_OWNER', 'VENUE_MANAGER'])
   })
 
-  it('gives each venue a colleague with the other role', () => {
+  it('gives each venue an Owner and at least one Manager', () => {
     for (const venue of state.organizations ?? []) {
-      const roles = (state.venueMembers ?? [])
-        .filter((member) => member.organizationId === venue.id)
-        .map((member) => member.role)
-        .sort()
-      expect(roles).toEqual(['VENUE_MANAGER', 'VENUE_OWNER'])
+      const roles = new Set(
+        (state.venueMembers ?? [])
+          .filter((member) => member.organizationId === venue.id)
+          .map((member) => member.role),
+      )
+      expect([...roles].sort()).toEqual(['VENUE_MANAGER', 'VENUE_OWNER'])
     }
+  })
+
+  it('gives each space with events its templates, drawn from its events', () => {
+    const templates = state.layoutTemplates ?? []
+    const mainHall = templates.filter((t) => t.spaceId === 'spc-1-1')
+    expect(mainHall.map((t) => [t.name, t.archived])).toEqual([
+      ['Wedding Rounds', false],
+      ['Gala Long Tables', false],
+      ['Bar Mitzvah Mixed', false],
+      ['Classic Rounds', true],
+    ])
+    for (const template of templates) {
+      expect(template.tables.length).toBeGreaterThan(0)
+      expect(template.tables.every((table) => table.x !== null)).toBe(true)
+    }
+    expect(templates.some((t) => t.spaceId === 'spc-1-3')).toBe(false)
+  })
+
+  it('links venue events to the template they came from', () => {
+    const ids = new Set((state.layoutTemplates ?? []).map((t) => t.id))
+    const linked = (state.venueEvents ?? []).filter(
+      (v) => v.templateId !== null,
+    )
+    expect(linked.length).toBeGreaterThan(0)
+    for (const venueEvent of linked) {
+      expect(ids.has(venueEvent.templateId ?? '')).toBe(true)
+    }
+  })
+
+  it('has an archived space and a pending team invitation', () => {
+    expect(
+      (state.venueSpaces ?? [])
+        .filter((space) => space.archived)
+        .map((space) => space.name),
+    ).toEqual(['Winter Pavilion'])
+    expect(state.venueMemberInvitations?.map((i) => i.email)).toEqual([
+      'daniel.mor@example.com',
+    ])
   })
 
   it('makes each venue event an ordinary event in one of its spaces', () => {

@@ -140,7 +140,12 @@ describe('a venue’s My Events (mockup #2)', () => {
     await openVenueEvents()
     const space = screen.getByRole('combobox', { name: 'Space' })
 
-    expect(optionLabels(space)).toEqual(['All spaces', 'Garden', 'Main Hall'])
+    expect(optionLabels(space)).toEqual([
+      'All spaces',
+      'Garden',
+      'Main Hall',
+      'Rooftop Lounge',
+    ])
     chooseOption(space, 'spc-1-2')
     expect(cards()).toHaveLength(4)
 

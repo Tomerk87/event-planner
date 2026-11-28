@@ -36,7 +36,12 @@ import type { EventRole } from '../../domain/roles.ts'
 import type { PublicRsvpInput } from '../../domain/rsvp.ts'
 import type { TableInput } from '../../domain/seating.ts'
 import type {
+  LayoutTemplate,
+  OrganizationInput,
+  SpaceInput,
+  TemplateFigures,
   VenueEventStatus,
+  VenueMemberInvitation,
   VenueMemberRole,
   VenueOrganization,
   VenueSpace,
@@ -523,18 +528,101 @@ export interface VenueEventSummary {
   isPast: boolean
 }
 
+/** A space on My Spaces (mockup #3). */
+export interface SpaceSummary {
+  space: VenueSpace
+  /** Its layout templates that are not archived. */
+  layoutCount: number
+  upcomingEventCount: number
+  /** The soonest upcoming event in it, if any. */
+  nextEvent: Pick<Event, 'id' | 'name' | 'startsAt' | 'timeZone'> | null
+}
+
+/** A layout template on its space's page (mockup #5). */
+export interface TemplateSummary {
+  template: LayoutTemplate
+  figures: TemplateFigures
+  /** Upcoming events created from it. */
+  upcomingEventCount: number
+}
+
+/** A space with its templates and upcoming events (mockup #5). */
+export interface SpaceDetails {
+  space: VenueSpace
+  templates: TemplateSummary[]
+  upcomingEvents: (VenueEventSummary & { templateName: string | null })[]
+}
+
+/** A member of a venue's team (mockup #7). */
+export interface VenueMemberSummary {
+  userId: Id
+  name: string
+  email: string
+  role: VenueMemberRole
+  since: IsoDateTime | null
+  isYou: boolean
+}
+
+export interface VenueTeam {
+  members: VenueMemberSummary[]
+  invitations: VenueMemberInvitation[]
+}
+
 /**
  * Venues (V2.2, PRD section 20). Only members of a venue reach its data;
  * anything else is "not found", so a venue's existence is not revealed.
+ * Changing spaces and events needs a member; the team and the settings need
+ * the Owner (D112).
  */
 export interface VenuesService {
   /** The venues the current user belongs to, by name. */
   listWorkspaces(): Promise<VenueWorkspace[]>
   getWorkspace(organizationId: Id): Promise<VenueWorkspace>
+  /** The venue's own details (Venue Settings, D117); the Owner only. */
+  updateOrganization(
+    organizationId: Id,
+    input: OrganizationInput,
+  ): Promise<VenueOrganization>
   /** The venue's spaces, archived ones included, by name. */
-  listSpaces(organizationId: Id): Promise<VenueSpace[]>
+  listSpaces(organizationId: Id): Promise<SpaceSummary[]>
+  getSpace(organizationId: Id, spaceId: Id): Promise<SpaceDetails>
+  createSpace(organizationId: Id, input: SpaceInput): Promise<VenueSpace>
+  /** Changes apply to new events; existing events keep their copy (D111). */
+  updateSpace(
+    organizationId: Id,
+    spaceId: Id,
+    input: SpaceInput,
+  ): Promise<VenueSpace>
+  /** Archiving hides a space from new events; it never touches events. */
+  setSpaceArchived(
+    organizationId: Id,
+    spaceId: Id,
+    archived: boolean,
+  ): Promise<VenueSpace>
+  /** A copy of a template in the same space, named as a copy. */
+  duplicateTemplate(organizationId: Id, templateId: Id): Promise<LayoutTemplate>
+  setTemplateArchived(
+    organizationId: Id,
+    templateId: Id,
+    archived: boolean,
+  ): Promise<LayoutTemplate>
   /** The venue's events: upcoming soonest first, then past most recent first. */
   listEvents(organizationId: Id): Promise<VenueEventSummary[]>
+  /** Members and pending invitations; every member can see them. */
+  getTeam(organizationId: Id): Promise<VenueTeam>
+  /** Invites someone by email (the Owner only). */
+  inviteMember(
+    organizationId: Id,
+    input: { email: string; role: VenueMemberRole },
+  ): Promise<void>
+  changeMemberRole(
+    organizationId: Id,
+    userId: Id,
+    role: VenueMemberRole,
+  ): Promise<void>
+  removeMember(organizationId: Id, userId: Id): Promise<void>
+  resendMemberInvitation(organizationId: Id, email: string): Promise<void>
+  cancelMemberInvitation(organizationId: Id, email: string): Promise<void>
 }
 
 /** The data operations of one session. */
