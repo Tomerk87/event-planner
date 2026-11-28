@@ -67,7 +67,12 @@ export function EventSelector({
           image={current.coverImage}
           size="thumb"
         />
-        <span className={styles.selectorName}>{current.name}</span>
+        <span className={styles.selectorText}>
+          <span className={styles.selectorName}>{current.name}</span>
+          {current.subtitle && (
+            <span className={styles.selectorSubtitle}>{current.subtitle}</span>
+          )}
+        </span>
         {others.length > 0 && (
           <ChevronDown className={styles.selectorChevron} aria-hidden="true" />
         )}

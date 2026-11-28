@@ -308,3 +308,26 @@ test('a client invitation is resent, opened and accepted in the demo', async ({
     page.getByRole('heading', { name: 'This Invitation Is No Longer Valid' }),
   ).toBeVisible()
 })
+
+test('the demo switches to the client, whose pages are accessible', async ({
+  page,
+}) => {
+  await page.goto('/events/evt-7/dashboard')
+  await page.getByRole('button', { name: 'View as Dana Levi' }).click()
+  await expect(
+    page.getByText('You’re viewing as the client (Dana Levi)'),
+  ).toBeVisible()
+  for (const path of ['dashboard', 'settings', 'layout', 'permissions']) {
+    await page.goto(`/events/evt-7/${path}`)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await expect(page.locator('main')).not.toContainText(/Loading/)
+    await expectNoViolations(page)
+    await expectNoSidewaysScroll(page)
+  }
+  await page.goto('/events')
+  await expect(
+    page.getByRole('article').first().getByText('Managed by Grand Garden Hall'),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'View as venue owner' }).click()
+  await expect(page.getByText('You’re viewing as the client')).toHaveCount(0)
+})

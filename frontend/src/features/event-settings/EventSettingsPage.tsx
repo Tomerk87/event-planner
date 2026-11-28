@@ -1,5 +1,25 @@
-import { Armchair, FileText, Save, UserCheck, UserX, Users } from 'lucide-react'
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import {
+  Armchair,
+  Building2,
+  CalendarClock,
+  CircleCheck,
+  FileText,
+  Mail,
+  MapPin,
+  Phone,
+  Save,
+  UserCheck,
+  UserX,
+  Users,
+} from 'lucide-react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { canPerform } from '../../domain/access.ts'
@@ -10,7 +30,13 @@ import { getCurrentLanguage } from '../../i18n/i18n.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
 import { CoverPhotoField } from '../events/CoverPhotoField.tsx'
-import type { EventAccessInfo } from '../../services/contracts/index.ts'
+import type {
+  EventAccessInfo,
+  EventVenueInfo,
+} from '../../services/contracts/index.ts'
+import { isClientSide } from '../../domain/roles.ts'
+import { Badge } from '../../shared/ui/Badge.tsx'
+import { LtrText } from '../../shared/ui/LtrText.tsx'
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
@@ -149,6 +175,9 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
   const canEditSettings =
     access !== null && canPerform(access, 'EDIT_EVENT_SETTINGS')
   const canEdit = canEditSchedule || canEditSettings
+  // The client sees the venue's part as text, never as locked fields (#14).
+  const venue = info.venue ?? null
+  const clientView = venue !== null && isClientSide(access?.role ?? null)
   const update = useUpdateEvent(event.id)
   const [values, setValues] = useState(() => toFormValues(event))
   const [timeZones] = useState(() => listTimeZones(event.timeZone))
@@ -289,139 +318,174 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
             noValidate
             onSubmit={handleSubmit}
           >
-            <Card
-              title={t('settings.general.title')}
-              subtitle={t('settings.general.subtitle')}
-            >
-              <div className={styles.fields}>
-                <TextField
-                  label={t('settings.general.name')}
-                  required
-                  maxLength={120}
-                  disabled={!canEditSettings}
-                  value={values.name}
-                  error={message('name')}
-                  onChange={(change) => set('name', change.target.value)}
-                />
-                <PlaceField
-                  label={t('settings.general.location')}
-                  maxLength={120}
-                  disabled={!canEditSchedule}
-                  value={values.location}
-                  country={values.country}
-                  hint={t('settings.general.locationHint')}
-                  onChange={(location) => set('location', location)}
-                />
-                <CoverPhotoField
-                  eventId={event.id}
-                  value={values.coverImage}
-                  disabled={!canEditSettings}
-                  onChange={(image) => set('coverImage', image)}
-                />
-                <TextField
-                  label={t('settings.general.maxAttendees')}
-                  type="number"
-                  inputMode="numeric"
-                  required
-                  min={allowedMax.min}
-                  max={allowedMax.max}
-                  disabled={!canEditSchedule}
-                  value={values.maxAttendees}
-                  hint={
-                    confirmed > EVENT_LIMITS.maxAttendees.min
-                      ? t('settings.general.maxAttendeesConfirmedHint', {
-                          ...allowedMax,
-                          confirmed,
-                        })
-                      : t('settings.general.maxAttendeesHint', allowedMax)
-                  }
-                  error={message('maxAttendees')}
-                  onChange={(change) =>
-                    set('maxAttendees', change.target.value)
-                  }
-                  onBlur={() => {
-                    if (maxChanged) {
-                      set(
-                        'maxAttendees',
-                        clampToRange(values.maxAttendees, allowedMax),
-                      )
-                    }
-                  }}
-                />
-                <div className={styles.row}>
-                  <TextField
-                    label={t('settings.general.date')}
-                    type="date"
-                    required
-                    disabled={!canEditSchedule}
-                    value={values.date}
-                    min={earliest?.date}
-                    aria-describedby={startsAtError ? dateErrorId : undefined}
-                    aria-invalid={startsAtError ? true : undefined}
-                    onChange={(change) => set('date', change.target.value)}
-                  />
-                  <TextField
-                    label={t('settings.general.time')}
-                    type="time"
-                    required
-                    disabled={!canEditSchedule}
-                    value={values.time}
-                    min={
-                      values.date === earliest?.date ? earliest.time : undefined
-                    }
-                    aria-describedby={startsAtError ? dateErrorId : undefined}
-                    aria-invalid={startsAtError ? true : undefined}
-                    onChange={(change) => set('time', change.target.value)}
-                  />
-                </div>
-                {startsAtError && (
-                  <p id={dateErrorId} className={styles.error}>
-                    {startsAtError}
-                  </p>
-                )}
-                <SelectField
-                  label={t('settings.general.timeZone')}
-                  required
-                  disabled={!canEditSchedule}
-                  value={values.timeZone}
-                  error={message('timeZone')}
-                  searchable
-                  emptyLabel={t('events.form.timeZoneNoMatch')}
-                  onChange={(change) => set('timeZone', change.target.value)}
+            {clientView ? (
+              <>
+                <VenueDetailsCard info={info} venue={venue} />
+                <Card
+                  title={t('settings.yours.title')}
+                  subtitle={t('settings.yours.subtitle')}
                 >
-                  {timeZones.map((timeZone) => {
-                    const choice = timeZoneChoice(
-                      timeZone,
-                      getCurrentLanguage(),
-                    )
-                    return (
-                      <option
-                        key={timeZone}
-                        value={timeZone}
-                        data-keywords={choice.keywords}
-                      >
-                        {choice.label}
-                      </option>
-                    )
-                  })}
-                </SelectField>
-                <div>
-                  <p className={styles.label}>{t('settings.general.status')}</p>
-                  <Notice
-                    tone={isPast ? 'warning' : 'success'}
-                    title={t(
-                      isPast ? 'events.status.past' : 'events.status.upcoming',
-                    )}
+                  <div className={styles.fields}>
+                    <TextField
+                      label={t('settings.general.name')}
+                      required
+                      maxLength={120}
+                      disabled={!canEditSettings}
+                      value={values.name}
+                      hint={t('settings.yours.nameHint')}
+                      error={message('name')}
+                      onChange={(change) => set('name', change.target.value)}
+                    />
+                    <CoverPhotoField
+                      eventId={event.id}
+                      value={values.coverImage}
+                      disabled={!canEditSettings}
+                      onChange={(image) => set('coverImage', image)}
+                    />
+                  </div>
+                </Card>
+              </>
+            ) : (
+              <Card
+                title={t('settings.general.title')}
+                subtitle={t('settings.general.subtitle')}
+              >
+                <div className={styles.fields}>
+                  <TextField
+                    label={t('settings.general.name')}
+                    required
+                    maxLength={120}
+                    disabled={!canEditSettings}
+                    value={values.name}
+                    error={message('name')}
+                    onChange={(change) => set('name', change.target.value)}
+                  />
+                  <PlaceField
+                    label={t('settings.general.location')}
+                    maxLength={120}
+                    disabled={!canEditSchedule}
+                    value={values.location}
+                    country={values.country}
+                    hint={t('settings.general.locationHint')}
+                    onChange={(location) => set('location', location)}
+                  />
+                  <CoverPhotoField
+                    eventId={event.id}
+                    value={values.coverImage}
+                    disabled={!canEditSettings}
+                    onChange={(image) => set('coverImage', image)}
+                  />
+                  <TextField
+                    label={t('settings.general.maxAttendees')}
+                    type="number"
+                    inputMode="numeric"
+                    required
+                    min={allowedMax.min}
+                    max={allowedMax.max}
+                    disabled={!canEditSchedule}
+                    value={values.maxAttendees}
+                    hint={
+                      confirmed > EVENT_LIMITS.maxAttendees.min
+                        ? t('settings.general.maxAttendeesConfirmedHint', {
+                            ...allowedMax,
+                            confirmed,
+                          })
+                        : t('settings.general.maxAttendeesHint', allowedMax)
+                    }
+                    error={message('maxAttendees')}
+                    onChange={(change) =>
+                      set('maxAttendees', change.target.value)
+                    }
+                    onBlur={() => {
+                      if (maxChanged) {
+                        set(
+                          'maxAttendees',
+                          clampToRange(values.maxAttendees, allowedMax),
+                        )
+                      }
+                    }}
+                  />
+                  <div className={styles.row}>
+                    <TextField
+                      label={t('settings.general.date')}
+                      type="date"
+                      required
+                      disabled={!canEditSchedule}
+                      value={values.date}
+                      min={earliest?.date}
+                      aria-describedby={startsAtError ? dateErrorId : undefined}
+                      aria-invalid={startsAtError ? true : undefined}
+                      onChange={(change) => set('date', change.target.value)}
+                    />
+                    <TextField
+                      label={t('settings.general.time')}
+                      type="time"
+                      required
+                      disabled={!canEditSchedule}
+                      value={values.time}
+                      min={
+                        values.date === earliest?.date
+                          ? earliest.time
+                          : undefined
+                      }
+                      aria-describedby={startsAtError ? dateErrorId : undefined}
+                      aria-invalid={startsAtError ? true : undefined}
+                      onChange={(change) => set('time', change.target.value)}
+                    />
+                  </div>
+                  {startsAtError && (
+                    <p id={dateErrorId} className={styles.error}>
+                      {startsAtError}
+                    </p>
+                  )}
+                  <SelectField
+                    label={t('settings.general.timeZone')}
+                    required
+                    disabled={!canEditSchedule}
+                    value={values.timeZone}
+                    error={message('timeZone')}
+                    searchable
+                    emptyLabel={t('events.form.timeZoneNoMatch')}
+                    onChange={(change) => set('timeZone', change.target.value)}
                   >
-                    {t(
-                      isPast
-                        ? 'settings.general.pastBody'
-                        : 'settings.general.upcomingBody',
-                    )}
-                  </Notice>
+                    {timeZones.map((timeZone) => {
+                      const choice = timeZoneChoice(
+                        timeZone,
+                        getCurrentLanguage(),
+                      )
+                      return (
+                        <option
+                          key={timeZone}
+                          value={timeZone}
+                          data-keywords={choice.keywords}
+                        >
+                          {choice.label}
+                        </option>
+                      )
+                    })}
+                  </SelectField>
+                  <div>
+                    <p className={styles.label}>
+                      {t('settings.general.status')}
+                    </p>
+                    <Notice
+                      tone={isPast ? 'warning' : 'success'}
+                      title={t(
+                        isPast
+                          ? 'events.status.past'
+                          : 'events.status.upcoming',
+                      )}
+                    >
+                      {t(
+                        isPast
+                          ? 'settings.general.pastBody'
+                          : 'settings.general.upcomingBody',
+                      )}
+                    </Notice>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            )}
 
             <Card
               title={t('settings.guestDefaults.title')}
@@ -538,6 +602,123 @@ function EventSettings({ info }: { info: EventAccessInfo }) {
       <EventRulesDialog open={rulesOpen} onClose={() => setRulesOpen(false)} />
       <UnsavedChangesGuard active={isDirty} onSave={saveChanges} />
     </>
+  )
+}
+
+/**
+ * The venue's part of a client's event (#14): plain text with who maintains
+ * it and how to reach them, never locked fields (D113).
+ */
+function VenueDetailsCard({
+  info,
+  venue,
+}: {
+  info: EventAccessInfo
+  venue: EventVenueInfo
+}) {
+  const { t } = useTranslation()
+  const format = useFormatters()
+  const { event, isPast } = info
+  const startsAt = new Date(event.startsAt)
+  const zone = timeZoneChoice(event.timeZone, getCurrentLanguage()).label
+  const rows: {
+    icon: ReactNode
+    label: string
+    value: string
+    note?: string
+  }[] = [
+    {
+      icon: <CalendarClock />,
+      label: t('settings.venue.dateTime'),
+      value: `${format.date(startsAt, event.timeZone)} · ${format.time(startsAt, event.timeZone)}`,
+      note: t('settings.venue.timeZone', { zone }),
+    },
+    {
+      icon: <Building2 />,
+      label: t('settings.venue.space'),
+      value: venue.space.name,
+      note: venue.name,
+    },
+    {
+      icon: <MapPin />,
+      label: t('settings.venue.address'),
+      value: event.location ?? '',
+      note: t('settings.venue.addressNote'),
+    },
+    {
+      icon: <Users />,
+      label: t('settings.venue.maxAttendees'),
+      value: t('settings.venue.people', {
+        count: event.maxAttendees,
+        formatted: format.number(event.maxAttendees),
+      }),
+    },
+  ]
+  return (
+    <Card
+      title={t('settings.venue.title')}
+      subtitle={t('settings.venue.subtitle')}
+      actions={
+        <Badge tone="info" icon={<Building2 />}>
+          {t('events.card.managedBy', { venue: venue.name })}
+        </Badge>
+      }
+    >
+      <div className={styles.fields}>
+        <Notice title={t('settings.venue.maintained', { venue: venue.name })}>
+          <p>{t('settings.venue.maintainedBody')}</p>
+          {(venue.contactEmail || venue.contactPhone) && (
+            <p className={styles.contacts}>
+              {venue.contactEmail && (
+                <a href={`mailto:${venue.contactEmail}`}>
+                  <Mail aria-hidden="true" />
+                  <LtrText>{venue.contactEmail}</LtrText>
+                </a>
+              )}
+              {venue.contactPhone && (
+                <a href={`tel:${venue.contactPhone.replace(/[^\d+]/g, '')}`}>
+                  <Phone aria-hidden="true" />
+                  <LtrText>{venue.contactPhone}</LtrText>
+                </a>
+              )}
+            </p>
+          )}
+        </Notice>
+        <dl className={styles.venueRows}>
+          {rows.map((row) => (
+            <div key={row.label} className={styles.venueRow}>
+              <dt>
+                <span aria-hidden="true">{row.icon}</span>
+                {row.label}
+              </dt>
+              <dd>
+                <span className={styles.venueValue}>
+                  <bdi>{row.value}</bdi>
+                </span>
+                {row.note && (
+                  <span className={styles.venueNote}>
+                    <bdi>{row.note}</bdi>
+                  </span>
+                )}
+              </dd>
+            </div>
+          ))}
+          <div className={styles.venueRow}>
+            <dt>
+              <span aria-hidden="true">
+                <CircleCheck />
+              </span>
+              {t('settings.general.status')}
+            </dt>
+            <dd>
+              <Badge tone={isPast ? 'neutral' : 'success'}>
+                {t(isPast ? 'events.status.past' : 'events.status.upcoming')}
+              </Badge>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </Card>
   )
 }
 

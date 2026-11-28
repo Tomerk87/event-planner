@@ -8,6 +8,8 @@ import { useSession } from '../app/session/sessionContext.ts'
 import type { User } from '../domain/models.ts'
 import type {
   DemoRole,
+  DemoView,
+  DemoViewAs,
   EventAccessInfo,
   EventSummary,
   ServerFeatures,
@@ -24,6 +26,7 @@ export const queryKeys = {
   eventAccess: (eventId: string) => ['events', eventId, 'access'],
   dashboard: (eventId: string) => ['events', eventId, 'dashboard'],
   demoRole: ['demo', 'role'],
+  demoViewAs: ['demo', 'viewAs'],
   sidebarCollapsed: ['preferences', 'sidebarCollapsed'],
   features: ['system', 'features'],
   emailVerified: ['session', 'emailVerified'],
@@ -70,6 +73,28 @@ export function useSetDemoRole() {
       await demo?.setRole(role)
     },
     onSettled: () => queryClient.invalidateQueries(),
+  })
+}
+
+/** Who the venue demo shows (#23); null when it has no venues. */
+export function useDemoViewAs(): UseQueryResult<DemoViewAs | null> {
+  const { demo } = useServices()
+  return useQuery({
+    queryKey: queryKeys.demoViewAs,
+    queryFn: () => demo?.getViewAs() ?? null,
+    enabled: demo !== null,
+  })
+}
+
+/** Another person sees other events and other parts, so everything reloads. */
+export function useSetDemoViewAs() {
+  const { demo } = useServices()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (view: DemoView) => {
+      await demo?.setViewAs(view)
+    },
+    onSuccess: () => queryClient.invalidateQueries(),
   })
 }
 

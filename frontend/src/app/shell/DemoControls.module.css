@@ -31,3 +31,40 @@
     white-space: nowrap;
   }
 }
+
+.viewAs {
+  min-inline-size: 14rem;
+}
+
+/* Whose view the venue demo shows (#23). */
+.viewBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-info-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-soft);
+  font-size: var(--font-size-sm);
+}
+
+.viewBannerIcon {
+  display: inline-flex;
+  color: var(--color-primary);
+}
+
+.viewBannerIcon svg {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.viewBannerText {
+  flex: 1;
+  min-inline-size: 14rem;
+}
+
+.viewBannerTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}

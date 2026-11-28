@@ -16,7 +16,7 @@ import { ErrorState, LoadingState } from '../shared/ui/States.tsx'
 import { NotificationBell } from './notifications/NotificationBell.tsx'
 import { useSignOut } from './session/useSignOut.ts'
 import { AppShell } from './shell/AppShell.tsx'
-import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
+import { DemoBadge, DemoTools, DemoViewBanner } from './shell/DemoControls.tsx'
 
 /**
  * The frame of a venue's pages (V2.2): the workspace switcher and the venue's
@@ -67,6 +67,7 @@ export function VenueLayout() {
       signOutInSidebar
       banner={<DemoBadge />}
       bell={<NotificationBell />}
+      notice={<DemoViewBanner onVenuePage />}
       tools={<DemoTools />}
     >
       {workspace.isPending ? (

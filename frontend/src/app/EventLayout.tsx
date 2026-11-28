@@ -20,7 +20,7 @@ import { ErrorState, LoadingState } from '../shared/ui/States.tsx'
 import { AppShell } from './shell/AppShell.tsx'
 import { useSignOut } from './session/useSignOut.ts'
 import { EmailVerificationNotice } from './shell/EmailVerificationNotice.tsx'
-import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
+import { DemoBadge, DemoTools, DemoViewBanner } from './shell/DemoControls.tsx'
 import { getEventNavItems } from './shell/eventNav.ts'
 import { NotificationBell } from './notifications/NotificationBell.tsx'
 
@@ -71,6 +71,12 @@ export function EventLayout() {
           id: info.data.event.id,
           name: info.data.event.name,
           coverImage: info.data.event.coverImage,
+          subtitle:
+            venue === null
+              ? undefined
+              : venueSide
+                ? venue.space.name
+                : t('events.card.managedBy', { venue: venue.name }),
         }
       }
       events={selectable?.map((event) => ({
@@ -81,7 +87,12 @@ export function EventLayout() {
       user={user.data && { name: user.data.name, role }}
       onSignOut={signOut}
       banner={<DemoBadge />}
-      notice={<EmailVerificationNotice />}
+      notice={
+        <>
+          <EmailVerificationNotice />
+          <DemoViewBanner onVenuePage={venue !== null} />
+        </>
+      }
       bell={<NotificationBell />}
       tools={<DemoTools showRole={venue === null} />}
     >

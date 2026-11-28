@@ -46,7 +46,7 @@ import type {
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { describeError } from '../../shared/errorMessage.ts'
-import type { Tone } from '../../shared/ui/Badge.tsx'
+import { Badge, type Tone } from '../../shared/ui/Badge.tsx'
 import { Button } from '../../shared/ui/Button.tsx'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { Card, KpiCard, KpiGrid } from '../../shared/ui/Card.tsx'
@@ -709,7 +709,13 @@ function VenueEventMeta({
   return (
     <ul className={styles.meta} aria-label={t('venueDashboard.meta')}>
       <li>
-        <VenueStatusBadge status={venue.status} />
+        {isVenueSide(info.role) ? (
+          <VenueStatusBadge status={venue.status} />
+        ) : (
+          <Badge tone="info" icon={<Building2 />}>
+            {t('events.card.managedBy', { venue: venue.name })}
+          </Badge>
+        )}
       </li>
       <li>
         <CalendarDays aria-hidden="true" />
@@ -757,7 +763,7 @@ export function DashboardPage() {
           </ButtonLink>
         }
       />
-      {venueSide && info.data?.venue && (
+      {info.data?.venue && (
         <VenueEventMeta info={info.data} venue={info.data.venue} />
       )}
       {dashboard.isError ? (

@@ -339,6 +339,15 @@ export interface DashboardService {
 
 export type DemoRole = EventRole | 'SUPER_USER'
 
+/** The demo user themself, or the client of a shared event (#23). */
+export type DemoView = 'SELF' | 'CLIENT'
+
+export interface DemoViewAs {
+  view: DemoView
+  self: { name: string; venueName: string }
+  client: { name: string; eventId: Id; eventName: string }
+}
+
 /**
  * Controls that exist only in Demo Mode. A simulated role changes what the
  * local demo allows; it is never sent anywhere and confers no real access.
@@ -347,6 +356,13 @@ export interface DemoControl {
   /** The simulated role, or null when the user's own memberships apply. */
   getRole(): Promise<DemoRole | null>
   setRole(role: DemoRole | null): Promise<void>
+  /**
+   * Who the venue demo shows (#23, Phase 29b): the demo user, who owns a
+   * venue, or the client lead of its first shared event. Null when the demo
+   * has no venues.
+   */
+  getViewAs(): Promise<DemoViewAs | null>
+  setViewAs(view: DemoView): Promise<void>
   /** Discards all changes and restores the initial generated dataset. */
   reset(): Promise<void>
   /** When the demo ends at the latest (D99); null when unknown. */
@@ -610,6 +626,17 @@ export interface ClientTeamEntry {
   pending: boolean
 }
 
+/** A role the client lead gives (D113): never a second lead. */
+export type ClientInviteRole = Exclude<ClientTeamRole, 'CLIENT_LEAD'>
+
+/** The client side's own Permissions page (mockup #15, client). */
+export interface ClientTeamView {
+  members: (ClientTeamEntry & { isYou: boolean })[]
+  venueName: string
+  /** The venue's people, shown read-only: names, emails and roles. */
+  venueTeam: { name: string; email: string; role: VenueMemberRole }[]
+}
+
 /** Who works on a venue event, as the venue sees it (mockup #10). */
 export interface VenueEventPeople {
   summary: VenueEventSummary
@@ -752,6 +779,23 @@ export interface VenuesService {
   getClientInvitation(token: string): Promise<ClientInvitationView>
   /** Accepts as the signed-in account, which must have the invited email. */
   acceptClientInvitation(token: string): Promise<void>
+  /**
+   * The client side's team (#15): read with VIEW_PERMISSIONS, changed by
+   * the client lead (MANAGE_PERMISSIONS). An address with an account joins
+   * at once; any other waits as invited. The lead can't be changed here.
+   */
+  getClientTeam(eventId: Id): Promise<ClientTeamView>
+  inviteToClientTeam(
+    eventId: Id,
+    email: string,
+    role: ClientInviteRole,
+  ): Promise<void>
+  changeClientTeamRole(
+    eventId: Id,
+    email: string,
+    role: ClientInviteRole,
+  ): Promise<void>
+  removeFromClientTeam(eventId: Id, email: string): Promise<void>
   /**
    * Demo only: the invited client accepts, since the demo has one account.
    * Absent from the real service.

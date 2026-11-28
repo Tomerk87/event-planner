@@ -226,3 +226,9 @@
     font-size: var(--font-size-md);
   }
 }
+
+/* A client's venue event (#13): who manages it. */
+.managedBy {
+  display: flex;
+  margin-block: calc(var(--space-1) * -1) var(--space-1);
+}

@@ -126,7 +126,18 @@
       "lifetime": "A demonstração dura 3 dias. Por isso, os dados de exemplo foram apagados. Selecione “Experimentar demo” para iniciar uma nova demonstração.",
       "idle": "Os dados de exemplo foram apagados após 12 horas sem atividade. Selecione “Experimentar demo” para iniciar uma nova demonstração."
     },
-    "endsAt": "A demonstração termina em {{date}} às {{time}}, ou após 12 horas sem atividade."
+    "endsAt": "A demonstração termina em {{date}} às {{time}}, ou após 12 horas sem atividade.",
+    "viewAs": {
+      "label": "Ver a demonstração do espaço como",
+      "self": "Ver como {{name}} (dono do espaço)",
+      "client": "Ver como {{name}} (cliente)",
+      "asClientTitle": "Você está vendo como o cliente ({{name}})",
+      "asClientBody": "Você é {{name}}. {{venue}} organiza o espaço e as mesas; você cuida dos convidados, do RSVP, das mensagens e das mesas.",
+      "asSelfTitle": "Você está vendo como o dono do espaço",
+      "asSelfBody": "Você é {{name}}, dono de {{venue}}. Troque para ver o que {{client}} vê.",
+      "switchSelf": "Ver como dono do espaço",
+      "switchClient": "Ver como {{name}}"
+    }
   },
   "errors": {
     "UNAUTHENTICATED": "Sua sessão terminou. Entre novamente.",
@@ -306,7 +317,9 @@
       "maxAttendees": "Máximo de {{formatted}} pessoas",
       "confirmed": "{{formatted}} pessoas confirmadas",
       "capacity": "Capacidade: {{formatted}} pessoas",
-      "attendance": "Pessoas confirmadas em {{name}}"
+      "attendance": "Pessoas confirmadas em {{name}}",
+      "managedBy": "Gerenciado por {{venue}}",
+      "venuePlace": "{{space}}, {{venue}}"
     },
     "create": {
       "action": "Criar evento",
@@ -1020,6 +1033,12 @@
         "rotate": "Girar",
         "reset": "Redefinir imagem"
       }
+    },
+    "client": {
+      "arranged": "O espaço e as mesas são organizados por {{venue}}.",
+      "hint": "Arraste para olhar em volta; aproxime com os botões ou com pinça no trackpad. Selecione uma mesa para ver e acomodar os convidados.",
+      "hintTouch": "Arraste para olhar em volta e use pinça para aproximar. Toque numa mesa para ver e acomodar os convidados.",
+      "subtitle": "Acomode os convidados nas mesas e veja a planta do espaço."
     }
   },
   "messages": {
@@ -1173,6 +1192,25 @@
       "warnings": "Os avisos de capacidade nunca impedem que você salve as alterações. Eles aparecem quando o número de pessoas confirmadas excede o máximo ou quando o número de lugares é diferente desse máximo.",
       "date": "A data e o horário do evento só podem ser alterados para um momento no futuro.",
       "roles": "Proprietários e Administradores podem alterar o evento. Visualizadores podem consultar o evento e baixar os arquivos exportados."
+    },
+    "yours": {
+      "title": "Suas Configurações",
+      "subtitle": "Você pode mudá-las a qualquer momento.",
+      "nameHint": "Mostrado aos convidados na página de RSVP e nas suas mensagens."
+    },
+    "venue": {
+      "title": "Detalhes do Espaço",
+      "subtitle": "A data, o local e o tamanho do seu evento.",
+      "maintained": "Mantido por {{venue}}. Fale com eles para mudar.",
+      "maintainedBody": "Estes detalhes são definidos pelo espaço para todos que planejam este evento.",
+      "dateTime": "Data e Horário",
+      "timeZone": "Fuso horário: {{zone}}",
+      "space": "Espaço",
+      "address": "Endereço",
+      "addressNote": "Mostrado aos convidados na página de RSVP, com links para o Google Maps e o Waze.",
+      "maxAttendees": "Máximo de Pessoas",
+      "people_one": "{{formatted}} pessoa",
+      "people_other": "{{formatted}} pessoas"
     }
   },
   "permissions": {
@@ -2172,5 +2210,63 @@
     "theClient": "o cliente",
     "rsvpEmptyBody": "O cliente adiciona convidados depois de entrar.",
     "activitySubtitle": "As últimas respostas de RSVP dos convidados do cliente."
+  },
+  "clientTeam": {
+    "subtitle": "Gerencie quem pode ajudar a planejar este evento e o que pode fazer.",
+    "about": {
+      "title": "Sobre as funções do seu lado",
+      "body": "O Cliente Principal cuida dos convidados, do RSVP, das mensagens e das mesas, e decide quem está na equipe. Um Editor pode fazer o mesmo, mas não pode mudar a equipe. Um Visualizador pode ver o evento e baixar exportações. A data, o espaço e as mesas são gerenciados por {{venue}}."
+    },
+    "kpis": "Sua equipe por função",
+    "editors": "Editores",
+    "viewers": "Visualizadores",
+    "yours": {
+      "title": "Sua Equipe",
+      "side": "Lado do cliente",
+      "subtitle": "As pessoas que ajudam você a planejar. Você decide quem entra e o que pode fazer.",
+      "subtitleView": "As pessoas que ajudam a planejar este evento. O Cliente Principal decide quem entra."
+    },
+    "venue": {
+      "title": "Equipe de {{venue}}",
+      "side": "Lado do espaço",
+      "subtitle": "As pessoas do espaço que podem abrir este evento. São gerenciadas por {{venue}}, não por você.",
+      "privacy": "Elas veem os nomes dos convidados, o RSVP, as pessoas e as mesas para preparar o espaço. Nunca veem telefones nem as suas mensagens."
+    },
+    "search": "Buscar por nome ou e-mail",
+    "roleFilter": "Função",
+    "allRoles": "Todas as Funções",
+    "noMatch": "Ninguém corresponde a esta busca.",
+    "name": "Nome",
+    "email": "E-mail",
+    "role": "Função",
+    "since": "Membro desde",
+    "actions": "Ações",
+    "noAccount": "Ainda sem conta",
+    "pending": "Pendente",
+    "invited": "Convidado em {{date}}",
+    "you": "Você",
+    "invite": {
+      "button": "Convidar Usuário",
+      "title": "Convidar para a Sua Equipe",
+      "email": "E-mail",
+      "send": "Enviar Convite",
+      "sent": "{{email}} foi adicionado à sua equipe",
+      "note": "Quem tem conta entra na hora; os demais entram ao se cadastrar com este endereço. A demonstração não envia e-mail.",
+      "alreadyMember": "Esta pessoa já está na sua equipe",
+      "alreadyInvited": "Este endereço já foi convidado",
+      "venueMember": "Esta pessoa é da equipe do espaço, então não pode entrar na sua"
+    },
+    "changeRole": {
+      "button": "Mudar Função",
+      "named": "Mudar Função: {{name}}",
+      "title": "Mudar a função de {{name}}",
+      "save": "Salvar Função"
+    },
+    "remove": {
+      "named": "Remover: {{name}}",
+      "title": "Remover {{name}}?",
+      "body": "{{name}} não poderá mais abrir este evento. Você pode convidar de novo depois.",
+      "confirm": "Remover"
+    }
   }
 }
