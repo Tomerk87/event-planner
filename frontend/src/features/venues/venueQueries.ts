@@ -85,7 +85,8 @@ export function useVenueEvents(
   return useQuery({
     queryKey: venueKeys.events(organizationId),
     queryFn: () => venues?.listEvents(organizationId) ?? [],
-    enabled: venues !== null,
+    // An empty id means "not a venue's page": nothing to load.
+    enabled: venues !== null && organizationId !== '',
   })
 }
 

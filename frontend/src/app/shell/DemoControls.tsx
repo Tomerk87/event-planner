@@ -74,7 +74,12 @@ export function DemoBadge() {
  * Demo-only controls: a simulated role, which changes what this browser's
  * demo allows and nothing else, and a reset to the original sample data.
  */
-export function DemoTools() {
+export function DemoTools({
+  showRole = true,
+}: {
+  /** Off on a venue event, where roles come from the venue (D112, D113). */
+  showRole?: boolean
+} = {}) {
   const { t } = useTranslation()
   const { demo } = useServices()
   const { showToast } = useToast()
@@ -106,26 +111,28 @@ export function DemoTools() {
       role="group"
       aria-label={t('demo.toolsLabel')}
     >
-      <div className={styles.role}>
-        <SelectField
-          label={t('demo.roleLabel')}
-          hideLabel
-          value={role.data ?? OWN_ROLE}
-          disabled={role.isPending || setRole.isPending}
-          onChange={(event) =>
-            setRole.mutate(
-              isDemoRole(event.target.value) ? event.target.value : null,
-            )
-          }
-        >
-          <option value={OWN_ROLE}>{t('demo.roleOwn')}</option>
-          {SIMULATED_ROLES.map((option) => (
-            <option key={option} value={option}>
-              {t(`demo.simulate.${option}`)}
-            </option>
-          ))}
-        </SelectField>
-      </div>
+      {showRole && (
+        <div className={styles.role}>
+          <SelectField
+            label={t('demo.roleLabel')}
+            hideLabel
+            value={role.data ?? OWN_ROLE}
+            disabled={role.isPending || setRole.isPending}
+            onChange={(event) =>
+              setRole.mutate(
+                isDemoRole(event.target.value) ? event.target.value : null,
+              )
+            }
+          >
+            <option value={OWN_ROLE}>{t('demo.roleOwn')}</option>
+            {SIMULATED_ROLES.map((option) => (
+              <option key={option} value={option}>
+                {t(`demo.simulate.${option}`)}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+      )}
       <Button
         variant="secondary"
         icon={<RotateCcw />}

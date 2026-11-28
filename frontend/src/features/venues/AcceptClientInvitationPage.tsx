@@ -514,7 +514,7 @@ function Accepted({ view }: { view: ClientInvitationView }) {
         </ButtonLink>
         {!yours && view.signedInAs && (
           <ButtonLink
-            to={`/venues/${view.venueId}/events/${event.id}`}
+            to={`/events/${event.id}/permissions`}
             icon={<ArrowRight className={styles.directional} />}
             iconPosition="end"
           >

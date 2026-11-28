@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Outlet, useParams } from 'react-router'
 import type { EventAccess } from '../domain/access.ts'
 import { isDomainError } from '../domain/errors.ts'
+import { isVenueSide } from '../domain/roles.ts'
+import { useVenueEvents } from '../features/venues/venueQueries.ts'
 import {
   useCurrentUser,
   useEventAccessInfo,
@@ -32,6 +34,13 @@ export function EventLayout() {
   const sidebar = useSidebarCollapsed()
   const role = info.data?.role
   const isPastEvent = info.data?.isPast
+  // The venue's side of a venue event moves among the venue's events (#15).
+  const venue = info.data?.venue ?? null
+  const venueSide = venue !== null && isVenueSide(role ?? null)
+  const venueEvents = useVenueEvents(venueSide ? venue.organizationId : '')
+  const selectable = venueSide
+    ? venueEvents.data?.map(({ event }) => event)
+    : events.data?.map(({ event }) => event)
   const access = useMemo<EventAccess | null>(
     () =>
       role === undefined || isPastEvent === undefined
@@ -51,7 +60,7 @@ export function EventLayout() {
       navLabel={t('nav.event')}
       navItems={getEventNavItems(t, eventId, role)}
       footerLink={{
-        to: '/events',
+        to: venueSide ? `/venues/${venue.organizationId}/events` : '/events',
         label: t('nav.backToMyEvents'),
         icon: ArrowLeft,
         directional: true,
@@ -64,7 +73,7 @@ export function EventLayout() {
           coverImage: info.data.event.coverImage,
         }
       }
-      events={events.data?.map(({ event }) => ({
+      events={selectable?.map((event) => ({
         id: event.id,
         name: event.name,
         coverImage: event.coverImage,
@@ -74,7 +83,7 @@ export function EventLayout() {
       banner={<DemoBadge />}
       notice={<EmailVerificationNotice />}
       bell={<NotificationBell />}
-      tools={<DemoTools />}
+      tools={<DemoTools showRole={venue === null} />}
     >
       {info.isPending ? (
         <Card>

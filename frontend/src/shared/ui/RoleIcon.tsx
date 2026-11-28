@@ -1,14 +1,26 @@
-import { Crown, Shield, Users, type LucideIcon } from 'lucide-react'
-import type { EventRole } from '../../domain/roles.ts'
+import {
+  Crown,
+  Eye,
+  Pencil,
+  Shield,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
+import type { AnyEventRole } from '../../domain/roles.ts'
 
-const icons: Record<EventRole, LucideIcon> = {
+const icons: Record<AnyEventRole, LucideIcon> = {
   OWNER: Crown,
   ADMIN: Shield,
   VIEWER: Users,
+  VENUE_OWNER: Crown,
+  VENUE_MANAGER: Shield,
+  CLIENT_LEAD: Crown,
+  CLIENT_EDITOR: Pencil,
+  CLIENT_VIEWER: Eye,
 }
 
 interface RoleIconProps {
-  role: EventRole
+  role: AnyEventRole
   className?: string
 }
 

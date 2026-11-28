@@ -36,7 +36,12 @@
   "roles": {
     "OWNER": "Owner",
     "ADMIN": "Admin",
-    "VIEWER": "Viewer"
+    "VIEWER": "Viewer",
+    "VENUE_OWNER": "Venue Owner",
+    "VENUE_MANAGER": "Venue Manager",
+    "CLIENT_LEAD": "Client Lead",
+    "CLIENT_EDITOR": "Editor",
+    "CLIENT_VIEWER": "Viewer"
   },
   "eventSelector": {
     "label": "Current event: {{name}}. Switch event",
@@ -521,7 +526,8 @@
     },
     "search": {
       "label": "Search guests",
-      "placeholder": "Search by name, phone number or invitation name…"
+      "placeholder": "Search by name, phone number or invitation name…",
+      "placeholderVenue": "Search by guest or invitation name…"
     },
     "filters": {
       "rsvp": "RSVP Status",
@@ -1506,7 +1512,6 @@
       "INVITATION_EXPIRED": "Invitation expired on {{date}}. Resend it from the event’s Permissions page.",
       "AWAITING_CLIENT": "No client invited yet. Invite one from the event’s Permissions page."
     },
-    "soon": "Opening a venue event comes soon",
     "empty": {
       "title": "No events yet",
       "body": "Events you create in your spaces appear here."
@@ -2102,5 +2107,69 @@
     "contactRole": "Your contact at the venue",
     "emailVenue": "Email {{venue}}",
     "notFound": "This invitation link isn’t valid. Check that you copied the whole link from the email."
+  },
+  "venueGuests": {
+    "subtitle": "See who’s coming and where they sit.",
+    "noteTitle": "The guest list is managed by the client",
+    "noteBody": "{{client}} adds guests, sends invitations and seats people. You can view the list and export seating, but not change it.",
+    "noteBodyNoClient": "Your client adds guests, sends invitations and seats people once they accept. You can view the list and export seating, but not change it.",
+    "phonesHidden": "Phone numbers are hidden from {{venue}}",
+    "seatingExport": "Seating Export",
+    "kpis": {
+      "label": "Guest figures",
+      "total": "Total Guests",
+      "approved": "Approved",
+      "awaiting": "Awaiting Response",
+      "notSure": "Not Sure",
+      "declined": "Declined",
+      "withoutTable": "Without Table",
+      "invitations": "invitations",
+      "attendees": "attendees",
+      "guests": "guests"
+    }
+  },
+  "venueDashboard": {
+    "subtitle": "Overview of guests, RSVPs and seating for this event.",
+    "maxPeople": "Max {{count}} people",
+    "meta": "Event details",
+    "warnings": {
+      "title": "Warnings",
+      "count_one": "{{count}} to review",
+      "count_other": "{{count}} to review",
+      "subtitle": "Client status and seating conflicts for this event. They update when guests or tables change.",
+      "noneTitle": "No warnings",
+      "noneBody": "The client joined, and every confirmed guest has a seat at a table with room.",
+      "awaitingTitle": "Waiting for the client",
+      "awaitingBody_AWAITING_CLIENT": "No client is invited yet. Until one joins, the guest list, RSVP and seating stay empty.",
+      "awaitingBody_INVITATION_SENT": "The invitation was sent and hasn’t been accepted yet. Until the client joins, the guest list, RSVP and seating stay empty.",
+      "awaitingBody_INVITATION_EXPIRED": "The invitation expired before anyone accepted it. Resend it, or invite a different client.",
+      "manageClient": "Manage Client",
+      "openLayout": "Open Event Layout",
+      "openSettings": "Open Event Settings",
+      "tablesHelp": "Add chairs to these tables in Event Layout, or ask {{client}} to move guests. Seating is managed by the client.",
+      "tablesHelpNoClient": "Add chairs to these tables in Event Layout. Seating is managed by the client."
+    },
+    "actions": {
+      "layout": {
+        "title": "Edit Event Layout",
+        "body": "Arrange the room, tables and chairs"
+      },
+      "guests": {
+        "title": "View Guests",
+        "body": "Names, RSVPs and tables (read-only)"
+      },
+      "export": {
+        "title": "Seating Export",
+        "body": "Guest list by table, no phones"
+      },
+      "client": {
+        "title": "Manage Client",
+        "body": "Resend, revoke or change the client"
+      }
+    },
+    "privacy": "RSVP settings, WhatsApp messages and phone numbers are managed by {{client}} and aren’t shown to {{venue}}.",
+    "theClient": "the client",
+    "rsvpEmptyBody": "The client adds guests after they join.",
+    "activitySubtitle": "Latest RSVP responses from the client’s guests."
   }
 }

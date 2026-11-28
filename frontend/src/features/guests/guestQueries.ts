@@ -40,23 +40,28 @@ export function useTables(
   })
 }
 
+/** Off for the venue, which never sees unknown responses (D111). */
 export function useUnknownGuests(
   eventId: string,
+  enabled = true,
 ): UseQueryResult<UnknownRsvp[]> {
   const { unknownGuests } = useServices()
   return useQuery({
     queryKey: keys.unknown(eventId),
     queryFn: () => unknownGuests.list(eventId),
+    enabled,
   })
 }
 
 export function useRejectedUnknownGuests(
   eventId: string,
+  enabled = true,
 ): UseQueryResult<UnknownRsvp[]> {
   const { unknownGuests } = useServices()
   return useQuery({
     queryKey: keys.rejected(eventId),
     queryFn: () => unknownGuests.listRejected(eventId),
+    enabled,
   })
 }
 

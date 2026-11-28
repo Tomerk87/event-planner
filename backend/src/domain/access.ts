@@ -1,8 +1,8 @@
 import { roleCan, type EventAction } from './permissions.ts'
-import type { EventRole } from './roles.ts'
+import type { AnyEventRole, EventRole } from './roles.ts'
 
 export interface EventAccess {
-  role: EventRole
+  role: AnyEventRole
   isPastEvent: boolean
 }
 
@@ -16,7 +16,7 @@ export function getReadOnlyReason(access: EventAccess): ReadOnlyReason | null {
   if (access.isPastEvent) {
     return 'PAST_EVENT'
   }
-  if (access.role === 'VIEWER') {
+  if (access.role === 'VIEWER' || access.role === 'CLIENT_VIEWER') {
     return 'VIEWER'
   }
   return null
@@ -32,7 +32,7 @@ export function canPerform(access: EventAccess, action: EventAction): boolean {
   return roleCan(action, access.role, { isPastEvent: access.isPastEvent })
 }
 
-export function canOpenPermissions(role: EventRole): boolean {
+export function canOpenPermissions(role: AnyEventRole): boolean {
   return roleCan('VIEW_PERMISSIONS', role, { isPastEvent: false })
 }
 
@@ -51,5 +51,7 @@ export function manageableRoles(access: EventAccess): EventRole[] {
   }
   return access.role === 'OWNER'
     ? ['OWNER', 'ADMIN', 'VIEWER']
-    : ['ADMIN', 'VIEWER']
+    : access.role === 'ADMIN'
+      ? ['ADMIN', 'VIEWER']
+      : []
 }

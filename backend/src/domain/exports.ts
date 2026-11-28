@@ -138,6 +138,10 @@ export const SEATING_EXPORT_COLUMNS = [
 
 export type SeatingExportColumn = (typeof SEATING_EXPORT_COLUMNS)[number]
 
+/** The venue's seating export: never a guest's phone (D111, D118). */
+export const SEATING_EXPORT_COLUMNS_WITHOUT_PHONE =
+  SEATING_EXPORT_COLUMNS.filter((column) => column !== 'phone')
+
 /**
  * The seating list as a table: one heading row, then one row per seated
  * party in table order. Headings come translated from the caller.
@@ -145,9 +149,10 @@ export type SeatingExportColumn = (typeof SEATING_EXPORT_COLUMNS)[number]
 export function buildSeatingExportTable(
   rows: readonly SeatingDetailRow[],
   headings: Record<SeatingExportColumn, string>,
+  columns: readonly SeatingExportColumn[] = SEATING_EXPORT_COLUMNS,
 ): (string | number)[][] {
   return [
-    SEATING_EXPORT_COLUMNS.map((column) => headings[column]),
-    ...rows.map((row) => SEATING_EXPORT_COLUMNS.map((column) => row[column])),
+    columns.map((column) => headings[column]),
+    ...rows.map((row) => columns.map((column) => row[column])),
   ]
 }

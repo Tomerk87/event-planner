@@ -884,17 +884,33 @@ Delivered in two pull requests.
 
 ### Phase 29 — The shared event, two sides (mockups #13–17, #19; #18)
 
-- [ ] Client side:
-  - "Managed by" badge;
-  - locked venue details with the contact note;
-  - name and photo editable (D113);
-  - map view-only with seating active;
-  - Permissions: the lead invites Editors and Viewers.
-- [ ] Venue side:
-  - Dashboard warnings;
-  - Guests read-only without phones;
-  - seating export in CSV/Excel without phones (D118);
-  - table and map editing.
+Split in two, like Phase 25: **29a, the venue side** (done), then **29b, the client side**.
+
+**29a: the venue side (#15 venue, #17, #18, #19)**
+
+- [x] Venue roles reach the event pages:
+  - `EventAccess.role` and `EventAccessInfo.role` take any role (`AnyEventRole`);
+  - `EventAccessInfo.venue` names the venue, its contacts, the space, the status and the client;
+  - `isVenueSide` / `isClientSide` in `domain/roles.ts`, mirrored to the backend.
+- [x] The demo gives venue members `VENUE_OWNER` / `VENUE_MANAGER` on their venue's events (and the client team its roles). Personal memberships and the demo's role switcher don't apply there. Checks use `assertRoleCan` with that role.
+- [x] Privacy (D120): the venue reads guests without phones. It is refused the unknown answers, RSVP settings and message template, values, previews and history. The dashboard's activity leaves out sends. The seating export drops the phone column (`SEATING_EXPORT_COLUMNS_WITHOUT_PHONE`).
+- [x] Shell: Open Event on the venue's cards; no RSVP or Messages in the sidebar; the selector lists the venue's events; Back to My Events returns to the venue; no demo role switcher on a venue event.
+- [x] Dashboard (#19):
+  - the status, date, space and maximum under the title;
+  - one Warnings section: waiting for the client (with Manage Client), tables over capacity (with the client-seating note and Open Event Layout), people without a table, over the maximum;
+  - the venue's quick actions (Edit Event Layout, View Guests, Seating Export, Manage Client) and the privacy note.
+- [x] Guests (#17): the managed-by-client note with phones hidden, the venue's six KPIs, name/expected/confirmed/status/table/group only, filters without "invitation", no add/import/export/selection/details/unknown tab, and Seating Export.
+- [x] Permissions (#15, venue): the client card and both teams in the event; the Phase 28 address redirects there, and the card's Client link opens it.
+- [x] Event Layout (#18) and Event Settings already follow the actions (Phase 24): tables and map editable, seating view-only; schedule fields editable, name, photo and guest settings read-only.
+- [x] Tests: access, privacy and refusal tests in the demo; page tests; the venue event pages in the accessibility checks (EN/HE/PT, desktop and phone).
+
+**29b: the client side (#13, #14, #15 client, #16)**
+
+- [ ] The client's My Events with "Managed by" (#13) and the badge in the event.
+- [ ] Event Settings: venue details as text with the contact note; name, photo and their own settings editable (#14, D113).
+- [ ] Event Layout: map view-only with seating active (#16).
+- [ ] Permissions: the lead invites Editors and Viewers; the Client Lead badge (#15 client).
+- [ ] A way to see the client side in the demo (the venue/client switcher of Phase 31, brought forward or a stand-in).
 
 ### Phase 30 — Changes that affect the client (mockup #20; #21)
 
@@ -1829,4 +1845,12 @@ Validation: lint, typecheck, format; unit tests 1676 passed; the venue Playwrigh
 Mockups reviewed: 10_venue_event_client_* (awaiting, sent, expired, joined, past), 12_venue_accept_invitation_* (all states), desktop and phone, EN/HE.
 Follow-ups/risks: the client card sits on its own venue page until Phase 29 brings the event's pages to the venue; the accepted client can't open the event until then. The signed-out state can't show the event until the backend gives the link a public read.
 Next: Phase 29 — the shared event, two sides (#13–17, #19; #18).
+```
+
+```text
+2026-11-28 — Phase 29a (V2.2) — The venue opens its events: venue roles through the event pages, the Dashboard warnings (#19), the read-only Guests without phones (#17), the client card on Permissions (#15), Layout and Settings by action (#18). The venue never reads phones, messages, RSVP settings or unknown answers (D120).
+Validation: lint, typecheck, format, build; unit tests 1696 passed; backend domain tests 779 passed (mirrored roles/access/exports); the venue Playwright tests (desktop and phone, EN/HE/PT accessibility) against a local venues dev server, 101 passed.
+Mockups reviewed: 15_event_permissions_venue_owner, 17_venue_event_guests_*, 19_venue_event_dashboard_*, desktop.
+Follow-ups/risks: the per-table detail rows in the over-capacity warning and "Last change by the client" are not built; the status column still shows "Not Sent". Phase 29b is the client side.
+Next: Phase 29b — the client side (#13, #14, #15 client, #16).
 ```

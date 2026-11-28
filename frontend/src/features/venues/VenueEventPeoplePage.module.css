@@ -1,28 +1,5 @@
 /* Who works on a venue event (mockup #10). */
 
-.breadcrumb {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin-block-end: var(--space-4);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.breadcrumb a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-weight: var(--font-weight-semibold);
-  text-decoration: none;
-}
-
-.breadcrumb svg {
-  inline-size: 1rem;
-  block-size: 1rem;
-}
-
 :global([dir='rtl']) .directional {
   transform: scaleX(-1);
 }

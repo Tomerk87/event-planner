@@ -9,7 +9,7 @@ import {
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink } from 'react-router'
-import type { EventRole } from '../../domain/roles.ts'
+import type { AnyEventRole } from '../../domain/roles.ts'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
 import { cx } from '../../shared/ui/cx.ts'
 import { Menu } from '../../shared/ui/Menu.tsx'
@@ -41,7 +41,7 @@ export interface ShellEvent {
 export interface ShellUser {
   name: string
   /** The user's role in the current event; omit outside an event. */
-  role?: EventRole
+  role?: AnyEventRole
 }
 
 /** The workspace switcher's contents (V2.2); shown to venue members only. */

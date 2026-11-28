@@ -612,3 +612,28 @@ button.statusTrigger > svg {
 .typeToEdit {
   cursor: text;
 }
+
+/* The venue's view (#17): the name with the invitation name under it. */
+.venueName {
+  display: flex;
+  flex-direction: column;
+  font-weight: var(--font-weight-semibold);
+}
+
+.venueName .muted {
+  font-weight: var(--font-weight-regular, 400);
+}
+
+.venueNoteMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.venueNoteMeta svg {
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+}

@@ -52,7 +52,11 @@ import { ColumnChooser } from './ColumnChooser.tsx'
 import { useTableOptions } from './TableOptions.tsx'
 import { DeleteGuestsDialog } from './DeleteGuestsDialog.tsx'
 import { GroupDialog } from './GroupDialog.tsx'
-import { resolveGuestColumns, type GuestColumnId } from './guestColumns.ts'
+import {
+  resolveGuestColumns,
+  VENUE_GUEST_COLUMNS,
+  type GuestColumnId,
+} from './guestColumns.ts'
 import { GuestDetailsDrawer } from './GuestDetailsDrawer.tsx'
 import type { FileFormat } from './guestFiles.ts'
 import { GuestFormDialog } from './GuestFormDialog.tsx'
@@ -105,6 +109,11 @@ interface GuestsTabProps {
   canSend: boolean
   /** Exporting guests with their phone numbers (EXPORT_GUESTS). */
   canExport: boolean
+  /**
+   * The venue's read-only view (#17): no phones, message counts, details,
+   * selection or column choice (D111).
+   */
+  venueView?: boolean
   onAdd: () => void
   onExport: (format: FileFormat, guests: readonly Guest[]) => void
 }
@@ -118,6 +127,7 @@ export function GuestsTab({
   canSeat,
   canSend,
   canExport,
+  venueView = false,
   onAdd,
   onExport,
 }: GuestsTabProps) {
@@ -166,7 +176,9 @@ export function GuestsTab({
   const [chosenColumns, setChosenColumns] = useState<GuestColumnId[] | null>(
     null,
   )
-  const columns = chosenColumns ?? resolveGuestColumns(storedColumns.data)
+  const columns = venueView
+    ? [...VENUE_GUEST_COLUMNS]
+    : (chosenColumns ?? resolveGuestColumns(storedColumns.data))
   const requestedSort = parseSort(params.get('sort'))
   // Sorting by a column that is hidden would be invisible, so it falls back.
   const sort = columns.includes(requestedSort.key)
@@ -311,14 +323,23 @@ export function GuestsTab({
       cell: (guest) => (
         <span className={styles.nameCell}>
           <Avatar name={guestFullName(guest)} />
-          <button
-            type="button"
-            className={styles.nameButton}
-            title={t('guests.row.details', { name: guestFullName(guest) })}
-            onClick={() => setPanel({ kind: 'details', guestId: guest.id })}
-          >
-            {guestFullName(guest)}
-          </button>
+          {venueView ? (
+            <span className={styles.venueName}>
+              <span>{guestFullName(guest)}</span>
+              {guest.invitationName && (
+                <span className={styles.muted}>{guest.invitationName}</span>
+              )}
+            </span>
+          ) : (
+            <button
+              type="button"
+              className={styles.nameButton}
+              title={t('guests.row.details', { name: guestFullName(guest) })}
+              onClick={() => setPanel({ kind: 'details', guestId: guest.id })}
+            >
+              {guestFullName(guest)}
+            </button>
+          )}
         </span>
       ),
     },
@@ -395,13 +416,17 @@ export function GuestsTab({
   }
   const tableColumns: Column<Guest>[] = [
     ...columns.map((column) => cells[column]),
-    {
-      id: 'actions',
-      header: t('guests.columns.actions'),
-      hideHeader: true,
-      pinned: true,
-      cell: rowActions,
-    },
+    ...(venueView
+      ? []
+      : [
+          {
+            id: 'actions',
+            header: t('guests.columns.actions'),
+            hideHeader: true,
+            pinned: true,
+            cell: rowActions,
+          },
+        ]),
   ]
 
   function renderCard(guest: Guest) {
@@ -414,9 +439,11 @@ export function GuestsTab({
           <div className={styles.cardIdentity}>
             <p className={styles.cardName}>{name}</p>
             <p className={styles.muted}>{guest.invitationName ?? NONE}</p>
-            <p className={styles.muted}>
-              <LtrText>{guest.phone}</LtrText>
-            </p>
+            {!venueView && (
+              <p className={styles.muted}>
+                <LtrText>{guest.phone}</LtrText>
+              </p>
+            )}
           </div>
           <StatusCell
             guest={guest}
@@ -454,11 +481,13 @@ export function GuestsTab({
               })
             )}
           </li>
-          <li>
-            {t('guests.card.sent', {
-              count: format.number(guest.invitationSentCount),
-            })}
-          </li>
+          {!venueView && (
+            <li>
+              {t('guests.card.sent', {
+                count: format.number(guest.invitationSentCount),
+              })}
+            </li>
+          )}
           <li>
             {number === null
               ? t('guests.table.noTable')
@@ -468,7 +497,7 @@ export function GuestsTab({
           </li>
         </ul>
         {canSeat && guest.rsvpStatus === 'APPROVED' && tableControl(guest)}
-        {rowActions(guest)}
+        {!venueView && rowActions(guest)}
       </div>
     )
   }
@@ -575,7 +604,11 @@ export function GuestsTab({
                 hideLabel
                 type="search"
                 icon={<Search />}
-                placeholder={t('guests.search.placeholder')}
+                placeholder={t(
+                  venueView
+                    ? 'guests.search.placeholderVenue'
+                    : 'guests.search.placeholder',
+                )}
                 value={filters.query}
                 onChange={(change) => setFilter('q', change.target.value)}
               />
@@ -599,21 +632,29 @@ export function GuestsTab({
                   </option>
                 ))}
               </SelectField>
-              <SelectField
-                label={t('guests.filters.invitation')}
-                hideLabel
-                value={filters.invitation}
-                onChange={(change) =>
-                  setFilter(
-                    'inv',
-                    change.target.value === 'ALL' ? null : change.target.value,
-                  )
-                }
-              >
-                <option value="ALL">{t('guests.filters.invitationAll')}</option>
-                <option value="SENT">{t('guests.filters.sent')}</option>
-                <option value="NOT_SENT">{t('guests.filters.notSent')}</option>
-              </SelectField>
+              {!venueView && (
+                <SelectField
+                  label={t('guests.filters.invitation')}
+                  hideLabel
+                  value={filters.invitation}
+                  onChange={(change) =>
+                    setFilter(
+                      'inv',
+                      change.target.value === 'ALL'
+                        ? null
+                        : change.target.value,
+                    )
+                  }
+                >
+                  <option value="ALL">
+                    {t('guests.filters.invitationAll')}
+                  </option>
+                  <option value="SENT">{t('guests.filters.sent')}</option>
+                  <option value="NOT_SENT">
+                    {t('guests.filters.notSent')}
+                  </option>
+                </SelectField>
+              )}
               <SelectField
                 label={t('guests.filters.table')}
                 hideLabel
@@ -665,7 +706,7 @@ export function GuestsTab({
                   ))}
                 </SelectField>
               )}
-              {!isPhone && (
+              {!isPhone && !venueView && (
                 <ColumnChooser
                   visible={columns}
                   onChange={(next) => {
@@ -782,34 +823,40 @@ export function GuestsTab({
                     page: null,
                   })
                 }
-                selection={{
-                  selected,
-                  allLabel: t('guests.table.selectAll'),
-                  rowLabel: (guest) =>
-                    t('guests.table.selectRow', { name: guestFullName(guest) }),
-                  onToggle: (id, isSelected) =>
-                    setSelected((current) => {
-                      const next = new Set(current)
-                      if (isSelected) {
-                        next.add(id)
-                      } else {
-                        next.delete(id)
+                selection={
+                  venueView
+                    ? undefined
+                    : {
+                        selected,
+                        allLabel: t('guests.table.selectAll'),
+                        rowLabel: (guest) =>
+                          t('guests.table.selectRow', {
+                            name: guestFullName(guest),
+                          }),
+                        onToggle: (id, isSelected) =>
+                          setSelected((current) => {
+                            const next = new Set(current)
+                            if (isSelected) {
+                              next.add(id)
+                            } else {
+                              next.delete(id)
+                            }
+                            return next
+                          }),
+                        onToggleAll: (isSelected) =>
+                          setSelected((current) => {
+                            const next = new Set(current)
+                            for (const guest of page.items) {
+                              if (isSelected) {
+                                next.add(guest.id)
+                              } else {
+                                next.delete(guest.id)
+                              }
+                            }
+                            return next
+                          }),
                       }
-                      return next
-                    }),
-                  onToggleAll: (isSelected) =>
-                    setSelected((current) => {
-                      const next = new Set(current)
-                      for (const guest of page.items) {
-                        if (isSelected) {
-                          next.add(guest.id)
-                        } else {
-                          next.delete(guest.id)
-                        }
-                      }
-                      return next
-                    }),
-                }}
+                }
               />
               <div className={styles.footer}>
                 <div className={styles.pageSize}>
