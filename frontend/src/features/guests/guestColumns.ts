@@ -15,6 +15,19 @@ export const GUEST_COLUMNS = [
 
 export type GuestColumnId = (typeof GUEST_COLUMNS)[number]
 
+/**
+ * The venue's view of a client's list (#17): no phone and no message
+ * history, and no choosing (D111).
+ */
+export const VENUE_GUEST_COLUMNS: readonly GuestColumnId[] = [
+  'name',
+  'allowed',
+  'confirmed',
+  'status',
+  'table',
+  'group',
+]
+
 /** Columns that identify a guest and so can never be hidden. */
 export const REQUIRED_GUEST_COLUMNS: readonly GuestColumnId[] = [
   'name',

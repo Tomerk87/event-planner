@@ -22,9 +22,14 @@ import {
   toAccessRows,
   type AccessRow,
 } from '../../domain/memberList.ts'
-import { EVENT_ROLES, type EventRole } from '../../domain/roles.ts'
+import { EVENT_ROLES, isVenueSide, type EventRole } from '../../domain/roles.ts'
 import { useFormatters } from '../../i18n/format.ts'
-import { useDemoRole, useEmailEnabled } from '../../services/queries.ts'
+import {
+  useDemoRole,
+  useEmailEnabled,
+  useEventAccessInfo,
+} from '../../services/queries.ts'
+import { VenueEventPermissions } from '../venues/VenueEventPeoplePage.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
@@ -65,6 +70,23 @@ function isRole(value: string | null): value is EventRole {
 }
 
 export function PermissionsPage() {
+  const { eventId = '' } = useParams()
+  const info = useEventAccessInfo(eventId)
+  const venue = info.data?.venue ?? null
+  // The venue's side sees its client and both teams instead (#15, D112).
+  if (venue !== null && isVenueSide(info.data?.role ?? null)) {
+    return (
+      <VenueEventPermissions
+        organizationId={venue.organizationId}
+        eventId={eventId}
+      />
+    )
+  }
+  return <EventMembersPage />
+}
+
+/** Who has access to a personal event, and changing it (PRD section 3). */
+function EventMembersPage() {
   const { t } = useTranslation()
   const format = useFormatters()
   const { eventId = '' } = useParams()

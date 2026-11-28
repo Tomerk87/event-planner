@@ -132,7 +132,9 @@ describe('a venue’s My Events (mockup #2)', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^Past\s*2$/ }))
     expect(cards()).toHaveLength(2)
     expect(
-      card('Miriam’s 60th Birthday').getByRole('button'),
+      card('Miriam’s 60th Birthday').getByRole('link', {
+        name: /^View Event/,
+      }),
     ).toHaveTextContent('View Event')
   })
 
@@ -157,13 +159,21 @@ describe('a venue’s My Events (mockup #2)', () => {
     expect(card('Brightline Year-End Party')).toBeTruthy()
   })
 
-  it('keeps opening an event for its own phase (Phase 29)', async () => {
+  it('opens the event, and its client, as the venue (Phase 29)', async () => {
     await openVenueEvents()
+    const wedding = card('Dana & Yossi’s Wedding')
     expect(
-      card('Dana & Yossi’s Wedding').getByRole('button', {
-        name: 'Open Event: Dana & Yossi’s Wedding',
-      }),
-    ).toBeDisabled()
+      wedding.getByRole('link', { name: 'Open Event: Dana & Yossi’s Wedding' }),
+    ).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^\/events\/evt-\d+\/dashboard$/),
+    )
+    expect(
+      wedding.getByRole('link', { name: 'Client: Dana & Yossi’s Wedding' }),
+    ).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^\/events\/evt-\d+\/permissions$/),
+    )
   })
 
   it('is not found for a venue the user does not belong to', async () => {

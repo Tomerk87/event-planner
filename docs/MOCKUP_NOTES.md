@@ -204,6 +204,13 @@ Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `
   - **Signed out:** the page asks to sign in or create an account, without the event's details; showing them needs the backend's public read of a link.
   - **Added, a venue member can't accept:** the two sides stay apart (D113), so a venue member with the invited address is told to use another account.
   - **Revoke** is the red icon button beside Invite a Different Client, with a confirmation.
+- **The venue's side of the event (#15, #17, #18, #19), Phase 29a:**
+  - **The client card moved** into the event's Permissions page, as #15 draws it; the Phase 28 address now opens it there.
+  - **Dashboard warnings (#19):** one section, as drawn. Not built: the expandable per-table rows ("12 people seated on 10 chairs") with Hide/Details; each warning shows its lines instead.
+  - **Guests (#17):** not built, "Last change by the client: today, 14:20" (the product doesn't record who changed the list). The status column keeps the product's statuses, so "Not Sent" appears where #17 shows only answered and "Awaiting Response" guests.
+  - **Event Settings for the venue** (no mockup): the existing page, where the venue's fields (date, time, zone, place, maximum) are editable and the client's (name, photo, guest settings) are shown read-only.
+  - **Event Layout for the venue (#18, no mockup):** the existing page; tables and the map are editable, and seating is view-only (no Assign).
+  - **The demo's role switcher** is hidden on a venue event, where roles come from the venue.
 - **The space dialog (#4):** the photo field is the event photo field, with the label "Space Photo" and the space's initials as the placeholder.
 
 ## Found while building the design system (Phase 2)

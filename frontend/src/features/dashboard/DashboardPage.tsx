@@ -1,15 +1,20 @@
 import {
   Armchair,
+  Building2,
+  CalendarDays,
   CheckCheck,
   ChevronRight,
   CircleCheck,
   CircleHelp,
   Clock,
+  Download,
+  EyeOff,
   History,
   Mail,
   MessageCircle,
   Send,
   Settings,
+  Shield,
   Table2,
   TriangleAlert,
   UserCheck,
@@ -27,11 +32,16 @@ import {
   type RsvpSegment,
 } from '../../domain/metrics.ts'
 import { useFormatters } from '../../i18n/format.ts'
+import { isVenueSide } from '../../domain/roles.ts'
+import { useSeatingExport } from '../event-layout/useSeatingExport.ts'
+import { VenueStatusBadge } from '../venues/VenueEventCard.tsx'
 import { useSeatingNotice } from './useSeatingNotice.ts'
+import { VenueWarnings, type VenueWarning } from './VenueWarnings.tsx'
 import type {
   ActivityItem,
   Dashboard,
   EventAccessInfo,
+  EventVenueInfo,
 } from '../../services/contracts/index.ts'
 import { useEventAccessInfo } from '../../services/queries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
@@ -129,6 +139,14 @@ function ActivityList({ items }: { items: readonly ActivityItem[] }) {
   )
 }
 
+type QuickAction = {
+  id: string
+  icon: LucideIcon
+  tone: Tone
+  title: string
+  body: string
+} & ({ to: string } | { onSelect: () => void })
+
 function DashboardContent({
   eventId,
   info,
@@ -146,6 +164,10 @@ function DashboardContent({
   const seating = useSeatingNotice(data, maxAttendees)
   const base = `/events/${eventId}`
   const number = format.number
+  // The venue's side of a venue event (#19): its own warnings and actions.
+  const venue = info.venue ?? null
+  const venueSide = venue !== null && isVenueSide(info.role)
+  const exportSeating = useSeatingExport(eventId, info.event.name)
 
   const invitations = t('dashboard.unit.invitations')
   const people = t('dashboard.unit.people')
@@ -298,6 +320,59 @@ function DashboardContent({
     })
   }
 
+  const clientName = venue?.clientName ?? null
+  const venueWarnings: VenueWarning[] =
+    venue === null
+      ? []
+      : [
+          ...(venue.status === 'CLIENT_JOINED' || venue.status === 'PAST'
+            ? []
+            : [
+                {
+                  id: 'client',
+                  tone: 'warning' as const,
+                  icon: Clock,
+                  title: t('venueDashboard.warnings.awaitingTitle'),
+                  lines: [
+                    t(`venueDashboard.warnings.awaitingBody_${venue.status}`),
+                  ],
+                  action: {
+                    label: t('venueDashboard.warnings.manageClient'),
+                    to: `${base}/permissions`,
+                    icon: <Shield />,
+                  },
+                },
+              ]),
+          ...shown
+            .filter((warning) => warning.id !== 'seating')
+            .map((warning): VenueWarning =>
+              warning.id === 'tables'
+                ? {
+                    ...warning,
+                    help: clientName
+                      ? t('venueDashboard.warnings.tablesHelp', {
+                          client: clientName,
+                        })
+                      : t('venueDashboard.warnings.tablesHelpNoClient'),
+                    action: {
+                      label: t('venueDashboard.warnings.openLayout'),
+                      to: `${base}/layout`,
+                      icon: <Table2 />,
+                    },
+                  }
+                : warning.id === 'overMaximum'
+                  ? {
+                      ...warning,
+                      action: {
+                        label: t('venueDashboard.warnings.openSettings'),
+                        to: `${base}/settings`,
+                        icon: <Settings />,
+                      },
+                    }
+                  : warning,
+            ),
+        ]
+
   const shares = computeRsvpBreakdown(metrics)
   const segmentLabel = (segment: RsvpSegment) =>
     t(`dashboard.rsvp.segments.${segment}`)
@@ -326,17 +401,59 @@ function DashboardContent({
     },
   ]
 
-  const quickActions = [
-    { id: 'guests', to: `${base}/guests`, icon: Users, tone: 'info' },
+  const personalAction = (
+    id: 'guests' | 'messages' | 'rsvp' | 'tables',
+    to: string,
+    icon: LucideIcon,
+    tone: Tone,
+  ) => ({
+    id,
+    to,
+    icon,
+    tone,
+    title: t(`dashboard.actions.${id}.title`),
+    body: t(`dashboard.actions.${id}.body`),
+  })
+  const quickActions: QuickAction[] = [
+    personalAction('guests', `${base}/guests`, Users, 'info'),
+    personalAction('messages', `${base}/messages`, MessageCircle, 'success'),
+    personalAction('rsvp', `${base}/rsvp`, Mail, 'info'),
+    personalAction('tables', `${base}/layout`, Table2, 'warning'),
+  ]
+  const venueAction = (id: 'layout' | 'guests' | 'export' | 'client') => ({
+    title: t(`venueDashboard.actions.${id}.title`),
+    body: t(`venueDashboard.actions.${id}.body`),
+  })
+  const venueActions: QuickAction[] = [
     {
-      id: 'messages',
-      to: `${base}/messages`,
-      icon: MessageCircle,
-      tone: 'success',
+      id: 'layout',
+      to: `${base}/layout`,
+      icon: Table2,
+      tone: 'info',
+      ...venueAction('layout'),
     },
-    { id: 'rsvp', to: `${base}/rsvp`, icon: Mail, tone: 'info' },
-    { id: 'tables', to: `${base}/layout`, icon: Table2, tone: 'warning' },
-  ] as const
+    {
+      id: 'guests',
+      to: `${base}/guests`,
+      icon: Users,
+      tone: 'info',
+      ...venueAction('guests'),
+    },
+    {
+      id: 'export',
+      onSelect: () => void exportSeating('xlsx'),
+      icon: Download,
+      tone: 'success',
+      ...venueAction('export'),
+    },
+    {
+      id: 'client',
+      to: `${base}/permissions`,
+      icon: Shield,
+      tone: 'warning',
+      ...venueAction('client'),
+    },
+  ]
 
   return (
     <div className={styles.page}>
@@ -355,7 +472,11 @@ function DashboardContent({
         ))}
       </KpiGrid>
 
-      <WarningCards label={t('dashboard.warnings.label')} warnings={shown} />
+      {venueSide ? (
+        <VenueWarnings warnings={venueWarnings} />
+      ) : (
+        <WarningCards label={t('dashboard.warnings.label')} warnings={shown} />
+      )}
 
       <div className={styles.columns}>
         <Card
@@ -366,11 +487,17 @@ function DashboardContent({
             <EmptyState
               icon={<Users />}
               title={t('dashboard.rsvp.emptyTitle')}
-              description={t('dashboard.rsvp.emptyBody')}
+              description={
+                venueSide
+                  ? t('venueDashboard.rsvpEmptyBody')
+                  : t('dashboard.rsvp.emptyBody')
+              }
               action={
-                <ButtonLink to={`${base}/guests`} variant="secondary">
-                  {t('dashboard.actions.guests.title')}
-                </ButtonLink>
+                !venueSide && (
+                  <ButtonLink to={`${base}/guests`} variant="secondary">
+                    {t('dashboard.actions.guests.title')}
+                  </ButtonLink>
+                )
               }
             />
           ) : (
@@ -475,7 +602,11 @@ function DashboardContent({
       <div className={styles.columns}>
         <Card
           title={t('dashboard.activity.title')}
-          subtitle={t('dashboard.activity.subtitle')}
+          subtitle={
+            venueSide
+              ? t('venueDashboard.activitySubtitle')
+              : t('dashboard.activity.subtitle')
+          }
           actions={
             recentActivity.length > ACTIVITY_PREVIEW && (
               <Button
@@ -504,28 +635,51 @@ function DashboardContent({
           subtitle={t('dashboard.actions.subtitle')}
         >
           <ul className={styles.actions}>
-            {quickActions.map(({ id, to, icon: Icon, tone }) => (
-              <li key={id}>
-                <Link to={to} className={styles.action}>
+            {(venueSide ? venueActions : quickActions).map((action) => {
+              const Icon = action.icon
+              const content = (
+                <>
                   <span
-                    className={cx(styles.actionIcon, styles[tone])}
+                    className={cx(styles.actionIcon, styles[action.tone])}
                     aria-hidden="true"
                   >
                     <Icon />
                   </span>
                   <span className={styles.actionText}>
-                    <span className={styles.actionTitle}>
-                      {t(`dashboard.actions.${id}.title`)}
-                    </span>
-                    <span className={styles.actionBody}>
-                      {t(`dashboard.actions.${id}.body`)}
-                    </span>
+                    <span className={styles.actionTitle}>{action.title}</span>
+                    <span className={styles.actionBody}>{action.body}</span>
                   </span>
                   <ChevronRight className={styles.chevron} aria-hidden="true" />
-                </Link>
-              </li>
-            ))}
+                </>
+              )
+              return (
+                <li key={action.id}>
+                  {'to' in action ? (
+                    <Link to={action.to} className={styles.action}>
+                      {content}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className={cx(styles.action, styles.actionButton)}
+                      onClick={action.onSelect}
+                    >
+                      {content}
+                    </button>
+                  )}
+                </li>
+              )
+            })}
           </ul>
+          {venueSide && (
+            <p className={styles.privacy}>
+              <EyeOff aria-hidden="true" />
+              {t('venueDashboard.privacy', {
+                client: clientName ?? t('venueDashboard.theClient'),
+                venue: venue.name,
+              })}
+            </p>
+          )}
         </Card>
       </div>
 
@@ -541,18 +695,58 @@ function DashboardContent({
   )
 }
 
+/** The venue event's status and details under the title (#19). */
+function VenueEventMeta({
+  info,
+  venue,
+}: {
+  info: EventAccessInfo
+  venue: EventVenueInfo
+}) {
+  const { t } = useTranslation()
+  const format = useFormatters()
+  const startsAt = new Date(info.event.startsAt)
+  return (
+    <ul className={styles.meta} aria-label={t('venueDashboard.meta')}>
+      <li>
+        <VenueStatusBadge status={venue.status} />
+      </li>
+      <li>
+        <CalendarDays aria-hidden="true" />
+        {format.date(startsAt, info.event.timeZone)},{' '}
+        {format.time(startsAt, info.event.timeZone)}
+      </li>
+      <li>
+        <Building2 aria-hidden="true" />
+        {venue.space.name}
+      </li>
+      <li>
+        <Users aria-hidden="true" />
+        {t('venueDashboard.maxPeople', {
+          count: info.event.maxAttendees,
+          formatted: format.number(info.event.maxAttendees),
+        })}
+      </li>
+    </ul>
+  )
+}
+
 export function DashboardPage() {
   const { t } = useTranslation()
   const { eventId = '' } = useParams()
   // The layout has already loaded the event, so this read comes from the cache.
   const info = useEventAccessInfo(eventId)
   const dashboard = useDashboard(eventId)
+  const venueSide =
+    (info.data?.venue ?? null) !== null && isVenueSide(info.data?.role ?? null)
 
   return (
     <>
       <PageHeader
         title={t('pages.dashboard')}
-        subtitle={t('dashboard.subtitle')}
+        subtitle={t(
+          venueSide ? 'venueDashboard.subtitle' : 'dashboard.subtitle',
+        )}
         actions={
           <ButtonLink
             to={`/events/${eventId}/settings`}
@@ -563,6 +757,9 @@ export function DashboardPage() {
           </ButtonLink>
         }
       />
+      {venueSide && info.data?.venue && (
+        <VenueEventMeta info={info.data} venue={info.data.venue} />
+      )}
       {dashboard.isError ? (
         <Card>
           <ErrorState

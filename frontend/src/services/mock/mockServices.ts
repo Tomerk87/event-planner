@@ -6,6 +6,7 @@ import {
   buildGuestExportTable,
   buildSeatingDetailRows,
   buildSeatingExportTable,
+  SEATING_EXPORT_COLUMNS_WITHOUT_PHONE,
 } from '../../domain/exports.ts'
 import {
   assertMaxAttendeesCoversConfirmed,
@@ -49,16 +50,22 @@ import type {
   User,
 } from '../../domain/models.ts'
 import {
-  assertCan,
   assertCanChangeInvitation,
   assertCanChangeMembership,
+  assertRoleCan,
   effectiveRole,
   eventUpdateActions,
   type Actor,
   type EventAction,
 } from '../../domain/permissions.ts'
 import { formatPhone, normalizePhone } from '../../domain/phone.ts'
-import { EVENT_ROLES, type EventRole } from '../../domain/roles.ts'
+import {
+  EVENT_ROLES,
+  isVenueSide,
+  type AnyEventRole,
+  type EventRole,
+} from '../../domain/roles.ts'
+import { venueEventStatus } from '../../domain/venues.ts'
 import {
   applyRsvp,
   answeredLimit,
@@ -72,6 +79,7 @@ import {
 } from '../../domain/seating.ts'
 import type {
   EventAccessInfo,
+  EventVenueInfo,
   Member,
   MessagePreview,
   Services,
@@ -155,7 +163,7 @@ export const DEMO_LIMITS: DemoLimits = {
 interface EventContext {
   event: Event
   actor: Actor
-  role: EventRole
+  role: AnyEventRole
   isPast: boolean
 }
 
@@ -446,6 +454,31 @@ export function createMockServices(options: MockOptions): Services {
     return base
   }
 
+  /**
+   * A venue-managed event's role comes from the venue's team or the client's
+   * team (D112, D113), never from the personal memberships or the demo's
+   * role switcher.
+   */
+  function venueRoleFor(eventId: Id): AnyEventRole | null | undefined {
+    const venueEvent = state.venueEvents?.find(
+      (candidate) => candidate.eventId === eventId,
+    )
+    if (!venueEvent) {
+      return undefined
+    }
+    const userId = currentUserId()
+    const member = state.venueMembers?.find(
+      (candidate) =>
+        candidate.organizationId === venueEvent.organizationId &&
+        candidate.userId === userId,
+    )
+    const client = state.clientTeam?.find(
+      (candidate) =>
+        candidate.eventId === eventId && candidate.userId === userId,
+    )
+    return member?.role ?? client?.role ?? null
+  }
+
   /** Looks up an event the user can reach; anything else is "not found". */
   function contextFor(eventId: Id): EventContext {
     const event = state.events.find((candidate) => candidate.id === eventId)
@@ -453,7 +486,8 @@ export function createMockServices(options: MockOptions): Services {
       return notFound('event')
     }
     const actor = actorFor(eventId)
-    const role = effectiveRole(actor)
+    const venueRole = venueRoleFor(eventId)
+    const role = venueRole === undefined ? effectiveRole(actor) : venueRole
     if (role === null) {
       return notFound('event')
     }
@@ -462,8 +496,25 @@ export function createMockServices(options: MockOptions): Services {
 
   function authorize(eventId: Id, action: EventAction): EventContext {
     const context = contextFor(eventId)
-    assertCan(action, context.actor, { isPastEvent: context.isPast })
+    assertRoleCan(action, context.role, { isPastEvent: context.isPast })
     return context
+  }
+
+  /**
+   * What only the client side and personal events may read: phone numbers,
+   * message history and unknown responses never reach the venue (D111).
+   */
+  function assertNotVenueSide(context: EventContext): void {
+    if (isVenueSide(context.role)) {
+      throw new DomainError('FORBIDDEN', { action: 'VIEW_GUEST_CONTACTS' })
+    }
+  }
+
+  /** A guest as this viewer may see it: without the phone for the venue. */
+  function guestFor(context: EventContext, guest: Guest): Guest {
+    return isVenueSide(context.role)
+      ? { ...guest, phone: '', normalizedPhone: '' }
+      : guest
   }
 
   function eventGuests(eventId: Id): Guest[] {
@@ -556,7 +607,37 @@ export function createMockServices(options: MockOptions): Services {
   }
 
   function accessInfo(context: EventContext): EventAccessInfo {
-    return { event: context.event, role: context.role, isPast: context.isPast }
+    return {
+      event: context.event,
+      role: context.role,
+      isPast: context.isPast,
+      venue: venueInfo(context.event),
+    }
+  }
+
+  function venueInfo(event: Event): EventVenueInfo | null {
+    const venueEvent = state.venueEvents?.find(
+      (candidate) => candidate.eventId === event.id,
+    )
+    const organization = state.organizations?.find(
+      (candidate) => candidate.id === venueEvent?.organizationId,
+    )
+    const space = state.venueSpaces?.find(
+      (candidate) => candidate.id === venueEvent?.spaceId,
+    )
+    if (!venueEvent || !organization || !space) {
+      return null
+    }
+    const accepted = venueEvent.client?.acceptedAt ? venueEvent.client : null
+    return {
+      organizationId: organization.id,
+      name: organization.name,
+      contactEmail: organization.contactEmail,
+      contactPhone: organization.contactPhone,
+      space: { id: space.id, name: space.name },
+      status: venueEventStatus(venueEvent, event, now()),
+      clientName: accepted?.name ?? null,
+    }
   }
 
   function memberOf(eventId: Id, userId: Id): Member {
@@ -758,7 +839,9 @@ export function createMockServices(options: MockOptions): Services {
           // The schedule and the settings can belong to different sides of a
           // venue-managed event (D113); each part changed needs its own right.
           for (const action of eventUpdateActions(event, input)) {
-            assertCan(action, context.actor, { isPastEvent: context.isPast })
+            assertRoleCan(action, context.role, {
+              isPastEvent: context.isPast,
+            })
           }
           const fields = validateEventInput(input)
           const coverImage =
@@ -787,8 +870,10 @@ export function createMockServices(options: MockOptions): Services {
     guests: {
       list: (eventId) =>
         run('guests.list', () => {
-          authorize(eventId, 'VIEW')
-          return eventGuests(eventId).filter((guest) => !guest.deleted)
+          const context = authorize(eventId, 'VIEW')
+          return eventGuests(eventId)
+            .filter((guest) => !guest.deleted)
+            .map((guest) => guestFor(context, guest))
         }),
 
       create: (eventId, input) =>
@@ -901,7 +986,7 @@ export function createMockServices(options: MockOptions): Services {
     unknownGuests: {
       list: (eventId) =>
         run('unknownGuests.list', () => {
-          authorize(eventId, 'VIEW')
+          assertNotVenueSide(authorize(eventId, 'VIEW'))
           return state.unknownRsvps
             .filter(
               (unknown) => unknown.eventId === eventId && !unknown.rejectedAt,
@@ -911,7 +996,7 @@ export function createMockServices(options: MockOptions): Services {
 
       listRejected: (eventId) =>
         run('unknownGuests.listRejected', () => {
-          authorize(eventId, 'VIEW')
+          assertNotVenueSide(authorize(eventId, 'VIEW'))
           return state.unknownRsvps
             .filter(
               (unknown) => unknown.eventId === eventId && unknown.rejectedAt,
@@ -1004,7 +1089,7 @@ export function createMockServices(options: MockOptions): Services {
     rsvp: {
       getSettings: (eventId) =>
         run('rsvp.getSettings', () => {
-          authorize(eventId, 'VIEW')
+          assertNotVenueSide(authorize(eventId, 'VIEW'))
           return (
             state.rsvpSettings.find(
               (settings) => settings.eventId === eventId,
@@ -1127,7 +1212,7 @@ export function createMockServices(options: MockOptions): Services {
     messages: {
       getTemplate: (eventId) =>
         run('messages.getTemplate', () => {
-          authorize(eventId, 'VIEW')
+          assertNotVenueSide(authorize(eventId, 'VIEW'))
           return (
             state.messageTemplates.find(
               (template) => template.eventId === eventId,
@@ -1150,13 +1235,17 @@ export function createMockServices(options: MockOptions): Services {
 
       getDefaultTemplate: (eventId) =>
         run('messages.getDefaultTemplate', () => {
-          const { event } = authorize(eventId, 'VIEW')
+          const context = authorize(eventId, 'VIEW')
+          assertNotVenueSide(context)
+          const { event } = context
           return defaultMessageTemplate(event).body
         }),
 
       getValues: (eventId, guestId) =>
         run('messages.getValues', () => {
-          const { event } = authorize(eventId, 'VIEW')
+          const context = authorize(eventId, 'VIEW')
+          assertNotVenueSide(context)
+          const { event } = context
           return messageValuesFor(
             guestId === null
               ? SAMPLE_GUEST[event.rsvpLanguage]
@@ -1168,7 +1257,9 @@ export function createMockServices(options: MockOptions): Services {
 
       preview: (eventId, guestId) =>
         run('messages.preview', () => {
-          const { event } = authorize(eventId, 'VIEW')
+          const context = authorize(eventId, 'VIEW')
+          assertNotVenueSide(context)
+          const { event } = context
           return prepareMessage(event, activeGuest(eventId, guestId))
         }),
 
@@ -1194,7 +1285,7 @@ export function createMockServices(options: MockOptions): Services {
 
       listSends: (eventId) =>
         run('messages.listSends', () => {
-          authorize(eventId, 'VIEW')
+          assertNotVenueSide(authorize(eventId, 'VIEW'))
           const guestsById = new Map(
             eventGuests(eventId).map((guest) => [guest.id, guest]),
           )
@@ -1460,7 +1551,8 @@ export function createMockServices(options: MockOptions): Services {
     dashboard: {
       get: (eventId) =>
         run('dashboard.get', () => {
-          const { event } = authorize(eventId, 'VIEW')
+          const context = authorize(eventId, 'VIEW')
+          const { event } = context
           const guests = eventGuests(eventId)
           const tables = eventTables(eventId)
           const metrics = computeDashboardMetrics(guests, tables)
@@ -1475,7 +1567,10 @@ export function createMockServices(options: MockOptions): Services {
             warnings: computeDashboardWarnings(event, metrics, guests, tables),
             recentActivity: deriveRecentActivity(
               guests,
-              state.messageSends.filter((send) => send.eventId === eventId),
+              // Message history is the client's alone (D111).
+              isVenueSide(context.role)
+                ? []
+                : state.messageSends.filter((send) => send.eventId === eventId),
               RECENT_ACTIVITY_LIMIT,
             ).map((entry) => ({
               ...entry,
@@ -1510,7 +1605,7 @@ export function createMockServices(options: MockOptions): Services {
 
       exportSeating: (eventId, request) =>
         run('files.exportSeating', () => {
-          authorize(eventId, 'EXPORT')
+          const context = authorize(eventId, 'EXPORT')
           return spreadsheetBlob(
             buildSeatingExportTable(
               buildSeatingDetailRows(
@@ -1522,6 +1617,10 @@ export function createMockServices(options: MockOptions): Services {
                 ),
               ),
               request.headings,
+              // The venue's seating export has no phones (D118).
+              isVenueSide(context.role)
+                ? SEATING_EXPORT_COLUMNS_WITHOUT_PHONE
+                : undefined,
             ),
             request,
           )

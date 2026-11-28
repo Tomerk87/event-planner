@@ -36,7 +36,12 @@
   "roles": {
     "OWNER": "Proprietário",
     "ADMIN": "Administrador",
-    "VIEWER": "Visualizador"
+    "VIEWER": "Visualizador",
+    "VENUE_OWNER": "Dono do Espaço",
+    "VENUE_MANAGER": "Gerente do Espaço",
+    "CLIENT_LEAD": "Cliente Principal",
+    "CLIENT_EDITOR": "Editor",
+    "CLIENT_VIEWER": "Visualizador"
   },
   "eventSelector": {
     "label": "Evento atual: {{name}}. Trocar de evento",
@@ -521,7 +526,8 @@
     },
     "search": {
       "label": "Buscar convidados",
-      "placeholder": "Buscar por nome, telefone ou nome no convite…"
+      "placeholder": "Buscar por nome, telefone ou nome no convite…",
+      "placeholderVenue": "Buscar por nome do convidado ou do convite…"
     },
     "filters": {
       "rsvp": "Situação da confirmação",
@@ -1507,7 +1513,6 @@
       "INVITATION_EXPIRED": "O convite expirou em {{date}}. Reenvie pela página Permissões do evento.",
       "AWAITING_CLIENT": "Nenhum cliente convidado ainda. Convide um pela página Permissões do evento."
     },
-    "soon": "Abrir um evento do local chega em breve",
     "empty": {
       "title": "Nenhum evento ainda",
       "body": "Os eventos que você criar nos seus espaços aparecem aqui."
@@ -2103,5 +2108,69 @@
     "contactRole": "Seu contato no espaço",
     "emailVenue": "E-mail para {{venue}}",
     "notFound": "Este link de convite não é válido. Confira se você copiou o link inteiro do e-mail."
+  },
+  "venueGuests": {
+    "subtitle": "Veja quem vem e onde se senta.",
+    "noteTitle": "A lista de convidados é gerenciada pelo cliente",
+    "noteBody": "{{client}} adiciona convidados, envia convites e distribui as pessoas nas mesas. Você pode ver a lista e exportar as mesas, mas não alterá-la.",
+    "noteBodyNoClient": "O cliente adiciona convidados, envia convites e distribui as pessoas nas mesas depois de aceitar. Você pode ver a lista e exportar as mesas, mas não alterá-la.",
+    "phonesHidden": "Os telefones ficam ocultos para {{venue}}",
+    "seatingExport": "Exportar Mesas",
+    "kpis": {
+      "label": "Números dos convidados",
+      "total": "Total de Convidados",
+      "approved": "Confirmados",
+      "awaiting": "Aguardando Resposta",
+      "notSure": "Talvez",
+      "declined": "Não Vão",
+      "withoutTable": "Sem Mesa",
+      "invitations": "convites",
+      "attendees": "pessoas",
+      "guests": "convidados"
+    }
+  },
+  "venueDashboard": {
+    "subtitle": "Visão geral dos convidados, do RSVP e das mesas deste evento.",
+    "maxPeople": "Máx. de {{count}} pessoas",
+    "meta": "Detalhes do evento",
+    "warnings": {
+      "title": "Avisos",
+      "count_one": "{{count}} para revisar",
+      "count_other": "{{count}} para revisar",
+      "subtitle": "Situação do cliente e conflitos nas mesas deste evento. Atualizam quando convidados ou mesas mudam.",
+      "noneTitle": "Nenhum aviso",
+      "noneBody": "O cliente entrou, e todo convidado confirmado tem lugar numa mesa com espaço.",
+      "awaitingTitle": "Aguardando o cliente",
+      "awaitingBody_AWAITING_CLIENT": "Nenhum cliente foi convidado ainda. Até um entrar, a lista de convidados, o RSVP e as mesas ficam vazios.",
+      "awaitingBody_INVITATION_SENT": "O convite foi enviado e ainda não foi aceito. Até o cliente entrar, a lista de convidados, o RSVP e as mesas ficam vazios.",
+      "awaitingBody_INVITATION_EXPIRED": "O convite venceu antes de alguém aceitar. Reenvie, ou convide outro cliente.",
+      "manageClient": "Gerenciar Cliente",
+      "openLayout": "Abrir Layout do Evento",
+      "openSettings": "Abrir Configurações do Evento",
+      "tablesHelp": "Adicione cadeiras a estas mesas no Layout do Evento, ou peça a {{client}} para mover convidados. As mesas dos convidados são gerenciadas pelo cliente.",
+      "tablesHelpNoClient": "Adicione cadeiras a estas mesas no Layout do Evento. As mesas dos convidados são gerenciadas pelo cliente."
+    },
+    "actions": {
+      "layout": {
+        "title": "Editar Layout do Evento",
+        "body": "Organize o espaço, as mesas e as cadeiras"
+      },
+      "guests": {
+        "title": "Ver Convidados",
+        "body": "Nomes, RSVP e mesas (só leitura)"
+      },
+      "export": {
+        "title": "Exportar Mesas",
+        "body": "Lista de convidados por mesa, sem telefones"
+      },
+      "client": {
+        "title": "Gerenciar Cliente",
+        "body": "Reenviar, cancelar ou trocar o cliente"
+      }
+    },
+    "privacy": "As configurações de RSVP, as mensagens de WhatsApp e os telefones são gerenciados por {{client}} e não aparecem para {{venue}}.",
+    "theClient": "o cliente",
+    "rsvpEmptyBody": "O cliente adiciona convidados depois de entrar.",
+    "activitySubtitle": "As últimas respostas de RSVP dos convidados do cliente."
   }
 }

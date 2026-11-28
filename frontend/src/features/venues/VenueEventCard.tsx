@@ -16,7 +16,6 @@ import type { VenueEventStatus } from '../../domain/venues.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import type { VenueEventSummary } from '../../services/contracts/index.ts'
 import { Badge, type Tone } from '../../shared/ui/Badge.tsx'
-import { Button } from '../../shared/ui/Button.tsx'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { cx } from '../../shared/ui/cx.ts'
 import { EventCover } from '../../shared/ui/EventCover.tsx'
@@ -81,7 +80,10 @@ export function VenueEventCard({ summary, view }: VenueEventCardProps) {
       <div className={styles.body}>
         <h2 className={styles.name}>
           {view === 'list' ? (
-            <Link className={venueStyles.nameLink} to={event.id}>
+            <Link
+              className={venueStyles.nameLink}
+              to={`/events/${event.id}/dashboard`}
+            >
               {event.name}
             </Link>
           ) : (
@@ -162,25 +164,23 @@ export function VenueEventCard({ summary, view }: VenueEventCardProps) {
         {view === 'grid' && (
           <div className={cx(styles.footer, venueStyles.footer)}>
             <ButtonLink
-              to={event.id}
+              to={`/events/${event.id}/permissions`}
               variant="secondary"
               icon={<User />}
               label={t('venueEvents.manageClientNamed', { name: event.name })}
             >
               {t('venueEvents.manageClient')}
             </ButtonLink>
-            {/* Opening a venue event comes with its two sides (PLAN.md Phase 29). */}
-            <Button
+            <ButtonLink
+              to={`/events/${event.id}/dashboard`}
               variant={isPast ? 'secondary' : 'primary'}
-              disabled
-              title={t('venueEvents.soon')}
-              aria-label={t('events.card.openNamed', {
+              label={t('events.card.openNamed', {
                 action: openLabel,
                 name: event.name,
               })}
             >
               {openLabel}
-            </Button>
+            </ButtonLink>
           </div>
         )}
       </div>

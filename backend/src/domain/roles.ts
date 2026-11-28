@@ -20,3 +20,17 @@ export type VenueEventRole = (typeof VENUE_EVENT_ROLES)[number]
 
 /** Any role a user can hold in an event, personal or venue-managed. */
 export type AnyEventRole = EventRole | VenueEventRole
+
+/** The venue's side of a venue-managed event (D112). */
+export function isVenueSide(role: AnyEventRole | null): boolean {
+  return role === 'VENUE_OWNER' || role === 'VENUE_MANAGER'
+}
+
+/** The client's side of a venue-managed event (D113). */
+export function isClientSide(role: AnyEventRole | null): boolean {
+  return (
+    role === 'CLIENT_LEAD' ||
+    role === 'CLIENT_EDITOR' ||
+    role === 'CLIENT_VIEWER'
+  )
+}

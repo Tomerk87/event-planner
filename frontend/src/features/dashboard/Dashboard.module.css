@@ -372,3 +372,53 @@
     justify-content: center;
   }
 }
+
+/* The venue event's status and details under the title (#19). */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin: calc(var(--space-2) * -1) 0 var(--space-5);
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.meta svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+/* A quick action that downloads rather than opens a page. */
+.actionButton {
+  inline-size: 100%;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-block-start: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.privacy svg {
+  flex-shrink: 0;
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+  margin-block-start: 0.1rem;
+}

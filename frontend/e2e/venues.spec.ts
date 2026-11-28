@@ -95,7 +95,11 @@ const VENUE_PAGES = [
   ['Settings', '/venues/org-1/settings'],
   ['a layout template', '/venues/org-1/spaces/spc-1-1/layouts/tpl-1-1-3'],
   ['the create event wizard', '/venues/org-1/events/new'],
-  ['a venue event’s people', '/venues/org-1/events/evt-7'],
+  ['a venue event’s Dashboard', '/events/evt-7/dashboard'],
+  ['a venue event’s Guests', '/events/evt-7/guests'],
+  ['a venue event’s Layout', '/events/evt-7/layout'],
+  ['a venue event’s Settings', '/events/evt-7/settings'],
+  ['a venue event’s Permissions', '/events/evt-7/permissions'],
   [
     'the create event details',
     '/venues/org-1/events/new?space=spc-1-1&layout=tpl-1-1-1',
@@ -261,10 +265,12 @@ test('a client invitation is resent, opened and accepted in the demo', async ({
     .getByRole('article')
     .filter({ hasText: 'Invitation sent' })
     .first()
-    // The Client button on a grid card; the event's name in the list.
+    // The event's own pages; the client card is on its Permissions page.
     .getByRole('link')
     .first()
     .click()
+  await expect(page).toHaveURL(/\/events\/evt-\d+\//)
+  await page.goto(page.url().replace(/\/[a-z]+$/, '/permissions'))
   await expect(
     page.getByRole('heading', { level: 1, name: 'Permissions' }),
   ).toBeVisible()

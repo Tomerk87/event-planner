@@ -32,7 +32,7 @@ import type {
   UnknownRsvp,
   User,
 } from '../../domain/models.ts'
-import type { EventRole } from '../../domain/roles.ts'
+import type { AnyEventRole, EventRole } from '../../domain/roles.ts'
 import type { PublicRsvpInput } from '../../domain/rsvp.ts'
 import type { TableInput } from '../../domain/seating.ts'
 import type {
@@ -60,9 +60,29 @@ import type {
 
 export interface EventAccessInfo {
   event: Event
-  /** The current user's effective role (a Super User counts as Owner). */
-  role: EventRole
+  /**
+   * The current user's effective role (a Super User counts as Owner). In a
+   * venue-managed event, a venue or client role (D112, D113).
+   */
+  role: AnyEventRole
   isPast: boolean
+  /**
+   * Who manages the event, for a venue-managed one. Absent or null for a
+   * personal event (the server has only personal events until Phase 33+).
+   */
+  venue?: EventVenueInfo | null
+}
+
+/** The venue behind a venue-managed event, as its event pages show it. */
+export interface EventVenueInfo {
+  organizationId: Id
+  name: string
+  contactEmail: string | null
+  contactPhone: string | null
+  space: { id: Id; name: string }
+  status: VenueEventStatus
+  /** The client lead's name once they joined, else null. */
+  clientName: string | null
 }
 
 export interface EventSummary extends EventAccessInfo {

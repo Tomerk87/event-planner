@@ -32,6 +32,7 @@ describe('the client card (Phase 28, mockup #10)', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Permissions' }),
     ).toBeVisible()
+    await screen.findByRole('region', { name: 'Client' })
     expect(within(clientSection()).getByText('Client joined')).toBeVisible()
     expect(
       within(clientSection()).getByRole('link', { name: 'Email Dana' }),
@@ -115,13 +116,14 @@ describe('the client card (Phase 28, mockup #10)', () => {
     ).toBeVisible()
   })
 
-  it('is not found under a venue the event isn’t in', async () => {
+  it('sends the address of Phase 28 to the event’s Permissions page', async () => {
     const services = withVenues()
     const { id } = await eventWith(services, 'INVITATION_SENT')
-    renderApp(`/venues/org-2/events/${id}`, services)
-    expect(
-      await screen.findByRole('heading', { name: 'Page not found' }),
-    ).toBeVisible()
+    const { router } = renderApp(`/venues/org-1/events/${id}`, services)
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(`/events/${id}/permissions`),
+    )
+    expect(await screen.findByRole('region', { name: 'Client' })).toBeVisible()
   })
 })
 
@@ -148,7 +150,7 @@ describe('the accept page (Phase 28, mockup #12)', () => {
       await screen.findByRole('heading', { name: 'Invitation Accepted' }),
     ).toBeVisible()
     const back = screen.getByRole('link', { name: /Back to Grand Garden Hall/ })
-    expect(back).toHaveAttribute('href', `/venues/org-1/events/${id}`)
+    expect(back).toHaveAttribute('href', `/events/${id}/permissions`)
   })
 
   it('shows a used link as used', async () => {

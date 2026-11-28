@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   Ban,
   Building2,
   ChevronRight,
@@ -17,9 +16,15 @@ import {
   Lock,
   Repeat,
 } from 'lucide-react'
-import { useState, type FormEvent, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { Navigate, useParams } from 'react-router'
 import { isDomainError } from '../../domain/errors.ts'
 import { venueCan } from '../../domain/venues.ts'
 import { useFormatters } from '../../i18n/format.ts'
@@ -29,7 +34,6 @@ import type {
   VenueMemberSummary,
 } from '../../services/contracts/index.ts'
 import { describeError } from '../../shared/errorMessage.ts'
-import { NotFoundPage } from '../../shared/NotFoundPage.tsx'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
 import { Badge } from '../../shared/ui/Badge.tsx'
 import { Button, IconButton } from '../../shared/ui/Button.tsx'
@@ -254,7 +258,7 @@ function ClientCard({
 }) {
   const { t } = useTranslation()
   const format = useFormatters()
-  const { organizationId = '', eventId = '' } = useParams()
+  const { organizationId, eventId } = useContext(PeopleIds)
   const { showToast } = useToast()
   const resend = useResendClientInvitation(organizationId, eventId)
   const { summary, client, venue } = people
@@ -609,7 +613,7 @@ function ClientTeamSection({ people }: { people: VenueEventPeople }) {
 
 function VenueTeamSection({ people }: { people: VenueEventPeople }) {
   const { t } = useTranslation()
-  const { organizationId = '' } = useParams()
+  const { organizationId } = useContext(PeopleIds)
   const nameCell = (member: VenueMemberSummary) => (
     <span className={styles.rowPerson}>
       <Avatar name={member.name} />
@@ -676,59 +680,57 @@ function VenueTeamSection({ people }: { people: VenueEventPeople }) {
   )
 }
 
+/** The venue and event the sections below belong to. */
+const PeopleIds = createContext({ organizationId: '', eventId: '' })
+
 /**
- * Who works on a venue event, as the venue sees it (V2.2, Phase 28, mockup
- * #10): the client card in each status, the client's team (view only) and
- * the venue's own team. Opened from the event's card on My Events; it joins
- * the event's own pages in Phase 29.
+ * Who works on a venue event, as the venue sees it (mockups #10, #15): the
+ * client card in each status, the client's team (view only) and the venue's
+ * own team. The event's Permissions page shows it to the venue (Phase 29).
  */
-export function VenueEventPeoplePage() {
+export function VenueEventPermissions({
+  organizationId,
+  eventId,
+}: {
+  organizationId: string
+  eventId: string
+}) {
   const { t } = useTranslation()
-  const { organizationId = '', eventId = '' } = useParams()
   const workspace = useVenueWorkspace(organizationId)
   const people = useVenueEventPeople(organizationId, eventId)
   const [dialog, setDialog] = useState<OpenDialog>(null)
+  const header = (
+    <PageHeader
+      title={t('venueEventPeople.title')}
+      subtitle={t('venueEventPeople.subtitle')}
+    />
+  )
 
   if (people.isPending || workspace.isPending) {
     return (
       <>
-        <h1 className="visually-hidden">{t('common.loading')}</h1>
+        {header}
         <LoadingState />
       </>
     )
   }
-  if (isDomainError(people.error, 'NOT_FOUND') || !workspace.data) {
-    return <NotFoundPage />
-  }
-  if (people.isError) {
+  if (people.isError || !workspace.data) {
     return (
-      <ErrorState
-        description={describeError(t, people.error)}
-        onRetry={() => void people.refetch()}
-        asPageHeading
-      />
+      <>
+        {header}
+        <ErrorState
+          description={describeError(t, people.error)}
+          onRetry={() => void people.refetch()}
+        />
+      </>
     )
   }
   const data = people.data
   const canManage = venueCan(workspace.data.role, 'MANAGE_EVENTS')
 
   return (
-    <>
-      <nav
-        aria-label={t('venueEventPeople.breadcrumb')}
-        className={styles.breadcrumb}
-      >
-        <Link to={`/venues/${organizationId}/events`}>
-          <ArrowLeft className={styles.directional} aria-hidden="true" />
-          {t('venueEventPeople.back')}
-        </Link>
-        <ChevronRight className={styles.directional} aria-hidden="true" />
-        <span aria-current="page">{data.summary.event.name}</span>
-      </nav>
-      <PageHeader
-        title={t('venueEventPeople.title')}
-        subtitle={t('venueEventPeople.subtitle')}
-      />
+    <PeopleIds.Provider value={{ organizationId, eventId }}>
+      {header}
       <div className={styles.stack}>
         <Notice title={t('venueEventPeople.twoSides.title')}>
           {t('venueEventPeople.twoSides.body', { venue: data.venue.name })}
@@ -756,6 +758,15 @@ export function VenueEventPeoplePage() {
           onClose={() => setDialog(null)}
         />
       )}
-    </>
+    </PeopleIds.Provider>
   )
+}
+
+/**
+ * The address of the client card before Phase 29 (links from Phase 28):
+ * the card now lives on the event's Permissions page.
+ */
+export function VenueEventPeoplePage() {
+  const { eventId = '' } = useParams()
+  return <Navigate to={`/events/${eventId}/permissions`} replace />
 }
