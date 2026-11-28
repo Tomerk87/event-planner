@@ -1815,6 +1815,6 @@ Next: Phase 27, the create-venue-event wizard.
 2026-11-28 — Phase 27 (V2.2) — The create-venue-event wizard (#9): space → layout → details → review, with the same-day warning and an optional client email. The event gets its own copy of the layout (copyTemplateToEvent) and the space's address, zone and maximum people.
 Validation: lint, typecheck, format, build; unit tests for the domain, the mock and the page; the venue Playwright tests (desktop and phone) against a local venues dev server, 68 passed.
 Mockups reviewed: 09_venue_create_event (steps 1–4), desktop and phone, EN/HE.
-Follow-ups/risks: the calendar's "dots mark booked days" and the generated-cover colour choice are not built (MOCKUP_NOTES). Phase 26's CI hit a flaky phone Guests test (the page-size menu covered while the list redraws).
+Follow-ups/risks: the calendar's "dots mark booked days" and the generated-cover colour choice are not built (MOCKUP_NOTES). Phase 26's CI failed twice on a phone Guests test that was already flaky before it (1 in 3 locally on the earlier code): the page-size menu was opened while the filtered list redrew. The test now waits for the filtered count; 10/10 alone and 51/51 for the whole file.
 Next: Phase 28 — client invitation in the demo (#10, #12).
 ```
