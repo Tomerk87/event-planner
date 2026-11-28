@@ -1564,8 +1564,7 @@
       "body": "Tente outra busca."
     },
     "archivedDone": "Espaço arquivado. Seus eventos mantêm os detalhes.",
-    "restoredDone": "Espaço restaurado.",
-    "soon": "Desenhar layouts chega em breve"
+    "restoredDone": "Espaço restaurado."
   },
   "spaceDialog": {
     "createTitle": "Criar Espaço",
@@ -1658,7 +1657,6 @@
       "restoredDone": "Layout restaurado.",
       "createEvent": "Criar Evento com Este Layout",
       "preview": "Planta de {{name}}",
-      "soonEdit": "Editar layouts chega em breve",
       "soonCreate": "Criar eventos chega em breve"
     },
     "upcoming": {
@@ -1772,5 +1770,71 @@
       "contactEmail": "Digite um e-mail, ou deixe em branco",
       "contactPhone": "Use até {{max}} caracteres"
     }
+  },
+  "templateEditor": {
+    "back": "Voltar para {{space}}",
+    "rename": "Renomear",
+    "renamed": "Layout renomeado.",
+    "lastEdited": "Última edição em {{date}}",
+    "unused": "Não usado por próximos eventos. Cada novo evento recebe sua própria cópia.",
+    "used": "Próximos eventos criados com ele: {{count}}. Cada um mantém a própria cópia.",
+    "addTable": "Adicionar Mesa",
+    "kpi": {
+      "tables": "Total de Mesas",
+      "tablesHint": "mesas",
+      "tablesNoted": "mesas · {{max}} indicadas",
+      "capacity": "Lugares",
+      "chairs": "cadeiras",
+      "maxPeople": "Máx. de Pessoas",
+      "peopleIn": "pessoas em {{space}}",
+      "diff": "Cadeiras vs Máx. de Pessoas",
+      "more": "cadeiras a mais que pessoas",
+      "fewer": "cadeiras a menos que pessoas",
+      "equal": "as cadeiras correspondem às pessoas"
+    },
+    "warnings": {
+      "moreChairsTitle": "{{count}} cadeiras a mais que o máximo de pessoas",
+      "moreChairsBody": "{{chairs}} cadeiras para {{people}} pessoas em {{space}}. Remova cadeiras ou mesas se o espaço não comportar. Nada é bloqueado.",
+      "moreTablesTitle": "Mais mesas que o indicado",
+      "moreTablesBody": "{{tables}} mesas; {{space}} indica {{max}} (apenas informativo)."
+    },
+    "archived": {
+      "title": "Este layout está arquivado",
+      "body": "Restaure-o na página do espaço para alterá-lo. Os eventos criados com ele mantêm a própria cópia."
+    },
+    "selected": {
+      "title": "Mesa Selecionada",
+      "hint": "Selecione uma mesa na planta para ver os detalhes aqui.",
+      "edit": "Editar Mesa",
+      "delete": "Excluir Mesa"
+    },
+    "list": {
+      "caption": "Mesas deste layout",
+      "empty": "Ainda sem mesas. Adicione a primeira e posicione-a na planta."
+    },
+    "deleteDialog": {
+      "title": "Excluir a mesa {{number}}?",
+      "body": "Ela é removida deste layout. Os eventos já criados com ele mantêm a própria cópia.",
+      "confirm": "Excluir Mesa",
+      "done": "Mesa {{number}} excluída."
+    },
+    "createDialog": {
+      "title": "Adicionar Layout",
+      "name": "Nome do Layout",
+      "hint": "Comece com um espaço vazio e depois adicione as mesas e os objetos.",
+      "create": "Criar Layout",
+      "created": "Layout “{{name}}” criado."
+    },
+    "renameDialog": {
+      "title": "Renomear Layout",
+      "name": "Nome do Layout",
+      "save": "Salvar Nome"
+    },
+    "errors": {
+      "name": "Digite um nome de até {{max}} caracteres",
+      "nameDuplicate": "Outro layout deste espaço já tem este nome"
+    },
+    "planHint": "Arraste para explorar; use os botões ou o gesto de pinça no trackpad para dar zoom. Selecione uma mesa para ver os detalhes dela.",
+    "planHintTouch": "Faça o gesto de pinça para dar zoom e arraste para explorar o layout. Toque em uma mesa para ver os detalhes dela."
   }
 }

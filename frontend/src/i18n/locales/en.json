@@ -1563,8 +1563,7 @@
       "body": "Try another search."
     },
     "archivedDone": "Space archived. Its events keep their details.",
-    "restoredDone": "Space restored.",
-    "soon": "Drawing layouts comes soon"
+    "restoredDone": "Space restored."
   },
   "spaceDialog": {
     "createTitle": "Create Space",
@@ -1657,7 +1656,6 @@
       "restoredDone": "Layout restored.",
       "createEvent": "Create Event from This Layout",
       "preview": "Floor plan of {{name}}",
-      "soonEdit": "Editing layouts comes soon",
       "soonCreate": "Creating events comes soon"
     },
     "upcoming": {
@@ -1771,5 +1769,71 @@
       "contactEmail": "Enter an email address, or leave it empty",
       "contactPhone": "Use up to {{max}} characters"
     }
+  },
+  "templateEditor": {
+    "back": "Back to {{space}}",
+    "rename": "Rename",
+    "renamed": "Layout renamed.",
+    "lastEdited": "Last edited {{date}}",
+    "unused": "Not used by upcoming events. Each new event gets its own copy.",
+    "used": "Upcoming events made from it: {{count}}. Each keeps its own copy.",
+    "addTable": "Add Table",
+    "kpi": {
+      "tables": "Total Tables",
+      "tablesHint": "tables",
+      "tablesNoted": "tables · {{max}} noted",
+      "capacity": "Seating Capacity",
+      "chairs": "chairs",
+      "maxPeople": "Max People",
+      "peopleIn": "people in {{space}}",
+      "diff": "Chairs vs Max People",
+      "more": "more chairs than people",
+      "fewer": "fewer chairs than people",
+      "equal": "chairs match the people"
+    },
+    "warnings": {
+      "moreChairsTitle": "{{count}} more chairs than max people",
+      "moreChairsBody": "{{chairs}} chairs for {{people}} people in {{space}}. Remove chairs or tables if the room can’t hold them. Nothing is blocked.",
+      "moreTablesTitle": "More tables than noted",
+      "moreTablesBody": "{{tables}} tables; {{space}} notes {{max}} (for information only)."
+    },
+    "archived": {
+      "title": "This layout is archived",
+      "body": "Restore it on the space’s page to change it. Events made from it keep their own copy."
+    },
+    "selected": {
+      "title": "Selected Table",
+      "hint": "Select a table on the plan to see its details here.",
+      "edit": "Edit Table",
+      "delete": "Delete Table"
+    },
+    "list": {
+      "caption": "Tables of this layout",
+      "empty": "No tables yet. Add the first one, then place it on the plan."
+    },
+    "deleteDialog": {
+      "title": "Delete table {{number}}?",
+      "body": "It is removed from this layout. Events already made from it keep their own copy.",
+      "confirm": "Delete Table",
+      "done": "Table {{number}} deleted."
+    },
+    "createDialog": {
+      "title": "Add Layout",
+      "name": "Layout Name",
+      "hint": "Start from an empty room, then add its tables and objects.",
+      "create": "Create Layout",
+      "created": "Layout “{{name}}” created."
+    },
+    "renameDialog": {
+      "title": "Rename Layout",
+      "name": "Layout Name",
+      "save": "Save Name"
+    },
+    "errors": {
+      "name": "Enter a name of up to {{max}} characters",
+      "nameDuplicate": "Another layout of this space has this name"
+    },
+    "planHint": "Drag to look around; zoom with the buttons or a trackpad pinch. Select a table to see its details.",
+    "planHintTouch": "Pinch to zoom and drag to explore the layout. Tap a table to see its details."
   }
 }

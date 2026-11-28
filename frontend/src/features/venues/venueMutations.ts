@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { LayoutInput } from '../../domain/layout.ts'
+import type { TableInput } from '../../domain/seating.ts'
 import type {
   OrganizationInput,
   SpaceInput,
@@ -106,5 +108,54 @@ export function useCancelMemberInvitation(organizationId: string) {
   const venues = useVenuesService()
   return useVenueMutation((email: string) =>
     venues.cancelMemberInvitation(organizationId, email),
+  )
+}
+
+export function useCreateTemplate(organizationId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation(
+    ({ spaceId, name }: { spaceId: string; name: string }) =>
+      venues.createTemplate(organizationId, spaceId, name),
+  )
+}
+
+export function useRenameTemplate(organizationId: string, templateId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation((name: string) =>
+    venues.renameTemplate(organizationId, templateId, name),
+  )
+}
+
+export function useSaveTemplateLayout(
+  organizationId: string,
+  templateId: string,
+) {
+  const venues = useVenuesService()
+  return useVenueMutation((input: LayoutInput) =>
+    venues.saveTemplateLayout(organizationId, templateId, input),
+  )
+}
+
+/** A template's tables: add or change (by the number being edited) one. */
+export function useSaveTemplateTable(
+  organizationId: string,
+  templateId: string,
+) {
+  const venues = useVenuesService()
+  return useVenueMutation(
+    ({ input, number }: { input: TableInput; number: number | null }) =>
+      number === null
+        ? venues.addTemplateTable(organizationId, templateId, input)
+        : venues.updateTemplateTable(organizationId, templateId, number, input),
+  )
+}
+
+export function useRemoveTemplateTable(
+  organizationId: string,
+  templateId: string,
+) {
+  const venues = useVenuesService()
+  return useVenueMutation((number: number) =>
+    venues.removeTemplateTable(organizationId, templateId, number),
   )
 }

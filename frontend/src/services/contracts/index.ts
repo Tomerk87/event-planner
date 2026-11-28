@@ -546,6 +546,14 @@ export interface TemplateSummary {
   upcomingEventCount: number
 }
 
+/** A template in its editor (mockup #6). */
+export interface TemplateDetails {
+  template: LayoutTemplate
+  space: VenueSpace
+  /** Upcoming events created from it; they keep their own copy. */
+  upcomingEventCount: number
+}
+
 /** A space with its templates and upcoming events (mockup #5). */
 export interface SpaceDetails {
   space: VenueSpace
@@ -605,6 +613,45 @@ export interface VenuesService {
     organizationId: Id,
     templateId: Id,
     archived: boolean,
+  ): Promise<LayoutTemplate>
+  /** A template, its space, and how many upcoming events were made from it. */
+  getTemplate(organizationId: Id, templateId: Id): Promise<TemplateDetails>
+  /** A new, empty template in a space (Add Layout). */
+  createTemplate(
+    organizationId: Id,
+    spaceId: Id,
+    name: string,
+  ): Promise<LayoutTemplate>
+  renameTemplate(
+    organizationId: Id,
+    templateId: Id,
+    name: string,
+  ): Promise<LayoutTemplate>
+  /**
+   * Saves the template's floor plan as the plan editor gives it. A plan made
+   * on an older version is refused (LAYOUT_CHANGED), as for events.
+   */
+  saveTemplateLayout(
+    organizationId: Id,
+    templateId: Id,
+    input: LayoutInput,
+  ): Promise<LayoutTemplate>
+  /** Tables are changed one by one, like an event's; the plan places them. */
+  addTemplateTable(
+    organizationId: Id,
+    templateId: Id,
+    input: TableInput,
+  ): Promise<LayoutTemplate>
+  updateTemplateTable(
+    organizationId: Id,
+    templateId: Id,
+    number: number,
+    input: TableInput,
+  ): Promise<LayoutTemplate>
+  removeTemplateTable(
+    organizationId: Id,
+    templateId: Id,
+    number: number,
   ): Promise<LayoutTemplate>
   /** The venue's events: upcoming soonest first, then past most recent first. */
   listEvents(organizationId: Id): Promise<VenueEventSummary[]>

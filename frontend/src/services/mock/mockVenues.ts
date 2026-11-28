@@ -2,10 +2,19 @@ import { assertEmail } from '../../domain/accounts.ts'
 import { DomainError } from '../../domain/errors.ts'
 import { isEventPast } from '../../domain/eventTime.ts'
 import { computeDashboardMetrics } from '../../domain/metrics.ts'
-import type { Event, Id } from '../../domain/models.ts'
 import {
+  assertLayoutVersion,
+  validateLayoutInput,
+} from '../../domain/layout.ts'
+import type { Event, Id } from '../../domain/models.ts'
+import { validateTableInput, type TableInput } from '../../domain/seating.ts'
+import {
+  applyLayoutToTemplate,
   assertCanChangeVenueMember,
+  emptyTemplate,
   invitationExpiresAt,
+  templateTables,
+  validateTemplateName,
   templateFigures,
   validateOrganizationInput,
   validateSpaceInput,
@@ -232,6 +241,65 @@ export function createMockVenues(context: MockVenueContext): VenuesService {
     return invitation
   }
 
+  function otherTemplateNames(spaceId: Id, exceptId: Id | null): string[] {
+    return (state().layoutTemplates ?? [])
+      .filter(
+        (template) => template.spaceId === spaceId && template.id !== exceptId,
+      )
+      .map((template) => template.name)
+  }
+
+  /** Keeps a changed template, marking when it was edited. */
+  function editTemplate(
+    template: LayoutTemplate,
+    changes: Partial<LayoutTemplate>,
+  ): LayoutTemplate {
+    return saveTemplate({
+      ...template,
+      ...changes,
+      updatedAt: now().toISOString(),
+    })
+  }
+
+  /** Changes one table of a template, checked like an event's table. */
+  function changeTable(
+    organizationId: Id,
+    templateId: Id,
+    number: number | null,
+    input: TableInput | null,
+  ): LayoutTemplate {
+    authorize(organizationId, 'MANAGE_SPACES')
+    const template = templateOf(organizationId, templateId)
+    const current =
+      number === null
+        ? null
+        : template.tables.find((table) => table.number === number)
+    if (number !== null && !current) {
+      throw new DomainError('NOT_FOUND', { entity: 'table' })
+    }
+    if (input === null) {
+      return editTemplate(template, {
+        tables: template.tables.filter((table) => table.number !== number),
+      })
+    }
+    const editingId = current
+      ? (templateTables(template).find((table) => table.number === number)
+          ?.id ?? null)
+      : null
+    const fields = validateTableInput(
+      input,
+      templateTables(template),
+      editingId,
+    )
+    return editTemplate(template, {
+      tables: current
+        ? template.tables.map((table) =>
+            table.number === number ? { ...table, ...fields } : table,
+          )
+        : [...template.tables, { ...fields, x: null, y: null, rotation: 0 }],
+    })
+  }
+
   return {
     listWorkspaces: () => run('venues.listWorkspaces', workspaces),
 
@@ -386,6 +454,7 @@ export function createMockVenues(context: MockVenueContext): VenuesService {
           name,
           tables: source.tables.map((table) => ({ ...table })),
           objects: source.objects.map((object) => ({ ...object })),
+          version: 0,
           updatedAt: now().toISOString(),
           archived: false,
         }
@@ -405,6 +474,80 @@ export function createMockVenues(context: MockVenueContext): VenuesService {
           archived,
         })
       }),
+
+    getTemplate: (organizationId, templateId) =>
+      run('venues.getTemplate', () => {
+        authorize(organizationId, 'VIEW_VENUE')
+        const template = templateOf(organizationId, templateId)
+        const space = spaceOf(organizationId, template.spaceId)
+        const at = now()
+        return {
+          template,
+          space,
+          upcomingEventCount: venueEventsOf(organizationId).filter(
+            (item) =>
+              item.venueEvent.templateId === template.id &&
+              !isEventPast(item.event, at),
+          ).length,
+        }
+      }),
+
+    createTemplate: (organizationId, spaceId, name) =>
+      run('venues.createTemplate', () => {
+        authorize(organizationId, 'MANAGE_SPACES')
+        const space = spaceOf(organizationId, spaceId)
+        const template = emptyTemplate(
+          context.newId('tpl'),
+          space.id,
+          validateTemplateName(name, otherTemplateNames(space.id, null)),
+          now().toISOString(),
+        )
+        const data = state()
+        context.commit({
+          ...data,
+          layoutTemplates: [...(data.layoutTemplates ?? []), template],
+        })
+        return template
+      }),
+
+    renameTemplate: (organizationId, templateId, name) =>
+      run('venues.renameTemplate', () => {
+        authorize(organizationId, 'MANAGE_SPACES')
+        const template = templateOf(organizationId, templateId)
+        return editTemplate(template, {
+          name: validateTemplateName(
+            name,
+            otherTemplateNames(template.spaceId, template.id),
+          ),
+        })
+      }),
+
+    saveTemplateLayout: (organizationId, templateId, input) =>
+      run('venues.saveTemplateLayout', () => {
+        authorize(organizationId, 'MANAGE_SPACES')
+        const template = templateOf(organizationId, templateId)
+        assertLayoutVersion(input.version, template.version)
+        const checked = validateLayoutInput(input, templateTables(template))
+        return editTemplate(template, {
+          ...applyLayoutToTemplate(template, checked),
+          version: template.version + 1,
+        })
+      }),
+
+    addTemplateTable: (organizationId, templateId, input) =>
+      run('venues.addTemplateTable', () =>
+        changeTable(organizationId, templateId, null, input),
+      ),
+
+    updateTemplateTable: (organizationId, templateId, number, input) =>
+      run('venues.updateTemplateTable', () =>
+        changeTable(organizationId, templateId, number, input),
+      ),
+
+    removeTemplateTable: (organizationId, templateId, number) =>
+      run('venues.removeTemplateTable', () =>
+        changeTable(organizationId, templateId, number, null),
+      ),
 
     listEvents: (organizationId) =>
       run('venues.listEvents', () => {

@@ -61,6 +61,7 @@ import type { FileFormat } from '../guests/guestFiles.ts'
 import { tablesOf, useGuests, useTables } from '../guests/guestQueries.ts'
 import guestStyles from '../guests/Guests.module.css'
 import { ArrangementTab } from './ArrangementTab.tsx'
+import { useEventLayoutSource } from './layoutQueries.ts'
 import { DeleteTableDialog } from './DeleteTableDialog.tsx'
 import styles from './EventLayout.module.css'
 import { ManageGuestsDialog } from './ManageGuestsDialog.tsx'
@@ -114,6 +115,7 @@ export function EventLayoutPage() {
   // Search, filter, sorting and paging live in the address.
   const { params, update: setParam } = useQueryParams()
   const access = useEventAccess()
+  const layoutSource = useEventLayoutSource(eventId)
   // Tables, the floor plan and seating can belong to different sides of a
   // venue-managed event (D113).
   const canEditTables = access !== null && canPerform(access, 'EDIT_TABLES')
@@ -714,7 +716,7 @@ export function EventLayoutPage() {
           />
           {view === 'arrangement' ? (
             <ArrangementTab
-              eventId={eventId}
+              source={layoutSource}
               tables={tableList}
               chosenId={chosen?.table.id ?? null}
               onChooseTable={chooseTable}

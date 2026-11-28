@@ -1,0 +1,149 @@
+/* A layout template in the floor-plan editor (mockup #6). */
+
+.back {
+  margin-block-end: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.back a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.back svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+:global([dir='rtl']) .directional {
+  transform: scaleX(-1);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-2xl);
+}
+
+.title svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+.spaceName {
+  color: var(--color-text-muted);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-block: var(--space-2) var(--space-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.meta svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.section {
+  margin-block-end: var(--space-5);
+}
+
+.warnings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-4);
+  margin-block-end: var(--space-5);
+}
+
+.muted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.selected {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.selectedName {
+  font-weight: var(--font-weight-semibold);
+}
+
+.selectedFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.selectedFacts dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.selectedFacts dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
+.selectedActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rowActions {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tableCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
