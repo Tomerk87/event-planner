@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDomainError } from '../../domain/errors.ts'
 import { TABLE_SHAPES, type TableShape } from '../../domain/models.ts'
-import { TABLE_LIMITS } from '../../domain/seating.ts'
+import { TABLE_LIMITS, type TableInput } from '../../domain/seating.ts'
 import type { SeatedTable } from '../../domain/tableList.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { describeError } from '../../shared/errorMessage.ts'
@@ -21,10 +21,22 @@ const DEFAULT_CAPACITY = 10
 type FieldError =
   { field: 'number'; reason: 'range' | 'duplicate' } | { field: 'capacity' }
 
+/**
+ * Where a table form saves (V2.2, Phase 26): a venue's layout template
+ * instead of an event. Left out, the form saves the event's table.
+ */
+export interface TableSaver {
+  /** Adds a table, or changes the one being edited. */
+  save: (input: TableInput, editingId: string | null) => Promise<unknown>
+  saving: boolean
+}
+
 interface TableDialogProps {
   open: boolean
   onClose: () => void
+  /** The event the table belongs to; unused with a `saver`. */
   eventId: string
+  saver?: TableSaver
   tables: readonly SeatedTable[]
   /** The table being edited; leave out to add a new one. */
   editing?: SeatedTable | null
@@ -38,6 +50,7 @@ function isInRange(value: number, range: { min: number; max: number }) {
 
 function TableForm({
   eventId,
+  saver,
   tables,
   editing,
   onDelete,
@@ -67,7 +80,7 @@ function TableForm({
   )
   const [fieldError, setFieldError] = useState<FieldError | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
-  const isSaving = create.isPending || update.isPending
+  const isSaving = saver ? saver.saving : create.isPending || update.isPending
   const chairs = toInteger(capacity)
   const seated = editing?.assigned ?? 0
 
@@ -109,7 +122,11 @@ function TableForm({
       },
       onError: fail,
     }
-    if (editing) {
+    if (saver) {
+      saver
+        .save(input, editing?.table.id ?? null)
+        .then(options.onSuccess, options.onError)
+    } else if (editing) {
       update.mutate({ tableId: editing.table.id, input }, options)
     } else {
       create.mutate(input, options)

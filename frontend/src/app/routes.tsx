@@ -119,6 +119,14 @@ export const routes: RouteObject[] = [
                 }),
               },
               {
+                path: 'spaces/:spaceId/layouts/:templateId',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/LayoutTemplatePage.tsx')
+                  ).LayoutTemplatePage,
+                }),
+              },
+              {
                 path: 'team',
                 lazy: async () => ({
                   Component: (

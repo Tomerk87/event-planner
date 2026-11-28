@@ -93,6 +93,7 @@ const VENUE_PAGES = [
   ['a space', '/venues/org-1/spaces/spc-1-1'],
   ['Team', '/venues/org-1/team'],
   ['Settings', '/venues/org-1/settings'],
+  ['a layout template', '/venues/org-1/spaces/spc-1-1/layouts/tpl-1-1-3'],
 ] as const
 
 for (const language of ['en', 'he', 'pt'] as const) {
@@ -176,4 +177,36 @@ test('the venue list fits a 320px phone', async ({ page, isMobile }) => {
   await page.goto(VENUE_EVENTS)
   await expect(page.getByRole('article').first()).toBeVisible()
   await expectNoSidewaysScroll(page)
+})
+
+test('a new layout gets a table placed on its plan, kept after a reload', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'the plan is edited on a wider screen (D100)')
+  await page.goto('/venues/org-1/spaces/spc-1-3')
+  await page.getByRole('button', { name: 'Add Layout' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Add Layout' })
+  await dialog.getByRole('textbox', { name: /Layout Name/ }).fill('Sky Rounds')
+  await dialog.getByRole('button', { name: 'Create Layout' }).click()
+  await expect(
+    page.getByRole('heading', { level: 1, name: /Sky Rounds/ }),
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Add Table' }).first().click()
+  await page
+    .getByRole('dialog', { name: /Add Table/ })
+    .getByRole('button', { name: /Add Table/ })
+    .click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Edit Layout' }).click()
+  await page.getByRole('button', { name: 'Place Table 1 on the plan' }).click()
+  await expect(page.getByText('Every table is on the plan.')).toBeVisible()
+  await page.getByRole('button', { name: 'Save Layout' }).click()
+  await expect(page.getByText('The floor plan was saved.')).toBeVisible()
+
+  await page.reload()
+  await page.getByRole('button', { name: 'Edit Layout' }).click()
+  await expect(page.getByText('Every table is on the plan.')).toBeVisible()
 })

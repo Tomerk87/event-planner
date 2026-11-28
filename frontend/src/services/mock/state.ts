@@ -28,7 +28,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 11
+export const DATASET_VERSION = 12
 
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {

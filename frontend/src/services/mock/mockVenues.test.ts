@@ -395,3 +395,138 @@ describe('venue team and settings (mockups #7, #8)', () => {
     )
   })
 })
+
+describe('editing a layout template (Phase 26)', () => {
+  it('creates an empty template with a unique name, and renames it', async () => {
+    const venues = create().venues!
+    const created = await venues.createTemplate(
+      'org-1',
+      'spc-1-3',
+      'Rooftop Rounds',
+    )
+    expect(created).toMatchObject({
+      name: 'Rooftop Rounds',
+      tables: [],
+      version: 0,
+    })
+    expect(
+      await codeOf(venues.createTemplate('org-1', 'spc-1-3', 'rooftop rounds')),
+    ).toBe('VALIDATION')
+    const renamed = await venues.renameTemplate(
+      'org-1',
+      created.id,
+      'Sky Rounds',
+    )
+    expect(renamed.name).toBe('Sky Rounds')
+    const details = await venues.getTemplate('org-1', created.id)
+    expect(details.space.name).toBe('Rooftop Lounge')
+    expect(details.upcomingEventCount).toBe(0)
+  })
+
+  it('adds, changes and removes tables, checking numbers like an event', async () => {
+    const venues = create().venues!
+    const { id } = await venues.createTemplate('org-1', 'spc-1-3', 'Mixed')
+    await venues.addTemplateTable('org-1', id, {
+      number: 1,
+      capacity: 10,
+      shape: 'CIRCLE',
+    })
+    await venues.addTemplateTable('org-1', id, {
+      number: 2,
+      capacity: 8,
+      shape: 'SQUARE',
+    })
+    expect(
+      await codeOf(
+        venues.addTemplateTable('org-1', id, {
+          number: 2,
+          capacity: 6,
+          shape: 'CIRCLE',
+        }),
+      ),
+    ).toBe('DUPLICATE_TABLE_NUMBER')
+    await venues.updateTemplateTable('org-1', id, 2, {
+      number: 3,
+      capacity: 12,
+      shape: 'RECTANGLE',
+    })
+    const after = await venues.removeTemplateTable('org-1', id, 1)
+    expect(after.tables).toEqual([
+      {
+        number: 3,
+        capacity: 12,
+        shape: 'RECTANGLE',
+        x: null,
+        y: null,
+        rotation: 0,
+      },
+    ])
+    expect(await codeOf(venues.removeTemplateTable('org-1', id, 9))).toBe(
+      'NOT_FOUND',
+    )
+  })
+
+  it('saves the plan, refusing one made on an older version', async () => {
+    const venues = create().venues!
+    const { template } = await venues.getTemplate('org-1', 'tpl-1-1-1')
+    const first = template.tables[0]!
+    const input = {
+      roomWidth: template.roomWidth,
+      roomDepth: template.roomDepth,
+      floorImage: null,
+      floorImageTransparency: template.floorImageTransparency,
+      floorImageZoom: template.floorImageZoom,
+      floorImageRotation: template.floorImageRotation,
+      objects: template.objects,
+      placements: [
+        {
+          tableId: `${template.id}#${first.number}`,
+          x: 400,
+          y: 400,
+          rotation: 0,
+        },
+      ],
+      version: template.version,
+    }
+    const saved = await venues.saveTemplateLayout('org-1', template.id, input)
+    expect(saved.version).toBe(template.version + 1)
+    expect(saved.tables.filter((table) => table.x !== null)).toHaveLength(1)
+    expect(
+      await codeOf(venues.saveTemplateLayout('org-1', template.id, input)),
+    ).toBe('LAYOUT_CHANGED')
+  })
+
+  it('never changes an event made from the template (D111)', async () => {
+    const persistence = createMemoryPersistence<StoredDemo>({
+      version: DATASET_VERSION,
+      state: generateDemoState(NOW),
+    })
+    const venues = createMockServices({
+      persistence,
+      now: () => NOW,
+      venues: true,
+    }).venues!
+    const stored = () => (persistence.load() as StoredDemo).state
+    const eventId = stored().venueEvents?.find(
+      (venueEvent) => venueEvent.templateId === 'tpl-1-1-1',
+    )?.eventId
+    expect(eventId).toBeDefined()
+    const tablesOf = () =>
+      stored().tables.filter((table) => table.eventId === eventId)
+    const before = tablesOf()
+    expect(before.length).toBeGreaterThan(0)
+
+    const { template } = await venues.getTemplate('org-1', 'tpl-1-1-1')
+    await venues.removeTemplateTable(
+      'org-1',
+      template.id,
+      template.tables[0]!.number,
+    )
+    await venues.renameTemplate('org-1', template.id, 'Renamed Rounds')
+
+    expect(tablesOf()).toEqual(before)
+    expect(
+      (await venues.getTemplate('org-1', template.id)).template.tables,
+    ).toHaveLength(template.tables.length - 1)
+  })
+})

@@ -61,7 +61,7 @@ import {
   type PlanChange,
 } from './FloorPlan.tsx'
 import { DRAG_TYPE, OBJECT_ICONS } from './planParts.ts'
-import { useLayout, useSaveLayout } from './layoutQueries.ts'
+import type { LayoutSource } from './layoutQueries.ts'
 
 /** Where moves land when snapping is on, in centimetres. */
 const SNAP = 50
@@ -77,7 +77,8 @@ const PICTURE_CONTROLS = [
 ] as const
 
 interface ArrangementTabProps {
-  eventId: string
+  /** The plan to show and edit: an event's, or a venue's template. */
+  source: LayoutSource
   tables: readonly SeatedTable[]
   /** The chosen table, shared with the Tables tab. */
   chosenId: string | null
@@ -91,6 +92,8 @@ interface ArrangementTabProps {
   canAddTable: boolean
   /** The Selected Table card, or its hint; beside the plan in View mode. */
   side: ReactNode
+  /** The View-mode hints; the event's, about guests, when left out. */
+  hint?: { wide: string; touch: string }
 }
 
 function toInput(layout: EventLayout): LayoutInput {
@@ -112,7 +115,7 @@ const metres = (centimetres: number) => String(Math.round(centimetres) / 100)
  * whole plan at once.
  */
 export function ArrangementTab({
-  eventId,
+  source,
   tables,
   chosenId,
   onChooseTable,
@@ -121,12 +124,11 @@ export function ArrangementTab({
   onAddTable,
   canAddTable,
   side,
+  hint,
 }: ArrangementTabProps) {
   const { t } = useTranslation()
   const format = useFormatters()
   const { showToast } = useToast()
-  const layout = useLayout(eventId)
-  const save = useSaveLayout(eventId)
   const planRef = useRef<FloorPlanHandle>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useState<LayoutInput | null>(null)
@@ -141,19 +143,19 @@ export function ArrangementTab({
   )
 
   const editing = draft !== null && canEdit && !isPhone
-  const stored = layout.data ? toInput(layout.data) : null
+  const stored = source.layout ? toInput(source.layout) : null
   const plan = editing ? draft : stored
   const dirty =
     editing &&
     stored !== null &&
     JSON.stringify(draft) !== JSON.stringify(stored)
 
-  if (layout.isError) {
+  if (source.isError) {
     return (
       <Card>
         <ErrorState
-          description={describeError(t, layout.error)}
-          onRetry={() => void layout.refetch()}
+          description={describeError(t, source.error)}
+          onRetry={() => void source.reload()}
         />
       </Card>
     )
@@ -415,7 +417,7 @@ export function ArrangementTab({
     }
     setFailure(null)
     try {
-      await save.mutateAsync(draft)
+      await source.save(draft)
       showToast({ tone: 'success', message: t('layout.arrangement.saved') })
       stopEditing()
       return true
@@ -429,9 +431,9 @@ export function ArrangementTab({
   }
 
   async function reload() {
-    const fresh = await layout.refetch()
-    if (fresh.data) {
-      setDraft(toInput(fresh.data))
+    const fresh = await source.reload()
+    if (fresh) {
+      setDraft(toInput(fresh))
       setActive(null)
       setFailure(null)
     }
@@ -499,11 +501,9 @@ export function ArrangementTab({
         >
           <div className={styles.stack}>
             <p className={styles.muted}>
-              {t(
-                isPhone
-                  ? 'layout.arrangement.hintTouch'
-                  : 'layout.arrangement.hint',
-              )}
+              {isPhone
+                ? (hint?.touch ?? t('layout.arrangement.hintTouch'))
+                : (hint?.wide ?? t('layout.arrangement.hint'))}
             </p>
             {canEdit && isPhone && (
               <p className={styles.muted}>
@@ -797,7 +797,7 @@ export function ArrangementTab({
             {t('common.cancel')}
           </Button>
           <Button
-            loading={save.isPending}
+            loading={source.saving}
             disabled={!dirty}
             onClick={() => void saveChanges()}
           >

@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { DomainError } from './errors.ts'
 import {
+  applyLayoutToTemplate,
   assertCanChangeVenueMember,
+  emptyTemplate,
   invitationExpiresAt,
+  templateAsLayout,
   templateFigures,
+  templateTableId,
+  templateTables,
+  validateTemplateName,
   validateOrganizationInput,
   validateSpaceInput,
   venueCan,
@@ -297,5 +303,69 @@ describe('assertCanChangeVenueMember (D112)', () => {
         ),
       ),
     ).toBe('LAST_OWNER')
+  })
+})
+
+describe('templates on the floor-plan editor (Phase 26)', () => {
+  const template = {
+    ...emptyTemplate('tpl-1', 'spc-1', 'Rounds', '2026-11-01T00:00:00.000Z'),
+    tables: [
+      {
+        number: 1,
+        capacity: 10,
+        shape: 'CIRCLE' as const,
+        x: 300,
+        y: 300,
+        rotation: 0,
+      },
+      {
+        number: 2,
+        capacity: 8,
+        shape: 'SQUARE' as const,
+        x: null,
+        y: null,
+        rotation: 0,
+      },
+    ],
+  }
+
+  it('shows a template as a plan, with an id for each table', () => {
+    const layout = templateAsLayout(template)
+    expect(layout.placements).toEqual([
+      { tableId: templateTableId('tpl-1', 1), x: 300, y: 300, rotation: 0 },
+    ])
+    expect(templateTables(template).map((table) => table.id)).toEqual([
+      'tpl-1#1',
+      'tpl-1#2',
+    ])
+  })
+
+  it('writes a plan back, placing and unplacing tables', () => {
+    const layout = templateAsLayout(template)
+    const updated = applyLayoutToTemplate(template, {
+      ...layout,
+      roomWidth: 2400,
+      placements: [{ tableId: 'tpl-1#2', x: 500, y: 400, rotation: 45 }],
+    })
+    expect(updated.roomWidth).toBe(2400)
+    expect(updated.tables).toEqual([
+      {
+        number: 1,
+        capacity: 10,
+        shape: 'CIRCLE',
+        x: null,
+        y: null,
+        rotation: 0,
+      },
+      { number: 2, capacity: 8, shape: 'SQUARE', x: 500, y: 400, rotation: 45 },
+    ])
+  })
+
+  it('names a template uniquely within its space', () => {
+    expect(validateTemplateName(' Gala ', ['Rounds'])).toBe('Gala')
+    expect(() => validateTemplateName('rounds', ['Rounds'])).toThrow(
+      DomainError,
+    )
+    expect(() => validateTemplateName('  ', [])).toThrow(DomainError)
   })
 })

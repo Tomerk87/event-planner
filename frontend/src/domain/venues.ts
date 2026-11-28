@@ -2,7 +2,19 @@ import { assertEmail } from './accounts.ts'
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
 import { isEventPast, isValidTimeZone } from './eventTime.ts'
 import { EVENT_LIMITS, validateCoverImage } from './events.ts'
-import type { Id, IsoDateTime, TableShape, VenueObject } from './models.ts'
+import {
+  DEFAULT_FLOOR_IMAGE,
+  DEFAULT_ROOM,
+  type LayoutInput,
+} from './layout.ts'
+import type {
+  EventLayout,
+  EventTable,
+  Id,
+  IsoDateTime,
+  TableShape,
+  VenueObject,
+} from './models.ts'
 import type { VenueEventRole } from './roles.ts'
 
 /**
@@ -185,9 +197,140 @@ export interface LayoutTemplate {
   roomDepth: number
   tables: TemplateTable[]
   objects: VenueObject[]
+  /** The floor picture and its settings, as on an event's plan (D100). */
+  floorImage: string | null
+  floorImageTransparency: number
+  floorImageZoom: number
+  floorImageRotation: number
+  /** Goes up with every save of the plan, so a stale save is refused. */
+  version: number
   updatedAt: IsoDateTime
   /** Hidden from new events; events already made from it keep their copy. */
   archived: boolean
+}
+
+export const TEMPLATE_NAME_MAX_LENGTH = 80
+
+/** Checks a template's name: new within its space, ignoring case. */
+export function validateTemplateName(
+  name: string,
+  otherNames: readonly string[],
+): string {
+  const trimmed = assertNonEmpty(name, 'name')
+  if (trimmed.length > TEMPLATE_NAME_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'name' })
+  }
+  if (
+    otherNames.some(
+      (other) => other.trim().toLowerCase() === trimmed.toLowerCase(),
+    )
+  ) {
+    throw new DomainError('VALIDATION', { field: 'name', reason: 'duplicate' })
+  }
+  return trimmed
+}
+
+/** A new template: the default room, empty (Add Layout, Phase 26). */
+export function emptyTemplate(
+  id: Id,
+  spaceId: Id,
+  name: string,
+  updatedAt: IsoDateTime,
+): LayoutTemplate {
+  return {
+    id,
+    spaceId,
+    name,
+    ...DEFAULT_ROOM,
+    tables: [],
+    objects: [],
+    floorImage: null,
+    ...DEFAULT_FLOOR_IMAGE,
+    version: 0,
+    updatedAt,
+    archived: false,
+  }
+}
+
+/**
+ * The id a template's table has on the floor plan. A template's tables are
+ * known by their number; the plan needs an id for each.
+ */
+export function templateTableId(templateId: Id, number: number): Id {
+  return `${templateId}#${number}`
+}
+
+/** A template's tables as the floor plan and the table forms know tables. */
+export function templateTables(template: LayoutTemplate): EventTable[] {
+  return template.tables.map((table) => ({
+    id: templateTableId(template.id, table.number),
+    eventId: template.id,
+    number: table.number,
+    capacity: table.capacity,
+    shape: table.shape,
+  }))
+}
+
+/** A template as a floor plan, so the event's plan editor can edit it. */
+export function templateAsLayout(template: LayoutTemplate): EventLayout {
+  return {
+    eventId: template.id,
+    roomWidth: template.roomWidth,
+    roomDepth: template.roomDepth,
+    floorImage: template.floorImage,
+    floorImageTransparency: template.floorImageTransparency,
+    floorImageZoom: template.floorImageZoom,
+    floorImageRotation: template.floorImageRotation,
+    placements: template.tables.flatMap((table) =>
+      table.x === null || table.y === null
+        ? []
+        : [
+            {
+              tableId: templateTableId(template.id, table.number),
+              x: table.x,
+              y: table.y,
+              rotation: table.rotation,
+            },
+          ],
+    ),
+    objects: template.objects.map((object) => ({ ...object })),
+    version: template.version,
+  }
+}
+
+/**
+ * A checked floor plan written back to its template: the room, the picture,
+ * the objects, and where each table stands. A table the plan leaves out is
+ * kept, not placed.
+ */
+export function applyLayoutToTemplate(
+  template: LayoutTemplate,
+  layout: Omit<LayoutInput, 'version'>,
+): Omit<LayoutTemplate, 'version' | 'updatedAt'> {
+  return {
+    ...template,
+    roomWidth: layout.roomWidth,
+    roomDepth: layout.roomDepth,
+    floorImage: layout.floorImage,
+    floorImageTransparency: layout.floorImageTransparency,
+    floorImageZoom: layout.floorImageZoom,
+    floorImageRotation: layout.floorImageRotation,
+    objects: layout.objects.map((object) => ({ ...object })),
+    tables: template.tables.map((table) => {
+      const placement = layout.placements.find(
+        (candidate) =>
+          candidate.tableId === templateTableId(template.id, table.number),
+      )
+      return placement
+        ? {
+            ...table,
+            x: placement.x,
+            y: placement.y,
+            rotation: placement.rotation,
+          }
+        : { ...table, x: null, y: null, rotation: 0 }
+    }),
+  }
 }
 
 export interface TemplateFigures {

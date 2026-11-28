@@ -1,6 +1,7 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import type {
   SpaceDetails,
+  TemplateDetails,
   SpaceSummary,
   VenueEventSummary,
   VenueTeam,
@@ -20,6 +21,12 @@ export const venueKeys = {
     spaceId,
   ],
   team: (organizationId: string) => ['venues', organizationId, 'team'],
+  template: (organizationId: string, templateId: string) => [
+    'venues',
+    organizationId,
+    'templates',
+    templateId,
+  ],
 } as const
 
 /**
@@ -100,6 +107,23 @@ export function useVenueTeam(
         throw new Error('venues are off')
       }
       return venues.getTeam(organizationId)
+    },
+    enabled: venues !== null,
+  })
+}
+
+export function useVenueTemplate(
+  organizationId: string,
+  templateId: string,
+): UseQueryResult<TemplateDetails> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.template(organizationId, templateId),
+    queryFn: () => {
+      if (!venues) {
+        throw new Error('venues are off')
+      }
+      return venues.getTemplate(organizationId, templateId)
     },
     enabled: venues !== null,
   })

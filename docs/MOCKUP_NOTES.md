@@ -187,6 +187,9 @@ Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `
 - **My Spaces and space details (#3, #5):**
   - Add Layout, Edit (a layout) and Create Event from This Layout are shown but disabled until the layout editor (Phase 26) and the create-event wizard (Phase 27).
   - The layout preview draws the room, its objects and the tables' outlines, without each chair.
+- **The layout template editor (#6), not built:**
+  - **Export Tables:** a template has no guests, so there is no seating list to export. Exporting the tables themselves is the table summary export, already in `docs/FUTURE_FEATURES.md`.
+  - **"by <name>" after Last edited:** the product doesn't record who edited.
 - **The space dialog (#4):** the photo field is the event photo field, with the label "Space Photo" and the space's initials as the placeholder.
 
 ## Found while building the design system (Phase 2)

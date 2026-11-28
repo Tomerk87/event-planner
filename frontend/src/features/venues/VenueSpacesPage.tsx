@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { venueCan, type VenueSpace } from '../../domain/venues.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import type { SpaceSummary } from '../../services/contracts/index.ts'
@@ -40,7 +40,8 @@ import { useQueryParams } from '../../shared/useQueryParams.ts'
 import { SpaceCover } from './SpaceCover.tsx'
 import { SpaceDialog } from './SpaceDialog.tsx'
 import styles from './VenueSpacesPage.module.css'
-import { useSetSpaceArchived } from './venueMutations.ts'
+import { TemplateNameDialog } from './TemplateNameDialog.tsx'
+import { useCreateTemplate, useSetSpaceArchived } from './venueMutations.ts'
 import { useVenueSpaces, useVenueWorkspace } from './venueQueries.ts'
 
 type Show = 'active' | 'archived'
@@ -53,11 +54,13 @@ function SpaceCard({
   canManage,
   onEdit,
   onArchive,
+  onAddLayout,
 }: {
   summary: SpaceSummary
   canManage: boolean
   onEdit: () => void
   onArchive: (archived: boolean) => void
+  onAddLayout: () => void
 }) {
   const { t } = useTranslation()
   const format = useFormatters()
@@ -172,12 +175,7 @@ function SpaceCard({
         ) : null}
         <div className={styles.footer}>
           {layoutCount === 0 && canManage && !space.archived && (
-            <Button
-              variant="secondary"
-              icon={<Plus />}
-              disabled
-              title={t('venueSpaces.soon')}
-            >
+            <Button variant="secondary" icon={<Plus />} onClick={onAddLayout}>
               {t('venueSpaces.card.addLayout')}
             </Button>
           )}
@@ -206,6 +204,9 @@ export function VenueSpacesPage() {
   const isPhone = useMediaQuery(PHONE_QUERY)
   const { params, update } = useQueryParams()
   const [dialog, setDialog] = useState<DialogState>(null)
+  const [addingTo, setAddingTo] = useState<string | null>(null)
+  const createTemplate = useCreateTemplate(organizationId)
+  const navigate = useNavigate()
 
   const canManage = venueCan(workspace.data?.role ?? null, 'MANAGE_SPACES')
   const show: Show = params.get('show') === 'archived' ? 'archived' : 'active'
@@ -353,12 +354,32 @@ export function VenueSpacesPage() {
                 canManage={canManage}
                 onEdit={() => setDialog({ space: summary.space })}
                 onArchive={(archived) => setArchived(summary.space, archived)}
+                onAddLayout={() => setAddingTo(summary.space.id)}
               />
             </li>
           ))}
         </ul>
       )}
 
+      {addingTo && (
+        <TemplateNameDialog
+          mode="create"
+          pending={createTemplate.isPending}
+          onSubmit={(name) =>
+            createTemplate.mutateAsync({ spaceId: addingTo, name })
+          }
+          onDone={(template) => {
+            showToast({
+              tone: 'success',
+              message: t('templateEditor.createDialog.created', {
+                name: template.name,
+              }),
+            })
+            void navigate(`${addingTo}/layouts/${template.id}`)
+          }}
+          onClose={() => setAddingTo(null)}
+        />
+      )}
       {dialog && (
         <SpaceDialog
           open

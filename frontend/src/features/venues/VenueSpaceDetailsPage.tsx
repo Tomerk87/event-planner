@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { isDomainError } from '../../domain/errors.ts'
 import { venueCan } from '../../domain/venues.ts'
 import { getCurrentLanguage } from '../../i18n/i18n.ts'
@@ -46,7 +46,9 @@ import { SpaceCover } from './SpaceCover.tsx'
 import { SpaceDialog } from './SpaceDialog.tsx'
 import styles from './VenueSpaceDetailsPage.module.css'
 import { VenueStatusBadge } from './VenueEventCard.tsx'
+import { TemplateNameDialog } from './TemplateNameDialog.tsx'
 import {
+  useCreateTemplate,
   useDuplicateTemplate,
   useSetSpaceArchived,
   useSetTemplateArchived,
@@ -141,14 +143,14 @@ function TemplateCard({
         {canManage && (
           <div className={styles.templateActions}>
             <div className={styles.templateRow}>
-              <Button
+              <ButtonLink
+                to={`layouts/${template.id}`}
                 variant="secondary"
                 icon={<Pencil />}
-                disabled
-                title={t('spaceDetails.template.soonEdit')}
+                label={`${t('spaceDetails.template.edit')}: ${template.name}`}
               >
                 {t('spaceDetails.template.edit')}
-              </Button>
+              </ButtonLink>
               {!template.archived && (
                 <Button
                   variant="secondary"
@@ -201,6 +203,9 @@ export function VenueSpaceDetailsPage() {
   const { showToast } = useToast()
   const [editing, setEditing] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const createTemplate = useCreateTemplate(organizationId)
+  const navigate = useNavigate()
 
   if (isDomainError(details.error, 'NOT_FOUND')) {
     return <NotFoundPage />
@@ -443,7 +448,7 @@ export function VenueSpaceDetailsPage() {
             ]}
           />
           {canManage && !space.archived && (
-            <Button icon={<Plus />} disabled title={t('venueSpaces.soon')}>
+            <Button icon={<Plus />} onClick={() => setCreating(true)}>
               {t('spaceDetails.layouts.add')}
             </Button>
           )}
@@ -570,6 +575,25 @@ export function VenueSpaceDetailsPage() {
         )}
       </section>
 
+      {creating && (
+        <TemplateNameDialog
+          mode="create"
+          pending={createTemplate.isPending}
+          onSubmit={(name) =>
+            createTemplate.mutateAsync({ spaceId: space.id, name })
+          }
+          onDone={(template) => {
+            showToast({
+              tone: 'success',
+              message: t('templateEditor.createDialog.created', {
+                name: template.name,
+              }),
+            })
+            void navigate(`layouts/${template.id}`)
+          }}
+          onClose={() => setCreating(false)}
+        />
+      )}
       {editing && (
         <SpaceDialog
           open

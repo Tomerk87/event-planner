@@ -781,8 +781,21 @@ Delivered in two pull requests.
 - [ ] Edit and Add Layout wait for the layout editor (Phase 26); Create Event from This Layout for the wizard (Phase 27).
 
 ### Phase 26 — Layout template editor (mockup #6)
-- [ ] Reuse `FloorPlan` / `ArrangementTab` through a "layout source" interface (event or template). Existing Event Layout tests unchanged.
-- [ ] Template editor: rename, back to space, no guests, warning when chairs and maximum people differ.
+- [x] The plan editor works on any plan:
+  - `ArrangementTab` takes a `LayoutSource` (`layoutQueries.ts`), and the event page supplies `useEventLayoutSource`;
+  - `TableDialog` takes an optional `TableSaver`;
+  - `ArrangementTab` takes optional View-mode hints.
+
+  The Event Layout tests are unchanged and pass (49).
+- [x] Templates hold the floor picture and a version. `templateAsLayout`, `templateTables` and `applyLayoutToTemplate` (domain/venues.ts) convert between a template and a plan; `validateTemplateName` keeps names unique within a space. Dataset version 12.
+- [x] `VenuesService`: `getTemplate`, `createTemplate`, `renameTemplate`, `saveTemplateLayout` (a stale version is refused, `LAYOUT_CHANGED`), and add/update/remove template tables, checked like an event's. A test proves an event made from a template is untouched (D111).
+- [x] `LayoutTemplatePage` at `/venues/:organizationId/spaces/:spaceId/layouts/:templateId`:
+  - back to the space; rename; last edited and how many upcoming events use it;
+  - Table Arrangement / Tables;
+  - 4 figures, and the warnings for chairs vs maximum people and tables vs the noted maximum;
+  - Add Table, the Selected Table card with Edit/Delete;
+  - archived templates read-only; another space or venue is not found.
+- [x] Edit on a layout card and Add Layout (on a space and on My Spaces) are turned on. Add Layout creates an empty template and opens it.
 
 ### Phase 27 — Create venue event (mockup #9)
 - [ ] Wizard: space → layout → details → review, with the same-day warning and an optional client email.
@@ -1698,6 +1711,23 @@ Validation:
 Mockups reviewed: resources/mockups/v2/03_*, 05_*, 07_* (desktop and phone), compared with screenshots.
 Follow-ups/risks: Edit layout and Add Layout wait for Phase 26; Create Event from This Layout for Phase 27; the Team mockup's Events Created column is not built (MOCKUP_NOTES).
 Next: Phase 26, the layout template editor.
+```
+
+```text
+2026-11-28 — Phase 26 (V2.2) — Layout template editor (mockup #6).
+- The plan editor (ArrangementTab) and the table dialog work through LayoutSource and TableSaver; events are unchanged.
+- Templates gain a floor picture and a version, with conversions to and from a plan.
+- VenuesService: get, create, rename, save the plan, and add/update/remove tables.
+- LayoutTemplatePage and TemplateNameDialog; Edit and Add Layout turned on.
+- EN/HE/PT texts, including guest-free plan hints.
+Validation:
+- frontend: lint, typecheck, format, build;
+- unit: 1634 of 1635 passed. The failure is entry.test "returns to the landing page after 12 hours", which passed 3/3 alone and in every earlier full run, so it's a timing flake under load. That includes 9 editor page tests, 3 conversion tests and 4 template-operation tests;
+- the Event Layout tests (49) passed unchanged.
+- Playwright: the venue projects couldn't start locally, because port 5174 is held by a dev server running since 08:10 (likely the owner's, so it was left running). The PR's GitHub run is the check. New e2e: the editor in the accessibility/fit checks, and creating a layout, adding a table, placing it, saving, and reloading.
+Mockups reviewed: resources/mockups/v2/06_* (desktop), compared with screenshots in View and Edit modes.
+Follow-ups/risks: Export Tables and "edited by" not built (MOCKUP_NOTES). Create Event from This Layout is Phase 27.
+Next: Phase 27, the create-venue-event wizard.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

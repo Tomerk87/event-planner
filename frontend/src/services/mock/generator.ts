@@ -1626,6 +1626,11 @@ function templateFrom(
       }
     }),
     objects: layout.objects.map((object) => ({ ...object })),
+    floorImage: null,
+    floorImageTransparency: layout.floorImageTransparency,
+    floorImageZoom: layout.floorImageZoom,
+    floorImageRotation: layout.floorImageRotation,
+    version: 0,
     updatedAt,
     archived,
   }
