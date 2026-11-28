@@ -103,6 +103,14 @@ export const routes: RouteObject[] = [
                 }),
               },
               {
+                path: 'events/:eventId',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueEventPeoplePage.tsx')
+                  ).VenueEventPeoplePage,
+                }),
+              },
+              {
                 path: 'events/new',
                 lazy: async () => ({
                   Component: (
@@ -215,6 +223,16 @@ export const routes: RouteObject[] = [
             ],
           },
         ],
+      },
+      // A client invitation link (V2.2, #12): signed in or not, since the
+      // page itself explains which account accepts it.
+      {
+        path: '/client-invitations/:token',
+        lazy: async () => ({
+          Component: (
+            await import('../features/venues/AcceptClientInvitationPage.tsx')
+          ).AcceptClientInvitationPage,
+        }),
       },
       {
         path: '/rsvp/:rsvpId',

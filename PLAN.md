@@ -876,7 +876,11 @@ Delivered in two pull requests.
 
 ### Phase 28 — Client invitation in the demo (mockups #10, #12)
 
-- [ ] The client card with all statuses (Resend, Revoke, Invite a different client) and the accept page with all its states, simulated in the mock. No real email is sent from the demo.
+- [x] Rules (`domain/venues.ts`): `ClientInvitation` gains `sentBy` and `timesSent`; `ClientInvitationLink` (a 128-bit random token, open/used/revoked), `clientLinkState` (expired after 7 days or once the event starts), `assertCanAcceptClientLink` (the invited email only), the client team records (`ClientTeamMember`, `ClientTeamInvitation`). Dataset version 13: links, senders and client teams in the demo data.
+- [x] `VenuesService`: `getEventPeople`, `inviteClient` (also "a different client"), `resendClientInvitation`, `revokeClientInvitation`, `getClientInvitation(token)`, `acceptClientInvitation(token)`, and the demo-only `acceptClientInvitationAsInvitee`. Every new link stops the earlier one; a joined client or a started event can't be changed; a venue member can't be its own client; another venue's event and an unknown token are not found. The client team is kept apart from the personal event memberships until Phase 29.
+- [x] `VenueEventPeoplePage` at `/venues/:organizationId/events/:eventId` (mockup #10), opened from the event card (Client, or the name in the list): the two-sides note; the client card in each status (Invite, Resend, Invite a Different Client, Revoke, Email the client, the expired and past notices); Client Team, view only; Venue Team with Open Team. The demo shows the open link, since it sends no email.
+- [x] `AcceptClientInvitationPage` at `/client-invitations/:token` (mockup #12): the event, who invited and until when; Accept for the invited email; another email (with the demo's "Accept as the Client"); a venue member refused; signed out; accepted; used; expired (with the venue contact); revoked or replaced; an unknown link.
+- [x] Tests: domain, mock (security cases included) and page tests; both pages in the venue accessibility checks; a browser flow that resends, opens the link, accepts and checks the old link no longer works.
 
 ### Phase 29 — The shared event, two sides (mockups #13–17, #19; #18)
 
@@ -1817,4 +1821,12 @@ Validation: lint, typecheck, format, build; unit tests for the domain, the mock 
 Mockups reviewed: 09_venue_create_event (steps 1–4), desktop and phone, EN/HE.
 Follow-ups/risks: the calendar's "dots mark booked days" and the generated-cover colour choice are not built (MOCKUP_NOTES). Phase 26's CI failed twice on a phone Guests test that was already flaky before it (1 in 3 locally on the earlier code): the page-size menu was opened while the filtered list redrew. The test now waits for the filtered count; 10/10 alone and 51/51 for the whole file.
 Next: Phase 28 — client invitation in the demo (#10, #12).
+```
+
+```text
+2026-11-28 — Phase 28 (V2.2) — The client invitation in the demo (#10, #12): the venue's client card in every status with Invite, Resend, Invite a Different Client and Revoke, the client and venue teams, and the accept page in every state. Links are random, work once, expire after 7 days and stop when replaced.
+Validation: lint, typecheck, format; unit tests 1676 passed; the venue Playwright tests (desktop and phone, EN/HE/PT accessibility) against a local venues dev server, 76 passed.
+Mockups reviewed: 10_venue_event_client_* (awaiting, sent, expired, joined, past), 12_venue_accept_invitation_* (all states), desktop and phone, EN/HE.
+Follow-ups/risks: the client card sits on its own venue page until Phase 29 brings the event's pages to the venue; the accepted client can't open the event until then. The signed-out state can't show the event until the backend gives the link a public read.
+Next: Phase 29 — the shared event, two sides (#13–17, #19; #18).
 ```

@@ -196,6 +196,14 @@ Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `
   - **Not built, choosing the generated cover's colour:** the event's cover photo field is reused; without a photo the event keeps its generated cover, as everywhere else.
   - **The done screen** (no mockup): the event's name, the invitation waiting for the client's email (or how to invite later), Back to My Events and Create Another.
   - The demo sends no email; the review says so beside "An invitation will be emailed to the client".
+- **The client card and accept page (#10, #12), Phase 28:**
+  - **Where the card is:** #10 draws it on the event's Permissions page. The venue can't open its events' pages until Phase 29, so it has its own page for now (`/venues/:organizationId/events/:eventId`), opened from the event card, with the same three sections. Phase 29 moves it into the event.
+  - **The demo link:** the demo sends no email, so the card shows the open link ("Open Invitation Link"). The real service never returns it.
+  - **Accepting in the demo:** the demo has one account, so the accept page shows the real "different email" state, plus a demo-only "Accept as the Client" (until the venue/client switcher, Phase 31). The accepted page then offers "Back to <venue>".
+  - **Not yet, Open Event and the Next Steps links:** the client opens the event in Phase 29; the steps are shown without links until then.
+  - **Signed out:** the page asks to sign in or create an account, without the event's details; showing them needs the backend's public read of a link.
+  - **Added, a venue member can't accept:** the two sides stay apart (D113), so a venue member with the invited address is told to use another account.
+  - **Revoke** is the red icon button beside Invite a Different Client, with a confirmation.
 - **The space dialog (#4):** the photo field is the event photo field, with the label "Space Photo" and the space's initials as the placeholder.
 
 ## Found while building the design system (Phase 2)

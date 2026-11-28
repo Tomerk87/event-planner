@@ -95,6 +95,7 @@ const VENUE_PAGES = [
   ['Settings', '/venues/org-1/settings'],
   ['a layout template', '/venues/org-1/spaces/spc-1-1/layouts/tpl-1-1-3'],
   ['the create event wizard', '/venues/org-1/events/new'],
+  ['a venue event’s people', '/venues/org-1/events/evt-7'],
   [
     'the create event details',
     '/venues/org-1/events/new?space=spc-1-1&layout=tpl-1-1-1',
@@ -250,4 +251,54 @@ test('a venue event is created from a layout and listed for the venue', async ({
   // A venue event stays out of the personal My Events.
   await page.goto('/events')
   await expect(page.getByText('Noa & Ben')).toHaveCount(0)
+})
+
+test('a client invitation is resent, opened and accepted in the demo', async ({
+  page,
+}) => {
+  await page.goto(VENUE_EVENTS)
+  await page
+    .getByRole('article')
+    .filter({ hasText: 'Invitation sent' })
+    .first()
+    // The Client button on a grid card; the event's name in the list.
+    .getByRole('link')
+    .first()
+    .click()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Permissions' }),
+  ).toBeVisible()
+  await expectNoViolations(page)
+  await expectNoSidewaysScroll(page)
+
+  // The first link stops working once a new one is sent.
+  const first = await page
+    .getByRole('link', { name: 'Open Invitation Link' })
+    .getAttribute('href')
+  await page.getByRole('button', { name: 'Resend' }).click()
+  await expect(page.getByText(/A new link was sent to/)).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'Open Invitation Link' }),
+  ).not.toHaveAttribute('href', first ?? '')
+
+  await page.getByRole('link', { name: 'Open Invitation Link' }).click()
+  await expect(
+    page.getByText('This invitation is for another email'),
+  ).toBeVisible()
+  await expectNoViolations(page)
+  await expectNoSidewaysScroll(page)
+  await page.getByRole('button', { name: 'Accept as the Client' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Invitation Accepted' }),
+  ).toBeVisible()
+
+  await page.getByRole('link', { name: /Back to Grand Garden Hall/ }).click()
+  await expect(
+    page.getByRole('region', { name: 'Client' }).getByText('Client joined'),
+  ).toBeVisible()
+
+  await page.goto(first ?? '/')
+  await expect(
+    page.getByRole('heading', { name: 'This Invitation Is No Longer Valid' }),
+  ).toBeVisible()
 })

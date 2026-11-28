@@ -34,6 +34,7 @@ import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { ErrorState, LoadingState } from '../../shared/ui/States.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import { PHONE_QUERY, useMediaQuery } from '../../shared/useMediaQuery.ts'
+import { VenueRoleBadge } from './RoleBadges.tsx'
 import styles from './VenueTeamPage.module.css'
 import {
   useCancelMemberInvitation,
@@ -55,19 +56,6 @@ type OpenDialog =
   | { kind: 'cancel'; invitation: VenueMemberInvitation }
 
 const ALL_ROLES = 'all'
-
-function RoleBadge({ role }: { role: VenueMemberRole }) {
-  const { t } = useTranslation()
-  return role === 'VENUE_OWNER' ? (
-    <Badge tone="warning" icon={<Crown />}>
-      {t('venueRoles.VENUE_OWNER')}
-    </Badge>
-  ) : (
-    <Badge tone="info" icon={<Shield />}>
-      {t('venueRoles.VENUE_MANAGER')}
-    </Badge>
-  )
-}
 
 function InviteDialog({
   organizationId,
@@ -390,7 +378,7 @@ export function VenueTeamPage() {
       id: 'role',
       header: t('venueTeam.members.columns.role'),
       align: 'center',
-      cell: (row) => <RoleBadge role={roleOf(row)} />,
+      cell: (row) => <VenueRoleBadge role={roleOf(row)} />,
     },
     {
       id: 'since',
@@ -529,7 +517,7 @@ export function VenueTeamPage() {
                   <div className={styles.memberCard}>
                     <div className={styles.memberCardTop}>
                       {nameOf(row)}
-                      <RoleBadge role={roleOf(row)} />
+                      <VenueRoleBadge role={roleOf(row)} />
                     </div>
                     <p className={styles.muted} dir="ltr">
                       {emailOf(row)}

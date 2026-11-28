@@ -1,7 +1,9 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import type {
   SpaceDetails,
+  ClientInvitationView,
   TemplateDetails,
+  VenueEventPeople,
   SpaceSummary,
   VenueEventSummary,
   VenueTeam,
@@ -21,6 +23,14 @@ export const venueKeys = {
     spaceId,
   ],
   team: (organizationId: string) => ['venues', organizationId, 'team'],
+  people: (organizationId: string, eventId: string) => [
+    'venues',
+    organizationId,
+    'events',
+    eventId,
+    'people',
+  ],
+  clientInvitation: (token: string) => ['venues', 'client-invitations', token],
   template: (organizationId: string, templateId: string) => [
     'venues',
     organizationId,
@@ -126,5 +136,39 @@ export function useVenueTemplate(
       return venues.getTemplate(organizationId, templateId)
     },
     enabled: venues !== null,
+  })
+}
+
+export function useVenueEventPeople(
+  organizationId: string,
+  eventId: string,
+): UseQueryResult<VenueEventPeople> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.people(organizationId, eventId),
+    queryFn: () => {
+      if (!venues) {
+        throw new Error('venues are off')
+      }
+      return venues.getEventPeople(organizationId, eventId)
+    },
+    enabled: venues !== null,
+  })
+}
+
+export function useClientInvitation(
+  token: string,
+): UseQueryResult<ClientInvitationView> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.clientInvitation(token),
+    queryFn: () => {
+      if (!venues) {
+        throw new Error('venues are off')
+      }
+      return venues.getClientInvitation(token)
+    },
+    enabled: venues !== null,
+    retry: false,
   })
 }

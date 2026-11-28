@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { DomainError } from './errors.ts'
 import {
   applyLayoutToTemplate,
+  assertCanAcceptClientLink,
   assertCanChangeVenueMember,
+  clientLinkExpiresAt,
+  clientLinkState,
+  newClientLinkToken,
   copyTemplateToEvent,
   sameDayEvents,
   emptyTemplate,
@@ -17,6 +21,7 @@ import {
   venueCan,
   venueEventStatus,
   type ClientInvitation,
+  type ClientInvitationLink,
   type OrganizationInput,
   type SpaceInput,
   type VenueAction,
@@ -33,6 +38,8 @@ const invitation = (
   email: 'dana@example.com',
   sentAt,
   acceptedAt,
+  sentBy: null,
+  timesSent: 1,
 })
 
 describe('venueEventStatus (D115)', () => {
@@ -434,5 +441,76 @@ describe('creating a venue event (Phase 27)', () => {
       { tableId: 'tbl-new-1', x: 300, y: 300, rotation: 0 },
     ])
     expect(tables.some((table) => table.id.startsWith('tpl-1'))).toBe(false)
+  })
+})
+
+describe('client invitation links (Phase 28)', () => {
+  const link = (
+    status: ClientInvitationLink['status'] = 'OPEN',
+    sentAt = '2026-11-25T12:00:00.000Z',
+  ): ClientInvitationLink => ({
+    token: 'abc',
+    eventId: 'evt-1',
+    email: 'Dana.Levi@example.com',
+    sentAt,
+    status,
+  })
+
+  it('is open for seven days, then expired', () => {
+    expect(clientLinkState(link(), upcoming, now)).toBe('OPEN')
+    expect(clientLinkExpiresAt(link()).toISOString()).toBe(
+      '2026-12-02T12:00:00.000Z',
+    )
+    expect(
+      clientLinkState(link('OPEN', '2026-11-20T11:59:59.000Z'), upcoming, now),
+    ).toBe('EXPIRED')
+  })
+
+  it('never works again once used or revoked, or after the event starts', () => {
+    expect(clientLinkState(link('USED'), upcoming, now)).toBe('USED')
+    expect(clientLinkState(link('REVOKED'), upcoming, now)).toBe('REVOKED')
+    expect(clientLinkState(link(), past, now)).toBe('EXPIRED')
+  })
+
+  it('is accepted only by the invited address, in any case', () => {
+    expect(() =>
+      assertCanAcceptClientLink(
+        link(),
+        upcoming,
+        { email: ' dana.levi@EXAMPLE.com ' },
+        now,
+      ),
+    ).not.toThrow()
+    expect(() =>
+      assertCanAcceptClientLink(
+        link(),
+        upcoming,
+        { email: 'alex@example.com' },
+        now,
+      ),
+    ).toThrow(expect.objectContaining({ code: 'FORBIDDEN' }))
+    expect(() =>
+      assertCanAcceptClientLink(
+        link('USED'),
+        upcoming,
+        { email: 'dana.levi@example.com' },
+        now,
+      ),
+    ).toThrow(
+      expect.objectContaining({
+        code: 'LINK_EXPIRED',
+        details: { state: 'USED' },
+      }),
+    )
+  })
+
+  it('makes tokens no one can guess', () => {
+    const tokens = new Set(
+      Array.from({ length: 50 }, () => newClientLinkToken()),
+    )
+    expect(tokens.size).toBe(50)
+    for (const token of tokens) {
+      expect(token).toMatch(/^[0-9a-f]{32}$/)
+    }
   })
 })
