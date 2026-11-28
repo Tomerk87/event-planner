@@ -2,6 +2,7 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import type {
   SpaceDetails,
   ClientInvitationView,
+  ClientTeamView,
   TemplateDetails,
   VenueEventPeople,
   SpaceSummary,
@@ -31,6 +32,7 @@ export const venueKeys = {
     'people',
   ],
   clientInvitation: (token: string) => ['venues', 'client-invitations', token],
+  clientTeam: (eventId: string) => ['venues', 'client-team', eventId],
   template: (organizationId: string, templateId: string) => [
     'venues',
     organizationId,
@@ -171,5 +173,20 @@ export function useClientInvitation(
     },
     enabled: venues !== null,
     retry: false,
+  })
+}
+
+/** The client side's team for its Permissions page (#15). */
+export function useClientTeam(eventId: string): UseQueryResult<ClientTeamView> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.clientTeam(eventId),
+    queryFn: () => {
+      if (!venues) {
+        throw new Error('venues are off')
+      }
+      return venues.getClientTeam(eventId)
+    },
+    enabled: venues !== null,
   })
 }

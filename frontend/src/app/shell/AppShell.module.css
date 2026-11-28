@@ -107,6 +107,19 @@
   cursor: default;
 }
 
+.selectorText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.selectorSubtitle {
+  font-size: var(--font-size-xs);
+  opacity: 0.75;
+  line-height: 1.3;
+}
+
 .selectorName {
   flex: 1;
   min-inline-size: 0;

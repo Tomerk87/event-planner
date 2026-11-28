@@ -7,6 +7,7 @@ import type {
   VenueEventInput,
   VenueMemberRole,
 } from '../../domain/venues.ts'
+import type { ClientInviteRole } from '../../services/contracts/index.ts'
 import { useServices } from '../../services/servicesContext.ts'
 import { venueKeys } from './venueQueries.ts'
 
@@ -202,5 +203,28 @@ export function useAcceptClientInvitation(token: string) {
     asInvitee && venues.acceptClientInvitationAsInvitee
       ? venues.acceptClientInvitationAsInvitee(token)
       : venues.acceptClientInvitation(token),
+  )
+}
+
+export function useInviteToClientTeam(eventId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation(
+    ({ email, role }: { email: string; role: ClientInviteRole }) =>
+      venues.inviteToClientTeam(eventId, email, role),
+  )
+}
+
+export function useChangeClientTeamRole(eventId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation(
+    ({ email, role }: { email: string; role: ClientInviteRole }) =>
+      venues.changeClientTeamRole(eventId, email, role),
+  )
+}
+
+export function useRemoveFromClientTeam(eventId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation((email: string) =>
+    venues.removeFromClientTeam(eventId, email),
   )
 }

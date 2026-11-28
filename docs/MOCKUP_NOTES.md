@@ -211,6 +211,12 @@ Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `
   - **Event Settings for the venue** (no mockup): the existing page, where the venue's fields (date, time, zone, place, maximum) are editable and the client's (name, photo, guest settings) are shown read-only.
   - **Event Layout for the venue (#18, no mockup):** the existing page; tables and the map are editable, and seating is view-only (no Assign).
   - **The demo's role switcher** is hidden on a venue event, where roles come from the venue.
+- **The client's side and the switcher (#13–16, #23), Phase 29b:**
+  - **The switcher (#23)** came forward from Phase 31. It sits beside Reset Demo as "View as <name> (venue owner/client)". The banner shows on venue pages for the owner and everywhere for the client. The demo's role switcher is hidden while viewing as the client.
+  - **Not in the demo:** the client's own personal events (#23 shows "Dana's 30th Birthday"); the client sees only their venue event.
+  - **#14:** the RSVP page language stays on the RSVP page rather than in "Your Settings".
+  - **#15 client:** the KPIs count pending invitations with their role. The venue's roles read "Owner" / "Manager", as on the Team page.
+  - **#16:** the legend of taken/free/over-capacity seats isn't added; the plan's own colours show them, as for the venue.
 - **The space dialog (#4):** the photo field is the event photo field, with the label "Space Photo" and the space's initials as the placeholder.
 
 ## Found while building the design system (Phase 2)

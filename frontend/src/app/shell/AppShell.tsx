@@ -36,6 +36,8 @@ export interface ShellEvent {
   id: string
   name: string
   coverImage?: string | null
+  /** A line under the name: the space, or who manages the event (#14). */
+  subtitle?: string
 }
 
 export interface ShellUser {

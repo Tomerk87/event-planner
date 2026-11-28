@@ -22,14 +22,21 @@ import {
   toAccessRows,
   type AccessRow,
 } from '../../domain/memberList.ts'
-import { EVENT_ROLES, isVenueSide, type EventRole } from '../../domain/roles.ts'
+import {
+  EVENT_ROLES,
+  isClientSide,
+  isVenueSide,
+  type EventRole,
+} from '../../domain/roles.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import {
   useDemoRole,
   useEmailEnabled,
   useEventAccessInfo,
 } from '../../services/queries.ts'
+import { ClientTeamPage } from '../venues/ClientTeamPage.tsx'
 import { VenueEventPermissions } from '../venues/VenueEventPeoplePage.tsx'
+import { roleCan } from '../../domain/permissions.ts'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
 import { Avatar } from '../../shared/ui/Avatar.tsx'
@@ -79,6 +86,18 @@ export function PermissionsPage() {
       <VenueEventPermissions
         organizationId={venue.organizationId}
         eventId={eventId}
+      />
+    )
+  }
+  // The client side manages its own team (#15, D113).
+  if (venue !== null && info.data && isClientSide(info.data.role)) {
+    return (
+      <ClientTeamPage
+        eventId={eventId}
+        venue={venue}
+        canManage={roleCan('MANAGE_PERMISSIONS', info.data.role, {
+          isPastEvent: info.data.isPast,
+        })}
       />
     )
   }

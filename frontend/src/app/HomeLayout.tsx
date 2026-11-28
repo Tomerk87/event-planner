@@ -6,7 +6,7 @@ import { useSession } from './session/sessionContext.ts'
 import { AppShell } from './shell/AppShell.tsx'
 import { useSignOut } from './session/useSignOut.ts'
 import { EmailVerificationNotice } from './shell/EmailVerificationNotice.tsx'
-import { DemoBadge, DemoTools } from './shell/DemoControls.tsx'
+import { DemoBadge, DemoTools, DemoViewBanner } from './shell/DemoControls.tsx'
 import { NotificationBell } from './notifications/NotificationBell.tsx'
 import { useVenueWorkspaces } from '../features/venues/venueQueries.ts'
 
@@ -42,7 +42,12 @@ export function HomeLayout() {
       onSignOut={signOut}
       signOutInSidebar
       banner={<DemoBadge />}
-      notice={<EmailVerificationNotice />}
+      notice={
+        <>
+          <EmailVerificationNotice />
+          <DemoViewBanner />
+        </>
+      }
       bell={<NotificationBell />}
       tools={<DemoTools />}
     >

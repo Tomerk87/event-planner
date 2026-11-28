@@ -1,4 +1,8 @@
-import { assertEmail, findAccountByEmail } from '../../domain/accounts.ts'
+import {
+  assertEmail,
+  findAccountByEmail,
+  normalizeEmail,
+} from '../../domain/accounts.ts'
 import { DomainError } from '../../domain/errors.ts'
 import { isEventPast } from '../../domain/eventTime.ts'
 import {
@@ -61,6 +65,7 @@ import {
 import { formatPhone, normalizePhone } from '../../domain/phone.ts'
 import {
   EVENT_ROLES,
+  isClientSide,
   isVenueSide,
   type AnyEventRole,
   type EventRole,
@@ -78,6 +83,7 @@ import {
   validateTableInput,
 } from '../../domain/seating.ts'
 import type {
+  ClientInviteRole,
   EventAccessInfo,
   EventVenueInfo,
   Member,
@@ -422,7 +428,47 @@ export function createMockServices(options: MockOptions): Services {
   }
 
   function currentUserId(): Id {
-    return actingUserId ?? state.currentUserId
+    return (
+      actingUserId ??
+      (state.viewAsClient ? demoClient()?.userId : undefined) ??
+      state.currentUserId
+    )
+  }
+
+  /**
+   * The client the venue demo can switch to (#23): the lead of the first
+   * shared event of the first venue the demo user belongs to.
+   */
+  function demoClient():
+    { userId: Id; name: string; eventId: Id; eventName: string } | undefined {
+    const venueIds = (state.venueMembers ?? [])
+      .filter((member) => member.userId === state.currentUserId)
+      .map((member) => member.organizationId)
+    for (const venueEvent of state.venueEvents ?? []) {
+      if (!venueIds.includes(venueEvent.organizationId)) {
+        continue
+      }
+      const lead = state.clientTeam?.find(
+        (member) =>
+          member.eventId === venueEvent.eventId &&
+          member.role === 'CLIENT_LEAD',
+      )
+      const user = state.users.find(
+        (candidate) => candidate.id === lead?.userId,
+      )
+      const event = state.events.find(
+        (candidate) => candidate.id === venueEvent.eventId,
+      )
+      if (user && event && !isEventPast(event, now())) {
+        return {
+          userId: user.id,
+          name: user.name,
+          eventId: event.id,
+          eventName: event.name,
+        }
+      }
+    }
+    return undefined
   }
 
   function currentUser(): User {
@@ -665,6 +711,228 @@ export function createMockServices(options: MockOptions): Services {
     )
   }
 
+  /** The client side of a venue event only (D113); the venue has its own. */
+  function clientContext(eventId: Id, action: EventAction): EventContext {
+    const context = authorize(eventId, action)
+    if (!isClientSide(context.role)) {
+      throw new DomainError('FORBIDDEN', { action })
+    }
+    return context
+  }
+
+  function assertClientInviteRole(role: string): void {
+    if (role !== 'CLIENT_EDITOR' && role !== 'CLIENT_VIEWER') {
+      throw new DomainError('VALIDATION', { field: 'role' })
+    }
+  }
+
+  /** The lead's team operations (#15), checked by the event role. */
+  function clientTeamOperations() {
+    return {
+      getClientTeam: (eventId: Id) =>
+        run('venues.getClientTeam', () => {
+          clientContext(eventId, 'VIEW_PERMISSIONS')
+          const venueEvent = state.venueEvents?.find(
+            (candidate) => candidate.eventId === eventId,
+          )
+          const me = currentUserId()
+          const order = { CLIENT_LEAD: 0, CLIENT_EDITOR: 1, CLIENT_VIEWER: 2 }
+          const members = [
+            ...(state.clientTeam ?? [])
+              .filter((member) => member.eventId === eventId)
+              .flatMap((member) => {
+                const user = state.users.find(
+                  (candidate) => candidate.id === member.userId,
+                )
+                return user
+                  ? [
+                      {
+                        name: user.name,
+                        email: user.email,
+                        role: member.role,
+                        since: member.since,
+                        pending: false,
+                        isYou: user.id === me,
+                      },
+                    ]
+                  : []
+              }),
+            ...(state.clientTeamInvitations ?? [])
+              .filter((invitation) => invitation.eventId === eventId)
+              .map((invitation) => ({
+                name: null,
+                email: invitation.email,
+                role: invitation.role,
+                since: invitation.sentAt,
+                pending: true,
+                isYou: false,
+              })),
+          ].sort(
+            (a, b) =>
+              Number(a.pending) - Number(b.pending) ||
+              order[a.role] - order[b.role] ||
+              a.since.localeCompare(b.since),
+          )
+          const venue = state.organizations?.find(
+            (organization) => organization.id === venueEvent?.organizationId,
+          )
+          const venueTeam = (state.venueMembers ?? [])
+            .filter(
+              (member) => member.organizationId === venueEvent?.organizationId,
+            )
+            .flatMap((member) => {
+              const user = state.users.find(
+                (candidate) => candidate.id === member.userId,
+              )
+              return user
+                ? [{ name: user.name, email: user.email, role: member.role }]
+                : []
+            })
+            .sort((a, b) =>
+              a.role === b.role
+                ? a.name.localeCompare(b.name)
+                : a.role === 'VENUE_OWNER'
+                  ? -1
+                  : 1,
+            )
+          return { members, venueName: venue?.name ?? '', venueTeam }
+        }),
+
+      inviteToClientTeam: (
+        eventId: Id,
+        email: string,
+        role: ClientInviteRole,
+      ) =>
+        run('venues.inviteToClientTeam', () => {
+          clientContext(eventId, 'MANAGE_PERMISSIONS')
+          assertClientInviteRole(role)
+          const address = assertEmail(email)
+          const user = state.users.find(
+            (candidate) => normalizeEmail(candidate.email) === address,
+          )
+          if (
+            user &&
+            state.clientTeam?.some(
+              (member) =>
+                member.eventId === eventId && member.userId === user.id,
+            )
+          ) {
+            throw new DomainError('ALREADY_MEMBER')
+          }
+          if (
+            state.clientTeamInvitations?.some(
+              (invitation) =>
+                invitation.eventId === eventId && invitation.email === address,
+            )
+          ) {
+            throw new DomainError('ALREADY_INVITED')
+          }
+          // The two sides stay apart (D113).
+          const venueEvent = state.venueEvents?.find(
+            (candidate) => candidate.eventId === eventId,
+          )
+          if (
+            user &&
+            state.venueMembers?.some(
+              (member) =>
+                member.organizationId === venueEvent?.organizationId &&
+                member.userId === user.id,
+            )
+          ) {
+            throw new DomainError('FORBIDDEN', { reason: 'venueMember' })
+          }
+          const at = now().toISOString()
+          commit(
+            user
+              ? {
+                  ...state,
+                  clientTeam: [
+                    ...(state.clientTeam ?? []),
+                    { eventId, userId: user.id, role, since: at },
+                  ],
+                }
+              : {
+                  ...state,
+                  clientTeamInvitations: [
+                    ...(state.clientTeamInvitations ?? []),
+                    { eventId, email: address, role, sentAt: at },
+                  ],
+                },
+          )
+        }),
+
+      changeClientTeamRole: (
+        eventId: Id,
+        email: string,
+        role: ClientInviteRole,
+      ) =>
+        run('venues.changeClientTeamRole', () => {
+          clientContext(eventId, 'MANAGE_PERMISSIONS')
+          assertClientInviteRole(role)
+          const address = normalizeEmail(email)
+          const user = state.users.find(
+            (candidate) => normalizeEmail(candidate.email) === address,
+          )
+          const member = state.clientTeam?.find(
+            (candidate) =>
+              candidate.eventId === eventId && candidate.userId === user?.id,
+          )
+          const invitation = state.clientTeamInvitations?.find(
+            (candidate) =>
+              candidate.eventId === eventId && candidate.email === address,
+          )
+          if (member?.role === 'CLIENT_LEAD') {
+            throw new DomainError('SELF_PERMISSION')
+          }
+          if (!member && !invitation) {
+            return notFound('membership')
+          }
+          commit({
+            ...state,
+            clientTeam: (state.clientTeam ?? []).map((candidate) =>
+              candidate === member ? { ...candidate, role } : candidate,
+            ),
+            clientTeamInvitations: (state.clientTeamInvitations ?? []).map(
+              (candidate) =>
+                candidate === invitation ? { ...candidate, role } : candidate,
+            ),
+          })
+        }),
+
+      removeFromClientTeam: (eventId: Id, email: string) =>
+        run('venues.removeFromClientTeam', () => {
+          clientContext(eventId, 'MANAGE_PERMISSIONS')
+          const address = normalizeEmail(email)
+          const user = state.users.find(
+            (candidate) => normalizeEmail(candidate.email) === address,
+          )
+          const member = state.clientTeam?.find(
+            (candidate) =>
+              candidate.eventId === eventId && candidate.userId === user?.id,
+          )
+          const invitation = state.clientTeamInvitations?.find(
+            (candidate) =>
+              candidate.eventId === eventId && candidate.email === address,
+          )
+          if (member?.role === 'CLIENT_LEAD') {
+            throw new DomainError('SELF_PERMISSION')
+          }
+          if (!member && !invitation) {
+            return notFound('membership')
+          }
+          commit({
+            ...state,
+            clientTeam: (state.clientTeam ?? []).filter(
+              (candidate) => candidate !== member,
+            ),
+            clientTeamInvitations: (state.clientTeamInvitations ?? []).filter(
+              (candidate) => candidate !== invitation,
+            ),
+          })
+        }),
+    }
+  }
+
   /** Roles arrive from outside the type system, so they are checked. */
   function assertRole(role: EventRole): void {
     if (!EVENT_ROLES.includes(role)) {
@@ -686,17 +954,12 @@ export function createMockServices(options: MockOptions): Services {
       list: () =>
         run('events.list', () =>
           state.events
-            .filter((event) => effectiveRole(actorFor(event.id)) !== null)
-            // A venue's events are in its own workspace (V2.2); one is a
-            // personal event too only for someone with a role in it.
-            .filter(
-              (event) =>
-                !isVenueManaged(event.id) ||
-                state.memberships.some(
-                  (membership) =>
-                    membership.eventId === event.id &&
-                    membership.userId === currentUserId(),
-                ),
+            // A venue's events are in its own workspace (V2.2); among My
+            // Events only for their client side (#13).
+            .filter((event) =>
+              isVenueManaged(event.id)
+                ? isClientSide(venueRoleFor(event.id) ?? null)
+                : effectiveRole(actorFor(event.id)) !== null,
             )
             .map((event) => ({
               ...accessInfo(contextFor(event.id)),
@@ -1673,6 +1936,46 @@ export function createMockServices(options: MockOptions): Services {
               commit({ ...state, demoRole: role })
             }),
 
+          getViewAs: () =>
+            run('demo.getViewAs', () => {
+              const client = demoClient()
+              const self = state.users.find(
+                (user) => user.id === state.currentUserId,
+              )
+              const venue = state.organizations?.find((organization) =>
+                state.venueMembers?.some(
+                  (member) =>
+                    member.organizationId === organization.id &&
+                    member.userId === state.currentUserId,
+                ),
+              )
+              if (!venues || !client || !self || !venue) {
+                return null
+              }
+              return {
+                view: state.viewAsClient ? 'CLIENT' : 'SELF',
+                self: { name: self.name, venueName: venue.name },
+                client: {
+                  name: client.name,
+                  eventId: client.eventId,
+                  eventName: client.eventName,
+                },
+              }
+            }),
+
+          setViewAs: (view) =>
+            run('demo.setViewAs', () => {
+              if (view === 'CLIENT' && (!venues || !demoClient())) {
+                throw new DomainError('NOT_FOUND', { entity: 'client' })
+              }
+              // The client has no personal role to simulate.
+              commit({
+                ...state,
+                viewAsClient: view === 'CLIENT',
+                demoRole: view === 'CLIENT' ? null : state.demoRole,
+              })
+            }),
+
           reset: () =>
             run('demo.reset', () => {
               persistence.clear()
@@ -1690,14 +1993,17 @@ export function createMockServices(options: MockOptions): Services {
         },
 
     venues: venues
-      ? createMockVenues({
-          state: () => state,
-          commit,
-          newId,
-          run: (operation, action) => run(operation, action),
-          currentUserId,
-          now,
-        })
+      ? {
+          ...createMockVenues({
+            state: () => state,
+            commit,
+            newId,
+            run: (operation, action) => run(operation, action),
+            currentUserId,
+            now,
+          }),
+          ...clientTeamOperations(),
+        }
       : null,
   }
 }

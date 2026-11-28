@@ -1,4 +1,5 @@
 import {
+  Building2,
   Armchair,
   ArrowUpDown,
   CircleCheck,
@@ -38,6 +39,7 @@ import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
 import { WarningCards, type Warning } from '../dashboard/WarningCards.tsx'
 import { useEventAccessInfo } from '../../services/queries.ts'
+import { isClientSide } from '../../domain/roles.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
@@ -47,6 +49,7 @@ import { cx } from '../../shared/ui/cx.ts'
 import { DataTable, type Column } from '../../shared/ui/DataTable.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
 import { Menu } from '../../shared/ui/Menu.tsx'
+import { Badge } from '../../shared/ui/Badge.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { Pagination } from '../../shared/ui/Pagination.tsx'
 import {
@@ -123,6 +126,9 @@ export function EventLayoutPage() {
   const canSeat = access !== null && canPerform(access, 'ASSIGN_SEATING')
   // The layout has already loaded the event, so this read comes from the cache.
   const info = useEventAccessInfo(eventId)
+  // The client seats guests; the venue arranges the room (#16, D113).
+  const venue = info.data?.venue ?? null
+  const clientView = venue !== null && isClientSide(access?.role ?? null)
   const guests = useGuests(eventId)
   const tables = useTables(eventId)
   const [panel, setPanel] = useState<OpenPanel | null>(null)
@@ -669,7 +675,7 @@ export function EventLayoutPage() {
     <>
       <PageHeader
         title={t('pages.eventLayout')}
-        subtitle={t('layout.subtitle')}
+        subtitle={t(clientView ? 'layout.client.subtitle' : 'layout.subtitle')}
         actions={actions}
       />
       {failed ? (
@@ -686,6 +692,14 @@ export function EventLayoutPage() {
       ) : (
         <div className={guestStyles.stack}>
           <ReadOnlyNotice />
+          {clientView && (
+            <p className={styles.managedNote}>
+              <Badge tone="info" icon={<Building2 />}>
+                {t('events.card.managedBy', { venue: venue.name })}
+              </Badge>
+              <span>{t('layout.client.arranged', { venue: venue.name })}</span>
+            </p>
+          )}
           <div className={styles.tabs}>
             <Tabs
               label={t('layout.tabs.label')}
@@ -725,6 +739,14 @@ export function EventLayoutPage() {
               isPhone={isPhone}
               onAddTable={() => setPanel({ kind: 'add' })}
               side={side}
+              hint={
+                clientView
+                  ? {
+                      wide: t('layout.client.hint'),
+                      touch: t('layout.client.hintTouch'),
+                    }
+                  : undefined
+              }
             />
           ) : (
             <div className={styles.withSide}>

@@ -37,6 +37,8 @@ export const DATASET_VERSION = 13
 export interface DemoState {
   currentUserId: Id
   demoRole: DemoRole | null
+  /** V2.2 (#23): the venue demo shows the client lead instead. */
+  viewAsClient?: boolean
   /** Source of ids for records created after generation. */
   nextId: number
   users: User[]

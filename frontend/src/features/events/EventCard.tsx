@@ -1,4 +1,6 @@
 import {
+  MapPin,
+  Building2,
   ArrowRight,
   CalendarDays,
   ChevronRight,
@@ -40,6 +42,8 @@ export function EventCard({
   const { t } = useTranslation()
   const format = useFormatters()
   const { event, role, isPast, confirmedAttendees } = summary
+  // A client's venue event: who manages it, and where (#13).
+  const venue = summary.venue ?? null
   const startsAt = new Date(event.startsAt)
   const address = `/events/${event.id}/dashboard`
   const openLabel = t(isPast ? 'events.card.view' : 'events.card.open')
@@ -108,6 +112,13 @@ export function EventCard({
             event.name
           )}
         </h2>
+        {venue && (
+          <span className={styles.managedBy}>
+            <Badge tone="info" icon={<Building2 />}>
+              {t('events.card.managedBy', { venue: venue.name })}
+            </Badge>
+          </span>
+        )}
         <ul className={styles.details}>
           <li>
             <CalendarDays aria-hidden="true" />
@@ -119,6 +130,16 @@ export function EventCard({
             <span className="visually-hidden">{t('events.card.time')}</span>
             {format.time(startsAt, event.timeZone)}
           </li>
+          {venue && (
+            <li>
+              <MapPin aria-hidden="true" />
+              <span className="visually-hidden">{t('venueEvents.space')}</span>
+              {t('events.card.venuePlace', {
+                space: venue.space.name,
+                venue: venue.name,
+              })}
+            </li>
+          )}
           <li>
             <Users aria-hidden="true" />
             {t('events.card.maxAttendees', {

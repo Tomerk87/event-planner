@@ -94,7 +94,21 @@ function byDate(a: VenueEventSummary, b: VenueEventSummary): number {
  * so a venue's existence is not revealed, and the team and the settings are
  * the Owner's (D112, D116).
  */
-export function createMockVenues(context: MockVenueContext): VenuesService {
+/**
+ * The venue operations; the client team's (#15) are checked by the event
+ * role, so the demo provider adds them beside these.
+ */
+export type MockVenueOperations = Omit<
+  VenuesService,
+  | 'getClientTeam'
+  | 'inviteToClientTeam'
+  | 'changeClientTeamRole'
+  | 'removeFromClientTeam'
+>
+
+export function createMockVenues(
+  context: MockVenueContext,
+): MockVenueOperations {
   const { run, now } = context
   // Data stored before V2.2 has no venue lists; they read as empty.
   const state = (): VenueState => {

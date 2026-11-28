@@ -126,7 +126,18 @@
       "lifetime": "A demo lasts 3 days, so its sample data was cleared. Try Demo starts a fresh one.",
       "idle": "The demo was not used for 12 hours, so its sample data was cleared. Try Demo starts a fresh one."
     },
-    "endsAt": "The demo ends on {{date}} at {{time}}, or after 12 hours without activity."
+    "endsAt": "The demo ends on {{date}} at {{time}}, or after 12 hours without activity.",
+    "viewAs": {
+      "label": "View the venue demo as",
+      "self": "View as {{name}} (venue owner)",
+      "client": "View as {{name}} (client)",
+      "asClientTitle": "You’re viewing as the client ({{name}})",
+      "asClientBody": "You are {{name}}. {{venue}} arranges the room and tables; you manage guests, RSVP, messages and seating.",
+      "asSelfTitle": "You’re viewing as the venue owner",
+      "asSelfBody": "You are {{name}}, owner of {{venue}}. Switch to see what {{client}} sees.",
+      "switchSelf": "View as venue owner",
+      "switchClient": "View as {{name}}"
+    }
   },
   "errors": {
     "UNAUTHENTICATED": "Your session has ended. Please sign in again.",
@@ -306,7 +317,9 @@
       "maxAttendees": "{{formatted}} maximum attendees",
       "confirmed": "{{formatted}} confirmed",
       "capacity": "{{formatted}} capacity",
-      "attendance": "Confirmed attendees of {{name}}"
+      "attendance": "Confirmed attendees of {{name}}",
+      "managedBy": "Managed by {{venue}}",
+      "venuePlace": "{{space}}, {{venue}}"
     },
     "create": {
       "action": "Create Event",
@@ -1020,6 +1033,12 @@
         "rotate": "Rotate",
         "reset": "Reset Picture"
       }
+    },
+    "client": {
+      "arranged": "The room and tables are arranged by {{venue}}.",
+      "hint": "Drag to look around; zoom with the buttons or a trackpad pinch. Select a table to see and seat its guests.",
+      "hintTouch": "Drag to look around and pinch to zoom. Tap a table to see and seat its guests.",
+      "subtitle": "Seat your guests at the tables and see the room plan."
     }
   },
   "messages": {
@@ -1173,6 +1192,25 @@
       "warnings": "Capacity warnings never block saving. They appear when confirmed attendance exceeds the maximum, or when the number of seats differs from it.",
       "date": "The event's date and time can be changed only to a time in the future.",
       "roles": "Owners and Admins can change the event. Viewers can view it and download exports."
+    },
+    "yours": {
+      "title": "Your Settings",
+      "subtitle": "You can change these at any time.",
+      "nameHint": "Shown to guests on the RSVP page and in your messages."
+    },
+    "venue": {
+      "title": "Venue Details",
+      "subtitle": "The date, place and size of your event.",
+      "maintained": "Maintained by {{venue}}. Contact them to change it.",
+      "maintainedBody": "These details are set by the venue for everyone planning this event.",
+      "dateTime": "Date and Time",
+      "timeZone": "Time zone: {{zone}}",
+      "space": "Space",
+      "address": "Address",
+      "addressNote": "Shown to guests on the RSVP page, with links to Google Maps and Waze.",
+      "maxAttendees": "Maximum Attendees",
+      "people_one": "{{formatted}} person",
+      "people_other": "{{formatted}} people"
     }
   },
   "permissions": {
@@ -2171,5 +2209,63 @@
     "theClient": "the client",
     "rsvpEmptyBody": "The client adds guests after they join.",
     "activitySubtitle": "Latest RSVP responses from the client’s guests."
+  },
+  "clientTeam": {
+    "subtitle": "Manage who can help you plan this event and what they can do.",
+    "about": {
+      "title": "About roles on your side",
+      "body": "The Client Lead manages guests, RSVP, messages and seating, and decides who is on the team. An Editor can do the same, but can’t change the team. A Viewer can view the event and download exports. The date, room and tables are managed by {{venue}}."
+    },
+    "kpis": "Your team by role",
+    "editors": "Editors",
+    "viewers": "Viewers",
+    "yours": {
+      "title": "Your Team",
+      "side": "Client side",
+      "subtitle": "The people helping you plan. You decide who joins and what they can do.",
+      "subtitleView": "The people helping plan this event. The Client Lead decides who joins."
+    },
+    "venue": {
+      "title": "{{venue}} Team",
+      "side": "Venue side",
+      "subtitle": "The venue’s people who can open this event. They are managed by {{venue}}, not by you.",
+      "privacy": "They see guest names, RSVP status, attendees and tables so they can prepare the room. They never see phone numbers or your messages."
+    },
+    "search": "Search by name or email",
+    "roleFilter": "Role",
+    "allRoles": "All Roles",
+    "noMatch": "No one matches this search.",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "since": "Member Since",
+    "actions": "Actions",
+    "noAccount": "No account yet",
+    "pending": "Pending",
+    "invited": "Invited {{date}}",
+    "you": "You",
+    "invite": {
+      "button": "Invite User",
+      "title": "Invite to Your Team",
+      "email": "Email",
+      "send": "Send Invitation",
+      "sent": "{{email}} was added to your team",
+      "note": "Someone with an account joins at once; anyone else joins when they sign up with this address. The demo sends no email.",
+      "alreadyMember": "This person is already on your team",
+      "alreadyInvited": "This address is already invited",
+      "venueMember": "This person is on the venue’s team, so they can’t join yours"
+    },
+    "changeRole": {
+      "button": "Change Role",
+      "named": "Change Role: {{name}}",
+      "title": "Change the role of {{name}}",
+      "save": "Save Role"
+    },
+    "remove": {
+      "named": "Remove: {{name}}",
+      "title": "Remove {{name}}?",
+      "body": "{{name}} will no longer be able to open this event. You can invite them again later.",
+      "confirm": "Remove"
+    }
   }
 }

@@ -904,13 +904,18 @@ Split in two, like Phase 25: **29a, the venue side** (done), then **29b, the cli
 - [x] Event Layout (#18) and Event Settings already follow the actions (Phase 24): tables and map editable, seating view-only; schedule fields editable, name, photo and guest settings read-only.
 - [x] Tests: access, privacy and refusal tests in the demo; page tests; the venue event pages in the accessibility checks (EN/HE/PT, desktop and phone).
 
-**29b: the client side (#13, #14, #15 client, #16)**
+**29b: the client side (#13, #14, #15 client, #16, #23)**
 
-- [ ] The client's My Events with "Managed by" (#13) and the badge in the event.
-- [ ] Event Settings: venue details as text with the contact note; name, photo and their own settings editable (#14, D113).
-- [ ] Event Layout: map view-only with seating active (#16).
-- [ ] Permissions: the lead invites Editors and Viewers; the Client Lead badge (#15 client).
-- [ ] A way to see the client side in the demo (the venue/client switcher of Phase 31, brought forward or a stand-in).
+- [x] The venue/client switcher (#23), brought forward from Phase 31 (owner, 2026-11-28):
+  - `DemoControl.getViewAs` / `setViewAs`; while viewing as the client, the demo's current user is the client lead of the venue's first shared event (Dana Levi; Ana Souza in Brazil);
+  - a "View as" select beside Reset Demo, and a banner with a switch button (on venue pages for the owner, everywhere for the client);
+  - switching stays on the shared event, and otherwise opens the client's event, or returns to My Events.
+- [x] The client's My Events (#13): their venue event with "Managed by", the space and venue, and Client Lead. The sidebar selector names the manager (the space, for the venue).
+- [x] Event Settings (#14): Venue Details as text, with the venue's email and phone and "Maintained by"; Your Settings (name, photo) and the guest settings editable.
+- [x] Event Layout (#16): "Managed by" with "The room and tables are arranged by …", View mode only, seating active, the client's own subtitle and hints.
+- [x] Dashboard: "Managed by" with the date, space and maximum under the title.
+- [x] Permissions (#15, client): the lead's team (Client Lead, Editors, Viewers, pending), Invite User, Change Role and Remove, with search and a role filter; the venue's team read-only with the privacy note. `VenuesService.getClientTeam`, `inviteToClientTeam`, `changeClientTeamRole` and `removeFromClientTeam`, checked by the event role (D121).
+- [x] Tests: the switcher, the client's reads and refusals, the team operations (lead, Editor, the venue refused); page tests; the client's pages in the browser accessibility checks.
 
 ### Phase 30 — Changes that affect the client (mockup #20; #21)
 
@@ -918,7 +923,7 @@ Split in two, like Phase 25: **29a, the venue side** (done), then **29b, the cli
 
 ### Phase 31 — Demo entry and landing (mockups #22–24)
 
-- [ ] "Try Demo" choice, the venue/client switcher in the venue demo, and the landing page's "For venues" section. Venue demo isolation, reset and persistence tests.
+- [ ] "Try Demo" choice and the landing page's "For venues" section. (The venue/client switcher was brought forward to Phase 29b.) Venue demo isolation, reset and persistence tests.
 
 ### Phase 32 — Demo review and release
 
@@ -1853,4 +1858,12 @@ Validation: lint, typecheck, format, build; unit tests 1696 passed; backend doma
 Mockups reviewed: 15_event_permissions_venue_owner, 17_venue_event_guests_*, 19_venue_event_dashboard_*, desktop.
 Follow-ups/risks: the per-table detail rows in the over-capacity warning and "Last change by the client" are not built; the status column still shows "Not Sent". Phase 29b is the client side.
 Next: Phase 29b — the client side (#13, #14, #15 client, #16).
+```
+
+```text
+2026-11-28 — Phase 29b (V2.2) — The client side: the venue/client switcher in the demo (#23, brought forward from Phase 31), the client's My Events with "Managed by" (#13), Event Settings with the venue's details as text (#14), Event Layout with seating only (#16), and the lead's own team on Permissions (#15, D121).
+Validation: lint, typecheck, format, build; unit tests 1716 passed; the venue Playwright tests (desktop and phone, EN/HE/PT accessibility, including the client's pages) against a local venues dev server, 102 passed.
+Mockups reviewed: 13_client_venue_event_card, 14_client_event_settings, 15_event_permissions_client_lead/editor, 16_client_event_layout_*, 23_demo_venue_switcher_*, desktop.
+Follow-ups/risks: the client's personal events (e.g. "Dana's 30th Birthday" in #23) aren't in the demo; the RSVP page language isn't on the client's Event Settings (it stays on RSVP). The backend is Phase 33+.
+Next: Phase 30 — changes that affect the client (#20; #21).
 ```

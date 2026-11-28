@@ -5,9 +5,14 @@ import { useTranslation } from 'react-i18next'
 import type { DemoRole } from '../../services/contracts/index.ts'
 import {
   useDemoRole,
+  useDemoViewAs,
   useResetDemo,
   useSetDemoRole,
+  useSetDemoViewAs,
 } from '../../services/queries.ts'
+import { useLocation, useNavigate } from 'react-router'
+import { ArrowLeftRight, Building2, User } from 'lucide-react'
+import type { DemoView } from '../../services/contracts/index.ts'
 import { useServices } from '../../services/servicesContext.ts'
 import { useFormatters } from '../../i18n/format.ts'
 import { describeError } from '../../shared/errorMessage.ts'
@@ -29,6 +34,95 @@ const OWN_ROLE = 'OWN'
 
 function isDemoRole(value: string): value is DemoRole {
   return (SIMULATED_ROLES as readonly string[]).includes(value)
+}
+
+/**
+ * Switches who the venue demo shows (#23). It stays on the shared event when
+ * both people can open it; anywhere the client can't go, it opens their
+ * event, and the venue's own pages take the demo user back to the venue.
+ */
+function useSwitchDemoView() {
+  const viewAs = useDemoViewAs()
+  const setViewAs = useSetDemoViewAs()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  return {
+    isPending: setViewAs.isPending,
+    run: (view: DemoView) => {
+      const data = viewAs.data
+      if (!data) {
+        return
+      }
+      setViewAs.mutate(view, {
+        onSuccess: () => {
+          const onClientEvent = pathname.startsWith(
+            `/events/${data.client.eventId}/`,
+          )
+          if (view === 'CLIENT' && !onClientEvent) {
+            void navigate(`/events/${data.client.eventId}/dashboard`)
+          } else if (view === 'SELF' && !onClientEvent) {
+            void navigate('/events')
+          }
+        },
+      })
+    },
+  }
+}
+
+/**
+ * Says whose view the venue demo shows, with a way back (#23). Nothing when
+ * the demo has no venues.
+ */
+export function DemoViewBanner({
+  onVenuePage = false,
+}: {
+  /** On the venue's pages the venue owner's view is named too. */
+  onVenuePage?: boolean
+}) {
+  const { t } = useTranslation()
+  const viewAs = useDemoViewAs()
+  const switchView = useSwitchDemoView()
+  const data = viewAs.data
+  const asClient = data?.view === 'CLIENT'
+  if (!data || (!asClient && !onVenuePage)) {
+    return null
+  }
+  return (
+    <div className={styles.viewBanner} role="status">
+      <span className={styles.viewBannerIcon} aria-hidden="true">
+        {asClient ? <User /> : <Building2 />}
+      </span>
+      <div className={styles.viewBannerText}>
+        <p className={styles.viewBannerTitle}>
+          {asClient
+            ? t('demo.viewAs.asClientTitle', { name: data.client.name })
+            : t('demo.viewAs.asSelfTitle')}
+        </p>
+        <p>
+          {asClient
+            ? t('demo.viewAs.asClientBody', {
+                name: data.client.name,
+                venue: data.self.venueName,
+              })
+            : t('demo.viewAs.asSelfBody', {
+                name: data.self.name,
+                venue: data.self.venueName,
+                client: data.client.name,
+              })}
+        </p>
+      </div>
+      <Button
+        variant="ghost"
+        icon={<ArrowLeftRight />}
+        loading={switchView.isPending}
+        onClick={() => switchView.run(asClient ? 'SELF' : 'CLIENT')}
+      >
+        {asClient
+          ? t('demo.viewAs.switchSelf')
+          : t('demo.viewAs.switchClient', { name: data.client.name })}
+      </Button>
+    </div>
+  )
 }
 
 /** Shown on every page while the application runs on demo data. */
@@ -85,6 +179,9 @@ export function DemoTools({
   const { showToast } = useToast()
   const role = useDemoRole()
   const setRole = useSetDemoRole()
+  const viewAs = useDemoViewAs()
+  const switchView = useSwitchDemoView()
+  const asClient = viewAs.data?.view === 'CLIENT'
   const reset = useResetDemo()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -111,7 +208,29 @@ export function DemoTools({
       role="group"
       aria-label={t('demo.toolsLabel')}
     >
-      {showRole && (
+      {viewAs.data && (
+        <div className={styles.viewAs}>
+          <SelectField
+            label={t('demo.viewAs.label')}
+            hideLabel
+            value={viewAs.data.view}
+            disabled={switchView.isPending}
+            onChange={(event) =>
+              switchView.run(
+                event.target.value === 'CLIENT' ? 'CLIENT' : 'SELF',
+              )
+            }
+          >
+            <option value="SELF">
+              {t('demo.viewAs.self', { name: viewAs.data.self.name })}
+            </option>
+            <option value="CLIENT">
+              {t('demo.viewAs.client', { name: viewAs.data.client.name })}
+            </option>
+          </SelectField>
+        </div>
+      )}
+      {showRole && !asClient && (
         <div className={styles.role}>
           <SelectField
             label={t('demo.roleLabel')}
