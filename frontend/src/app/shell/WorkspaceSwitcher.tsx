@@ -90,7 +90,7 @@ export function WorkspaceSwitcher({
   return (
     <div
       ref={containerRef}
-      className={shellStyles.selector}
+      className={cx(shellStyles.selector, styles.root)}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
           setOpen(false)
