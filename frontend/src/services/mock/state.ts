@@ -13,8 +13,10 @@ import type {
   User,
 } from '../../domain/models.ts'
 import type {
+  LayoutTemplate,
   VenueEvent,
   VenueMember,
+  VenueMemberInvitation,
   VenueOrganization,
   VenueSpace,
 } from '../../domain/venues.ts'
@@ -26,7 +28,7 @@ import type { DemoRole } from '../contracts/index.ts'
  * that makes previously stored demo data unusable. Stored data from another
  * version is discarded and regenerated.
  */
-export const DATASET_VERSION = 10
+export const DATASET_VERSION = 11
 
 /** Everything the demo holds, exactly as it is stored in the browser. */
 export interface DemoState {
@@ -61,6 +63,10 @@ export interface DemoState {
   venueMembers?: VenueMember[]
   venueSpaces?: VenueSpace[]
   venueEvents?: VenueEvent[]
+  /** The spaces' layout templates (D111). */
+  layoutTemplates?: LayoutTemplate[]
+  /** People invited to a venue's team who have not joined yet (D112). */
+  venueMemberInvitations?: VenueMemberInvitation[]
 }
 
 export interface StoredDemo {

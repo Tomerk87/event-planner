@@ -87,28 +87,88 @@ test('a venue the visitor does not belong to is not found', async ({
   ).toBeVisible()
 })
 
+const VENUE_PAGES = [
+  ['My Events', VENUE_EVENTS],
+  ['My Spaces', '/venues/org-1/spaces'],
+  ['a space', '/venues/org-1/spaces/spc-1-1'],
+  ['Team', '/venues/org-1/team'],
+  ['Settings', '/venues/org-1/settings'],
+] as const
+
 for (const language of ['en', 'he', 'pt'] as const) {
-  test(`a venue’s My Events in ${language} is accessible and fits the screen`, async ({
-    page,
-  }) => {
-    await page.addInitScript((value) => {
-      window.localStorage.setItem('event-planner.language', value)
-    }, language)
-    await page.goto(VENUE_EVENTS)
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByRole('article').first()).toBeVisible()
+  test.describe(`venue pages in ${language}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript((value) => {
+        window.localStorage.setItem('event-planner.language', value)
+      }, language)
+    })
 
-    await expectNoViolations(page)
-    await expectNoSidewaysScroll(page)
+    for (const [name, path] of VENUE_PAGES) {
+      test(`${name} is accessible and fits the screen`, async ({ page }) => {
+        await page.goto(path)
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+        await expect(page.locator('main')).not.toContainText(/Loading|טוען/)
 
-    // Portuguese opens Brazil's sample venue (D103).
-    const nav = await openNavigation(page)
-    await nav
-      .getByRole('button', { name: /Grand Garden Hall|Espaço Jardim Imperial/ })
-      .click()
-    await expectNoViolations(page)
+        await expectNoViolations(page)
+        await expectNoSidewaysScroll(page)
+      })
+    }
+
+    test('the switcher and the space dialog are accessible', async ({
+      page,
+    }) => {
+      await page.goto(VENUE_EVENTS)
+      await expect(page.getByRole('article').first()).toBeVisible()
+      // Portuguese opens Brazil's sample venue (D103).
+      const nav = await openNavigation(page)
+      await nav
+        .getByRole('button', {
+          name: /Grand Garden Hall|Espaço Jardim Imperial/,
+        })
+        .click()
+      await expectNoViolations(page)
+
+      await page.goto('/venues/org-1/spaces/spc-1-1')
+      await page
+        .getByRole('button', { name: /Edit Space|עריכת חלל|Editar Espaço/ })
+        .click()
+      await expect(page.getByRole('dialog')).toBeVisible()
+      await expectNoViolations(page)
+    })
   })
 }
+
+test('a space is created and opened', async ({ page }) => {
+  await page.goto('/venues/org-1/spaces')
+  await page.getByRole('button', { name: 'Create Space' }).first().click()
+  const dialog = page.getByRole('dialog', { name: 'Create Space' })
+  await dialog.getByRole('textbox', { name: /Space Name/ }).fill('Sky Terrace')
+  await dialog.getByRole('textbox', { name: /Address/ }).fill('1 Sky Road')
+  await dialog.getByRole('textbox', { name: /Maximum People/ }).fill('90')
+  await dialog.getByRole('button', { name: 'Create Space' }).click()
+
+  await page.getByRole('link', { name: 'Open Space: Sky Terrace' }).click()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Sky Terrace' }),
+  ).toBeVisible()
+  await page.reload()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Sky Terrace' }),
+  ).toBeVisible()
+})
+
+test('a Manager sees no Settings', async ({ page }) => {
+  await page.goto('/venues/org-2/team')
+  await expect(
+    page.getByText('Only the venue owner can manage the team.'),
+  ).toBeVisible()
+  const nav = await openNavigation(page)
+  await expect(nav.getByRole('link', { name: 'Settings' })).toHaveCount(0)
+  await page.goto('/venues/org-2/settings')
+  await expect(
+    page.getByRole('heading', { name: 'Page not found' }),
+  ).toBeVisible()
+})
 
 test('the venue list fits a 320px phone', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'a phone width')

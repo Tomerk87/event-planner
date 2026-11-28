@@ -1483,7 +1483,10 @@
     "VENUE_MANAGER": "Gerente"
   },
   "venueNav": {
-    "label": "Navegação do local"
+    "label": "Navegação do local",
+    "spaces": "Meus Espaços",
+    "team": "Equipe",
+    "settings": "Configurações"
   },
   "venueEvents": {
     "subtitle": "Crie eventos nos seus espaços e compartilhe cada um com o seu cliente.",
@@ -1512,6 +1515,262 @@
     "noMatch": {
       "title": "Nenhum evento encontrado",
       "body": "Tente outra busca, espaço ou filtro."
+    }
+  },
+  "venueSpaces": {
+    "title": "Meus Espaços",
+    "subtitle": "Os espaços que você aluga. Cada espaço guarda seus layouts de mesas, prontos para novos eventos.",
+    "create": "Criar Espaço",
+    "tabs": {
+      "label": "Mostrar espaços",
+      "active": "Ativos",
+      "archived": "Arquivados"
+    },
+    "search": {
+      "label": "Buscar espaços",
+      "placeholder": "Buscar espaços…"
+    },
+    "listLabel": "Espaços",
+    "card": {
+      "maxPeople": "máx. de pessoas",
+      "maxTables": "máx. de mesas",
+      "maxTablesHint": "Apenas informativo: um layout com mais mesas só mostra um aviso.",
+      "notSet": "Não definido",
+      "layouts": "layouts",
+      "upcoming": "próximos eventos",
+      "next": "Próximo:",
+      "noLayouts": "Ainda sem layouts. Desenhe um antes de criar eventos aqui.",
+      "open": "Abrir Espaço",
+      "openNamed": "Abrir Espaço: {{name}}",
+      "addLayout": "Adicionar Layout",
+      "actions": "Ações para {{name}}",
+      "edit": "Editar",
+      "archive": "Arquivar",
+      "restore": "Restaurar",
+      "photo": "Foto",
+      "archived": "Arquivado"
+    },
+    "empty": {
+      "title": "Nenhum espaço ainda",
+      "body": "Um espaço é um salão ou área que você aluga, como um salão ou um jardim. Adicione um, desenhe as mesas e já pode criar eventos nele.",
+      "action": "Criar seu primeiro espaço"
+    },
+    "archivedEmpty": {
+      "title": "Nenhum espaço arquivado",
+      "body": "Os espaços que você arquivar aparecem aqui. Você pode restaurá-los a qualquer momento."
+    },
+    "noMatch": {
+      "title": "Nenhum espaço encontrado",
+      "body": "Tente outra busca."
+    },
+    "archivedDone": "Espaço arquivado. Seus eventos mantêm os detalhes.",
+    "restoredDone": "Espaço restaurado.",
+    "soon": "Desenhar layouts chega em breve"
+  },
+  "spaceDialog": {
+    "createTitle": "Criar Espaço",
+    "editTitle": "Editar Espaço",
+    "intro": "Um espaço que você aluga. Depois de criá-lo, você pode desenhar as mesas.",
+    "editNotice": {
+      "title": "As mudanças valem para novos eventos",
+      "body": "Os próximos eventos neste espaço mantêm o endereço e o máximo de pessoas com que foram criados. Para mudar um, abra-o e edite as Configurações do Evento."
+    },
+    "name": "Nome do Espaço",
+    "nameHint": "O nome que sua equipe e seus clientes veem, por exemplo Salão Principal ou Jardim.",
+    "address": "Endereço",
+    "addressHint": "Copiado para cada novo evento neste espaço e mostrado aos convidados na página de RSVP.",
+    "maxPeople": "Máximo de Pessoas",
+    "maxPeopleHint": "Entre 1 e {{max}}. Novos eventos neste espaço começam com este número.",
+    "maxTables": "Máximo de Mesas",
+    "forInformation": "Informativo",
+    "maxTablesHint": "Não é um limite. Um layout com mais mesas mostra um aviso; nada é bloqueado.",
+    "timeZone": "Fuso horário",
+    "timeZoneHint": "As datas e horários dos eventos neste espaço usam este fuso horário.",
+    "timeZoneNoMatch": "Nenhum fuso horário encontrado",
+    "save": "Salvar Alterações",
+    "create": "Criar Espaço",
+    "created": "Espaço criado.",
+    "saved": "Espaço salvo.",
+    "errors": {
+      "name": "Digite um nome de até {{max}} caracteres",
+      "nameDuplicate": "Outro espaço já tem este nome",
+      "address": "Digite o endereço",
+      "maxPeople": "Digite um número inteiro de 1 a {{max}}",
+      "maxTables": "Digite um número inteiro de 1 a {{max}}, ou deixe em branco"
+    },
+    "photo": "Foto do Espaço"
+  },
+  "spaceDetails": {
+    "back": "Meus Espaços",
+    "breadcrumb": "Trilha de navegação",
+    "archive": "Arquivar",
+    "restore": "Restaurar",
+    "edit": "Editar Espaço",
+    "archivedNotice": {
+      "title": "Este espaço está arquivado",
+      "body": "Ele fica oculto na criação de eventos e na lista de ativos em Meus Espaços. Seus eventos não são afetados."
+    },
+    "kpi": {
+      "maxPeople": "Máx. de Pessoas",
+      "people": "pessoas",
+      "maxTables": "Máx. de Mesas",
+      "forInformation": "informativo",
+      "notSet": "Não definido",
+      "layouts": "Layouts",
+      "layoutsUnit": "layouts",
+      "upcoming": "Próximos Eventos",
+      "events": "eventos"
+    },
+    "layouts": {
+      "title": "Layouts",
+      "subtitle": "Arranjos de mesas salvos para este espaço. Cada novo evento recebe sua própria cópia, então editar um layout nunca muda eventos existentes.",
+      "tabsLabel": "Mostrar layouts",
+      "active": "Ativos",
+      "archived": "Arquivados",
+      "add": "Adicionar Layout",
+      "listLabel": "Layouts",
+      "empty": {
+        "title": "Ainda sem layouts",
+        "body": "Desenhe o espaço e suas mesas para criar eventos aqui."
+      },
+      "archivedEmpty": {
+        "title": "Nenhum layout arquivado",
+        "body": "Os layouts que você arquivar aparecem aqui. Eventos criados com eles mantêm a própria cópia."
+      }
+    },
+    "template": {
+      "used": "Próximos eventos que o usam: {{count}}",
+      "unused": "Não usado por próximos eventos",
+      "tables": "mesas",
+      "chairs": "total de cadeiras",
+      "edited": "última edição",
+      "moreChairs": "{{count}} cadeiras a mais que o máximo de pessoas",
+      "chairsFor": "{{chairs}} cadeiras para {{people}} pessoas.",
+      "moreTables": "Mais mesas que o indicado",
+      "tablesNote": "{{tables}} mesas; o espaço indica {{max}} (informativo).",
+      "nothingBlocked": "Nada é bloqueado.",
+      "edit": "Editar",
+      "duplicate": "Duplicar",
+      "duplicated": "Layout duplicado como “{{name}}”.",
+      "archive": "Arquivar o layout {{name}}",
+      "restore": "Restaurar o layout {{name}}",
+      "archivedDone": "Layout arquivado.",
+      "restoredDone": "Layout restaurado.",
+      "createEvent": "Criar Evento com Este Layout",
+      "preview": "Planta de {{name}}",
+      "soonEdit": "Editar layouts chega em breve",
+      "soonCreate": "Criar eventos chega em breve"
+    },
+    "upcoming": {
+      "title": "Próximos Eventos Neste Espaço",
+      "subtitle": "Os eventos mantêm a cópia do layout com que foram criados.",
+      "viewAll": "Ver Todos em Meus Eventos",
+      "caption": "Próximos eventos neste espaço",
+      "columns": {
+        "event": "Evento",
+        "date": "Data",
+        "layout": "Layout",
+        "client": "Cliente",
+        "maxPeople": "Máx. de Pessoas",
+        "status": "Status"
+      },
+      "ownCopy": "Cópia própria",
+      "noLayout": "Sem layout",
+      "noClient": "Ainda sem cliente",
+      "empty": "Ainda não há próximos eventos neste espaço."
+    }
+  },
+  "venueTeam": {
+    "subtitle": "Gerencie quem pode trabalhar em {{name}} e o que pode fazer.",
+    "invite": "Convidar Membro",
+    "rolesNotice": {
+      "title": "Sobre as funções no local",
+      "body": "O Proprietário pode fazer tudo, inclusive gerenciar a equipe e as configurações do local. O Gerente pode criar e editar espaços, layouts e eventos e convidar clientes, mas não pode excluir eventos, gerenciar a equipe nem mudar as configurações do local."
+    },
+    "readOnly": "Só o proprietário do local pode gerenciar a equipe.",
+    "kpi": {
+      "owners": "Proprietários",
+      "managers": "Gerentes",
+      "pending": "Convites Pendentes",
+      "people": "pessoas",
+      "notAccepted": "ainda não aceitos"
+    },
+    "members": {
+      "title": "Membros do Local",
+      "subtitle": "Os membros veem todos os espaços e eventos deste local.",
+      "caption": "Membros do local",
+      "search": {
+        "label": "Buscar membros",
+        "placeholder": "Buscar membros por nome ou e-mail…"
+      },
+      "roleFilter": "Função",
+      "allRoles": "Todas as Funções",
+      "columns": {
+        "name": "Nome",
+        "email": "E-mail",
+        "role": "Função",
+        "since": "Membro Desde",
+        "actions": "Ações"
+      },
+      "you": "Você",
+      "pending": "Pendente",
+      "noAccount": "Ainda sem conta",
+      "invited": "Convidado em {{date}}",
+      "changeRole": "Mudar Função",
+      "changeRoleNamed": "Mudar a função de {{name}}",
+      "remove": "Remover {{name}}",
+      "resend": "Reenviar",
+      "resendNamed": "Reenviar o convite para {{email}}",
+      "cancel": "Cancelar o convite para {{email}}",
+      "showing": "Mostrando {{shown}} de {{total}} pessoas",
+      "noMatch": "Nenhum membro corresponde à busca."
+    },
+    "inviteDialog": {
+      "title": "Convidar Membro",
+      "email": "E-mail",
+      "role": "Função",
+      "send": "Enviar Convite",
+      "sent": "Convite enviado para {{email}}.",
+      "demoNote": "A demonstração não envia e-mail; o convite fica pendente.",
+      "alreadyMember": "Esta pessoa já está na equipe do local.",
+      "alreadyInvited": "Este e-mail já foi convidado para a equipe."
+    },
+    "roleDialog": {
+      "title": "Mudar Função",
+      "role": "Função de {{name}}",
+      "save": "Salvar Função",
+      "saved": "Função alterada."
+    },
+    "removeDialog": {
+      "title": "Remover membro",
+      "body": "{{name}} não poderá mais abrir este local.",
+      "confirm": "Remover",
+      "done": "Membro removido."
+    },
+    "cancelDialog": {
+      "title": "Cancelar convite",
+      "body": "O convite para {{email}} deixará de funcionar.",
+      "confirm": "Cancelar Convite",
+      "done": "Convite cancelado."
+    },
+    "resent": "Convite enviado novamente para {{email}}."
+  },
+  "venueSettings": {
+    "subtitle": "Os dados do seu local. Os clientes veem o contato no evento deles.",
+    "general": "Local",
+    "name": "Nome do Local",
+    "language": "Idioma Padrão",
+    "languageHint": "Novos eventos começam com este idioma de RSVP.",
+    "contact": "Contato para Clientes",
+    "contactHint": "Mostrado aos seus clientes em “Fale com o local”.",
+    "email": "E-mail de Contato",
+    "phone": "Telefone de Contato",
+    "save": "Salvar Alterações",
+    "saved": "Configurações salvas.",
+    "errors": {
+      "name": "Digite um nome de até {{max}} caracteres",
+      "contactEmail": "Digite um e-mail, ou deixe em branco",
+      "contactPhone": "Use até {{max}} caracteres"
     }
   }
 }

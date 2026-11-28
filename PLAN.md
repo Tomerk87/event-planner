@@ -754,8 +754,31 @@ Delivered in two pull requests.
 - [ ] Create Event on a venue's My Events: Phase 27 (the wizard).
 
 **25b: spaces, team and settings (#3–5, #7, #8)**
-- [ ] My Spaces with the empty state, the space dialog and details, archive and restore. Layout templates are listed here; the editor is Phase 26.
-- [ ] Team (Owner manages, Manager read-only), Venue Settings (D117, Owner only).
+- [x] Rules in `domain/venues.ts`:
+  - layout templates (`LayoutTemplate`, `templateFigures`, with chairs and tables beyond the space only warning);
+  - `validateSpaceInput` (a unique name in the venue; people within the event limits);
+  - `validateOrganizationInput` (D117);
+  - `assertCanChangeVenueMember` (Owner only, never oneself, always an Owner).
+- [x] `VenuesService` operations, each with tests:
+  - space summaries and details, create/update/archive/restore a space;
+  - duplicate/archive a template;
+  - the team (list, invite, resend, cancel, change role, remove);
+  - the venue's settings.
+- [x] Demo data, dataset version 11:
+  - templates for each space, drawn from its events' floor plans; venue events linked to the template they came from;
+  - a space with no layouts (Rooftop Lounge) and an archived one (Winter Pavilion);
+  - join dates, two Managers and a pending invitation in Grand Garden Hall.
+- [x] My Spaces (#3): Active/Archived with counts, search, cards with figures and the next event or a "no layouts" warning, an Edit/Archive menu, and the empty states.
+- [x] The create/edit space dialog (#4), with the "Changes apply to new events" notice when editing.
+- [x] Space details (#5):
+  - header with Archive/Restore and Edit;
+  - the archived notice;
+  - 4 figures;
+  - layout cards with a floor-plan preview, figures and warnings, Duplicate and Archive/Restore;
+  - the upcoming events table, as cards on phones.
+- [x] Team (#7): roles notice, figures, members and pending invitations, search and role filter, invite / change role / remove / resend / cancel for the Owner. A Manager sees it read-only.
+- [x] Venue Settings (#8, no mockup): name, default language, contact email and phone. Owner only: hidden from a Manager, and "not found" by address.
+- [ ] Edit and Add Layout wait for the layout editor (Phase 26); Create Event from This Layout for the wizard (Phase 27).
 
 ### Phase 26 — Layout template editor (mockup #6)
 - [ ] Reuse `FloorPlan` / `ArrangementTab` through a "layout source" interface (event or template). Existing Event Layout tests unchanged.
@@ -1657,6 +1680,24 @@ Validation:
 Mockups reviewed: resources/mockups/v2/02_venue_events*.png, desktop and phone, EN and HE screenshots compared.
 Follow-ups/risks: Open Event on venue events waits for Phase 29; Create Event for Phase 27. Watch the flaky guests test on GitHub.
 Next: Phase 25b, spaces, team and settings.
+```
+
+```text
+2026-11-28 — Phase 25b (V2.2) — Spaces, layouts list, team and settings (mockups #3, #4, #5, #7; #8 without a mockup).
+- domain/venues.ts: templates and their figures, space and settings validation, team rules.
+- VenuesService: the 25b operations; mock/mockVenues.ts implements them.
+- Demo data: templates per space, an empty space, an archived space, members with join dates, a pending invitation (dataset version 11).
+- Pages under /venues/:organizationId: spaces, spaces/:spaceId, team, settings (Owner only).
+- SpaceDialog; LayoutPreview; SpaceCover; the photo field takes a label and a placeholder.
+- EN/HE/PT texts.
+Validation:
+- frontend: lint, typecheck, format, build, test:coverage (1615 passed; 95.1% statements; every venue file above 80% of statements, space details 79.5% of branches);
+- backend unit: 818 passed (no backend change);
+- test:api: 65 passed / 2 skipped;
+- Playwright venue projects alone: 47 passed (axe and no sideways scroll on every venue page in EN/HE/PT, desktop and phone; creating a space; the Manager's view). The full local Playwright run was not usable: the computer slept, so the run took 1.5 h and 28 unrelated tests timed out. The pull request's GitHub run is the check.
+Mockups reviewed: resources/mockups/v2/03_*, 05_*, 07_* (desktop and phone), compared with screenshots.
+Follow-ups/risks: Edit layout and Add Layout wait for Phase 26; Create Event from This Layout for Phase 27; the Team mockup's Events Created column is not built (MOCKUP_NOTES).
+Next: Phase 26, the layout template editor.
 ```
 
 **Do not claim a phase is complete merely because files were written or a screenshot looks correct.**

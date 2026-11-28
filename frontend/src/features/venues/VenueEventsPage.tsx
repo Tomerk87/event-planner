@@ -64,6 +64,11 @@ export function VenueEventsPage() {
     update({ [name]: value })
 
   const all = events.data ?? []
+  // Active spaces, and archived ones that still have events.
+  const filterSpaces = (spaces.data ?? []).filter(
+    ({ space }) =>
+      !space.archived || all.some((summary) => summary.space.id === space.id),
+  )
   const needle = query.trim().toLocaleLowerCase(i18n.language)
   const searched = all.filter(
     ({ event, space, client }) =>
@@ -132,7 +137,7 @@ export function VenueEventsPage() {
               }
             >
               <option value={ALL_SPACES}>{t('venueEvents.allSpaces')}</option>
-              {(spaces.data ?? []).map((space) => (
+              {filterSpaces.map(({ space }) => (
                 <option key={space.id} value={space.id}>
                   {space.name}
                 </option>

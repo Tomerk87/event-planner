@@ -1,7 +1,9 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
-import type { VenueSpace } from '../../domain/venues.ts'
 import type {
+  SpaceDetails,
+  SpaceSummary,
   VenueEventSummary,
+  VenueTeam,
   VenueWorkspace,
 } from '../../services/contracts/index.ts'
 import { useServices } from '../../services/servicesContext.ts'
@@ -11,6 +13,13 @@ export const venueKeys = {
   workspace: (organizationId: string) => ['venues', organizationId],
   spaces: (organizationId: string) => ['venues', organizationId, 'spaces'],
   events: (organizationId: string) => ['venues', organizationId, 'events'],
+  space: (organizationId: string, spaceId: string) => [
+    'venues',
+    organizationId,
+    'spaces',
+    spaceId,
+  ],
+  team: (organizationId: string) => ['venues', organizationId, 'team'],
 } as const
 
 /**
@@ -43,7 +52,7 @@ export function useVenueWorkspace(
 
 export function useVenueSpaces(
   organizationId: string,
-): UseQueryResult<VenueSpace[]> {
+): UseQueryResult<SpaceSummary[]> {
   const { venues } = useServices()
   return useQuery({
     queryKey: venueKeys.spaces(organizationId),
@@ -59,6 +68,39 @@ export function useVenueEvents(
   return useQuery({
     queryKey: venueKeys.events(organizationId),
     queryFn: () => venues?.listEvents(organizationId) ?? [],
+    enabled: venues !== null,
+  })
+}
+
+export function useVenueSpace(
+  organizationId: string,
+  spaceId: string,
+): UseQueryResult<SpaceDetails> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.space(organizationId, spaceId),
+    queryFn: () => {
+      if (!venues) {
+        throw new Error('venues are off')
+      }
+      return venues.getSpace(organizationId, spaceId)
+    },
+    enabled: venues !== null,
+  })
+}
+
+export function useVenueTeam(
+  organizationId: string,
+): UseQueryResult<VenueTeam> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.team(organizationId),
+    queryFn: () => {
+      if (!venues) {
+        throw new Error('venues are off')
+      }
+      return venues.getTeam(organizationId)
+    },
     enabled: venues !== null,
   })
 }

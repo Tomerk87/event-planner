@@ -1,0 +1,25 @@
+.preview {
+  display: block;
+  inline-size: 100%;
+  block-size: 9rem;
+  padding: var(--space-3);
+  background: var(--color-surface-muted);
+}
+
+.room {
+  fill: var(--color-surface);
+  stroke: var(--color-border-strong);
+  stroke-width: 12;
+}
+
+.object {
+  fill: var(--color-primary-soft);
+  stroke: var(--color-primary-border);
+  stroke-width: 8;
+}
+
+.table {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 10;
+}

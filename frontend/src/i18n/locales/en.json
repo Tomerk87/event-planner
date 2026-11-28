@@ -1482,7 +1482,10 @@
     "VENUE_MANAGER": "Manager"
   },
   "venueNav": {
-    "label": "Venue navigation"
+    "label": "Venue navigation",
+    "spaces": "My Spaces",
+    "team": "Team",
+    "settings": "Settings"
   },
   "venueEvents": {
     "subtitle": "Create events in your spaces and share each one with your client.",
@@ -1511,6 +1514,262 @@
     "noMatch": {
       "title": "No matching events",
       "body": "Try another search, space or filter."
+    }
+  },
+  "venueSpaces": {
+    "title": "My Spaces",
+    "subtitle": "The rooms you rent out. Each space keeps its table layouts, ready for new events.",
+    "create": "Create Space",
+    "tabs": {
+      "label": "Show spaces",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "search": {
+      "label": "Search spaces",
+      "placeholder": "Search spaces…"
+    },
+    "listLabel": "Spaces",
+    "card": {
+      "maxPeople": "max people",
+      "maxTables": "max tables",
+      "maxTablesHint": "For information only: a layout with more tables only shows a warning.",
+      "notSet": "Not set",
+      "layouts": "layouts",
+      "upcoming": "upcoming events",
+      "next": "Next:",
+      "noLayouts": "No layouts yet. Draw one before creating events here.",
+      "open": "Open Space",
+      "openNamed": "Open Space: {{name}}",
+      "addLayout": "Add Layout",
+      "actions": "Actions for {{name}}",
+      "edit": "Edit",
+      "archive": "Archive",
+      "restore": "Restore",
+      "photo": "Photo",
+      "archived": "Archived"
+    },
+    "empty": {
+      "title": "No spaces yet",
+      "body": "A space is a room or area you rent out, like a hall or a garden. Add one, draw its tables, and you’re ready to create events in it.",
+      "action": "Create your first space"
+    },
+    "archivedEmpty": {
+      "title": "No archived spaces",
+      "body": "Spaces you archive appear here. You can restore them at any time."
+    },
+    "noMatch": {
+      "title": "No matching spaces",
+      "body": "Try another search."
+    },
+    "archivedDone": "Space archived. Its events keep their details.",
+    "restoredDone": "Space restored.",
+    "soon": "Drawing layouts comes soon"
+  },
+  "spaceDialog": {
+    "createTitle": "Create Space",
+    "editTitle": "Edit Space",
+    "intro": "A room you rent out. After you create it, you can draw its tables.",
+    "editNotice": {
+      "title": "Changes apply to new events",
+      "body": "Upcoming events in this space keep the address and maximum people they were created with. To change one, open it and edit its Event Settings."
+    },
+    "name": "Space Name",
+    "nameHint": "The name your team and clients see, e.g. Main Hall or Garden.",
+    "address": "Address",
+    "addressHint": "Copied to each new event in this space and shown to guests on the RSVP page.",
+    "maxPeople": "Maximum People",
+    "maxPeopleHint": "Between 1 and {{max}}. New events in this space start with this number.",
+    "maxTables": "Maximum Tables",
+    "forInformation": "For information",
+    "maxTablesHint": "Not a limit. A layout with more tables shows a warning; nothing is blocked.",
+    "timeZone": "Timezone",
+    "timeZoneHint": "Event dates and times in this space use this time zone.",
+    "timeZoneNoMatch": "No matching time zone",
+    "save": "Save Changes",
+    "create": "Create Space",
+    "created": "Space created.",
+    "saved": "Space saved.",
+    "errors": {
+      "name": "Enter a name of up to {{max}} characters",
+      "nameDuplicate": "Another space already has this name",
+      "address": "Enter the address",
+      "maxPeople": "Enter a whole number from 1 to {{max}}",
+      "maxTables": "Enter a whole number from 1 to {{max}}, or leave it empty"
+    },
+    "photo": "Space Photo"
+  },
+  "spaceDetails": {
+    "back": "My Spaces",
+    "breadcrumb": "Breadcrumb",
+    "archive": "Archive",
+    "restore": "Restore",
+    "edit": "Edit Space",
+    "archivedNotice": {
+      "title": "This space is archived",
+      "body": "It is hidden from creating events and from the Active list on My Spaces. Its events are not affected."
+    },
+    "kpi": {
+      "maxPeople": "Max People",
+      "people": "people",
+      "maxTables": "Max Tables",
+      "forInformation": "for information",
+      "notSet": "Not set",
+      "layouts": "Layouts",
+      "layoutsUnit": "layouts",
+      "upcoming": "Upcoming Events",
+      "events": "events"
+    },
+    "layouts": {
+      "title": "Layouts",
+      "subtitle": "Saved table arrangements for this room. Each new event gets its own copy, so editing a layout never changes existing events.",
+      "tabsLabel": "Show layouts",
+      "active": "Active",
+      "archived": "Archived",
+      "add": "Add Layout",
+      "listLabel": "Layouts",
+      "empty": {
+        "title": "No layouts yet",
+        "body": "Draw the room and its tables to create events here."
+      },
+      "archivedEmpty": {
+        "title": "No archived layouts",
+        "body": "Layouts you archive appear here. Events made from them keep their own copy."
+      }
+    },
+    "template": {
+      "used": "Upcoming events using it: {{count}}",
+      "unused": "Not used by upcoming events",
+      "tables": "tables",
+      "chairs": "total chairs",
+      "edited": "last edited",
+      "moreChairs": "{{count}} more chairs than max people",
+      "chairsFor": "{{chairs}} chairs for {{people}} people.",
+      "moreTables": "More tables than noted",
+      "tablesNote": "{{tables}} tables; the space notes {{max}} (for information).",
+      "nothingBlocked": "Nothing is blocked.",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "duplicated": "Layout duplicated as “{{name}}”.",
+      "archive": "Archive layout {{name}}",
+      "restore": "Restore layout {{name}}",
+      "archivedDone": "Layout archived.",
+      "restoredDone": "Layout restored.",
+      "createEvent": "Create Event from This Layout",
+      "preview": "Floor plan of {{name}}",
+      "soonEdit": "Editing layouts comes soon",
+      "soonCreate": "Creating events comes soon"
+    },
+    "upcoming": {
+      "title": "Upcoming Events in This Space",
+      "subtitle": "Events keep the copy of the layout they were created from.",
+      "viewAll": "View All in My Events",
+      "caption": "Upcoming events in this space",
+      "columns": {
+        "event": "Event",
+        "date": "Date",
+        "layout": "Layout",
+        "client": "Client",
+        "maxPeople": "Max People",
+        "status": "Status"
+      },
+      "ownCopy": "Own copy",
+      "noLayout": "No layout",
+      "noClient": "No client yet",
+      "empty": "No upcoming events in this space yet."
+    }
+  },
+  "venueTeam": {
+    "subtitle": "Manage who can work in {{name}} and what they can do.",
+    "invite": "Invite Member",
+    "rolesNotice": {
+      "title": "About venue roles",
+      "body": "An Owner can do everything, including managing the team and venue settings. A Manager can create and edit spaces, layouts and events, and invite clients, but cannot delete events, manage the team or change venue settings."
+    },
+    "readOnly": "Only the venue owner can manage the team.",
+    "kpi": {
+      "owners": "Owners",
+      "managers": "Managers",
+      "pending": "Pending Invitations",
+      "people": "people",
+      "notAccepted": "not accepted yet"
+    },
+    "members": {
+      "title": "Venue Members",
+      "subtitle": "Members can see every space and event in this venue.",
+      "caption": "Venue members",
+      "search": {
+        "label": "Search members",
+        "placeholder": "Search members by name or email…"
+      },
+      "roleFilter": "Role",
+      "allRoles": "All Roles",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "since": "Member Since",
+        "actions": "Actions"
+      },
+      "you": "You",
+      "pending": "Pending",
+      "noAccount": "No account yet",
+      "invited": "Invited {{date}}",
+      "changeRole": "Change Role",
+      "changeRoleNamed": "Change role of {{name}}",
+      "remove": "Remove {{name}}",
+      "resend": "Resend",
+      "resendNamed": "Resend the invitation to {{email}}",
+      "cancel": "Cancel the invitation to {{email}}",
+      "showing": "Showing {{shown}} of {{total}} people",
+      "noMatch": "No members match your search."
+    },
+    "inviteDialog": {
+      "title": "Invite Member",
+      "email": "Email",
+      "role": "Role",
+      "send": "Send Invitation",
+      "sent": "Invitation sent to {{email}}.",
+      "demoNote": "The demo sends no email; the invitation waits as pending.",
+      "alreadyMember": "This person is already on the venue’s team.",
+      "alreadyInvited": "This email is already invited to the team."
+    },
+    "roleDialog": {
+      "title": "Change Role",
+      "role": "Role for {{name}}",
+      "save": "Save Role",
+      "saved": "Role changed."
+    },
+    "removeDialog": {
+      "title": "Remove member",
+      "body": "{{name}} will no longer be able to open this venue.",
+      "confirm": "Remove",
+      "done": "Member removed."
+    },
+    "cancelDialog": {
+      "title": "Cancel invitation",
+      "body": "The invitation to {{email}} will stop working.",
+      "confirm": "Cancel Invitation",
+      "done": "Invitation cancelled."
+    },
+    "resent": "Invitation sent again to {{email}}."
+  },
+  "venueSettings": {
+    "subtitle": "Your venue’s details. Clients see the contact details on their event.",
+    "general": "Venue",
+    "name": "Venue Name",
+    "language": "Default Language",
+    "languageHint": "New events start with this RSVP language.",
+    "contact": "Contact for Clients",
+    "contactHint": "Shown to your clients in “Contact the venue”.",
+    "email": "Contact Email",
+    "phone": "Contact Phone",
+    "save": "Save Changes",
+    "saved": "Settings saved.",
+    "errors": {
+      "name": "Enter a name of up to {{max}} characters",
+      "contactEmail": "Enter an email address, or leave it empty",
+      "contactPhone": "Use up to {{max}} characters"
     }
   }
 }

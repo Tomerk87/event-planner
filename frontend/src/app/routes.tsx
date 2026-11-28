@@ -102,6 +102,38 @@ export const routes: RouteObject[] = [
                   ).VenueEventsPage,
                 }),
               },
+              {
+                path: 'spaces',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueSpacesPage.tsx')
+                  ).VenueSpacesPage,
+                }),
+              },
+              {
+                path: 'spaces/:spaceId',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueSpaceDetailsPage.tsx')
+                  ).VenueSpaceDetailsPage,
+                }),
+              },
+              {
+                path: 'team',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueTeamPage.tsx')
+                  ).VenueTeamPage,
+                }),
+              },
+              {
+                path: 'settings',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueSettingsPage.tsx')
+                  ).VenueSettingsPage,
+                }),
+              },
             ],
           },
           {

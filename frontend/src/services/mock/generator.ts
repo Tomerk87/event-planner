@@ -30,7 +30,7 @@ import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import { messageValuesFor } from './messageValues.ts'
 import type { DemoState } from './state.ts'
 import type {
-  VenueEvent,
+  LayoutTemplate,
   VenueMemberRole,
   VenueSpace,
 } from '../../domain/venues.ts'
@@ -968,8 +968,19 @@ interface VenueSpec {
   role: VenueMemberRole
   contactEmail: string
   contactPhone: string
-  spaces: Pick<VenueSpace, 'name' | 'address' | 'maxPeople' | 'maxTables'>[]
+  spaces: SpaceSpec[]
   events: VenueEventSpec[]
+  /** Someone invited to the team who has not joined yet. */
+  invitedEmail?: string
+}
+
+interface SpaceSpec extends Pick<
+  VenueSpace,
+  'name' | 'address' | 'maxPeople' | 'maxTables'
+> {
+  archived?: boolean
+  /** Its layout templates, each drawn from one of its events (D111). */
+  templates: { name: string; archived?: boolean }[]
 }
 
 /** The venue part of a market's sample data (V2.2). */
@@ -1006,18 +1017,41 @@ const VENUE_PACKS: Record<Country, VenuePack> = {
         role: 'VENUE_OWNER',
         contactEmail: 'events@grandgardenhall.example.com',
         contactPhone: '03-000-0000',
+        invitedEmail: 'daniel.mor@example.com',
         spaces: [
           {
             name: 'Main Hall',
             address: '12 Orchard Lane, Ramat Gan',
             maxPeople: 400,
             maxTables: 45,
+            templates: [
+              { name: 'Wedding Rounds' },
+              { name: 'Gala Long Tables' },
+              { name: 'Bar Mitzvah Mixed' },
+              { name: 'Classic Rounds', archived: true },
+            ],
           },
           {
             name: 'Garden',
             address: '12 Orchard Lane, Ramat Gan',
             maxPeople: 250,
             maxTables: 25,
+            templates: [{ name: 'Garden Rounds' }, { name: 'Cocktail Mix' }],
+          },
+          {
+            name: 'Rooftop Lounge',
+            address: '12 Orchard Lane, Ramat Gan (5th floor)',
+            maxPeople: 120,
+            maxTables: null,
+            templates: [],
+          },
+          {
+            name: 'Winter Pavilion',
+            address: '12 Orchard Lane, Ramat Gan',
+            maxPeople: 200,
+            maxTables: 20,
+            archived: true,
+            templates: [{ name: 'Pavilion Rounds' }],
           },
         ],
         events: [
@@ -1150,6 +1184,7 @@ const VENUE_PACKS: Record<Country, VenuePack> = {
             address: '5 Promenade Street, Herzliya',
             maxPeople: 180,
             maxTables: 18,
+            templates: [{ name: 'Terrace Classic' }],
           },
         ],
         events: [
@@ -1183,18 +1218,41 @@ const VENUE_PACKS: Record<Country, VenuePack> = {
         role: 'VENUE_OWNER',
         contactEmail: 'eventos@jardimimperial.example.com',
         contactPhone: '(11) 0000-0000',
+        invitedEmail: 'joao.pereira@example.com',
         spaces: [
           {
             name: 'Salão Principal',
             address: 'Rua das Laranjeiras, 120, São Paulo',
             maxPeople: 400,
             maxTables: 45,
+            templates: [
+              { name: 'Casamento Redondas' },
+              { name: 'Gala Mesas Longas' },
+              { name: 'Festa Mista' },
+              { name: 'Redondas Clássicas', archived: true },
+            ],
           },
           {
             name: 'Jardim',
             address: 'Rua das Laranjeiras, 120, São Paulo',
             maxPeople: 250,
             maxTables: 25,
+            templates: [{ name: 'Jardim Redondas' }, { name: 'Coquetel' }],
+          },
+          {
+            name: 'Lounge da Cobertura',
+            address: 'Rua das Laranjeiras, 120, São Paulo (5º andar)',
+            maxPeople: 120,
+            maxTables: null,
+            templates: [],
+          },
+          {
+            name: 'Pavilhão de Inverno',
+            address: 'Rua das Laranjeiras, 120, São Paulo',
+            maxPeople: 200,
+            maxTables: 20,
+            archived: true,
+            templates: [{ name: 'Pavilhão Redondas' }],
           },
         ],
         events: [
@@ -1327,6 +1385,7 @@ const VENUE_PACKS: Record<Country, VenuePack> = {
             address: 'Avenida Atlântica, 500, Rio de Janeiro',
             maxPeople: 180,
             maxTables: 18,
+            templates: [{ name: 'Terraço Clássico' }],
           },
         ],
         events: [
@@ -1369,7 +1428,8 @@ function addDemoVenues(
 ): void {
   const venuePack = VENUE_PACKS[market]
   const random = createRandom(venuePack.seed)
-  const firstIndex = state.events.length
+  const daysAgo = (days: number) =>
+    new Date(now.getTime() - days * DAY_MS).toISOString()
   const memberIds = venuePack.members.map((_name, index) => `usr-v${index + 1}`)
   state.users.push(
     ...createUsers({ ...pack, users: venuePack.members }).map(
@@ -1383,8 +1443,10 @@ function addDemoVenues(
   state.venueMembers = []
   state.venueSpaces = []
   state.venueEvents = []
+  state.layoutTemplates = []
+  state.venueMemberInvitations = []
 
-  let eventIndex = firstIndex
+  let eventIndex = state.events.length
   venuePack.venues.forEach((venue, venueNumber) => {
     const organizationId = `org-${venueNumber + 1}`
     state.organizations?.push({
@@ -1394,30 +1456,49 @@ function addDemoVenues(
       contactEmail: venue.contactEmail,
       contactPhone: venue.contactPhone,
     })
-    // The demo user, and one colleague with the other role.
-    const colleague = memberIds[venueNumber % memberIds.length]
+    // The demo user, and colleagues: Managers of a venue the demo user owns,
+    // its Owner where the demo user is a Manager.
     state.venueMembers?.push({
       organizationId,
       userId: state.currentUserId,
       role: venue.role,
+      since: daysAgo(270 - venueNumber * 60),
     })
-    if (colleague) {
+    const colleagues =
+      venue.role === 'VENUE_OWNER' ? memberIds : memberIds.slice(-1)
+    colleagues.forEach((userId, position) => {
       state.venueMembers?.push({
         organizationId,
-        userId: colleague,
+        userId,
         role: venue.role === 'VENUE_OWNER' ? 'VENUE_MANAGER' : 'VENUE_OWNER',
+        since: daysAgo(220 - position * 90),
+      })
+    })
+    if (venue.invitedEmail) {
+      state.venueMemberInvitations?.push({
+        organizationId,
+        email: venue.invitedEmail,
+        role: 'VENUE_MANAGER',
+        sentAt: daysAgo(3),
       })
     }
     const spaces: VenueSpace[] = venue.spaces.map((space, spaceNumber) => ({
       id: `spc-${venueNumber + 1}-${spaceNumber + 1}`,
       organizationId,
-      ...space,
+      name: space.name,
+      address: space.address,
+      maxPeople: space.maxPeople,
+      maxTables: space.maxTables,
       timeZone: pack.timeZone,
       photo: null,
-      archived: false,
+      archived: space.archived ?? false,
     }))
     state.venueSpaces?.push(...spaces)
 
+    // Each event, and the tables it has, by space: the templates are drawn
+    // from them.
+    const drawn: { spaceIndex: number; event: Event; tables: EventTable[] }[] =
+      []
     for (const spec of venue.events) {
       const space = spaces[spec.space]
       if (!space) {
@@ -1447,7 +1528,8 @@ function addDemoVenues(
       const { client } = spec
       const sentAt =
         client && new Date(now.getTime() - client.sentDaysAgo * DAY_MS)
-      const record: VenueEvent = {
+      state.events.push(event)
+      state.venueEvents?.push({
         eventId: event.id,
         organizationId,
         spaceId: space.id,
@@ -1464,9 +1546,7 @@ function addDemoVenues(
                     : null,
               }
             : null,
-      }
-      state.events.push(event)
-      state.venueEvents?.push(record)
+      })
       state.guests.push(...data.guests)
       state.tables.push(...data.tables)
       state.layouts.push(createLayout(event, data.tables, true))
@@ -1474,9 +1554,81 @@ function addDemoVenues(
       state.messageSends.push(...data.sends)
       state.rsvpSettings.push(defaultRsvpSettings(event))
       state.messageTemplates.push(defaultMessageTemplate(event))
+      drawn.push({ spaceIndex: spec.space, event, tables: data.tables })
       eventIndex += 1
     }
+
+    venue.spaces.forEach((spaceSpec, spaceIndex) => {
+      const space = spaces[spaceIndex]
+      if (!space) {
+        return
+      }
+      const own = drawn.filter((item) => item.spaceIndex === spaceIndex)
+      // A space with no events of its own borrows the venue's tables.
+      const sources = own.length > 0 ? own : drawn
+      spaceSpec.templates.forEach((templateSpec, templateNumber) => {
+        const source = sources[templateNumber % sources.length]
+        if (!source) {
+          return
+        }
+        const template = templateFrom(
+          `tpl-${venueNumber + 1}-${spaceIndex + 1}-${templateNumber + 1}`,
+          space.id,
+          templateSpec.name,
+          source.event,
+          source.tables,
+          daysAgo(templateNumber * 23 + 1),
+          templateSpec.archived ?? false,
+        )
+        state.layoutTemplates?.push(template)
+        // The event this template was drawn from was created from it.
+        const record = state.venueEvents?.find(
+          (venueEvent) =>
+            venueEvent.eventId === source.event.id &&
+            venueEvent.templateId === null,
+        )
+        if (record && own.length > 0 && !template.archived) {
+          record.templateId = template.id
+        }
+      })
+    })
   })
+}
+
+/** A layout template drawn from an event's tables and floor plan. */
+function templateFrom(
+  id: string,
+  spaceId: string,
+  name: string,
+  event: Event,
+  tables: readonly EventTable[],
+  updatedAt: string,
+  archived: boolean,
+): LayoutTemplate {
+  const layout = createLayout(event, tables, false)
+  return {
+    id,
+    spaceId,
+    name,
+    roomWidth: layout.roomWidth,
+    roomDepth: layout.roomDepth,
+    tables: tables.map((table) => {
+      const placement = layout.placements.find(
+        (candidate) => candidate.tableId === table.id,
+      )
+      return {
+        number: table.number,
+        capacity: table.capacity,
+        shape: table.shape,
+        x: placement?.x ?? null,
+        y: placement?.y ?? null,
+        rotation: placement?.rotation ?? 0,
+      }
+    }),
+    objects: layout.objects.map((object) => ({ ...object })),
+    updatedAt,
+    archived,
+  }
 }
 
 export function demoMarketFor(language: string): Country {

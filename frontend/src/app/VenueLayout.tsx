@@ -1,7 +1,8 @@
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, Map as MapIcon, Settings, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useParams } from 'react-router'
 import { isDomainError } from '../domain/errors.ts'
+import { venueCan } from '../domain/venues.ts'
 import {
   useVenueWorkspace,
   useVenueWorkspaces,
@@ -48,6 +49,18 @@ export function VenueLayout() {
       }}
       navItems={[
         { to: `${base}/events`, label: t('nav.myEvents'), icon: CalendarDays },
+        { to: `${base}/spaces`, label: t('venueNav.spaces'), icon: MapIcon },
+        { to: `${base}/team`, label: t('venueNav.team'), icon: Users },
+        // Settings are the Owner's; a Manager does not see them (D112).
+        ...(venueCan(workspace.data?.role ?? null, 'MANAGE_SETTINGS')
+          ? [
+              {
+                to: `${base}/settings`,
+                label: t('venueNav.settings'),
+                icon: Settings,
+              },
+            ]
+          : []),
       ]}
       user={user.data && { name: user.data.name }}
       onSignOut={signOut}

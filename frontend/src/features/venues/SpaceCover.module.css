@@ -1,0 +1,52 @@
+.cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--color-on-primary);
+}
+
+.card {
+  block-size: 9.5rem;
+}
+
+.tile {
+  inline-size: 7.5rem;
+  block-size: 5.5rem;
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+.tile .initials {
+  font-size: 2rem;
+}
+
+.gradient0 {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+}
+
+.gradient1 {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+}
+
+.gradient2 {
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+}
+
+.gradient3 {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
