@@ -1,6 +1,6 @@
 import { assertEmail } from './accounts.ts'
 import { assertIntegerInRange, assertNonEmpty, DomainError } from './errors.ts'
-import { isEventPast, isValidTimeZone } from './eventTime.ts'
+import { isEventPast, isValidTimeZone, toLocalDateTime } from './eventTime.ts'
 import { EVENT_LIMITS, validateCoverImage } from './events.ts'
 import {
   DEFAULT_FLOOR_IMAGE,
@@ -490,5 +490,94 @@ export function assertCanChangeVenueMember(
     owners.length <= 1
   ) {
     throw new DomainError('LAST_OWNER')
+  }
+}
+
+/** What a venue enters to create an event (the wizard, mockup #9). */
+export interface VenueEventInput {
+  spaceId: Id
+  templateId: Id
+  name: string
+  startsAt: IsoDateTime
+  /** A JPEG or PNG data address; null for the generated cover. */
+  coverImage?: string | null
+  /** Invites the client now; left empty, they are invited later. */
+  clientEmail?: string | null
+}
+
+/** Whether two instants fall on the same day in a time zone. */
+export function isSameLocalDay(
+  a: IsoDateTime,
+  b: IsoDateTime,
+  timeZone: string,
+): boolean {
+  const first = toLocalDateTime(new Date(a), timeZone)
+  const second = toLocalDateTime(new Date(b), timeZone)
+  return (
+    first.year === second.year &&
+    first.month === second.month &&
+    first.day === second.day
+  )
+}
+
+/**
+ * The events of a space on the same day as a new one (D111, Q12): a warning
+ * only, never a block. The day is the space's own.
+ */
+export function sameDayEvents<Item extends { startsAt: IsoDateTime }>(
+  events: readonly Item[],
+  startsAt: IsoDateTime,
+  timeZone: string,
+): Item[] {
+  return events.filter((event) =>
+    isSameLocalDay(event.startsAt, startsAt, timeZone),
+  )
+}
+
+/**
+ * An event's own copy of a template (D111): its tables with new ids, in the
+ * same places, and the room, picture and objects. Nothing links them after,
+ * so changing the template never changes the event.
+ */
+export function copyTemplateToEvent(
+  template: LayoutTemplate,
+  eventId: Id,
+  newTableId: () => Id,
+): { tables: EventTable[]; layout: EventLayout } {
+  const copies = template.tables.map((table) => ({
+    table: {
+      id: newTableId(),
+      eventId,
+      number: table.number,
+      capacity: table.capacity,
+      shape: table.shape,
+    },
+    place: table,
+  }))
+  return {
+    tables: copies.map(({ table }) => table),
+    layout: {
+      eventId,
+      roomWidth: template.roomWidth,
+      roomDepth: template.roomDepth,
+      floorImage: template.floorImage,
+      floorImageTransparency: template.floorImageTransparency,
+      floorImageZoom: template.floorImageZoom,
+      floorImageRotation: template.floorImageRotation,
+      placements: copies.flatMap(({ table, place }) =>
+        place.x === null || place.y === null
+          ? []
+          : [
+              {
+                tableId: table.id,
+                x: place.x,
+                y: place.y,
+                rotation: place.rotation,
+              },
+            ],
+      ),
+      objects: template.objects.map((object) => ({ ...object })),
+      version: 0,
+    },
   }
 }

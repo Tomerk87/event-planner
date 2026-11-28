@@ -1,5 +1,11 @@
 import { assertEmail } from '../../domain/accounts.ts'
 import { DomainError } from '../../domain/errors.ts'
+import {
+  assertStartsInFuture,
+  EVENT_LIMITS,
+  validateCoverImage,
+  validateEventInput,
+} from '../../domain/events.ts'
 import { isEventPast } from '../../domain/eventTime.ts'
 import { computeDashboardMetrics } from '../../domain/metrics.ts'
 import {
@@ -11,6 +17,7 @@ import { validateTableInput, type TableInput } from '../../domain/seating.ts'
 import {
   applyLayoutToTemplate,
   assertCanChangeVenueMember,
+  copyTemplateToEvent,
   emptyTemplate,
   invitationExpiresAt,
   templateTables,
@@ -32,6 +39,7 @@ import type {
   VenuesService,
   VenueWorkspace,
 } from '../contracts/index.ts'
+import { defaultMessageTemplate, defaultRsvpSettings } from './defaults.ts'
 import type { DemoState } from './state.ts'
 
 /** What the venue operations need from the demo provider they belong to. */
@@ -548,6 +556,77 @@ export function createMockVenues(context: MockVenueContext): VenuesService {
       run('venues.removeTemplateTable', () =>
         changeTable(organizationId, templateId, number, null),
       ),
+
+    createEvent: (organizationId, input) =>
+      run('venues.createEvent', () => {
+        const { organization } = authorize(organizationId, 'MANAGE_EVENTS')
+        const space = spaceOf(organizationId, input.spaceId)
+        const template = templateOf(organizationId, input.templateId)
+        if (
+          space.archived ||
+          template.archived ||
+          template.spaceId !== space.id
+        ) {
+          throw new DomainError('VALIDATION', { field: 'templateId' })
+        }
+        // The space gives the place, size and time zone (D111, D113).
+        const fields = validateEventInput({
+          name: input.name,
+          startsAt: input.startsAt,
+          timeZone: space.timeZone,
+          maxAttendees: space.maxPeople,
+          defaultAllowedAttendees: EVENT_LIMITS.allowedAttendees.default,
+          rsvpLanguage: organization.defaultLanguage,
+          country: organization.defaultLanguage === 'pt' ? 'BR' : 'IL',
+          location: space.address,
+        })
+        const coverImage = validateCoverImage(input.coverImage ?? null)
+        assertStartsInFuture(fields.startsAt, now())
+        const email = input.clientEmail?.trim()
+          ? assertEmail(input.clientEmail)
+          : null
+        const id = context.newId('evt')
+        const event: Event = {
+          ...fields,
+          id,
+          coverImage,
+          rsvpSlug: `${id}-${Date.parse(fields.startsAt).toString(36)}`,
+        }
+        const { tables, layout } = copyTemplateToEvent(template, id, () =>
+          context.newId('tbl'),
+        )
+        const data = state()
+        context.commit({
+          ...data,
+          events: [...data.events, event],
+          venueEvents: [
+            ...(data.venueEvents ?? []),
+            {
+              eventId: id,
+              organizationId,
+              spaceId: space.id,
+              templateId: template.id,
+              // The demo sends no email; the invitation waits as sent (D115).
+              client: email
+                ? {
+                    name: email,
+                    email,
+                    sentAt: now().toISOString(),
+                    acceptedAt: null,
+                  }
+                : null,
+            },
+          ],
+          tables: [...data.tables, ...tables],
+          layouts: [...data.layouts, layout],
+          rsvpSettings: [...data.rsvpSettings, defaultRsvpSettings(event)],
+          messageTemplates: [
+            ...data.messageTemplates,
+            defaultMessageTemplate(event),
+          ],
+        })
+        return event
+      }),
 
     listEvents: (organizationId) =>
       run('venues.listEvents', () => {

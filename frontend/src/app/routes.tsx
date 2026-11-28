@@ -103,6 +103,14 @@ export const routes: RouteObject[] = [
                 }),
               },
               {
+                path: 'events/new',
+                lazy: async () => ({
+                  Component: (
+                    await import('../features/venues/VenueCreateEventPage.tsx')
+                  ).VenueCreateEventPage,
+                }),
+              },
+              {
                 path: 'spaces',
                 lazy: async () => ({
                   Component: (

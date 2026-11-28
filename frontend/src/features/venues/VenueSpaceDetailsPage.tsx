@@ -76,6 +76,7 @@ function TemplateCard({
 }) {
   const { t } = useTranslation()
   const format = useFormatters()
+  const { organizationId = '' } = useParams()
   const { template, figures, upcomingEventCount } = summary
   const warn = figures.extraChairs > 0 || figures.extraTables > 0
 
@@ -173,14 +174,13 @@ function TemplateCard({
               </IconButton>
             </div>
             {!template.archived && !space.archived && (
-              <Button
+              <ButtonLink
+                to={`/venues/${organizationId}/events/new?space=${space.id}&layout=${template.id}`}
                 icon={<CalendarPlus />}
-                fullWidth
-                disabled
-                title={t('spaceDetails.template.soonCreate')}
+                label={`${t('spaceDetails.template.createEvent')}: ${template.name}`}
               >
                 {t('spaceDetails.template.createEvent')}
-              </Button>
+              </ButtonLink>
             )}
           </div>
         )}
@@ -527,7 +527,7 @@ export function VenueSpaceDetailsPage() {
             </p>
           </div>
           <ButtonLink
-            to={`../../events?space=${space.id}`}
+            to={`/venues/${organizationId}/events?space=${space.id}`}
             variant="soft"
             icon={<ArrowRight />}
             iconPosition="end"

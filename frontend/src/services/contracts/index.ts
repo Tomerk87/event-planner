@@ -40,6 +40,7 @@ import type {
   OrganizationInput,
   SpaceInput,
   TemplateFigures,
+  VenueEventInput,
   VenueEventStatus,
   VenueMemberInvitation,
   VenueMemberRole,
@@ -655,6 +656,13 @@ export interface VenuesService {
   ): Promise<LayoutTemplate>
   /** The venue's events: upcoming soonest first, then past most recent first. */
   listEvents(organizationId: Id): Promise<VenueEventSummary[]>
+  /**
+   * Creates an event in a space from one of its layouts (the wizard, mockup
+   * #9). It gets its own copy of the layout and the space's address, time
+   * zone and maximum people; no guests (D111). With a client email, the
+   * client is invited at once.
+   */
+  createEvent(organizationId: Id, input: VenueEventInput): Promise<Event>
   /** Members and pending invitations; every member can see them. */
   getTeam(organizationId: Id): Promise<VenueTeam>
   /** Invites someone by email (the Owner only). */

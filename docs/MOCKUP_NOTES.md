@@ -33,12 +33,12 @@ Built in Phase 4 from `landing_page.png` and `landing_page_mobile.png`. Owner-de
 - **"How it works"** is a header link with no matching section. Not built; listed in `docs/FUTURE_FEATURES.md`. "Features" scrolls to the feature cards.
 - **Wording adjusted to the MVP** (owner approved with the Phase 4 plan, 2026-10-13):
 
-  | Mockup text | Built text | Why |
-  |---|---|---|
-  | "Send beautiful WhatsApp invitations and reminders directly from the app." | "Write your invitation once and open it in WhatsApp for each guest, ready to send." | The MVP opens WhatsApp for the organizer to send; reminders are out of scope (PRD §7.1, §17) |
-  | "Design your seating plan, manage tables, and easily assign guests." | "Set up your tables and assign confirmed guests, with capacity checked for you." | The visual seating plan was deferred when written; it was built in Phase 20 (PRD §11.4, D100) |
-  | "Track responses in real time and see who's coming, pending or not attending." | "One RSVP link per event. See who is coming, who is not sure and who declined." | Uses the product's own statuses; nothing is pushed in real time |
-  | "…a fully populated event and real sample data." | "…fully populated events and fictional sample data." | Demo data is fictional by rule (`AGENTS.md`), and there are several demo events |
+  | Mockup text                                                                    | Built text                                                                          | Why                                                                                           |
+  | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+  | "Send beautiful WhatsApp invitations and reminders directly from the app."     | "Write your invitation once and open it in WhatsApp for each guest, ready to send." | The MVP opens WhatsApp for the organizer to send; reminders are out of scope (PRD §7.1, §17)  |
+  | "Design your seating plan, manage tables, and easily assign guests."           | "Set up your tables and assign confirmed guests, with capacity checked for you."    | The visual seating plan was deferred when written; it was built in Phase 20 (PRD §11.4, D100) |
+  | "Track responses in real time and see who's coming, pending or not attending." | "One RSVP link per event. See who is coming, who is not sure and who declined."     | Uses the product's own statuses; nothing is pushed in real time                               |
+  | "…a fully populated event and real sample data."                               | "…fully populated events and fictional sample data."                                | Demo data is fictional by rule (`AGENTS.md`), and there are several demo events               |
 
 - The mockup text contains a typo ("res:ponses"), not copied.
 - The headline's second line is a gradient in the mockup; it is built in the solid primary colour so its contrast can be verified.
@@ -126,7 +126,7 @@ Found while building (Phase 6):
 
 - The mockup gives each table a **name** ("Family", "Friends"). **Decided (2026-10-13):** a table has only a number, a capacity and a shape; names are not built.
 
-- Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decided (2026-10-13, D22):** Over Capacity above the chairs; Full with no seat free, a label the mockup does not draw; Almost Full with 1 or 2 seats free; Ready otherwise. *Renamed (owner, 2026-11-25, D108): Ready is shown as **Available Seats**.*
+- Table status labels **Ready / Almost Full / Over Capacity** have no defined thresholds. In the mockup a full table (10 of 10) is "Ready" while 11 of 12 is "Almost Full". **Decided (2026-10-13, D22):** Over Capacity above the chairs; Full with no seat free, a label the mockup does not draw; Almost Full with 1 or 2 seats free; Ready otherwise. _Renamed (owner, 2026-11-25, D108): Ready is shown as **Available Seats**._
 - "Assigned Guests" in the KPI row counts attendees (214), not guest parties. It is labelled **Assigned Attendees**.
 - **Selected Table** is drawn under the Arrangement Preview on desktop and only in the Arrangement tab on a phone. It is built at the same place on both tabs: beside the list or the plan from 1280px, below it on narrower screens and phones, for the one table chosen by a click on its row or on the plan (D69, revised 2026-10-16). The panel's subtitle (the table's name) is not shown.
 - **Manage Guests / View Guests** has nothing drawn behind it; it opens the dialog described in D68.
@@ -143,7 +143,7 @@ Found while building (Phase 6):
 ### Event Settings
 
 - A required **Timezone** field is shown. PRD §5.2 relies on an event timezone and `PLAN.md` Phase 7 includes it, but the PRD §5.1 field table omits it. Treated as required; the PRD table should be updated when Phase 7 is implemented.
-- The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here. **Decided (2026-10-13):** the button opens a read-only dialog listing the event's rules; Duplicate and Delete stay in the event card menu only. *Renamed (owner, 2026-11-25, D108): the section is titled **Event Rules**, since it holds rules, not destructive actions.*
+- The **Danger Zone** contains only a read-only notice and a "View Event Rules" button whose target is undefined. Duplicate and Delete are not shown here. **Decided (2026-10-13):** the button opens a read-only dialog listing the event's rules; Duplicate and Delete stay in the event card menu only. _Renamed (owner, 2026-11-25, D108): the section is titled **Event Rules**, since it holds rules, not destructive actions._
 - The mockup has no **Location** field, although an event has a location. **Decided (2026-10-13):** an optional Location field is added to General Information, under Event Name. It suggests places from Google Maps when the deployment has a Google key (D104).
 - The mockup has no **Phone Number Country** field. **Added (D103):** Israel or Brazil, the country a number typed without a code is read as.
 - The **Timezone** field can be searched by city or by country (D104).
@@ -185,11 +185,17 @@ Reviewed 2026-11-27: the 19 HTML pages in `resources/mockups/v2/html/` against `
 - **Languages:** all mockups are English; Hebrew and Portuguese follow the existing rules (`AGENTS.md`, `resources/DESIGN_GUIDE.md` §9).
 - **Team (#7), not built: the "Events Created" column.** The product doesn't record who created an event, so the column is left out (Phase 25b). The Owner's and Managers' counts, the pending invitations, search and role filter are built.
 - **My Spaces and space details (#3, #5):**
-  - Add Layout, Edit (a layout) and Create Event from This Layout are shown but disabled until the layout editor (Phase 26) and the create-event wizard (Phase 27).
+  - Add Layout and Edit (a layout) open the layout editor (Phase 26); Create Event from This Layout opens the wizard at its details step (Phase 27).
   - The layout preview draws the room, its objects and the tables' outlines, without each chair.
 - **The layout template editor (#6), not built:**
   - **Export Tables:** a template has no guests, so there is no seating list to export. Exporting the tables themselves is the table summary export, already in `docs/FUTURE_FEATURES.md`.
   - **"by <name>" after Last edited:** the product doesn't record who edited.
+- **The create-event wizard (#9):**
+  - **Step 3 wording (D113):** built as "Your client sees the date, time and place but can't change them"; the name hint says the client can change it later.
+  - **Not built, booked-day dots in the calendar:** the date is the browser's own date field, as on the personal event form, which can't mark days. The same-day warning appears as soon as a date is picked instead.
+  - **Not built, choosing the generated cover's colour:** the event's cover photo field is reused; without a photo the event keeps its generated cover, as everywhere else.
+  - **The done screen** (no mockup): the event's name, the invitation waiting for the client's email (or how to invite later), Back to My Events and Create Another.
+  - The demo sends no email; the review says so beside "An invitation will be emailed to the client".
 - **The space dialog (#4):** the photo field is the event photo field, with the label "Space Photo" and the space's initials as the placeholder.
 
 ## Found while building the design system (Phase 2)
