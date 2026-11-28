@@ -1039,6 +1039,36 @@
       "hint": "Arraste para olhar em volta; aproxime com os botões ou com pinça no trackpad. Selecione uma mesa para ver e acomodar os convidados.",
       "hintTouch": "Arraste para olhar em volta e use pinça para aproximar. Toque numa mesa para ver e acomodar os convidados.",
       "subtitle": "Acomode os convidados nas mesas e veja a planta do espaço."
+    },
+    "venueWarning": {
+      "delete": {
+        "title": "A mesa {{number}} tem {{parties}} convites ({{people}} pessoas).",
+        "body": "Eles ficarão sem mesa e {{client}} será avisado.",
+        "listTitle": "Convidados Que Perderão o Lugar",
+        "chairs": "As cadeiras da mesa são removidas. Só estes convidados perdem o lugar; os demais ficam onde estão.",
+        "notified": "{{client}} recebe um aviso de “Ação necessária” no sino e no Painel, e pode acomodar estes convidados em outra mesa.",
+        "confirm": "Entendo que {{parties}} convites ({{people}} pessoas) perderão o lugar.",
+        "confirmHint": "Não dá para desfazer. Recriar a mesa não os acomoda de novo.",
+        "done": "A mesa {{number}} foi excluída. {{parties}} convites ({{people}} pessoas) ficaram sem mesa, e {{client}} foi avisado."
+      },
+      "shrink": {
+        "title": "A mesa {{number}} terá {{people}} pessoas em {{chairs}} cadeiras: {{over}} acima da capacidade.",
+        "body": "Ninguém perde o lugar. A mesa fica marcada acima da capacidade até {{client}} mover convidados, ou você adicionar cadeiras.",
+        "listTitle": "Convidados Nesta Mesa",
+        "chairs": "A mesa mantém os convidados e aparece acima da capacidade na planta, na lista de mesas e no seu Painel.",
+        "notified": "{{client}} recebe um aviso de “Ação necessária” no sino e no Painel até a mesa caber de novo.",
+        "confirm": "Entendo que a mesa {{number}} ficará {{over}} acima da capacidade.",
+        "confirmHint": "Você pode devolver as cadeiras quando quiser; o aviso se fecha quando a mesa couber.",
+        "done": "A mesa {{number}} agora tem {{chairs}} cadeiras para {{people}} pessoas. {{client}} foi avisado."
+      },
+      "people_one": "{{formatted}} pessoa",
+      "people_other": "{{formatted}} pessoas",
+      "onlyThisEvent": "Só este evento muda. O modelo de layout do espaço continua igual.",
+      "note": "Recado para o cliente (opcional)",
+      "noteHint": "Mostrado para {{client}} com o aviso. Até {{max}} caracteres.",
+      "checkToDelete": "Marque a caixa para excluir.",
+      "waitingTitle": "Cliente avisado · aguardando ajuste",
+      "waitingBody": "{{client}} foi avisado de que esta mesa está {{over}} acima da capacidade. Isto aparece aqui até a mesa caber de novo."
     }
   },
   "messages": {
@@ -2268,5 +2298,25 @@
       "body": "{{name}} não poderá mais abrir este evento. Você pode convidar de novo depois.",
       "confirm": "Remover"
     }
+  },
+  "venueNotices": {
+    "label": "Mudanças do espaço",
+    "actionNeeded": "Ação necessária",
+    "actionTitle": "Ação necessária em {{event}}",
+    "infoTitle": "{{venue}} atualizou {{event}}",
+    "overCapacity": "A mesa {{table}} agora tem menos cadeiras do que pessoas sentadas: mova {{over}} pessoas para outra mesa.",
+    "overCapacityFixed": "A mesa {{table}} cabe de novo.",
+    "removed_one": "{{venue}} removeu a mesa {{table}}: {{parties}} convite ({{people}} pessoas) precisa de um novo lugar.",
+    "removed_other": "{{venue}} removeu a mesa {{table}}: {{parties}} convites ({{people}} pessoas) precisam de novos lugares.",
+    "details": "Mudaram {{changes}}. Seus convidados veem isso na página de RSVP.",
+    "changes": {
+      "date": "a data e o horário",
+      "address": "o endereço",
+      "maxAttendees": "o máximo de pessoas"
+    },
+    "noteFrom": "Recado de {{name}}",
+    "fix": "Ajustar Mesas",
+    "handled": "Já Resolvi",
+    "markRead": "Marcar como Lido"
   }
 }

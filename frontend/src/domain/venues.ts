@@ -674,3 +674,110 @@ export function newClientLinkToken(): string {
     '',
   )
 }
+
+/**
+ * Something the venue changed under the client (D114, D122). Changing the
+ * room under seated guests needs the client to act; changing the date,
+ * address or maximum is for their information.
+ */
+export interface VenueNotice {
+  id: Id
+  eventId: Id
+  kind: 'TABLE_REMOVED' | 'TABLE_OVER_CAPACITY' | 'DETAILS_CHANGED'
+  tableId: Id | null
+  tableNumber: number | null
+  /** The guest parties and people the change reached when it was made. */
+  parties: number
+  people: number
+  /** A removed table's guests: the notice is open until they have seats. */
+  guestIds: Id[]
+  /** What a DETAILS_CHANGED notice is about. */
+  changes: VenueDetailChange[]
+  /** The venue's optional word to the client. */
+  note: string | null
+  actorName: string | null
+  createdAt: IsoDateTime
+  /** The client side's members who read it. */
+  readBy: Id[]
+  /** A removed table's notice the client closed by hand ("I've handled it"). */
+  handledAt: IsoDateTime | null
+}
+
+export type VenueDetailChange = 'date' | 'address' | 'maxAttendees'
+
+export const VENUE_NOTE_MAX_LENGTH = 300
+
+/** Action needed for the room under guests; information otherwise. */
+export function noticeSeverity(
+  notice: Pick<VenueNotice, 'kind'>,
+): 'ACTION' | 'INFO' {
+  return notice.kind === 'DETAILS_CHANGED' ? 'INFO' : 'ACTION'
+}
+
+/** The venue's note: optional, trimmed, at most 300 characters. */
+export function validateVenueNote(
+  note: string | null | undefined,
+): string | null {
+  const trimmed = (note ?? '').trim()
+  if (trimmed.length > VENUE_NOTE_MAX_LENGTH) {
+    throw new DomainError('VALIDATION', { field: 'note' })
+  }
+  return trimmed === '' ? null : trimmed
+}
+
+/**
+ * Whether an action is still needed (D122): an over-capacity table until it
+ * fits (or is gone), a removed table until its guests are seated again or
+ * the client closes it. Information stays open until read.
+ */
+export function isNoticeOpen(
+  notice: VenueNotice,
+  tables: readonly { id: Id; capacity: number }[],
+  guests: readonly {
+    id: Id
+    tableId: Id | null
+    confirmedAttendees: number | null
+    rsvpStatus: string
+    deleted: boolean
+  }[],
+  readerId: Id,
+): boolean {
+  if (notice.kind === 'DETAILS_CHANGED') {
+    return !notice.readBy.includes(readerId)
+  }
+  if (notice.kind === 'TABLE_OVER_CAPACITY') {
+    const table = tables.find((candidate) => candidate.id === notice.tableId)
+    return table !== undefined && overCapacity(table, guests) > 0
+  }
+  if (notice.handledAt !== null) {
+    return false
+  }
+  return guests.some(
+    (guest) =>
+      notice.guestIds.includes(guest.id) &&
+      !guest.deleted &&
+      guest.rsvpStatus === 'APPROVED' &&
+      guest.tableId === null,
+  )
+}
+
+/** People seated at a table beyond its chairs; 0 when they fit. */
+export function overCapacity(
+  table: { id: Id; capacity: number },
+  guests: readonly {
+    tableId: Id | null
+    confirmedAttendees: number | null
+    rsvpStatus: string
+    deleted: boolean
+  }[],
+): number {
+  const seated = guests
+    .filter(
+      (guest) =>
+        guest.tableId === table.id &&
+        !guest.deleted &&
+        guest.rsvpStatus === 'APPROVED',
+    )
+    .reduce((sum, guest) => sum + (guest.confirmedAttendees ?? 0), 0)
+  return Math.max(0, seated - table.capacity)
+}

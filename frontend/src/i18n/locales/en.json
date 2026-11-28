@@ -1039,6 +1039,36 @@
       "hint": "Drag to look around; zoom with the buttons or a trackpad pinch. Select a table to see and seat its guests.",
       "hintTouch": "Drag to look around and pinch to zoom. Tap a table to see and seat its guests.",
       "subtitle": "Seat your guests at the tables and see the room plan."
+    },
+    "venueWarning": {
+      "delete": {
+        "title": "Table {{number}} has {{parties}} guest parties ({{people}} people).",
+        "body": "They will become unassigned and {{client}} will be notified.",
+        "listTitle": "Guests Who Will Lose Their Seats",
+        "chairs": "Its chairs are removed. Only these guests lose their seats; everyone else stays where they are.",
+        "notified": "{{client}} gets an “Action needed” notice in the bell and on their Dashboard, and can seat these guests at another table.",
+        "confirm": "I understand that {{parties}} guest parties ({{people}} people) will lose their seats.",
+        "confirmHint": "This can’t be undone. Re-creating the table won’t seat them again.",
+        "done": "Table {{number}} was deleted. {{parties}} guest parties ({{people}} people) are now unassigned, and {{client}} was notified."
+      },
+      "shrink": {
+        "title": "Table {{number}} will have {{people}} people on {{chairs}} chairs: {{over}} over capacity.",
+        "body": "Nobody loses a seat. The table is marked over capacity until {{client}} moves guests, or you add chairs.",
+        "listTitle": "Guests Seated at This Table",
+        "chairs": "The table keeps its guests and shows as over capacity on the plan, the table list and your Dashboard.",
+        "notified": "{{client}} gets an “Action needed” notice in the bell and on their Dashboard until the table fits again.",
+        "confirm": "I understand that table {{number}} will be over capacity by {{over}}.",
+        "confirmHint": "You can add the chairs back at any time; the notice closes when the table fits.",
+        "done": "Table {{number}} now has {{chairs}} chairs for {{people}} people. {{client}} was notified."
+      },
+      "people_one": "{{formatted}} person",
+      "people_other": "{{formatted}} people",
+      "onlyThisEvent": "Only this event changes. The space’s layout template stays as it is.",
+      "note": "Note to the client (optional)",
+      "noteHint": "Shown to {{client}} with the notice. Up to {{max}} characters.",
+      "checkToDelete": "Check the box to delete.",
+      "waitingTitle": "Client notified · waiting for a fix",
+      "waitingBody": "{{client}} was told this table is {{over}} over capacity. It shows here until the table fits again."
     }
   },
   "messages": {
@@ -2267,5 +2297,25 @@
       "body": "{{name}} will no longer be able to open this event. You can invite them again later.",
       "confirm": "Remove"
     }
+  },
+  "venueNotices": {
+    "label": "Changes by the venue",
+    "actionNeeded": "Action needed",
+    "actionTitle": "Action needed in {{event}}",
+    "infoTitle": "{{venue}} updated {{event}}",
+    "overCapacity": "Table {{table}} now has fewer chairs than the people seated there: move {{over}} people to another table.",
+    "overCapacityFixed": "Table {{table}} fits again.",
+    "removed_one": "{{venue}} removed table {{table}}: {{parties}} guest party ({{people}} people) needs a new seat.",
+    "removed_other": "{{venue}} removed table {{table}}: {{parties}} guest parties ({{people}} people) need new seats.",
+    "details": "They changed the {{changes}}. Your guests see it on the RSVP page.",
+    "changes": {
+      "date": "date and time",
+      "address": "address",
+      "maxAttendees": "maximum attendees"
+    },
+    "noteFrom": "Note from {{name}}",
+    "fix": "Fix Seating",
+    "handled": "I’ve Handled It",
+    "markRead": "Mark as Read"
   }
 }

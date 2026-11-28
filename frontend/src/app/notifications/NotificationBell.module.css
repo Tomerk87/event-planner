@@ -152,3 +152,18 @@ a.link:hover {
   border-radius: 50%;
   background: var(--color-primary);
 }
+
+/* A venue change the client must act on (D122): red until it is done. */
+.action {
+  border-inline-start: 3px solid var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.actionLabel {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}

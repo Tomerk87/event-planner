@@ -104,6 +104,9 @@ export type MockVenueOperations = Omit<
   | 'inviteToClientTeam'
   | 'changeClientTeamRole'
   | 'removeFromClientTeam'
+  | 'listNotices'
+  | 'markNoticesRead'
+  | 'handleNotice'
 >
 
 export function createMockVenues(

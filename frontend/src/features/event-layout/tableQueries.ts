@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { TableInput } from '../../domain/seating.ts'
-import type { Services } from '../../services/contracts/index.ts'
+import type {
+  Services,
+  TableChangeOptions,
+} from '../../services/contracts/index.ts'
 import { queryKeys } from '../../services/queries.ts'
 import { useServices } from '../../services/servicesContext.ts'
 
@@ -16,8 +19,12 @@ function useTableChange<Input, Result>(
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (input: Input) => change(services, input),
+    // Seating and tables open and close the venue's notices (D122).
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.events }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.events }),
+        queryClient.invalidateQueries({ queryKey: ['venues', 'notices'] }),
+      ]),
   })
 }
 
@@ -29,13 +36,22 @@ export function useCreateTable(eventId: string) {
 
 export function useUpdateTable(eventId: string) {
   return useTableChange(
-    (services, { tableId, input }: { tableId: string; input: TableInput }) =>
-      services.tables.update(eventId, tableId, input),
+    (
+      services,
+      {
+        tableId,
+        input,
+        options,
+      }: { tableId: string; input: TableInput; options?: TableChangeOptions },
+    ) => services.tables.update(eventId, tableId, input, options),
   )
 }
 
 export function useRemoveTable(eventId: string) {
-  return useTableChange((services, tableId: string) =>
-    services.tables.remove(eventId, tableId),
+  return useTableChange(
+    (
+      services,
+      { tableId, options }: { tableId: string; options?: TableChangeOptions },
+    ) => services.tables.remove(eventId, tableId, options),
   )
 }

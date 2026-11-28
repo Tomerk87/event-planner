@@ -637,3 +637,10 @@ button.statusTrigger > svg {
   inline-size: 0.9rem;
   block-size: 0.9rem;
 }
+
+/* Why a dialog's main action waits, beside it (#20). */
+.footerHint {
+  margin-inline-end: auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

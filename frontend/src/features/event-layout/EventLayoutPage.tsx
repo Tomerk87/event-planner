@@ -39,7 +39,9 @@ import { useFormatters } from '../../i18n/format.ts'
 import { useSeatingNotice } from '../dashboard/useSeatingNotice.ts'
 import { WarningCards, type Warning } from '../dashboard/WarningCards.tsx'
 import { useEventAccessInfo } from '../../services/queries.ts'
-import { isClientSide } from '../../domain/roles.ts'
+import { isClientSide, isVenueSide } from '../../domain/roles.ts'
+import { ClientNoticeBanners } from '../venues/ClientNoticeBanners.tsx'
+import { useVenueNotices } from '../venues/venueQueries.ts'
 import { ReadOnlyNotice } from '../../shared/access/EventAccess.tsx'
 import { useEventAccess } from '../../shared/access/eventAccessContext.ts'
 import { describeError } from '../../shared/errorMessage.ts'
@@ -50,6 +52,7 @@ import { DataTable, type Column } from '../../shared/ui/DataTable.tsx'
 import { SelectField, TextField } from '../../shared/ui/Field.tsx'
 import { Menu } from '../../shared/ui/Menu.tsx'
 import { Badge } from '../../shared/ui/Badge.tsx'
+import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
 import { Pagination } from '../../shared/ui/Pagination.tsx'
 import {
@@ -129,11 +132,23 @@ export function EventLayoutPage() {
   // The client seats guests; the venue arranges the room (#16, D113).
   const venue = info.data?.venue ?? null
   const clientView = venue !== null && isClientSide(access?.role ?? null)
+  const venueView = venue !== null && isVenueSide(access?.role ?? null)
+  const venueNotices = useVenueNotices(eventId, venueView)
+  const waitingFor = (tableId: string) =>
+    (venueNotices.data ?? []).find(
+      (notice) =>
+        notice.open &&
+        notice.kind === 'TABLE_OVER_CAPACITY' &&
+        notice.tableId === tableId,
+    )
   const guests = useGuests(eventId)
   const tables = useTables(eventId)
   const [panel, setPanel] = useState<OpenPanel | null>(null)
   // One chosen table, shown in the Selected Table card on both tabs.
-  const [chosenId, setChosenId] = useState<string | null>(null)
+  // A notice's "Fix seating" opens its table (D122).
+  const [chosenId, setChosenId] = useState<string | null>(() =>
+    params.get('table'),
+  )
   const exportSeating = useSeatingExport(eventId, info.data?.event.name ?? '')
   // The Table Arrangement opens first: it is the event's actual layout.
   const view = params.get('view') === 'tables' ? 'tables' : 'arrangement'
@@ -401,6 +416,14 @@ export function EventLayoutPage() {
     <Card title={t('layout.selected.title')} actions={status(selected)}>
       <div className={styles.selected}>
         <p className={styles.selectedName}>{tableName(selected)}</p>
+        {waitingFor(selected.table.id) && (
+          <Notice tone="warning" title={t('layout.venueWarning.waitingTitle')}>
+            {t('layout.venueWarning.waitingBody', {
+              client: venue?.clientName ?? t('venueDashboard.theClient'),
+              over: number(waitingFor(selected.table.id)?.overBy ?? 0),
+            })}
+          </Notice>
+        )}
         <dl className={styles.facts}>
           <div>
             <dt>{t('layout.columns.shape')}</dt>
@@ -484,6 +507,15 @@ export function EventLayoutPage() {
   )
 
   /** The chosen table, or how to choose one, beside the list or the plan. */
+  // The venue changing a table under the client's guests (#20, D122).
+  const venuePanel =
+    venueView && venue && panelItem
+      ? {
+          parties: partiesAt(panelItem.table.id, guestList),
+          clientName: venue.clientName,
+        }
+      : null
+
   const side = chosen ? (
     selectedCard(chosen)
   ) : (
@@ -693,6 +725,18 @@ export function EventLayoutPage() {
         <div className={guestStyles.stack}>
           <ReadOnlyNotice />
           {clientView && (
+            <ClientNoticeBanners
+              eventId={eventId}
+              place="layout"
+              onFix={(tableId) => {
+                setParam({ view: null })
+                if (tableId) {
+                  setChosenId(tableId)
+                }
+              }}
+            />
+          )}
+          {clientView && (
             <p className={styles.managedNote}>
               <Badge tone="info" icon={<Building2 />}>
                 {t('events.card.managedBy', { venue: venue.name })}
@@ -765,6 +809,7 @@ export function EventLayoutPage() {
         onDelete={(item) =>
           setPanel({ kind: 'delete', tableId: item.table.id })
         }
+        venue={venuePanel}
       />
       <DeleteTableDialog
         open={panel?.kind === 'delete' && !!panelItem}
@@ -779,6 +824,7 @@ export function EventLayoutPage() {
         parties={
           panelItem ? partiesAt(panelItem.table.id, guestList).length : 0
         }
+        venue={venuePanel}
       />
       <ManageGuestsDialog
         open={panel?.kind === 'guests'}

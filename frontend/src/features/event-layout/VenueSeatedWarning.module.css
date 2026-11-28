@@ -1,0 +1,122 @@
+/* The venue's warning before changing the room under seated guests (#20). */
+
+.warning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-soft);
+  font-size: var(--font-size-sm);
+}
+
+.summary > svg {
+  flex-shrink: 0;
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+  color: var(--color-danger);
+}
+
+.summaryTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-danger);
+}
+
+.listTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-end: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 1.4rem;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-soft);
+  font-size: var(--font-size-xs);
+}
+
+.parties {
+  max-block-size: 14rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  list-style: none;
+}
+
+.parties li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.parties li + li {
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.partyText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.partyName {
+  font-weight: var(--font-weight-medium);
+}
+
+.muted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.facts li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.facts svg {
+  flex-shrink: 0;
+  inline-size: 1rem;
+  block-size: 1rem;
+  margin-block-start: 0.15rem;
+}
+
+.confirm {
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.confirmHint {
+  margin-block-start: var(--space-1);
+  margin-inline-start: 1.75rem;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

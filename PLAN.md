@@ -938,7 +938,8 @@ Split in two, like Phase 25: **29a, the venue side** (done), then **29b, the cli
 - [ ] Event creation that copies the layout in one transaction.
 - [ ] Client invitations with `EmailToken`-style links and the email from mockup #11 in EN/HE/PT.
 - [ ] The venue/client split enforced on every endpoint, with allowed-field tests (no phones to the venue).
-- [ ] Notifications.
+- [ ] Notifications, including the venue's changes as "Action needed" notices (Phase 30).
+- [ ] The "Action needed" email to the client (mockup #25, to be designed first) in EN/HE/PT, sent with the in-app notice; it needs the email provider (O-H1).
 - [ ] Switch the frontend to the real API.
 - [ ] Release: blocked on O-H1 (hosting and email). Back up before migrating.
 

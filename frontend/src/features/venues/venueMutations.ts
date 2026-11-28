@@ -228,3 +228,15 @@ export function useRemoveFromClientTeam(eventId: string) {
     venues.removeFromClientTeam(eventId, email),
   )
 }
+
+export function useMarkNoticesRead() {
+  const venues = useVenuesService()
+  return useVenueMutation((ids: string[]) => venues.markNoticesRead(ids))
+}
+
+export function useHandleNotice(eventId: string) {
+  const venues = useVenuesService()
+  return useVenueMutation((noticeId: string) =>
+    venues.handleNotice(eventId, noticeId),
+  )
+}

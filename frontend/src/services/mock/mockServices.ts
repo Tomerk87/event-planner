@@ -70,7 +70,15 @@ import {
   type AnyEventRole,
   type EventRole,
 } from '../../domain/roles.ts'
-import { venueEventStatus } from '../../domain/venues.ts'
+import {
+  isNoticeOpen,
+  noticeSeverity,
+  overCapacity,
+  validateVenueNote,
+  venueEventStatus,
+  type VenueDetailChange,
+  type VenueNotice,
+} from '../../domain/venues.ts'
 import {
   applyRsvp,
   answeredLimit,
@@ -85,6 +93,7 @@ import {
 import type {
   ClientInviteRole,
   EventAccessInfo,
+  VenueNoticeView,
   EventVenueInfo,
   Member,
   MessagePreview,
@@ -711,6 +720,85 @@ export function createMockServices(options: MockOptions): Services {
     )
   }
 
+  /** The parties seated at a table: active, Approved, at that table. */
+  function seatedAt(tableId: Id, guests: readonly Guest[]): Guest[] {
+    return guests.filter(
+      (guest) =>
+        guest.tableId === tableId &&
+        !guest.deleted &&
+        guest.rsvpStatus === 'APPROVED',
+    )
+  }
+
+  /**
+   * Records a venue change for the client (D122), once a client has joined:
+   * before that, nobody is on the client side to tell.
+   */
+  function withNotice(
+    next: DemoState,
+    fields: Omit<
+      VenueNotice,
+      'id' | 'actorName' | 'createdAt' | 'readBy' | 'handledAt'
+    >,
+  ): DemoState {
+    if (
+      !(next.clientTeam ?? []).some(
+        (member) => member.eventId === fields.eventId,
+      )
+    ) {
+      return next
+    }
+    return {
+      ...next,
+      venueNotices: [
+        ...(next.venueNotices ?? []),
+        {
+          ...fields,
+          id: newId('notice'),
+          actorName: currentUser().name,
+          createdAt: now().toISOString(),
+          readBy: [],
+          handledAt: null,
+        },
+      ],
+    }
+  }
+
+  function noticeView(notice: VenueNotice): VenueNoticeView {
+    const event = state.events.find(
+      (candidate) => candidate.id === notice.eventId,
+    )
+    const venueEvent = state.venueEvents?.find(
+      (candidate) => candidate.eventId === notice.eventId,
+    )
+    const venue = state.organizations?.find(
+      (organization) => organization.id === venueEvent?.organizationId,
+    )
+    const guests = eventGuests(notice.eventId)
+    const tables = eventTables(notice.eventId)
+    const table = tables.find((candidate) => candidate.id === notice.tableId)
+    const me = currentUserId()
+    return {
+      id: notice.id,
+      eventId: notice.eventId,
+      eventName: event?.name ?? '',
+      venueName: venue?.name ?? '',
+      kind: notice.kind,
+      severity: noticeSeverity(notice),
+      open: isNoticeOpen(notice, tables, guests, me),
+      read: notice.readBy.includes(me),
+      tableId: notice.tableId,
+      tableNumber: notice.tableNumber,
+      parties: notice.parties,
+      people: notice.people,
+      overBy: table ? overCapacity(table, guests) : 0,
+      changes: notice.changes,
+      note: notice.note,
+      actorName: notice.actorName,
+      createdAt: notice.createdAt,
+    }
+  }
+
   /** The client side of a venue event only (D113); the venue has its own. */
   function clientContext(eventId: Id, action: EventAction): EventContext {
     const context = authorize(eventId, action)
@@ -729,6 +817,76 @@ export function createMockServices(options: MockOptions): Services {
   /** The lead's team operations (#15), checked by the event role. */
   function clientTeamOperations() {
     return {
+      listNotices: (eventId?: Id) =>
+        run('venues.listNotices', () => {
+          const all = state.venueNotices ?? []
+          if (eventId !== undefined) {
+            // Either side of the event may see its venue changes.
+            authorize(eventId, 'VIEW')
+            return all
+              .filter((notice) => notice.eventId === eventId)
+              .map(noticeView)
+              .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+          }
+          const me = currentUserId()
+          const mine = new Set(
+            (state.clientTeam ?? [])
+              .filter((member) => member.userId === me)
+              .map((member) => member.eventId),
+          )
+          return all
+            .filter((notice) => mine.has(notice.eventId))
+            .map(noticeView)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        }),
+
+      markNoticesRead: (ids: Id[]) =>
+        run('venues.markNoticesRead', () => {
+          const me = currentUserId()
+          const mine = new Set(
+            (state.clientTeam ?? [])
+              .filter((member) => member.userId === me)
+              .map((member) => member.eventId),
+          )
+          commit({
+            ...state,
+            venueNotices: (state.venueNotices ?? []).map((notice) =>
+              ids.includes(notice.id) &&
+              mine.has(notice.eventId) &&
+              !notice.readBy.includes(me)
+                ? { ...notice, readBy: [...notice.readBy, me] }
+                : notice,
+            ),
+          })
+        }),
+
+      handleNotice: (eventId: Id, noticeId: Id) =>
+        run('venues.handleNotice', () => {
+          clientContext(eventId, 'ASSIGN_SEATING')
+          const notice = (state.venueNotices ?? []).find(
+            (candidate) =>
+              candidate.id === noticeId && candidate.eventId === eventId,
+          )
+          if (!notice || notice.kind !== 'TABLE_REMOVED') {
+            return notFound('notice')
+          }
+          const me = currentUserId()
+          commit({
+            ...state,
+            venueNotices: (state.venueNotices ?? []).map((candidate) =>
+              candidate === notice
+                ? {
+                    ...candidate,
+                    handledAt: now().toISOString(),
+                    readBy: candidate.readBy.includes(me)
+                      ? candidate.readBy
+                      : [...candidate.readBy, me],
+                  }
+                : candidate,
+            ),
+          })
+        }),
+
       getClientTeam: (eventId: Id) =>
         run('venues.getClientTeam', () => {
           clientContext(eventId, 'VIEW_PERMISSIONS')
@@ -1120,12 +1278,43 @@ export function createMockServices(options: MockOptions): Services {
               .confirmedAttendees,
           )
           const updated: Event = { ...event, ...fields, coverImage }
-          commit({
+          const next: DemoState = {
             ...state,
             events: state.events.map((candidate) =>
               candidate.id === eventId ? updated : candidate,
             ),
-          })
+          }
+          // The venue moving the date, the place or the maximum is news for
+          // the client (D114).
+          const changes: VenueDetailChange[] = isVenueSide(context.role)
+            ? [
+                ...(updated.startsAt !== event.startsAt ||
+                updated.timeZone !== event.timeZone
+                  ? (['date'] as const)
+                  : []),
+                ...((updated.location ?? '') !== (event.location ?? '')
+                  ? (['address'] as const)
+                  : []),
+                ...(updated.maxAttendees !== event.maxAttendees
+                  ? (['maxAttendees'] as const)
+                  : []),
+              ]
+            : []
+          commit(
+            changes.length === 0
+              ? next
+              : withNotice(next, {
+                  eventId,
+                  kind: 'DETAILS_CHANGED',
+                  tableId: null,
+                  tableNumber: null,
+                  parties: 0,
+                  people: 0,
+                  guestIds: [],
+                  changes,
+                  note: null,
+                }),
+          )
           return updated
         }),
     },
@@ -1591,28 +1780,86 @@ export function createMockServices(options: MockOptions): Services {
           return table
         }),
 
-      update: (eventId, tableId, input) =>
+      update: (eventId, tableId, input, options) =>
         run('tables.update', () => {
-          authorize(eventId, 'EDIT_TABLES')
+          const context = authorize(eventId, 'EDIT_TABLES')
+          const before = tableOf(eventId, tableId)
           const updated: EventTable = {
-            ...tableOf(eventId, tableId),
+            ...before,
             ...validateTableInput(input, eventTables(eventId), tableId),
           }
-          commit({
+          const guests = eventGuests(eventId)
+          const overBefore = overCapacity(before, guests)
+          const overAfter = overCapacity(updated, guests)
+          let next: DemoState = {
             ...state,
             tables: state.tables.map((table) =>
               table.id === tableId ? updated : table,
             ),
-          })
+          }
+          // Fewer chairs than the client's seated guests (D122): they stay,
+          // the table goes over capacity, and the client is told to act.
+          if (isVenueSide(context.role) && overAfter > overBefore) {
+            const note = validateVenueNote(options?.note)
+            if (!options?.acknowledgeSeated) {
+              throw new DomainError('VALIDATION', {
+                reason: 'seated',
+                over: overAfter,
+              })
+            }
+            const seated = seatedAt(tableId, guests)
+            next = withNotice(next, {
+              eventId,
+              kind: 'TABLE_OVER_CAPACITY',
+              tableId,
+              tableNumber: updated.number,
+              parties: seated.length,
+              people: seated.reduce(
+                (sum, guest) => sum + (guest.confirmedAttendees ?? 0),
+                0,
+              ),
+              guestIds: [],
+              changes: [],
+              note,
+            })
+          }
+          commit(next)
           return updated
         }),
 
-      remove: (eventId, tableId) =>
+      remove: (eventId, tableId, options) =>
         run('tables.remove', () => {
-          authorize(eventId, 'EDIT_TABLES')
-          tableOf(eventId, tableId)
+          const context = authorize(eventId, 'EDIT_TABLES')
+          const removed = tableOf(eventId, tableId)
+          const seated = seatedAt(tableId, eventGuests(eventId))
+          let notice: DemoState = state
+          // A table with the client's guests (D114): they lose their seats,
+          // and the client is told to seat them again.
+          if (isVenueSide(context.role) && seated.length > 0) {
+            const note = validateVenueNote(options?.note)
+            if (!options?.acknowledgeSeated) {
+              throw new DomainError('VALIDATION', {
+                reason: 'seated',
+                parties: seated.length,
+              })
+            }
+            notice = withNotice(state, {
+              eventId,
+              kind: 'TABLE_REMOVED',
+              tableId,
+              tableNumber: removed.number,
+              parties: seated.length,
+              people: seated.reduce(
+                (sum, guest) => sum + (guest.confirmedAttendees ?? 0),
+                0,
+              ),
+              guestIds: seated.map((guest) => guest.id),
+              changes: [],
+              note,
+            })
+          }
           commit({
-            ...state,
+            ...notice,
             tables: state.tables.filter((table) => table.id !== tableId),
             guests: state.guests.map((guest) =>
               guest.tableId === tableId ? { ...guest, tableId: null } : guest,

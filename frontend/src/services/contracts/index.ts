@@ -42,7 +42,9 @@ import type {
   ClientLinkState,
   ClientTeamRole,
   TemplateFigures,
+  VenueDetailChange,
   VenueEventInput,
+  VenueNotice,
   VenueEventStatus,
   VenueMemberInvitation,
   VenueMemberRole,
@@ -269,12 +271,35 @@ export interface TableWithOccupancy {
   available: number
 }
 
+/**
+ * How the venue changes the room under the client's seated guests (D114,
+ * D122): it says it understood, and may add a word for the client.
+ */
+export interface TableChangeOptions {
+  acknowledgeSeated?: boolean
+  note?: string | null
+}
+
 export interface TablesService {
   list(eventId: Id): Promise<TableWithOccupancy[]>
   create(eventId: Id, input: TableInput): Promise<EventTable>
-  update(eventId: Id, tableId: Id, input: TableInput): Promise<EventTable>
-  /** Deletes the table and unassigns its guests; guests are never deleted. */
-  remove(eventId: Id, tableId: Id): Promise<void>
+  /**
+   * In a venue event, chairs below the people seated need
+   * `acknowledgeSeated`: the guests stay, the table goes over capacity and
+   * the client is told to act (D122).
+   */
+  update(
+    eventId: Id,
+    tableId: Id,
+    input: TableInput,
+    options?: TableChangeOptions,
+  ): Promise<EventTable>
+  /**
+   * Deletes the table and unassigns its guests; guests are never deleted.
+   * In a venue event, a table with guests needs `acknowledgeSeated`, and the
+   * client is told to seat them again (D114).
+   */
+  remove(eventId: Id, tableId: Id, options?: TableChangeOptions): Promise<void>
 }
 
 /** The event's floor plan (D100). */
@@ -626,6 +651,29 @@ export interface ClientTeamEntry {
   pending: boolean
 }
 
+/** A venue change as the client (or the venue) sees it now (D122). */
+export interface VenueNoticeView {
+  id: Id
+  eventId: Id
+  eventName: string
+  venueName: string
+  kind: VenueNotice['kind']
+  severity: 'ACTION' | 'INFO'
+  /** Still needs the client: the table doesn't fit, guests lack seats, unread. */
+  open: boolean
+  read: boolean
+  tableId: Id | null
+  tableNumber: number | null
+  parties: number
+  people: number
+  /** People still beyond the chairs, for an over-capacity table. */
+  overBy: number
+  changes: VenueDetailChange[]
+  note: string | null
+  actorName: string | null
+  createdAt: IsoDateTime
+}
+
 /** A role the client lead gives (D113): never a second lead. */
 export type ClientInviteRole = Exclude<ClientTeamRole, 'CLIENT_LEAD'>
 
@@ -785,6 +833,15 @@ export interface VenuesService {
    * at once; any other waits as invited. The lead can't be changed here.
    */
   getClientTeam(eventId: Id): Promise<ClientTeamView>
+  /**
+   * The venue's changes (D122): one event's, for either side of it; or,
+   * with no event, every one the user's client side should see (the bell).
+   */
+  listNotices(eventId?: Id): Promise<VenueNoticeView[]>
+  /** The client side marks notices read; an action stays until it is done. */
+  markNoticesRead(ids: Id[]): Promise<void>
+  /** The client closes a removed table's notice by hand ("I've handled it"). */
+  handleNotice(eventId: Id, noticeId: Id): Promise<void>
   inviteToClientTeam(
     eventId: Id,
     email: string,

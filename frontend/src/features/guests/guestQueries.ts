@@ -100,8 +100,12 @@ function useGuestChange<Input, Result>(
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (input: Input) => change(services, input),
+    // Seating and tables open and close the venue's notices (D122).
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.events }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.events }),
+        queryClient.invalidateQueries({ queryKey: ['venues', 'notices'] }),
+      ]),
   })
 }
 

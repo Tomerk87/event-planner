@@ -14,7 +14,9 @@ import { Notice } from '../../shared/ui/Notice.tsx'
 import { useToast } from '../../shared/ui/toastContext.ts'
 import { toInteger } from '../events/eventForm.ts'
 import formStyles from '../guests/Guests.module.css'
+import type { Guest } from '../../domain/models.ts'
 import { useCreateTable, useUpdateTable } from './tableQueries.ts'
+import { VenueSeatedWarning } from './VenueSeatedWarning.tsx'
 
 const DEFAULT_CAPACITY = 10
 
@@ -42,6 +44,11 @@ interface TableDialogProps {
   editing?: SeatedTable | null
   /** Offered while editing: asks to delete the table (D105). */
   onDelete?: (item: SeatedTable) => void
+  /**
+   * The venue's side of a venue event (D122): the client's parties at the
+   * table being edited, and who is told when it gets too few chairs.
+   */
+  venue?: { parties: readonly Guest[]; clientName: string | null } | null
 }
 
 function isInRange(value: number, range: { min: number; max: number }) {
@@ -55,6 +62,7 @@ function TableForm({
   editing,
   onDelete,
   onClose,
+  venue = null,
 }: Omit<TableDialogProps, 'open'>) {
   const { t } = useTranslation()
   const format = useFormatters()
@@ -83,6 +91,18 @@ function TableForm({
   const isSaving = saver ? saver.saving : create.isPending || update.isPending
   const chairs = toInteger(capacity)
   const seated = editing?.assigned ?? 0
+  const [acknowledged, setAcknowledged] = useState(false)
+  const [note, setNote] = useState('')
+  // Fewer chairs than before for the client's seated guests (D122): they
+  // stay, and the venue says it understood.
+  const overNow = Math.max(0, seated - (editing?.table.capacity ?? 0))
+  const venueWarning =
+    venue !== null &&
+    editing !== null &&
+    editing !== undefined &&
+    Number.isInteger(chairs) &&
+    chairs >= 1 &&
+    seated - chairs > overNow
 
   function fail(error: unknown) {
     if (isDomainError(error, 'DUPLICATE_TABLE_NUMBER')) {
@@ -114,9 +134,16 @@ function TableForm({
       onSuccess: () => {
         showToast({
           tone: 'success' as const,
-          message: t(editing ? 'layout.form.saved' : 'layout.form.added', {
-            number: format.number(input.number),
-          }),
+          message: venueWarning
+            ? t('layout.venueWarning.shrink.done', {
+                number: format.number(input.number),
+                chairs: format.number(input.capacity),
+                people: format.number(seated),
+                client: venue.clientName ?? t('venueDashboard.theClient'),
+              })
+            : t(editing ? 'layout.form.saved' : 'layout.form.added', {
+                number: format.number(input.number),
+              }),
         })
         onClose()
       },
@@ -127,7 +154,16 @@ function TableForm({
         .save(input, editing?.table.id ?? null)
         .then(options.onSuccess, options.onError)
     } else if (editing) {
-      update.mutate({ tableId: editing.table.id, input }, options)
+      update.mutate(
+        {
+          tableId: editing.table.id,
+          input,
+          options: venueWarning
+            ? { acknowledgeSeated: acknowledged, note }
+            : undefined,
+        },
+        options,
+      )
     } else {
       create.mutate(input, options)
     }
@@ -192,14 +228,30 @@ function TableForm({
           </option>
         ))}
       </SelectField>
-      {Number.isInteger(chairs) && chairs >= 1 && chairs < seated && (
-        <Notice tone="warning" title={t('layout.form.belowSeated.title')}>
-          {t('layout.form.belowSeated.body', {
-            seated: format.number(seated),
-            over: format.number(seated - chairs),
-          })}
-        </Notice>
+      {venueWarning && editing && (
+        <VenueSeatedWarning
+          kind="shrink"
+          tableNumber={toInteger(number) || editing.table.number}
+          parties={venue.parties}
+          chairsAfter={chairs}
+          clientName={venue.clientName}
+          acknowledged={acknowledged}
+          onAcknowledge={setAcknowledged}
+          note={note}
+          onNote={setNote}
+        />
       )}
+      {!venueWarning &&
+        Number.isInteger(chairs) &&
+        chairs >= 1 &&
+        chairs < seated && (
+          <Notice tone="warning" title={t('layout.form.belowSeated.title')}>
+            {t('layout.form.belowSeated.body', {
+              seated: format.number(seated),
+              over: format.number(seated - chairs),
+            })}
+          </Notice>
+        )}
       <div className={formStyles.formActions}>
         {editing && onDelete && (
           <Button
@@ -214,7 +266,11 @@ function TableForm({
         <Button variant="ghost" onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" loading={isSaving}>
+        <Button
+          type="submit"
+          loading={isSaving}
+          disabled={venueWarning && !acknowledged}
+        >
           {t(editing ? 'layout.form.save' : 'layout.form.add')}
         </Button>
       </div>

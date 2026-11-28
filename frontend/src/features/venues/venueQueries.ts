@@ -3,6 +3,7 @@ import type {
   SpaceDetails,
   ClientInvitationView,
   ClientTeamView,
+  VenueNoticeView,
   TemplateDetails,
   VenueEventPeople,
   SpaceSummary,
@@ -33,6 +34,8 @@ export const venueKeys = {
   ],
   clientInvitation: (token: string) => ['venues', 'client-invitations', token],
   clientTeam: (eventId: string) => ['venues', 'client-team', eventId],
+  /** An event's venue changes, or (no event) the user's client-side ones. */
+  notices: (eventId: string | null) => ['venues', 'notices', eventId ?? 'mine'],
   template: (organizationId: string, templateId: string) => [
     'venues',
     organizationId,
@@ -188,5 +191,23 @@ export function useClientTeam(eventId: string): UseQueryResult<ClientTeamView> {
       return venues.getClientTeam(eventId)
     },
     enabled: venues !== null,
+  })
+}
+
+/**
+ * The venue's changes (D122): one event's, or every one the user's client
+ * side should see. Off without venues, or when `enabled` is false.
+ */
+export function useVenueNotices(
+  eventId: string | null,
+  enabled = true,
+): UseQueryResult<VenueNoticeView[]> {
+  const { venues } = useServices()
+  return useQuery({
+    queryKey: venueKeys.notices(eventId),
+    queryFn: () => venues?.listNotices(eventId ?? undefined) ?? [],
+    enabled: venues !== null && enabled,
+    // Like the bell's own notices: the client side may change it meanwhile.
+    refetchInterval: 60_000,
   })
 }

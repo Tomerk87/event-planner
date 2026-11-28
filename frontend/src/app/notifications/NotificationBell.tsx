@@ -7,6 +7,10 @@ import { useFormatters } from '../../i18n/format.ts'
 import { isolate } from '../../shared/ltr.ts'
 import { cx } from '../../shared/ui/cx.ts'
 import { Popover } from '../../shared/ui/Popover.tsx'
+import { useServices } from '../../services/servicesContext.ts'
+import { useMarkNoticesRead } from '../../features/venues/venueMutations.ts'
+import { useVenueNotices } from '../../features/venues/venueQueries.ts'
+import { useVenueNoticeText } from '../../features/venues/venueNoticeText.ts'
 import styles from './NotificationBell.module.css'
 import {
   useMarkNotificationsRead,
@@ -40,7 +44,17 @@ export function NotificationBell() {
   const notifications = useNotifications()
   const markRead = useMarkNotificationsRead()
   const items = notifications.data?.items ?? []
-  const unread = notifications.data?.unread ?? 0
+  // The venue's changes, for a client (D122): an action counts until it is
+  // done, news until it is read.
+  const { venues } = useServices()
+  const venueNotices = useVenueNotices(null, venues !== null)
+  const markVenueRead = useMarkNoticesRead()
+  const venueText = useVenueNoticeText()
+  const venueItems = (venueNotices.data ?? []).filter((notice) => notice.open)
+  const unread =
+    (notifications.data?.unread ?? 0) +
+    venueItems.filter((notice) => notice.severity === 'ACTION' || !notice.read)
+      .length
 
   function textOf(notice: AccountNotification): string {
     // Names keep their own direction inside a sentence of the other one.
@@ -93,13 +107,59 @@ export function NotificationBell() {
               <button
                 type="button"
                 className={styles.markAll}
-                onClick={() => markRead.mutate(undefined)}
+                onClick={() => {
+                  markRead.mutate(undefined)
+                  if (venueItems.length > 0) {
+                    markVenueRead.mutate(venueItems.map((notice) => notice.id))
+                  }
+                }}
               >
                 {t('notifications.markAll')}
               </button>
             )}
           </div>
-          {notifications.data === undefined ? null : items.length === 0 ? (
+          {venueItems.length > 0 && (
+            <ul className={styles.list} aria-label={t('venueNotices.label')}>
+              {venueItems.map((notice) => {
+                const text = venueText(notice)
+                const action = notice.severity === 'ACTION'
+                return (
+                  <li
+                    key={notice.id}
+                    className={cx(
+                      styles.item,
+                      action ? styles.action : !notice.read && styles.unread,
+                    )}
+                  >
+                    <Link
+                      to={text.href}
+                      className={styles.link}
+                      onClick={() => {
+                        if (!notice.read) {
+                          markVenueRead.mutate([notice.id])
+                        }
+                        close()
+                      }}
+                    >
+                      {action && (
+                        <span className={styles.actionLabel}>
+                          {t('venueNotices.actionNeeded')}
+                        </span>
+                      )}
+                      <span className={styles.text}>
+                        <strong>{text.title}</strong> {text.body}
+                      </span>
+                      <time className={styles.time} dateTime={notice.createdAt}>
+                        {when(new Date(notice.createdAt))}
+                      </time>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+          {notifications.data === undefined ? null : items.length === 0 &&
+            venueItems.length === 0 ? (
             <p className={styles.empty}>{t('notifications.empty')}</p>
           ) : (
             <ul className={styles.list}>

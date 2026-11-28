@@ -18,6 +18,7 @@ import type {
   ClientTeamMember,
   LayoutTemplate,
   VenueEvent,
+  VenueNotice,
   VenueMember,
   VenueMemberInvitation,
   VenueOrganization,
@@ -77,6 +78,8 @@ export interface DemoState {
   /** V2.2: the client side of each venue-managed event (D113). */
   clientTeam?: ClientTeamMember[]
   clientTeamInvitations?: ClientTeamInvitation[]
+  /** V2.2 (D122): what the venue changed under the client. */
+  venueNotices?: VenueNotice[]
 }
 
 export interface StoredDemo {

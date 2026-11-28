@@ -32,7 +32,8 @@ import {
   type RsvpSegment,
 } from '../../domain/metrics.ts'
 import { useFormatters } from '../../i18n/format.ts'
-import { isVenueSide } from '../../domain/roles.ts'
+import { isClientSide, isVenueSide } from '../../domain/roles.ts'
+import { ClientNoticeBanners } from '../venues/ClientNoticeBanners.tsx'
 import { useSeatingExport } from '../event-layout/useSeatingExport.ts'
 import { VenueStatusBadge } from '../venues/VenueEventCard.tsx'
 import { useSeatingNotice } from './useSeatingNotice.ts'
@@ -765,6 +766,9 @@ export function DashboardPage() {
       />
       {info.data?.venue && (
         <VenueEventMeta info={info.data} venue={info.data.venue} />
+      )}
+      {info.data?.venue && isClientSide(info.data.role) && (
+        <ClientNoticeBanners eventId={eventId} place="dashboard" />
       )}
       {dashboard.isError ? (
         <Card>
